@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Header from './components/Header';
 import Footer from './components/Footer';
 import SuccessModal from './components/SuccessModal';
+import SupportWidget from './components/SupportWidget';
 
 // Multi-Page Routes
 import Home from './pages/Home';
@@ -117,6 +118,9 @@ export default function App() {
             />
           </Routes>
         </main>
+
+        {/* Floating Support Widget for Vendor Assistance */}
+        <SupportWidget />
 
         {/* Footer */}
         <Footer />
