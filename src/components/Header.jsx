@@ -1,17 +1,18 @@
 import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import Logo from './Logo';
-import { Sun, Moon, Search, ExternalLink, HelpCircle } from 'lucide-react';
+import { Sun, Moon, Search, ExternalLink, HelpCircle, FileText, Database, PlusCircle } from 'lucide-react';
 
-export default function Header({ isDark, toggleTheme, onOpenStatusModal, onOpenGuideModal }) {
+export default function Header({ isDark, toggleTheme }) {
   return (
     <header className="header-navbar">
       <div className="header-inner">
         
         {/* Left: Logo & Subdomain Badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <a href="#" style={{ textDecoration: 'none' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
             <Logo height={44} />
-          </a>
+          </Link>
           <div className="subdomain-pill">
             <span className="status-dot"></span>
             <span>empanel.hindustanprojects.in</span>
@@ -20,29 +21,33 @@ export default function Header({ isDark, toggleTheme, onOpenStatusModal, onOpenG
 
         {/* Right Nav Options */}
         <div className="nav-actions">
-          <button onClick={onOpenStatusModal} className="btn-icon-text">
+          <NavLink 
+            to="/apply" 
+            className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}
+            style={{ backgroundColor: '#0047AB', color: 'white', border: 'none' }}
+          >
+            <PlusCircle style={{ width: 16, height: 16 }} />
+            <span>Empanelment Form</span>
+          </NavLink>
+
+          <NavLink to="/track" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
             <Search style={{ width: 16, height: 16, color: '#0047AB' }} />
             <span>Track Status</span>
-          </button>
+          </NavLink>
 
-          <button onClick={onOpenGuideModal} className="btn-icon-text">
+          <NavLink to="/guidelines" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
             <HelpCircle style={{ width: 16, height: 16, color: '#64748B' }} />
-            <span>Guide & Checklist</span>
-          </button>
+            <span>Guidelines</span>
+          </NavLink>
+
+          <NavLink to="/admin" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
+            <Database style={{ width: 16, height: 16, color: '#10B981' }} />
+            <span>Admin</span>
+          </NavLink>
 
           <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">
             {isDark ? <Sun style={{ width: 18, height: 18, color: '#F59E0B' }} /> : <Moon style={{ width: 18, height: 18, color: '#475569' }} />}
           </button>
-
-          <a
-            href="https://hindustanprojects.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', textDecoration: 'none', marginLeft: '0.5rem' }}
-          >
-            <span>Main Site</span>
-            <ExternalLink style={{ width: 14, height: 14 }} />
-          </a>
         </div>
 
       </div>

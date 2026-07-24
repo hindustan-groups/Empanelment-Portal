@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Header from './components/Header';
-import HeroSection from './components/HeroSection';
-import EligibilityCalculator from './components/EligibilityCalculator';
-import ActiveTenders from './components/ActiveTenders';
-import EmpanelmentForm from './components/EmpanelmentForm';
-import StatusModal from './components/StatusModal';
-import GuideModal from './components/GuideModal';
-import SuccessModal from './components/SuccessModal';
-import AdminDrawer from './components/AdminDrawer';
 import Footer from './components/Footer';
-import { Database, Sparkles } from 'lucide-react';
+import SuccessModal from './components/SuccessModal';
+
+// Multi-Page Routes
+import Home from './pages/Home';
+import ApplyPage from './pages/ApplyPage';
+import TrackPage from './pages/TrackPage';
+import GuidelinesPage from './pages/GuidelinesPage';
+import AdminPage from './pages/AdminPage';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('civil');
-  
-  // Modals state
-  const [isStatusOpen, setIsStatusOpen] = useState(false);
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-
   const [submittedId, setSubmittedId] = useState('');
   const [lastSubmittedData, setLastSubmittedData] = useState(null);
 
@@ -36,13 +31,6 @@ export default function App() {
     setIsDark(prev => !prev);
   };
 
-  const handleStartForm = () => {
-    const el = document.getElementById('empanelment-form-container');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const handleFormSubmit = (formData, customTrackingId) => {
     const randomCode = Math.floor(100000 + Math.random() * 900000);
     const trackingCode = customTrackingId || `HP-EMP-${randomCode}`;
@@ -53,93 +41,58 @@ export default function App() {
   };
 
   return (
-    <div className="app-container">
-      
-      {/* Header Navigation */}
-      <Header 
-        isDark={isDark} 
-        toggleTheme={toggleTheme}
-        onOpenStatusModal={() => setIsStatusOpen(true)}
-        onOpenGuideModal={() => setIsGuideOpen(true)}
-      />
-
-      {/* Main Content Area */}
-      <main className="main-content">
+    <Router>
+      <div className="app-container">
         
-        {/* Admin Bar Trigger for Hindustan Projects Team */}
-        <div style={{ backgroundColor: '#0F172A', color: 'white', padding: '0.4rem 1.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span>🏢 <strong>Hindustan Projects Corporate Portal</strong> — Head Office & Pan-India Procurements</span>
-          <button
-            onClick={() => setIsAdminOpen(true)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'none', border: 'none', color: '#60A5FA', fontWeight: 700, cursor: 'pointer', fontSize: '0.75rem' }}
-          >
-            <Database style={{ width: 14, height: 14 }} />
-            <span>Procurement Admin Records</span>
-          </button>
-        </div>
-
-        {/* Hero Section */}
-        <HeroSection 
-          selectedCategory={selectedCategory} 
-          setSelectedCategory={setSelectedCategory}
-          onStartForm={handleStartForm}
+        {/* Top Navbar */}
+        <Header 
+          isDark={isDark} 
+          toggleTheme={toggleTheme}
         />
 
-        {/* PRO Feature 1: Vendor Tier & Score Calculator */}
-        <EligibilityCalculator 
-          onApplyCategory={handleStartForm} 
-        />
+        {/* Main Route Content */}
+        <main className="main-content">
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <Home 
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={setSelectedCategory}
+                />
+              } 
+            />
 
-        {/* 5-Step Empanelment Form */}
-        <EmpanelmentForm 
-          category={selectedCategory}
-          onFormSubmit={handleFormSubmit}
-        />
+            <Route 
+              path="/apply" 
+              element={
+                <ApplyPage 
+                  selectedCategory={selectedCategory}
+                  onFormSubmit={handleFormSubmit}
+                />
+              } 
+            />
 
-        {/* PRO Feature 2: Active Tenders Opportunity Radar */}
-        <ActiveTenders 
-          onEmpanelCategory={(cat) => {
-            setSelectedCategory(cat);
-            handleStartForm();
-          }} 
-        />
+            <Route path="/track" element={<TrackPage />} />
+            <Route path="/guidelines" element={<GuidelinesPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+          </Routes>
+        </main>
 
-      </main>
+        {/* Footer */}
+        <Footer />
 
-      {/* Footer - Page Ends Here Cleanly */}
-      <Footer />
+        {/* Success Modal Confirmation */}
+        {isSuccessOpen && (
+          <SuccessModal 
+            isOpen={isSuccessOpen}
+            trackingId={submittedId}
+            formData={lastSubmittedData}
+            onClose={() => setIsSuccessOpen(false)}
+          />
+        )}
 
-      {/* Modals - Only Render When Triggered */}
-      {isStatusOpen && (
-        <StatusModal 
-          isOpen={isStatusOpen} 
-          onClose={() => setIsStatusOpen(false)} 
-        />
-      )}
-
-      {isGuideOpen && (
-        <GuideModal 
-          isOpen={isGuideOpen} 
-          onClose={() => setIsGuideOpen(false)} 
-        />
-      )}
-
-      {isSuccessOpen && (
-        <SuccessModal 
-          isOpen={isSuccessOpen}
-          trackingId={submittedId}
-          formData={lastSubmittedData}
-          onClose={() => setIsSuccessOpen(false)}
-        />
-      )}
-
-      {isAdminOpen && (
-        <AdminDrawer
-          isOpen={isAdminOpen}
-          onClose={() => setIsAdminOpen(false)}
-        />
-      )}
-
-    </div>
+      </div>
+    </Router>
   );
 }
