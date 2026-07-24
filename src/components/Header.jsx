@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import Logo from './Logo';
-import { Sun, Moon, Search, ExternalLink, HelpCircle, FileText, Database, PlusCircle } from 'lucide-react';
+import { Sun, Moon, Search, ExternalLink, HelpCircle, PlusCircle } from 'lucide-react';
 
 export default function Header({ isDark, toggleTheme }) {
   return (
@@ -19,7 +19,7 @@ export default function Header({ isDark, toggleTheme }) {
           </div>
         </div>
 
-        {/* Right Nav Options */}
+        {/* Right Nav Options - PUBLIC VENDOR LINKS ONLY */}
         <div className="nav-actions">
           <NavLink 
             to="/apply" 
@@ -38,11 +38,6 @@ export default function Header({ isDark, toggleTheme }) {
           <NavLink to="/guidelines" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
             <HelpCircle style={{ width: 16, height: 16, color: '#64748B' }} />
             <span>Guidelines</span>
-          </NavLink>
-
-          <NavLink to="/admin" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
-            <Database style={{ width: 16, height: 16, color: '#10B981' }} />
-            <span>Admin</span>
           </NavLink>
 
           <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">

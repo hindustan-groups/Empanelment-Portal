@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -11,6 +11,7 @@ import ApplyPage from './pages/ApplyPage';
 import TrackPage from './pages/TrackPage';
 import GuidelinesPage from './pages/GuidelinesPage';
 import AdminPage from './pages/AdminPage';
+import AdminLoginPage from './pages/AdminLoginPage';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -18,6 +19,11 @@ export default function App() {
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
   const [lastSubmittedData, setLastSubmittedData] = useState(null);
+
+  // Admin Auth State
+  const [isAdminAuth, setIsAdminAuth] = useState(() => {
+    return localStorage.getItem('hipro_admin_session') === 'true';
+  });
 
   useEffect(() => {
     if (isDark) {
@@ -29,6 +35,16 @@ export default function App() {
 
   const toggleTheme = () => {
     setIsDark(prev => !prev);
+  };
+
+  const handleAdminLogin = () => {
+    setIsAdminAuth(true);
+    localStorage.setItem('hipro_admin_session', 'true');
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminAuth(false);
+    localStorage.removeItem('hipro_admin_session');
   };
 
   const handleFormSubmit = (formData, customTrackingId) => {
@@ -44,7 +60,7 @@ export default function App() {
     <Router>
       <div className="app-container">
         
-        {/* Top Navbar */}
+        {/* Top Public Navbar */}
         <Header 
           isDark={isDark} 
           toggleTheme={toggleTheme}
@@ -75,7 +91,30 @@ export default function App() {
 
             <Route path="/track" element={<TrackPage />} />
             <Route path="/guidelines" element={<GuidelinesPage />} />
-            <Route path="/admin" element={<AdminPage />} />
+            
+            {/* Protected Admin Routes */}
+            <Route 
+              path="/admin-login" 
+              element={
+                <AdminLoginPage 
+                  onLoginSuccess={handleAdminLogin} 
+                />
+              } 
+            />
+
+            <Route 
+              path="/admin" 
+              element={
+                isAdminAuth ? (
+                  <AdminPage 
+                    isAuthenticated={isAdminAuth} 
+                    onLogout={handleAdminLogout} 
+                  />
+                ) : (
+                  <Navigate to="/admin-login" replace />
+                )
+              } 
+            />
           </Routes>
         </main>
 

@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Database, RefreshCw, Download, Search, CheckCircle, Clock, ShieldCheck, Filter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Database, RefreshCw, LogOut, ShieldCheck, Search, Filter } from 'lucide-react';
 
-export default function AdminPage() {
+export default function AdminPage({ isAuthenticated, onLogout }) {
+  const navigate = useNavigate();
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/admin-login');
+      return;
+    }
     fetchVendors();
-  }, []);
+  }, [isAuthenticated, navigate]);
 
   const fetchVendors = async () => {
     setLoading(true);
@@ -59,6 +65,8 @@ export default function AdminPage() {
     }
   };
 
+  if (!isAuthenticated) return null;
+
   const filteredVendors = vendors.filter(v => {
     const matchesSearch = v.company_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           v.tracking_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -78,14 +86,20 @@ export default function AdminPage() {
             </div>
             <div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Corporate Procurement Admin Dashboard</h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Hindustan Projects VPS Database • Vendor Verification Portal</p>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Hindustan Projects VPS Database • Protected Session</p>
             </div>
           </div>
 
-          <button onClick={fetchVendors} className="btn-secondary">
-            <RefreshCw style={{ width: 16, height: 16 }} className={loading ? 'animate-spin' : ''} />
-            <span>Refresh Database</span>
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={fetchVendors} className="btn-secondary">
+              <RefreshCw style={{ width: 16, height: 16 }} className={loading ? 'animate-spin' : ''} />
+              <span>Refresh</span>
+            </button>
+            <button onClick={onLogout} className="btn-secondary" style={{ color: '#ED1C24', borderColor: 'rgba(237, 28, 36, 0.3)' }}>
+              <LogOut style={{ width: 16, height: 16 }} />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
 
         {/* Filter Controls */}

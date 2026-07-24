@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Logo from './Logo';
-import { Mail, Phone, MapPin, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, Lock } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -21,9 +22,10 @@ export default function Footer() {
         <div>
           <h4 style={{ color: 'white', fontSize: '0.85rem', textTransform: 'uppercase', marginBottom: '1rem', letterSpacing: '0.05em' }}>Quick Links</h4>
           <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
-            <li><a href="#empanelment-form-container" style={{ color: '#94A3B8', textDecoration: 'none' }}>Submit Application</a></li>
+            <li><Link to="/apply" style={{ color: '#94A3B8', textDecoration: 'none' }}>Submit Application</Link></li>
+            <li><Link to="/track" style={{ color: '#94A3B8', textDecoration: 'none' }}>Track Application Status</Link></li>
+            <li><Link to="/guidelines" style={{ color: '#94A3B8', textDecoration: 'none' }}>Empanelment Guidelines</Link></li>
             <li><a href="https://hindustanprojects.in" target="_blank" rel="noreferrer" style={{ color: '#94A3B8', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><span>Hindustan Projects Main Site</span> <ExternalLink style={{ width: 12, height: 12 }} /></a></li>
-            <li><a href="https://github.com/hindustan-groups/Empanelment-Portal" target="_blank" rel="noreferrer" style={{ color: '#94A3B8', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><span>Git Repository</span> <ExternalLink style={{ width: 12, height: 12 }} /></a></li>
           </ul>
         </div>
 
@@ -47,8 +49,16 @@ export default function Footer() {
 
       </div>
 
-      <div className="footer-bottom">
-        © {new Date().getFullYear()} <strong>Hindustan Projects</strong>. All Rights Reserved. | Designed for empanel.hindustanprojects.in
+      <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div>
+          © {new Date().getFullYear()} <strong>Hindustan Projects</strong>. All Rights Reserved. | Designed for empanel.hindustanprojects.in
+        </div>
+        <div>
+          <Link to="/admin-login" style={{ color: '#64748B', fontSize: '0.75rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+            <Lock style={{ width: 12, height: 12 }} />
+            <span>Corporate Officer Login</span>
+          </Link>
+        </div>
       </div>
     </footer>
   );
