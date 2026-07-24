@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { CheckCircle2, Copy, Download, ExternalLink, ShieldCheck, Home } from 'lucide-react';
+import { CheckCircle2, Copy, Download, Home } from 'lucide-react';
 import Logo from './Logo';
 
 export default function SuccessModal({ isOpen, trackingId, formData, onClose }) {
@@ -27,64 +27,61 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-8 shadow-2xl relative text-center overflow-hidden">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-content" style={{ maxWidth: 520, textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
         
-        {/* Top Decorative Bar */}
-        <div className="h-3 bg-gradient-to-r from-[#ED1C24] via-[#0047AB] to-[#ED1C24] absolute top-0 left-0 right-0"></div>
-
-        <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4 ring-8 ring-emerald-50 dark:ring-emerald-900/30">
-          <CheckCircle2 className="w-10 h-10" />
+        <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+          <CheckCircle2 style={{ width: 32, height: 32 }} />
         </div>
 
-        <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2">
+        <h3 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '0.5rem' }}>
           Empanelment Filed Successfully!
         </h3>
-        <p className="text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto mb-6">
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
           Your vendor application has been logged into the <strong>Hindustan Projects</strong> procurement database.
         </p>
 
         {/* Tracking ID Badge */}
-        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 max-w-sm mx-auto mb-6">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Empanelment Reference Code</div>
-          <div className="flex items-center justify-center gap-3">
-            <span className="text-xl sm:text-2xl font-black text-[#0047AB] dark:text-blue-400 tracking-wider font-mono">
+        <div style={{ padding: '0.85rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', marginBottom: '1.25rem' }}>
+          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Empanelment Reference Code</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyCenter: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0047AB', fontFamily: 'monospace' }}>
               {trackingId}
             </span>
             <button
               onClick={copyTrackingId}
               title="Copy Reference Code"
-              className="p-1.5 rounded-lg bg-white dark:bg-slate-700 hover:bg-slate-100 text-slate-600 dark:text-slate-200 shadow-sm border border-slate-200 dark:border-slate-600 transition-colors"
+              style={{ padding: '0.35rem', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)', cursor: 'pointer' }}
             >
-              <Copy className="w-4 h-4" />
+              <Copy style={{ width: 14, height: 14 }} />
             </button>
           </div>
         </div>
 
         {/* Details Summary */}
-        <div className="text-left p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 text-xs sm:text-sm space-y-2 mb-6 border border-slate-200 dark:border-slate-700">
-          <div className="flex justify-between">
-            <span className="text-slate-500">Applicant Organization:</span>
-            <span className="font-bold text-slate-900 dark:text-white">{formData?.companyName}</span>
+        <div style={{ textAlign: 'left', padding: '0.85rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: 'var(--text-muted)' }}>Organization:</span>
+            <strong>{formData?.companyName}</strong>
           </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500">GSTIN:</span>
-            <span className="font-bold text-slate-900 dark:text-white uppercase">{formData?.gstin}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: 'var(--text-muted)' }}>GSTIN:</span>
+            <strong style={{ textTransform: 'uppercase' }}>{formData?.gstin}</strong>
           </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500">Target Domain:</span>
-            <span className="font-bold text-blue-600 dark:text-blue-400">empanel.hindustanprojects.in</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: 'var(--text-muted)' }}>Subdomain:</span>
+            <strong style={{ color: '#0047AB' }}>empanel.hindustanprojects.in</strong>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button onClick={handlePrint} className="btn-secondary w-full sm:w-auto">
-            <Download className="w-4 h-4" />
-            <span>Download PDF Copy</span>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyCenter: 'center' }}>
+          <button onClick={handlePrint} className="btn-secondary" style={{ flex: 1 }}>
+            <Download style={{ width: 14, height: 14 }} />
+            <span>Download PDF</span>
           </button>
           
-          <button onClick={onClose} className="btn-primary w-full sm:w-auto">
-            <Home className="w-4 h-4" />
+          <button onClick={onClose} className="btn-primary" style={{ flex: 1 }}>
+            <Home style={{ width: 14, height: 14 }} />
             <span>Return to Portal</span>
           </button>
         </div>

@@ -5,21 +5,24 @@ import EmpanelmentForm from './components/EmpanelmentForm';
 import StatusModal from './components/StatusModal';
 import GuideModal from './components/GuideModal';
 import SuccessModal from './components/SuccessModal';
+import AdminDrawer from './components/AdminDrawer';
 import Footer from './components/Footer';
+import { Database } from 'lucide-react';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('civil');
   
-  // Modals
+  // Modals state
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+
   const [submittedId, setSubmittedId] = useState('');
   const [lastSubmittedData, setLastSubmittedData] = useState(null);
 
   useEffect(() => {
-    // Sync dark class on root document
     if (isDark) {
       document.documentElement.classList.add('dark');
     } else {
@@ -38,10 +41,9 @@ export default function App() {
     }
   };
 
-  const handleFormSubmit = (formData) => {
-    // Generate unique Tracking ID e.g. HP-EMP-938210
+  const handleFormSubmit = (formData, customTrackingId) => {
     const randomCode = Math.floor(100000 + Math.random() * 900000);
-    const trackingCode = `HP-EMP-${randomCode}`;
+    const trackingCode = customTrackingId || `HP-EMP-${randomCode}`;
     
     setSubmittedId(trackingCode);
     setLastSubmittedData(formData);
@@ -49,9 +51,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col transition-colors duration-200">
+    <div className="app-container">
       
-      {/* Navbar */}
+      {/* Header Navigation */}
       <Header 
         isDark={isDark} 
         toggleTheme={toggleTheme}
@@ -59,41 +61,68 @@ export default function App() {
         onOpenGuideModal={() => setIsGuideOpen(true)}
       />
 
-      {/* Main Hero & Category Filter */}
-      <main className="flex-1">
+      {/* Main Content Area */}
+      <main className="main-content">
+        
+        {/* Admin Bar Trigger for Hindustan Projects Team */}
+        <div style={{ backgroundColor: '#0F172A', color: 'white', padding: '0.4rem 1.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>🏢 <strong>Hindustan Projects Corporate Portal</strong> — Head Office & Pan-India Procurements</span>
+          <button
+            onClick={() => setIsAdminOpen(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'none', border: 'none', color: '#60A5FA', fontWeight: 700, cursor: 'pointer', fontSize: '0.75rem' }}
+          >
+            <Database style={{ width: 14, height: 14 }} />
+            <span>Procurement Admin Records</span>
+          </button>
+        </div>
+
+        {/* Hero Section */}
         <HeroSection 
           selectedCategory={selectedCategory} 
           setSelectedCategory={setSelectedCategory}
           onStartForm={handleStartForm}
         />
 
-        {/* Dynamic Multi-step Form */}
+        {/* 5-Step Empanelment Form */}
         <EmpanelmentForm 
           category={selectedCategory}
           onFormSubmit={handleFormSubmit}
         />
       </main>
 
-      {/* Footer */}
+      {/* Footer - Page Ends Here Cleanly */}
       <Footer />
 
-      {/* Interactive Modals */}
-      <StatusModal 
-        isOpen={isStatusOpen} 
-        onClose={() => setIsStatusOpen(false)} 
-      />
+      {/* Modals - Only Render When Triggered (No DOM Overflow) */}
+      {isStatusOpen && (
+        <StatusModal 
+          isOpen={isStatusOpen} 
+          onClose={() => setIsStatusOpen(false)} 
+        />
+      )}
 
-      <GuideModal 
-        isOpen={isGuideOpen} 
-        onClose={() => setIsGuideOpen(false)} 
-      />
+      {isGuideOpen && (
+        <GuideModal 
+          isOpen={isGuideOpen} 
+          onClose={() => setIsGuideOpen(false)} 
+        />
+      )}
 
-      <SuccessModal 
-        isOpen={isSuccessOpen}
-        trackingId={submittedId}
-        formData={lastSubmittedData}
-        onClose={() => setIsSuccessOpen(false)}
-      />
+      {isSuccessOpen && (
+        <SuccessModal 
+          isOpen={isSuccessOpen}
+          trackingId={submittedId}
+          formData={lastSubmittedData}
+          onClose={() => setIsSuccessOpen(false)}
+        />
+      )}
+
+      {isAdminOpen && (
+        <AdminDrawer
+          isOpen={isAdminOpen}
+          onClose={() => setIsAdminOpen(false)}
+        />
+      )}
 
     </div>
   );

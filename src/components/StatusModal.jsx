@@ -7,6 +7,7 @@ export default function StatusModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  // Return null if modal is closed - ensures NO DOM text leaks below footer
   if (!isOpen) return null;
 
   const handleSearch = async (e) => {
@@ -42,7 +43,7 @@ export default function StatusModal({ isOpen, onClose }) {
         setErrorMsg(data.error || 'Reference ID not found in database');
       }
     } catch (err) {
-      console.warn('API error, using local simulation:', err);
+      // Offline simulation fallback
       setResult({
         id: trackingId.toUpperCase(),
         company: 'Applicant Entity',
@@ -63,71 +64,75 @@ export default function StatusModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative overflow-hidden">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+          style={{ position: 'absolute', top: 16, right: 16, border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
         >
-          <X className="w-5 h-5" />
+          <X style={{ width: 20, height: 20 }} />
         </button>
 
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950 text-[#0047AB]">
-            <Search className="w-5 h-5" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          <div style={{ padding: '0.6rem', borderRadius: 10, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB' }}>
+            <Search style={{ width: 22, height: 22 }} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Track Empanelment Status</h3>
-            <p className="text-xs text-slate-500">Enter your Reference Tracking Code (e.g. HP-EMP-849201)</p>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Track Empanelment Status</h3>
+            <p style={{ fontSize: '0.775rem', color: 'var(--text-muted)' }}>Enter your Reference Code (e.g. HP-EMP-849201)</p>
           </div>
         </div>
 
-        <form onSubmit={handleSearch} className="mb-6">
-          <div className="flex gap-2">
+        <form onSubmit={handleSearch} style={{ marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input
               type="text"
               value={trackingId}
               onChange={(e) => setTrackingId(e.target.value)}
               placeholder="e.g. HP-EMP-849201"
-              className="form-input uppercase"
+              className="form-input"
+              style={{ textTransform: 'uppercase' }}
             />
-            <button type="submit" disabled={loading} className="btn-primary py-2 px-4 whitespace-nowrap">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Search'}
+            <button type="submit" disabled={loading} className="btn-primary" style={{ whiteSpace: 'nowrap' }}>
+              {loading ? <Loader2 style={{ width: 16, height: 16 }} className="animate-spin" /> : 'Search'}
             </button>
           </div>
         </form>
 
         {errorMsg && (
-          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-600 text-xs font-bold mb-4">
+          <div style={{ padding: '0.75rem', borderRadius: 8, backgroundColor: 'rgba(237, 28, 36, 0.1)', color: '#ED1C24', fontSize: '0.8rem', fontWeight: 600, marginBottom: '1rem' }}>
             {errorMsg}
           </div>
         )}
 
         {result && (
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-4 animate-fade-in">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
+          <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-color)', marginBottom: '0.75rem' }}>
               <div>
-                <span className="text-[11px] font-bold text-[#0047AB] dark:text-blue-400 uppercase tracking-wider">{result.id}</span>
-                <h4 className="font-bold text-sm text-slate-900 dark:text-white">{result.company}</h4>
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase' }}>{result.id}</span>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>{result.company}</h4>
               </div>
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
+              <span style={{ padding: '0.25rem 0.65rem', borderRadius: 9999, fontSize: '0.75rem', fontWeight: 700, backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#D97706' }}>
                 {result.status}
               </span>
             </div>
 
-            <div className="space-y-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {result.steps.map((st, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                    st.done ? 'bg-emerald-500 text-white' : st.active ? 'bg-blue-600 text-white animate-pulse' : 'bg-slate-300 dark:bg-slate-700 text-slate-600'
-                  }`}>
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{
+                    width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyCenter: 'center',
+                    fontSize: '0.75rem', fontWeight: 700,
+                    backgroundColor: st.done ? '#10B981' : st.active ? '#0047AB' : 'var(--border-color)',
+                    color: 'white'
+                  }}>
                     {st.done ? '✓' : idx + 1}
                   </div>
-                  <div className="flex-1">
-                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">{st.label}</div>
-                    <div className="text-[11px] text-slate-500">{st.date}</div>
+                  <div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>{st.label}</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{st.date}</div>
                   </div>
                 </div>
               ))}
