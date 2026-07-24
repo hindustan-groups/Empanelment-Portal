@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
+import EligibilityCalculator from './components/EligibilityCalculator';
+import ActiveTenders from './components/ActiveTenders';
 import EmpanelmentForm from './components/EmpanelmentForm';
 import StatusModal from './components/StatusModal';
 import GuideModal from './components/GuideModal';
 import SuccessModal from './components/SuccessModal';
 import AdminDrawer from './components/AdminDrawer';
 import Footer from './components/Footer';
-import { Database } from 'lucide-react';
+import { Database, Sparkles } from 'lucide-react';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -83,17 +85,31 @@ export default function App() {
           onStartForm={handleStartForm}
         />
 
+        {/* PRO Feature 1: Vendor Tier & Score Calculator */}
+        <EligibilityCalculator 
+          onApplyCategory={handleStartForm} 
+        />
+
         {/* 5-Step Empanelment Form */}
         <EmpanelmentForm 
           category={selectedCategory}
           onFormSubmit={handleFormSubmit}
         />
+
+        {/* PRO Feature 2: Active Tenders Opportunity Radar */}
+        <ActiveTenders 
+          onEmpanelCategory={(cat) => {
+            setSelectedCategory(cat);
+            handleStartForm();
+          }} 
+        />
+
       </main>
 
       {/* Footer - Page Ends Here Cleanly */}
       <Footer />
 
-      {/* Modals - Only Render When Triggered (No DOM Overflow) */}
+      {/* Modals - Only Render When Triggered */}
       {isStatusOpen && (
         <StatusModal 
           isOpen={isStatusOpen} 

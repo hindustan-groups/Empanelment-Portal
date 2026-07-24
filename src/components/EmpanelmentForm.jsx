@@ -4,6 +4,7 @@ import {
   FileText, UploadCloud, CheckCircle2, ChevronRight, ChevronLeft, 
   AlertCircle, DollarSign, Award, FileCheck, Save, Sparkles, Loader2 
 } from 'lucide-react';
+import GstVerifier from './GstVerifier';
 
 export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -64,6 +65,14 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     setFormData(prev => ({
       ...prev,
       [fieldName]: file || null
+    }));
+  };
+
+  const handleGstAutoVerified = ({ gstin, pan }) => {
+    setFormData(prev => ({
+      ...prev,
+      gstin: gstin || prev.gstin,
+      pan: pan || prev.pan
     }));
   };
 
@@ -167,6 +176,8 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     { num: 5, title: 'Declaration', icon: ShieldCheck },
   ];
 
+  const progressPercent = currentStep * 20;
+
   return (
     <div id="empanelment-form-container" className="form-container">
       <div className="form-card">
@@ -175,7 +186,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         <div className="form-header-banner">
           <div className="form-header-top">
             <div>
-              <div className="form-header-tag">✨ Empanelment Application Form</div>
+              <div className="form-header-tag">✨ PRO Empanelment Wizard • {progressPercent}% Completed</div>
               <h2 className="form-header-title">Hindustan Projects Vendor Portal</h2>
             </div>
             
@@ -308,6 +319,13 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </h3>
                 <p className="step-header-sub">Verifiable GSTIN, PAN, and Bank details</p>
               </div>
+
+              {/* GSTIN & PAN Verifier Engine */}
+              <GstVerifier 
+                gstin={formData.gstin} 
+                pan={formData.pan} 
+                onVerifySuccess={handleGstAutoVerified} 
+              />
 
               <div className="form-grid-2">
                 <div className="form-group">
