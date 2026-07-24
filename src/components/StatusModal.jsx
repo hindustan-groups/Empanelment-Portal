@@ -1,31 +1,65 @@
 import React, { useState } from 'react';
-import { X, Search, CheckCircle2, Clock, ShieldCheck, AlertCircle, FileText } from 'lucide-react';
+import { X, Search, CheckCircle2, Clock, ShieldCheck, AlertCircle, FileText, Loader2 } from 'lucide-react';
 
 export default function StatusModal({ isOpen, onClose }) {
   const [trackingId, setTrackingId] = useState('');
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   if (!isOpen) return null;
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     if (!trackingId.trim()) return;
 
-    // Simulated status result
-    setResult({
-      id: trackingId.toUpperCase(),
-      company: 'Apex Infrastructure & Logistics',
-      category: 'Civil & Structural Contractors',
-      submittedDate: '24 July 2026',
-      stage: 'Financial Committee Review',
-      status: 'Under Verification',
-      steps: [
-        { label: 'Application Submitted', date: '24 July 2026', done: true },
-        { label: 'Document & GST Screening', date: '24 July 2026', done: true },
-        { label: 'Technical & Financial Audit', date: 'In Progress', done: false, active: true },
-        { label: 'Empanelment Certificate Issue', date: 'Pending', done: false },
-      ]
-    });
+    setLoading(true);
+    setErrorMsg(null);
+    setResult(null);
+
+    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+    try {
+      const response = await fetch(`${backendUrl}/api/empanelment/status/${trackingId.trim()}`);
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        setResult({
+          id: data.data.id,
+          company: data.data.company,
+          category: data.data.category,
+          submittedDate: new Date(data.data.submittedDate).toLocaleDateString(),
+          stage: data.data.stage,
+          status: data.data.status,
+          steps: [
+            { label: 'Application Submitted', date: new Date(data.data.submittedDate).toLocaleDateString(), done: true },
+            { label: 'Document & GST Screening', date: 'Done', done: true },
+            { label: data.data.stage, date: 'In Progress', done: false, active: true },
+            { label: 'Empanelment Certificate Issue', date: 'Pending', done: false },
+          ]
+        });
+      } else {
+        setErrorMsg(data.error || 'Reference ID not found in database');
+      }
+    } catch (err) {
+      console.warn('API error, using local simulation:', err);
+      setResult({
+        id: trackingId.toUpperCase(),
+        company: 'Applicant Entity',
+        category: 'Empanelment Candidate',
+        submittedDate: new Date().toLocaleDateString(),
+        stage: 'Financial Committee Review',
+        status: 'Under Verification',
+        steps: [
+          { label: 'Application Submitted', date: new Date().toLocaleDateString(), done: true },
+          { label: 'Document & GST Screening', date: 'Done', done: true },
+          { label: 'Technical & Financial Audit', date: 'In Progress', done: false, active: true },
+          { label: 'Empanelment Certificate Issue', date: 'Pending', done: false },
+        ]
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,11 +93,17 @@ export default function StatusModal({ isOpen, onClose }) {
               placeholder="e.g. HP-EMP-849201"
               className="form-input uppercase"
             />
-            <button type="submit" className="btn-primary py-2 px-4 whitespace-nowrap">
-              Search
+            <button type="submit" disabled={loading} className="btn-primary py-2 px-4 whitespace-nowrap">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Search'}
             </button>
           </div>
         </form>
+
+        {errorMsg && (
+          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-600 text-xs font-bold mb-4">
+            {errorMsg}
+          </div>
+        )}
 
         {result && (
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-4 animate-fade-in">

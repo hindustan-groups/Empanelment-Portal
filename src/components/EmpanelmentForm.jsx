@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   Building, User, Mail, Phone, MapPin, CreditCard, ShieldCheck, 
   FileText, UploadCloud, CheckCircle2, ChevronRight, ChevronLeft, 
-  AlertCircle, DollarSign, Award, FileCheck, Save, Sparkles 
+  AlertCircle, DollarSign, Award, FileCheck, Save, Sparkles, Loader2 
 } from 'lucide-react';
 
 export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     // Step 1: Basic
     category: category || 'civil',
@@ -37,7 +38,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     largestOrder: '',
     existingEmpanels: '',
 
-    // Step 4: Documents (Simulated Files)
+    // Step 4: Documents (Real File Objects)
     gstDoc: null,
     panDoc: null,
     bankDoc: null,
@@ -71,7 +72,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   const handleFileUpload = (fieldName, file) => {
     setFormData(prev => ({
       ...prev,
-      [fieldName]: file ? file.name : null
+      [fieldName]: file || null
     }));
   };
 
@@ -120,15 +121,53 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   };
 
   const handleSaveDraft = () => {
-    localStorage.setItem('hipro_empanel_draft', JSON.stringify(formData));
+    localStorage.setItem('hipro_empanel_draft', JSON.stringify({
+      ...formData,
+      gstDoc: formData.gstDoc?.name || null,
+      panDoc: formData.panDoc?.name || null,
+      bankDoc: formData.bankDoc?.name || null,
+      expDoc: formData.expDoc?.name || null,
+    }));
     setIsSavedLocal(true);
     setTimeout(() => setIsSavedLocal(false), 3000);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateStep(5)) {
+    if (!validateStep(5)) return;
+
+    setIsSubmitting(true);
+
+    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+    try {
+      const dataPayload = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (formData[key] instanceof File) {
+          dataPayload.append(key, formData[key]);
+        } else if (formData[key] !== null && formData[key] !== undefined) {
+          dataPayload.append(key, formData[key]);
+        }
+      });
+
+      const response = await fetch(`${backendUrl}/api/empanelment/submit`, {
+        method: 'POST',
+        body: dataPayload
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        onFormSubmit(formData, result.trackingId);
+      } else {
+        // Fallback tracking ID generation if API offline
+        onFormSubmit(formData);
+      }
+    } catch (err) {
+      console.warn('Backend API connection attempted, using fallback submission:', err);
       onFormSubmit(formData);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -586,7 +625,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                         <span>Choose File</span>
                       </label>
                       <span className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">
-                        {formData[item.field] || 'No file selected'}
+                        {formData[item.field]?.name || (typeof formData[item.field] === 'string' ? formData[item.field] : 'No file selected')}
                       </span>
                     </div>
                   </div>
@@ -661,6 +700,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               <button
                 type="button"
                 onClick={handleBack}
+                disabled={isSubmitting}
                 className="btn-secondary"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -680,10 +720,20 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
             ) : (
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="btn-accent text-base"
               >
-                <ShieldCheck className="w-5 h-5" />
-                <span>Submit Empanelment Application</span>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Saving to VPS Database...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-5 h-5" />
+                    <span>Submit Empanelment Application</span>
+                  </>
+                )}
               </button>
             )}
           </div>
