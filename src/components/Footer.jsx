@@ -4,65 +4,51 @@ import { Mail, Phone, MapPin, ExternalLink, ShieldCheck } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 pt-12 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="footer">
+      <div className="footer-inner">
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          
-          {/* Col 1: Brand Info */}
-          <div className="md:col-span-2 space-y-4">
-            <Logo height={44} className="brightness-110" />
-            <p className="text-sm text-slate-400 max-w-md leading-relaxed">
-              Official Vendor & Contractor Empanelment Portal of <strong>Hindustan Projects</strong>. Facilitating transparent, paperless, and fast-track procurement for infrastructure, commercial, and engineering projects.
-            </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-800 text-xs text-slate-300 border border-slate-700">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Subdomain Host: empanel.hindustanprojects.in</span>
-            </div>
-          </div>
-
-          {/* Col 2: Quick Links */}
-          <div>
-            <h4 className="font-bold text-white text-sm mb-4 uppercase tracking-wider">Empanelment Links</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-slate-400">
-              <li><a href="#empanelment-form-container" className="hover:text-white transition-colors">Submit Application</a></li>
-              <li><a href="https://hindustanprojects.in" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1"><span>Hindustan Projects Main Site</span> <ExternalLink className="w-3 h-3"/></a></li>
-              <li><a href="https://github.com/hindustan-groups/Empanelment-Portal" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1"><span>Official Git Repository</span> <ExternalLink className="w-3 h-3"/></a></li>
-            </ul>
-          </div>
-
-          {/* Col 3: Support Contact */}
-          <div>
-            <h4 className="font-bold text-white text-sm mb-4 uppercase tracking-wider">Procurement Helpdesk</h4>
-            <div className="space-y-3 text-xs sm:text-sm text-slate-400">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-red-500" />
-                <span>empanelment@hindustanprojects.in</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-blue-500" />
-                <span>+91 (011) 4500 8899 / 900</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
-                <span>Hindustan Projects Corporate Tower, New Delhi - 110001</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="pt-6 border-t border-slate-800 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            © {new Date().getFullYear()} <strong>Hindustan Projects</strong>. All Rights Reserved.
-          </div>
-          <div className="flex gap-4">
-            <a href="#" className="hover:underline">Privacy Policy</a>
-            <a href="#" className="hover:underline">Terms of Empanelment</a>
-            <a href="#" className="hover:underline">GST Verification Disclaimer</a>
+        <div style={{ gridColumn: 'span 2' }}>
+          <Logo height={44} />
+          <p style={{ fontSize: '0.85rem', color: '#94A3B8', marginTop: '1rem', maxWidth: 450, lineHeight: 1.6 }}>
+            Official Vendor & Contractor Empanelment Portal of <strong>Hindustan Projects</strong>. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.
+          </p>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', padding: '0.35rem 0.75rem', borderRadius: 6, backgroundColor: '#1E293B', fontSize: '0.75rem', color: '#CBD5E1' }}>
+            <ShieldCheck style={{ width: 14, height: 14, color: '#10B981' }} />
+            <span>Host: empanel.hindustanprojects.in</span>
           </div>
         </div>
 
+        <div>
+          <h4 style={{ color: 'white', fontSize: '0.85rem', textTransform: 'uppercase', marginBottom: '1rem', letterSpacing: '0.05em' }}>Quick Links</h4>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+            <li><a href="#empanelment-form-container" style={{ color: '#94A3B8', textDecoration: 'none' }}>Submit Application</a></li>
+            <li><a href="https://hindustanprojects.in" target="_blank" rel="noreferrer" style={{ color: '#94A3B8', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><span>Hindustan Projects Main Site</span> <ExternalLink style={{ width: 12, height: 12 }} /></a></li>
+            <li><a href="https://github.com/hindustan-groups/Empanelment-Portal" target="_blank" rel="noreferrer" style={{ color: '#94A3B8', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><span>Git Repository</span> <ExternalLink style={{ width: 12, height: 12 }} /></a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 style={{ color: 'white', fontSize: '0.85rem', textTransform: 'uppercase', marginBottom: '1rem', letterSpacing: '0.05em' }}>Procurement Helpdesk</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.85rem', color: '#94A3B8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Mail style={{ width: 14, height: 14, color: '#ED1C24' }} />
+              <span>empanelment@hindustanprojects.in</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Phone style={{ width: 14, height: 14, color: '#0047AB' }} />
+              <span>+91 (011) 4500 8899 / 900</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+              <MapPin style={{ width: 14, height: 14, color: '#64748B', marginTop: 3 }} />
+              <span>Hindustan Projects Corporate Tower, New Delhi - 110001</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div className="footer-bottom">
+        © {new Date().getFullYear()} <strong>Hindustan Projects</strong>. All Rights Reserved. | Designed for empanel.hindustanprojects.in
       </div>
     </footer>
   );
