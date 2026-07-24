@@ -2,7 +2,7 @@
 
 Official Empanelment & Vendor Registration Web Application designed for **Hindustan Projects** (`hindustanprojects.in`), optimized for deployment on the subdomain **`empanel.hindustanprojects.in`**.
 
-![HiPRO Logo](src/components/Logo.jsx)
+Location: `D:\HindustanProjects`
 
 ---
 
@@ -49,7 +49,7 @@ To connect this portal to your subdomain:
 
 ```bash
 # Navigate to project directory
-cd C:\Users\HP\.gemini\antigravity\scratch\hindustan-projects-empanelment
+cd D:\HindustanProjects
 
 # Install dependencies
 npm install
