@@ -786,6 +786,37 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
+   🖨️ PRINT DOSSIER FORMATTING STYLES (@media print)
+   ========================================================================== */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-area, .printable-area * {
+    visibility: visible;
+  }
+
+  .printable-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background-color: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .header-navbar, .footer, .btn-secondary, .btn-primary, .btn-accent, .theme-toggle-btn {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
    📱 MOBILE & TABLET MEDIA QUERIES (Sleek Drawer Navbar & Compact Layouts)
    ========================================================================== */
 
