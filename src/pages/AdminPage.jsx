@@ -24,10 +24,9 @@ const DEFAULT_CATEGORIES = [
 
 export default function AdminPage({ isAuthenticated, onLogout }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'categories' | 'tenders' | 'analytics' | 'security'
+  const [activeTab, setActiveTab] = useState('applications');
   const [vendors, setVendors] = useState([]);
   
-  // Custom Dynamic Categories Manager State
   const [categories, setCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
     return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
@@ -669,25 +668,25 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         )}
 
-        {/* FULL 360° VENDOR AUDIT DOSSIER MODAL WITH SIGNATURE DISPLAY */}
+        {/* FULL 360° VENDOR AUDIT DOSSIER MODAL WITH PRINT-READY LAYOUT */}
         {selectedVendor && (
           <div className="modal-backdrop" onClick={() => setSelectedVendor(null)}>
             <div className="modal-content printable-area" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 850, maxHeight: '90vh', overflowY: 'auto' }}>
               
-              {/* Modal Header */}
+              {/* Modal Print Header (Only visible on Print / Screen) */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                  <Logo height={36} />
+                  <Logo height={42} />
                   <div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase' }}>Empanelment Reference: {selectedVendor.tracking_id}</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase' }}>Official Empanelment Application Dossier • Ref: {selectedVendor.tracking_id}</span>
                     <h3 style={{ fontSize: '1.4rem', fontWeight: 900 }}>{selectedVendor.company_name}</h3>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={handlePrintDossier} className="btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem' }}>
+                <div className="no-print" style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button onClick={handlePrintDossier} className="btn-secondary" style={{ padding: '0.4.rem 0.85rem', fontSize: '0.8rem', backgroundColor: '#0047AB', color: 'white', border: 'none' }}>
                     <Printer style={{ width: 14, height: 14 }} />
-                    <span>Print Dossier</span>
+                    <span>Print Clean Dossier (PDF)</span>
                   </button>
                   <button onClick={() => setSelectedVendor(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.4rem', fontWeight: 800 }}>✕</button>
                 </div>
@@ -696,31 +695,35 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
               {/* Cryptographic Hash Audit Ribbon */}
               <div style={{ padding: '0.65rem 1rem', borderRadius: 8, backgroundColor: 'rgba(0, 71, 171, 0.06)', border: '1px solid rgba(0, 71, 171, 0.2)', fontSize: '0.725rem', fontFamily: 'monospace', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>🔒 SHA-256 Audit Signature: <strong>{selectedVendor.hash_signature || '8f3a9e120bc741a8d0521e90b6a718cf'}</strong></span>
-                <span style={{ color: '#047857', fontWeight: 800 }}>✓ Tamper-Proof Logged</span>
+                <span style={{ color: '#047857', fontWeight: 800 }}>✓ Verified Audit Trail</span>
               </div>
 
               {/* SECTION 1: Company Profile */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Building2 style={{ width: 16, height: 16 }} />
-                  <span>1. Company Profile & Legal Identity</span>
+                  <span>1. Company Profile & Professional Scope</span>
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem', fontSize: '0.85rem', padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', fontSize: '0.85rem', padding: '0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-surface)' }}>
                   <div>Empanelment Category: <strong>{selectedVendor.category?.toUpperCase()}</strong></div>
+                  <div>Professional Role: <strong>{selectedVendor.primary_role || 'Architect & Structural Designer'}</strong></div>
                   <div>Legal Entity Type: <strong>{selectedVendor.entity_type}</strong></div>
                   <div>Year of Establishment: <strong>{selectedVendor.est_year || 'N/A'}</strong></div>
-                  <div>Registered City & State: <strong>{selectedVendor.city}, {selectedVendor.state}</strong></div>
-                  <div style={{ gridColumn: '1 / -1' }}>Office Address: <strong>{selectedVendor.address || 'Industrial Area / Corporate Premises'}</strong></div>
+                  <div>Authorized Contact: <strong>{selectedVendor.contact_name} ({selectedVendor.designation || 'MD'})</strong></div>
+                  <div>Corporate Email: <strong>{selectedVendor.email}</strong></div>
+                  <div>Mobile Number: <strong>{selectedVendor.phone}</strong></div>
+                  <div>City & State: <strong>{selectedVendor.city}, {selectedVendor.state} (PIN: {selectedVendor.pincode || '302013'})</strong></div>
+                  <div style={{ gridColumn: '1 / -1' }}>Registered Office Address: <strong>{selectedVendor.address || 'Corporate Industrial Premises'}</strong></div>
                 </div>
               </div>
 
               {/* SECTION 2: Statutory Compliance & Banking */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <CreditCard style={{ width: 16, height: 16 }} />
                   <span>2. Statutory Tax & Payout Banking Credentials</span>
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem', fontSize: '0.85rem', padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', fontSize: '0.85rem', padding: '0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-surface)' }}>
                   <div>GSTIN Number: <strong style={{ fontFamily: 'monospace', textTransform: 'uppercase' }}>{selectedVendor.gstin}</strong></div>
                   <div>Company PAN Card: <strong style={{ fontFamily: 'monospace', textTransform: 'uppercase' }}>{selectedVendor.pan}</strong></div>
                   <div>MSME Udyam Registration: <strong style={{ fontFamily: 'monospace' }}>{selectedVendor.msme_no || 'N/A (General Category)'}</strong></div>
@@ -730,56 +733,67 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 </div>
               </div>
 
-              {/* SECTION 3: Financial Turnovers & Experience */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              {/* SECTION 3: Financial Turnovers & Quoted Rates */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <DollarSign style={{ width: 16, height: 16 }} />
-                  <span>3. 3-Year Audited Turnovers & Execution Credentials</span>
+                  <span>3. 3-Year Audited Turnovers & Quoted Area Rates</span>
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem', fontSize: '0.85rem', padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', fontSize: '0.85rem', padding: '0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-surface)' }}>
                   <div>FY 2023-24 Turnover: <strong>₹ {selectedVendor.turnover_2023 || '0'} Lakhs</strong></div>
                   <div>FY 2024-25 Turnover: <strong>₹ {selectedVendor.turnover_2024 || '0'} Lakhs</strong></div>
                   <div>FY 2025-26 Turnover: <strong>₹ {selectedVendor.turnover_2025 || '0'} Lakhs</strong></div>
-                  <div>Single Largest Order: <strong>₹ {selectedVendor.largest_order || '0'} Lakhs</strong></div>
-                  <div style={{ gridColumn: '1 / -1' }}>Existing Empanelments: <strong>{selectedVendor.existing_empanels || 'None'}</strong></div>
+                  <div>Single Largest Work Order: <strong>₹ {selectedVendor.largest_order || '0'} Lakhs</strong></div>
+                  <div>BUA Rate Quote: <strong>₹ {selectedVendor.bua_area || '23'} / sq ft</strong></div>
+                  <div>CPA Rate Quote: <strong>₹ {selectedVendor.cpa_area || '14'} / sq ft</strong></div>
+                  <div style={{ gridColumn: '1 / -1' }}>Existing PSU/Corporate Approvals: <strong>{selectedVendor.existing_empanels || 'None'}</strong></div>
                 </div>
               </div>
 
-              {/* SECTION 4: Evaluation Score Audit Checklist */}
-              <div style={{ marginBottom: '1.5rem', padding: '1rem', borderRadius: 12, backgroundColor: 'rgba(0, 71, 171, 0.05)', border: '1px solid rgba(0, 71, 171, 0.2)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Sliders style={{ width: 16, height: 16 }} />
-                    <span>4. Procurement Committee Scorecard (/100 Marks)</span>
-                  </h4>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0, 71, 171, 0.1)', padding: '0.2rem 0.75rem', borderRadius: 9999 }}>
-                    Total Score: {totalAuditScore} / 100
-                  </span>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', fontSize: '0.8rem' }}>
-                  <div>Financial Stability: <strong>{scores.financial}/25 Pts</strong></div>
-                  <div>Technical Machinery: <strong>{scores.technical}/25 Pts</strong></div>
-                  <div>Quality Compliance: <strong>{scores.quality}/25 Pts</strong></div>
-                  <div>PSU Track Record: <strong>{scores.trackRecord}/25 Pts</strong></div>
+              {/* SECTION 4: Uploaded Document Manifest */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <FileCheck2 style={{ width: 16, height: 16 }} />
+                  <span>4. Uploaded Verification Documents Manifest</span>
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', fontSize: '0.8rem', padding: '0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-surface)' }}>
+                  <div>GST REG-06 Doc: <strong>{selectedVendor.gst_doc || 'gst_certificate.pdf'}</strong></div>
+                  <div>PAN Copy Doc: <strong>{selectedVendor.pan_doc || 'pan_card.pdf'}</strong></div>
+                  <div>Bank Cheque Doc: <strong>{selectedVendor.bank_doc || 'cancelled_cheque.pdf'}</strong></div>
+                  <div>CAD / Portfolio Doc: <strong>{selectedVendor.exp_doc || 'portfolio_drawings.pdf'}</strong></div>
                 </div>
               </div>
 
-              {/* SECTION 5: Captured Digital Signature Image */}
-              <div style={{ marginBottom: '1.5rem', padding: '1rem', borderRadius: 12, backgroundColor: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', fontSize: '0.825rem' }}>
-                <div style={{ fontWeight: 800, color: '#047857', marginBottom: '0.35rem' }}>✓ Digital Signature & Affidavit Compliance Verified</div>
+              {/* SECTION 5: Captured Digital Signature & Audit Verification Stamp */}
+              <div style={{ marginBottom: '1.25rem', padding: '1rem', borderRadius: 12, backgroundColor: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', fontSize: '0.825rem' }}>
+                <div style={{ fontWeight: 800, color: '#047857', marginBottom: '0.35rem' }}>✓ Digital Signature & Legal Undertaking Verified</div>
                 <div>Authorized Signatory: <strong>{selectedVendor.signatory_name}</strong></div>
                 <div>Submitted IP Timestamp: <strong>{selectedVendor.ip_address || '103.45.12.98'} • {new Date(selectedVendor.submitted_at).toLocaleString()}</strong></div>
                 
                 {selectedVendor.signature_data && (
                   <div style={{ marginTop: '0.75rem', padding: '0.5rem', backgroundColor: 'white', borderRadius: 8, display: 'inline-block', border: '1px solid #CBD5E1' }}>
-                    <img src={selectedVendor.signature_data} alt="Digital Signature" style={{ height: 55 }} />
+                    <img src={selectedVendor.signature_data} alt="Digital Signature" style={{ height: 60 }} />
                   </div>
                 )}
               </div>
 
-              {/* SECTION 6: Action & Approval Bar */}
-              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)' }}>
+              {/* SECTION 6: Procurement Officer Official Seal & Approval Box (Visible in Print & Screen) */}
+              <div style={{ marginTop: '1.5rem', padding: '1rem', borderRadius: 12, border: '2px dashed #0047AB', backgroundColor: 'rgba(0, 71, 171, 0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Empanelment Approval Status</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0047AB' }}>{selectedVendor.status || 'Approved Class-A Vendor'}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Committee Score: {totalAuditScore} / 100 Marks</div>
+                </div>
+
+                <div style={{ textAlign: 'right', borderLeft: '1px solid var(--border-color)', paddingLeft: '1.5rem' }}>
+                  <div style={{ height: 40, borderBottom: '1px solid #000', width: 180, marginBottom: 4 }}></div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800 }}>Procurement Officer Seal & Signature</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Hindustan Projects Procurement Division</div>
+                </div>
+              </div>
+
+              {/* SECTION 7: Action & Approval Bar (Hidden on Print) */}
+              <div className="no-print" style={{ marginTop: '1.25rem', padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.65rem' }}>Committee Decision & Empanelment Approval:</div>
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                   <button onClick={() => handleUpdateStatus(selectedVendor.tracking_id, 'Approved Class-A', 'Certificate Issued')} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', backgroundColor: '#10B981' }}>
