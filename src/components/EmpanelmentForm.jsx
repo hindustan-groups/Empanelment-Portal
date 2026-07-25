@@ -6,10 +6,13 @@ import {
 } from 'lucide-react';
 import GstVerifier from './GstVerifier';
 import PaymentSlip from './PaymentSlip';
+import SecurityCaptcha from './SecurityCaptcha';
 
 export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  
   const [formData, setFormData] = useState({
     category: category || 'civil',
     companyName: '',
@@ -64,7 +67,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
   const handleFileUpload = (fieldName, file) => {
     if (file && file.size > 10 * 1024 * 1024) {
-      alert('File size exceeds 10MB limit. Please upload a smaller file.');
+      alert('Security Alert: File size exceeds 10MB limit.');
       return;
     }
     setFormData(prev => ({
@@ -114,6 +117,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     if (step === 5) {
       if (!formData.isDeclared) newErrors.isDeclared = 'You must check the anti-blacklisting affidavit declaration box';
       if (!formData.signatoryName.trim()) newErrors.signatoryName = 'Authorized Signatory Name is required';
+      if (!isCaptchaVerified) newErrors.captcha = 'Please solve the Security Math Challenge before submitting';
     }
 
     setErrors(newErrors);
@@ -422,7 +426,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   <FileCheck style={{ width: 20, height: 20, color: '#0047AB' }} />
                   <span>Step 4: Upload Verification Certificates (PDF / JPG)</span>
                 </h3>
-                <p className="step-header-sub">Max file size 10MB per document. Upload clear scanned copies.</p>
+                <p className="step-header-sub">Max file size 10MB per document. Scanned PDF or Image formats only.</p>
               </div>
 
               <div className="form-grid-2">
@@ -494,6 +498,10 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 {errors.isDeclared && <span className="error-text">{errors.isDeclared}</span>}
               </div>
 
+              {/* Security Anti-Bot Captcha Verification */}
+              <SecurityCaptcha onCaptchaVerify={(verified) => setIsCaptchaVerified(verified)} />
+              {errors.captcha && <span className="error-text" style={{ display: 'block', marginBottom: '1rem' }}>{errors.captcha}</span>}
+
               <div className="form-group">
                 <label className="form-label">Digital Authorized Signatory Name <span className="required">*</span></label>
                 <input type="text" name="signatoryName" value={formData.signatoryName} onChange={handleChange} placeholder="Full Name of Authorized Officer / Director" className={`form-input ${errors.signatoryName ? 'error' : ''}`} />
@@ -521,7 +529,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 {isSubmitting ? (
                   <>
                     <Loader2 style={{ width: 18, height: 18 }} className="animate-spin" />
-                    <span>Logging to VPS Database...</span>
+                    <span>Encrypting & Logging to VPS Database...</span>
                   </>
                 ) : (
                   <>
