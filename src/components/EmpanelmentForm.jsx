@@ -158,23 +158,24 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     const newErrors = {};
 
     if (step === 1) {
-      if (!formData.companyName.trim()) newErrors.companyName = 'Official Corporate Firm Title is required';
-      if (!formData.contactName.trim()) newErrors.contactName = 'Lead Professional / Director Name is required';
-      if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = 'Valid Corporate Email Address is required';
+      if (!formData.companyName.trim()) newErrors.companyName = 'Official Corporate or Proprietor Title is required';
+      if (!formData.contactName.trim()) newErrors.contactName = 'Lead Professional / Proprietor Name is required';
+      if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = 'Valid Email Address is required';
       if (!formData.phone.trim() || formData.phone.length < 10) newErrors.phone = 'Valid 10-digit Mobile Number is required';
-      if (!formData.city.trim()) newErrors.city = 'Registered City is required';
-      if (!formData.state.trim()) newErrors.state = 'Registered State is required';
     }
 
     if (step === 2) {
-      if (!formData.gstin.trim() || formData.gstin.length < 15) newErrors.gstin = '15-character GSTIN is required';
-      if (!formData.pan.trim() || formData.pan.length < 10) newErrors.pan = '10-character PAN Card is required';
-      if (!formData.bankAccount.trim()) newErrors.bankAccount = 'Bank Current Account Number is required';
-      if (!formData.ifsc.trim()) newErrors.ifsc = 'Bank IFSC Code is required';
+      // Allow sole proprietors to pass even without 15-character GSTIN
+      if (!formData.gstin.trim() && formData.entityType !== 'proprietorship') {
+        newErrors.gstin = '15-character GSTIN is required (or select Sole Proprietorship for exemption)';
+      }
+      if (!formData.pan.trim() || formData.pan.length < 10) {
+        newErrors.pan = '10-character PAN Card is required';
+      }
     }
 
     if (step === 3) {
-      if (!formData.turnover2025.trim()) newErrors.turnover2025 = 'Audited Turnover for FY 2025-26 is required';
+      // Financial turnover optional for small proprietors
     }
 
     if (step === 5) {
@@ -370,12 +371,12 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Year of Incorporation / Establishment</label>
+                  <label className="form-label">Year of Incorporation / Establishment <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>(Optional)</span></label>
                   <input type="number" name="estYear" value={formData.estYear} onChange={handleChange} placeholder="e.g. 2012" className="form-input" />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">COA Reg No / MCA CIN Number (Optional)</label>
+                  <label className="form-label">COA Reg No / MCA CIN Number <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>(Optional for Proprietors)</span></label>
                   <input type="text" name="coaRegNo" value={formData.coaRegNo} onChange={handleChange} placeholder="e.g. CA/2018/84920 or U45201RJ2012PTC038" className="form-input" style={{ textTransform: 'uppercase' }} />
                 </div>
 

@@ -478,7 +478,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                         <td style={{ padding: '0.85rem 0.6rem', fontWeight: 800, color: '#0047AB' }}>{v.tracking_id}</td>
                         <td style={{ padding: '0.85rem 0.6rem' }}>
                           <div style={{ fontWeight: 800 }}>{v.company_name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.entity_type} • Est. {v.est_year || 'N/A'}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                            <span>{v.entity_type}</span>
+                            {v.entity_type?.toLowerCase().includes('proprietor') && (
+                              <span style={{ padding: '0.1rem 0.45rem', borderRadius: 4, backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#B45309', fontWeight: 800, fontSize: '0.675rem' }}>
+                                Sole Proprietor
+                              </span>
+                            )}
+                            <span>• Est. {v.est_year || 'N/A'}</span>
+                          </div>
                         </td>
                         <td style={{ padding: '0.85rem 0.6rem', fontFamily: 'monospace', textTransform: 'uppercase' }}>
                           {v.gstin}<br/>
