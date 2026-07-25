@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Building, User, Mail, Phone, MapPin, CreditCard, ShieldCheck, 
   FileText, UploadCloud, CheckCircle2, ChevronRight, ChevronLeft, 
-  AlertCircle, DollarSign, Award, FileCheck, Save, Sparkles, Loader2, X, HardHat, Edit3 
+  AlertCircle, DollarSign, Award, FileCheck, Save, Sparkles, Loader2, X, HardHat, Edit3, 
+  Users, Layers, Wrench, FileBadge, Scale, Check 
 } from 'lucide-react';
 import GstVerifier from './GstVerifier';
 import PaymentSlip from './PaymentSlip';
@@ -47,7 +48,6 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const [signatureData, setSignatureData] = useState(null);
   
-  // Read dynamic categories from Admin manager
   const [availableCategories, setAvailableCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
     return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
@@ -59,6 +59,10 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     companyName: '',
     entityType: 'pvt_ltd',
     estYear: '',
+    cinNo: '',
+    coaRegNo: '',
+    experienceYears: '',
+    manpowerCount: '15',
     contactName: '',
     designation: '',
     email: '',
@@ -69,17 +73,20 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     pincode: '',
     gstin: '',
     pan: '',
+    epfNo: '',
     msmeNo: '',
     bankAccount: '',
     ifsc: '',
     bankName: '',
+    netWorth: '',
+    solvencyLimit: '',
     turnover2023: '',
     turnover2024: '',
     turnover2025: '',
     largestOrder: '',
-    existingEmpanels: '',
-    buaArea: '',
-    cpaArea: '',
+    buaArea: '23',
+    cpaArea: '14',
+    machineryCheck: { batchingPlant: true, towerCrane: false, bimSoftware: true, totalStation: true },
     gstDoc: null,
     panDoc: null,
     bankDoc: null,
@@ -109,6 +116,16 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
     }
+  };
+
+  const handleMachineryToggle = (key) => {
+    setFormData(prev => ({
+      ...prev,
+      machineryCheck: {
+        ...prev.machineryCheck,
+        [key]: !prev.machineryCheck[key]
+      }
+    }));
   };
 
   const handleFileUpload = (fieldName, file) => {
@@ -141,30 +158,30 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     const newErrors = {};
 
     if (step === 1) {
-      if (!formData.companyName.trim()) newErrors.companyName = 'Company / Firm Title is required';
-      if (!formData.contactName.trim()) newErrors.contactName = 'Lead Professional / Contact Name is required';
-      if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = 'Valid Email Address is required';
+      if (!formData.companyName.trim()) newErrors.companyName = 'Official Corporate Firm Title is required';
+      if (!formData.contactName.trim()) newErrors.contactName = 'Lead Professional / Director Name is required';
+      if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = 'Valid Corporate Email Address is required';
       if (!formData.phone.trim() || formData.phone.length < 10) newErrors.phone = 'Valid 10-digit Mobile Number is required';
-      if (!formData.city.trim()) newErrors.city = 'City is required';
-      if (!formData.state.trim()) newErrors.state = 'State is required';
+      if (!formData.city.trim()) newErrors.city = 'Registered City is required';
+      if (!formData.state.trim()) newErrors.state = 'Registered State is required';
     }
 
     if (step === 2) {
       if (!formData.gstin.trim() || formData.gstin.length < 15) newErrors.gstin = '15-character GSTIN is required';
-      if (!formData.pan.trim() || formData.pan.length < 10) newErrors.pan = '10-character PAN is required';
+      if (!formData.pan.trim() || formData.pan.length < 10) newErrors.pan = '10-character PAN Card is required';
       if (!formData.bankAccount.trim()) newErrors.bankAccount = 'Bank Current Account Number is required';
       if (!formData.ifsc.trim()) newErrors.ifsc = 'Bank IFSC Code is required';
     }
 
     if (step === 3) {
-      if (!formData.turnover2025.trim()) newErrors.turnover2025 = 'Turnover for FY 2025-26 is required';
+      if (!formData.turnover2025.trim()) newErrors.turnover2025 = 'Audited Turnover for FY 2025-26 is required';
     }
 
     if (step === 5) {
-      if (!formData.declAntiBlacklist) newErrors.declAntiBlacklist = 'You must accept the Anti-Blacklisting Declaration';
-      if (!formData.declIpAssignment) newErrors.declIpAssignment = 'You must accept the Intellectual Property Assignment clause';
-      if (!formData.declSiteVisit) newErrors.declSiteVisit = 'You must confirm the Site Visit Mandate';
-      if (!formData.signatoryName.trim()) newErrors.signatoryName = 'Authorized Signatory Name is required';
+      if (!formData.declAntiBlacklist) newErrors.declAntiBlacklist = 'You must confirm the Anti-Blacklisting Affidavit';
+      if (!formData.declIpAssignment) newErrors.declIpAssignment = 'You must confirm the Intellectual Property Assignment clause';
+      if (!formData.declSiteVisit) newErrors.declSiteVisit = 'You must confirm the Mandatory Site Visit Undertaking';
+      if (!formData.signatoryName.trim()) newErrors.signatoryName = 'Authorized Digital Signatory Name is required';
       if (!signatureData) newErrors.signature = 'Please draw your digital signature on the pad before submitting';
       if (!isCaptchaVerified) newErrors.captcha = 'Please solve the Security Math Challenge before submitting';
     }
@@ -209,6 +226,8 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       Object.keys(formData).forEach(key => {
         if (formData[key] instanceof File) {
           dataPayload.append(key, formData[key]);
+        } else if (typeof formData[key] === 'object' && formData[key] !== null) {
+          dataPayload.append(key, JSON.stringify(formData[key]));
         } else if (formData[key] !== null && formData[key] !== undefined) {
           dataPayload.append(key, formData[key]);
         }
@@ -237,10 +256,10 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   };
 
   const stepsList = [
-    { num: 1, title: 'Scope & Profile', icon: Building },
+    { num: 1, title: 'Identity & Scope', icon: Building },
     { num: 2, title: 'GST & Compliance', icon: CreditCard },
-    { num: 3, title: 'Financials & BUA', icon: DollarSign },
-    { num: 4, title: 'Upload Drawings & Docs', icon: FileCheck },
+    { num: 3, title: 'Financials & Equipment', icon: DollarSign },
+    { num: 4, title: 'Drawings & Documents', icon: FileCheck },
     { num: 5, title: 'Signature & Terms', icon: ShieldCheck },
   ];
 
@@ -250,11 +269,11 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     <div id="empanelment-form-container" className="form-container">
       <div className="form-card">
         
-        {/* Banner */}
+        {/* Top Corporate Banner */}
         <div className="form-header-banner">
           <div className="form-header-top">
             <div>
-              <div className="form-header-tag">✨ Official Empanelment Wizard • {progressPercent}% Completed</div>
+              <div className="form-header-tag">🏛️ Official Corporate Empanelment System • {progressPercent}% Completed</div>
               <h2 className="form-header-title">Hindustan Projects Empanelment Portal</h2>
             </div>
             
@@ -264,7 +283,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
             </button>
           </div>
 
-          {/* Progress Bar */}
+          {/* Step Progress Navigation Bar */}
           <div className="progress-nav">
             {stepsList.map((st) => {
               const Icon = st.icon;
@@ -290,21 +309,21 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="form-body">
           
-          {/* STEP 1 */}
+          {/* STEP 1: IDENTITY & SCOPE */}
           {currentStep === 1 && (
             <div>
               <div className="step-header">
                 <h3 className="step-header-title">
                   <Building style={{ width: 20, height: 20, color: '#0047AB' }} />
-                  <span>Step 1: Professional Scope & Firm Details</span>
+                  <span>Step 1: Professional Scope & Corporate Firm Profile</span>
                 </h3>
-                <p className="step-header-sub">Select professional discipline and enter official registration details as per COA / MCA</p>
+                <p className="step-header-sub">Select professional discipline and enter official registration credentials as per COA / MCA / Council of Engineers</p>
               </div>
 
               <div className="form-grid-2">
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="form-label">Professional Discipline / Scope of Work <span className="required">*</span></label>
-                  <select name="primaryRole" value={formData.primaryRole} onChange={handleChange} className="form-input" style={{ fontWeight: 700, color: '#0047AB' }}>
+                  <select name="primaryRole" value={formData.primaryRole} onChange={handleChange} className="form-input" style={{ fontWeight: 800, color: '#0047AB' }}>
                     {DISCIPLINE_ROLES.map(r => (
                       <option key={r.code} value={r.code}>{r.label}</option>
                     ))}
@@ -312,8 +331,8 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Empanelment Category</label>
-                  <select name="category" value={formData.category} onChange={handleChange} className="form-input">
+                  <label className="form-label">Empanelment Business Category <span className="required">*</span></label>
+                  <select name="category" value={formData.category} onChange={handleChange} className="form-input" style={{ fontWeight: 700 }}>
                     {availableCategories.map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
@@ -321,8 +340,8 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Registered Firm / Professional Title <span className="required">*</span></label>
-                  <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="e.g. M/S Studio Form & Function Architects" className={`form-input ${errors.companyName ? 'error' : ''}`} />
+                  <label className="form-label">Registered Corporate Firm Title <span className="required">*</span></label>
+                  <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} placeholder="e.g. M/S Studio Form & Function Architects Pvt Ltd" className={`form-input ${errors.companyName ? 'error' : ''}`} />
                   {errors.companyName && <span className="error-text">{errors.companyName}</span>}
                 </div>
 
@@ -337,36 +356,51 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Year of Establishment</label>
-                  <input type="number" name="estYear" value={formData.estYear} onChange={handleChange} placeholder="e.g. 2014" className="form-input" />
+                  <label className="form-label">Year of Incorporation / Establishment</label>
+                  <input type="number" name="estYear" value={formData.estYear} onChange={handleChange} placeholder="e.g. 2012" className="form-input" />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Lead Professional / Contact Officer <span className="required">*</span></label>
-                  <input type="text" name="contactName" value={formData.contactName} onChange={handleChange} placeholder="Full Name of Principal Architect / Director" className={`form-input ${errors.contactName ? 'error' : ''}`} />
+                  <label className="form-label">COA Reg No / MCA CIN Number (Optional)</label>
+                  <input type="text" name="coaRegNo" value={formData.coaRegNo} onChange={handleChange} placeholder="e.g. CA/2018/84920 or U45201RJ2012PTC038" className="form-input" style={{ textTransform: 'uppercase' }} />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Technical Manpower & Engineering Strength</label>
+                  <select name="manpowerCount" value={formData.manpowerCount} onChange={handleChange} className="form-input">
+                    <option value="5">1 - 5 Senior Professionals</option>
+                    <option value="15">6 - 20 Technical Staff & Engineers</option>
+                    <option value="50">21 - 50 Technical Staff</option>
+                    <option value="100">50+ Corporate Engineers & Site Staff</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Lead Authorized Contact Officer <span className="required">*</span></label>
+                  <input type="text" name="contactName" value={formData.contactName} onChange={handleChange} placeholder="Full Name of Director / Principal Architect" className={`form-input ${errors.contactName ? 'error' : ''}`} />
                   {errors.contactName && <span className="error-text">{errors.contactName}</span>}
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Designation / COA Council Reg. No</label>
-                  <input type="text" name="designation" value={formData.designation} onChange={handleChange} placeholder="e.g. Principal Architect (CA/2018/84920)" className="form-input" />
+                  <label className="form-label">Designation / Executive Position</label>
+                  <input type="text" name="designation" value={formData.designation} onChange={handleChange} placeholder="e.g. Managing Director / Partner" className="form-input" />
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Official Corporate Email <span className="required">*</span></label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="architect@firm.com" className={`form-input ${errors.email ? 'error' : ''}`} />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="contact@firm.com" className={`form-input ${errors.email ? 'error' : ''}`} />
                   {errors.email && <span className="error-text">{errors.email}</span>}
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Mobile Number <span className="required">*</span></label>
+                  <label className="form-label">Official Contact Mobile Number <span className="required">*</span></label>
                   <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+91 98765 43210" className={`form-input ${errors.phone ? 'error' : ''}`} />
                   {errors.phone && <span className="error-text">{errors.phone}</span>}
                 </div>
 
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="form-label">Registered Office / Studio Address</label>
-                  <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Studio / Office Suite / Street Address" className="form-input" />
+                  <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Plot / Suite / Industrial Area Premises" className="form-input" />
                 </div>
 
                 <div className="form-group">
@@ -382,18 +416,18 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
             </div>
           )}
 
-          {/* STEP 2 */}
+          {/* STEP 2: GST & COMPLIANCE */}
           {currentStep === 2 && (
             <div>
               <div className="step-header">
                 <h3 className="step-header-title">
                   <CreditCard style={{ width: 20, height: 20, color: '#0047AB' }} />
-                  <span>Step 2: Statutory Compliance & Fee Payout Bank Details</span>
+                  <span>Step 2: Statutory Tax Compliance & Payout Banking Credentials</span>
                 </h3>
-                <p className="step-header-sub">GSTIN, PAN, and Bank Current Account for design milestone fee disbursements</p>
+                <p className="step-header-sub">GSTIN, PAN Card, MSME Udyam Exemption, and Current Account Payout Bank Details</p>
               </div>
 
-              {/* GSTIN & PAN Verifier Engine */}
+              {/* GSTIN & PAN Real Verification Component */}
               <GstVerifier 
                 gstin={formData.gstin} 
                 pan={formData.pan} 
@@ -403,101 +437,146 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               <div className="form-grid-2">
                 <div className="form-group">
                   <label className="form-label">GSTIN Number <span className="required">*</span></label>
-                  <input type="text" name="gstin" value={formData.gstin} onChange={handleChange} maxLength={15} placeholder="08AAAAA0000A1Z5" className={`form-input ${errors.gstin ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} />
+                  <input type="text" name="gstin" value={formData.gstin} onChange={handleChange} maxLength={15} placeholder="08AAAAA0000A1Z5" className={`form-input ${errors.gstin ? 'error' : ''}`} style={{ textTransform: 'uppercase', fontFamily: 'monospace', fontWeight: 800 }} />
                   {errors.gstin && <span className="error-text">{errors.gstin}</span>}
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Firm / Personal PAN Card <span className="required">*</span></label>
-                  <input type="text" name="pan" value={formData.pan} onChange={handleChange} maxLength={10} placeholder="ABCDE1234F" className={`form-input ${errors.pan ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} />
+                  <label className="form-label">Company / Personal PAN Card <span className="required">*</span></label>
+                  <input type="text" name="pan" value={formData.pan} onChange={handleChange} maxLength={10} placeholder="ABCDE1234F" className={`form-input ${errors.pan ? 'error' : ''}`} style={{ textTransform: 'uppercase', fontFamily: 'monospace', fontWeight: 800 }} />
                   {errors.pan && <span className="error-text">{errors.pan}</span>}
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">MSME Udyam Number (Optional)</label>
-                  <input type="text" name="msmeNo" value={formData.msmeNo} onChange={handleChange} placeholder="UDYAM-XX-00-0000000" className="form-input" style={{ textTransform: 'uppercase' }} />
+                  <label className="form-label">MSME Udyam Reg. Number (Optional)</label>
+                  <input type="text" name="msmeNo" value={formData.msmeNo} onChange={handleChange} placeholder="UDYAM-XX-00-0000000" className="form-input" style={{ textTransform: 'uppercase', fontFamily: 'monospace' }} />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Bank Account Number <span className="required">*</span></label>
-                  <input type="text" name="bankAccount" value={formData.bankAccount} onChange={handleChange} placeholder="Bank Current / Savings Account" className={`form-input ${errors.bankAccount ? 'error' : ''}`} />
+                  <label className="form-label">Bank Current Account Number <span className="required">*</span></label>
+                  <input type="text" name="bankAccount" value={formData.bankAccount} onChange={handleChange} placeholder="Bank Current Account No" className={`form-input ${errors.bankAccount ? 'error' : ''}`} style={{ fontFamily: 'monospace' }} />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Bank Name & Branch</label>
-                  <input type="text" name="bankName" value={formData.bankName} onChange={handleChange} placeholder="HDFC Bank, Branch Name" className="form-input" />
+                  <label className="form-label">Bank Name & Branch Title</label>
+                  <input type="text" name="bankName" value={formData.bankName} onChange={handleChange} placeholder="HDFC Bank, Commercial Branch" className="form-input" />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">IFSC Code <span className="required">*</span></label>
-                  <input type="text" name="ifsc" value={formData.ifsc} onChange={handleChange} placeholder="HDFC0001234" className={`form-input ${errors.ifsc ? 'error' : ''}`} style={{ textTransform: 'uppercase' }} />
+                  <label className="form-label">Bank IFSC Code <span className="required">*</span></label>
+                  <input type="text" name="ifsc" value={formData.ifsc} onChange={handleChange} placeholder="HDFC0001234" className={`form-input ${errors.ifsc ? 'error' : ''}`} style={{ textTransform: 'uppercase', fontFamily: 'monospace', fontWeight: 800 }} />
                 </div>
               </div>
             </div>
           )}
 
-          {/* STEP 3 */}
+          {/* STEP 3: FINANCIALS & EQUIPMENT */}
           {currentStep === 3 && (
             <div>
               <div className="step-header">
                 <h3 className="step-header-title">
                   <DollarSign style={{ width: 20, height: 20, color: '#0047AB' }} />
-                  <span>Step 3: Annual Financials & Project Area Rates (BUA / CPA)</span>
+                  <span>Step 3: Audited Turnovers, Equipment Inventory & Quoted Fee Rates</span>
                 </h3>
-                <p className="step-header-sub">Audited turnovers and fee rates per sq ft for Built-Up Area (BUA) & Covered Parking Area (CPA)</p>
+                <p className="step-header-sub">3-Year turnover statements, CA Net Worth, Equipment Inventory, and Built Up Area (BUA/CPA) rates</p>
               </div>
 
               <div className="form-grid-3">
                 <div className="form-group">
                   <label className="form-label">Turnover FY 2023-24 (₹ Lakhs)</label>
-                  <input type="number" name="turnover2023" value={formData.turnover2023} onChange={handleChange} placeholder="Amount in Lakhs" className="form-input" />
+                  <input type="number" name="turnover2023" value={formData.turnover2023} onChange={handleChange} placeholder="e.g. 350" className="form-input" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Turnover FY 2024-25 (₹ Lakhs)</label>
-                  <input type="number" name="turnover2024" value={formData.turnover2024} onChange={handleChange} placeholder="Amount in Lakhs" className="form-input" />
+                  <input type="number" name="turnover2024" value={formData.turnover2024} onChange={handleChange} placeholder="e.g. 410" className="form-input" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Turnover FY 2025-26 (₹ Lakhs) <span className="required">*</span></label>
-                  <input type="number" name="turnover2025" value={formData.turnover2025} onChange={handleChange} placeholder="Amount in Lakhs" className={`form-input ${errors.turnover2025 ? 'error' : ''}`} />
+                  <input type="number" name="turnover2025" value={formData.turnover2025} onChange={handleChange} placeholder="e.g. 450" className={`form-input ${errors.turnover2025 ? 'error' : ''}`} />
+                  {errors.turnover2025 && <span className="error-text">{errors.turnover2025}</span>}
                 </div>
               </div>
 
               <div className="form-grid-2" style={{ marginTop: '1.25rem' }}>
                 <div className="form-group">
+                  <label className="form-label">CA Certified Net Worth (₹ Lakhs)</label>
+                  <input type="number" name="netWorth" value={formData.netWorth} onChange={handleChange} placeholder="Net worth in Lakhs" className="form-input" />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Single Largest Work Order Executed (₹ Lakhs)</label>
+                  <input type="number" name="largestOrder" value={formData.largestOrder} onChange={handleChange} placeholder="e.g. 250" className="form-input" />
+                </div>
+              </div>
+
+              {/* BUA & CPA Fee Quote */}
+              <div className="form-grid-2" style={{ marginTop: '1.25rem' }}>
+                <div className="form-group">
                   <label className="form-label">Architect BUA Rate Quote (₹ / sq ft)</label>
-                  <input type="number" name="buaArea" value={formData.buaArea} onChange={handleChange} placeholder="Standard Rate e.g. ₹ 23 / sq ft" className="form-input" />
-                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Standard company rate: ₹ 15 to ₹ 23 per sq ft of Total Built Up Area</span>
+                  <input type="number" name="buaArea" value={formData.buaArea} onChange={handleChange} placeholder="Standard Rate e.g. ₹ 23" className="form-input" style={{ fontWeight: 800, color: '#0047AB' }} />
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Company standard rate: ₹ 15 to ₹ 23 per sq ft of Built-Up Area</span>
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Architect CPA Rate Quote (₹ / sq ft)</label>
-                  <input type="number" name="cpaArea" value={formData.cpaArea} onChange={handleChange} placeholder="Covered Parking Rate e.g. ₹ 14 / sq ft" className="form-input" />
-                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Standard company rate: ₹ 7 to ₹ 14 per sq ft of Covered Parking Area</span>
+                  <input type="number" name="cpaArea" value={formData.cpaArea} onChange={handleChange} placeholder="Covered Parking Rate e.g. ₹ 14" className="form-input" style={{ fontWeight: 800, color: '#10B981' }} />
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Company standard rate: ₹ 7 to ₹ 14 per sq ft of Covered Parking</span>
                 </div>
               </div>
+
+              {/* Major Machinery & Software Inventory Checklist */}
+              <div style={{ marginTop: '1.5rem', padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Wrench style={{ width: 16, height: 16 }} />
+                  <span>Technical Equipment & Software Inventory Checklist:</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', fontSize: '0.825rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={formData.machineryCheck.batchingPlant} onChange={() => handleMachineryToggle('batchingPlant')} />
+                    <span>Concrete Batching Plant / RMC Access</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={formData.machineryCheck.towerCrane} onChange={() => handleMachineryToggle('towerCrane')} />
+                    <span>Tower Crane / Piling Rig Access</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={formData.machineryCheck.bimSoftware} onChange={() => handleMachineryToggle('bimSoftware')} />
+                    <span>Autodesk Revit / BIM 360 Workstations</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={formData.machineryCheck.totalStation} onChange={() => handleMachineryToggle('totalStation')} />
+                    <span>Total Station / DGPS Survey Gear</span>
+                  </label>
+                </div>
+              </div>
+
             </div>
           )}
 
-          {/* STEP 4 */}
+          {/* STEP 4: DRAWINGS & DOCUMENTS */}
           {currentStep === 4 && (
             <div>
               <div className="step-header">
                 <h3 className="step-header-title">
                   <FileCheck style={{ width: 20, height: 20, color: '#0047AB' }} />
-                  <span>Step 4: Upload Verification Documents & Sample CAD / Renders</span>
+                  <span>Step 4: Upload Verification Certificates & Sample Drawings</span>
                 </h3>
-                <p className="step-header-sub">Upload GST, PAN, Bank Cheque, and Sample Design Documents in PDF / JPG format (Max 10MB)</p>
+                <p className="step-header-sub">Upload GST REG-06, PAN, Bank Cheque, and Sample CAD Drawings / Portfolio in PDF format (Max 10MB)</p>
               </div>
 
               <div style={{ padding: '0.85rem 1rem', borderRadius: 10, backgroundColor: 'rgba(0, 71, 171, 0.06)', border: '1px solid rgba(0, 71, 171, 0.2)', fontSize: '0.8rem', marginBottom: '1.25rem' }}>
-                ℹ️ <strong>Mandatory Document Naming Standard:</strong> Please format design file names as <code>DDMMYY-HP-[PROJECT TITLE]-[DOC NAME]-R[REVISION]</code> (e.g. <code>250726-HP-Residences-FloorPlan-R0.pdf</code>).
+                ℹ️ <strong>Mandatory File Naming Format Standard:</strong> <code>DDMMYY-HP-[PROJECT TITLE]-[DOC NAME]-R[REVISION]</code> (e.g. <code>250726-HP-Residences-FloorPlan-R0.pdf</code>).
               </div>
 
               <div className="form-grid-2">
                 {[
                   { field: 'gstDoc', label: 'GST Registration Certificate (GST REG-06)' },
-                  { field: 'panDoc', label: 'Company / Personal PAN Copy' },
-                  { field: 'bankDoc', label: 'Cancelled Cheque / Bank Passbook' },
+                  { field: 'panDoc', label: 'Company / Personal PAN Card Copy' },
+                  { field: 'bankDoc', label: 'Cancelled Cheque / Bank Passbook Copy' },
                   { field: 'expDoc', label: 'Sample CAD Drawings / 3D Renders / Portfolio' },
                 ].map((item) => (
                   <div key={item.field} className="upload-card">
@@ -528,7 +607,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
             </div>
           )}
 
-          {/* STEP 5 */}
+          {/* STEP 5: SIGNATURE & TERMS */}
           {currentStep === 5 && (
             <div>
               <div className="step-header">
@@ -536,7 +615,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   <ShieldCheck style={{ width: 20, height: 20, color: '#10B981' }} />
                   <span>Step 5: Digital Signature, Compliance Checklist & Final Submission</span>
                 </h3>
-                <p className="step-header-sub">Digital signature capture, legal compliance checklist, and anti-bot verification</p>
+                <p className="step-header-sub">Digital signature pad capture, legal undertaking checklist, and anti-bot security verification</p>
               </div>
 
               {/* Processing Fee & MSME Waiver Slip */}
@@ -551,7 +630,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               />
               {errors.signature && <span className="error-text" style={{ display: 'block', marginBottom: '1rem' }}>{errors.signature}</span>}
 
-              {/* 4 MANDATORY COMPLIANCE CHECKBOXES */}
+              {/* 3 MANDATORY COMPLIANCE CHECKBOXES */}
               <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.825rem' }}>
                 <div style={{ fontWeight: 800, color: '#0047AB' }}>Legal Compliance & Undertaking Checklist:</div>
 
