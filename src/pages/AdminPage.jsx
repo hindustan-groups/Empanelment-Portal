@@ -6,13 +6,36 @@ import {
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3, 
   Printer, FileText, Building2, CreditCard, DollarSign, MapPin, 
   User, Check, AlertTriangle, ShieldAlert, Award, FileCheck2, 
-  PlusCircle, Sliders, BarChart3, Lock, MessageSquare, ExternalLink, Calendar, HardHat 
+  PlusCircle, Sliders, BarChart3, Lock, MessageSquare, ExternalLink, Calendar, HardHat, Layers 
 } from 'lucide-react';
+
+const DEFAULT_CATEGORIES = [
+  { id: 'consultants', label: 'Architects & BIM Engineering Consultants', description: '2D/3D Floor plans, Structural & MEP consultancy' },
+  { id: 'civil', label: 'Civil & Structural Engineering Contractors', description: 'Foundation, RCC frame, Masonry & Turnkey EPC construction' },
+  { id: 'mep', label: 'MEP, HVAC & Electrical System Services', description: 'Chillers, Air conditioning, Transformer & Firefighting works' },
+  { id: 'suppliers', label: 'Material & Construction Goods Suppliers', description: 'TMT Steel, Cement, Ready-Mix Concrete & Structural Glazing' },
+  { id: 'equipment', label: 'Heavy Machinery & Crane Rentals', description: 'JCB, Excavators, Tower Cranes & Piling Rigs' },
+  { id: 'site_services', label: 'Facility & PMC Site Services', description: 'Project Management, Quality Audit & Site Supervision' },
+  { id: 'interior', label: 'Interior Designers & Turnkey Decorators', description: 'Modular Furniture, False Ceiling & Commercial Fit-outs' },
+  { id: 'fire', label: 'Fire Protection & Safety Engineers', description: 'Hydrant systems, Sprinklers & Fire alarm commissioning' },
+  { id: 'soil', label: 'Geotechnical & Soil Testing Labs', description: 'NABL Accredited Soil Testing & Core Drilling Labs' },
+  { id: 'solar', label: 'Solar & Renewable Energy Integrators', description: 'Rooftop Solar, Inverters & Green Energy EPC' }
+];
 
 export default function AdminPage({ isAuthenticated, onLogout }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('applications');
+  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'categories' | 'tenders' | 'analytics' | 'security'
   const [vendors, setVendors] = useState([]);
+  
+  // Custom Dynamic Categories Manager State
+  const [categories, setCategories] = useState(() => {
+    const saved = localStorage.getItem('hipro_custom_categories');
+    return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
+  });
+
+  const [newCat, setNewCat] = useState({ id: '', label: '', description: '' });
+  const [showAddCatModal, setShowAddCatModal] = useState(false);
+
   const [tenders, setTenders] = useState([
     { id: 1, code: 'HP-TND-2026-081', title: 'EPC Civil & Structural Work - Commercial Tower (B+G+18)', category: 'civil', location: 'Jaipur, Rajasthan', estimatedCost: '₹ 45.0 Crores', deadline: '2026-08-15', status: 'OPEN FOR BIDDING' },
     { id: 2, code: 'HP-TND-2026-094', title: 'MEP, HVAC & Chiller Plant Commissioning', category: 'mep', location: 'Gurgaon, Haryana', estimatedCost: '₹ 12.5 Crores', deadline: '2026-08-20', status: 'OPEN FOR BIDDING' },
@@ -35,6 +58,10 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     }
     fetchVendors();
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    localStorage.setItem('hipro_custom_categories', JSON.stringify(categories));
+  }, [categories]);
 
   const fetchVendors = async () => {
     setLoading(true);
@@ -134,6 +161,27 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddCategory = (e) => {
+    e.preventDefault();
+    if (!newCat.label.trim()) return;
+
+    const catId = newCat.id.trim() || newCat.label.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const catObj = {
+      id: catId,
+      label: newCat.label,
+      description: newCat.description || 'Custom added corporate empanelment category'
+    };
+
+    setCategories(prev => [...prev, catObj]);
+    setNewCat({ id: '', label: '', description: '' });
+    setShowAddCatModal(false);
+  };
+
+  const handleDeleteCategory = (catId) => {
+    if (!window.confirm(`Are you sure you want to delete category "${catId}" from active portal options?`)) return;
+    setCategories(prev => prev.filter(c => c.id !== catId));
   };
 
   const handleUpdateStatus = async (trackingId, newStatus, newStage) => {
@@ -287,6 +335,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </button>
 
           <button 
+            onClick={() => setActiveTab('categories')}
+            className={`btn-secondary ${activeTab === 'categories' ? 'active' : ''}`}
+            style={{ backgroundColor: activeTab === 'categories' ? '#0047AB' : 'var(--bg-surface)', color: activeTab === 'categories' ? 'white' : 'var(--text-primary)', border: 'none' }}
+          >
+            <Layers style={{ width: 16, height: 16 }} />
+            <span>Empanelment Categories Manager ({categories.length})</span>
+          </button>
+
+          <button 
             onClick={() => setActiveTab('tenders')}
             className={`btn-secondary ${activeTab === 'tenders' ? 'active' : ''}`}
             style={{ backgroundColor: activeTab === 'tenders' ? '#0047AB' : 'var(--bg-surface)', color: activeTab === 'tenders' ? 'white' : 'var(--text-primary)', border: 'none' }}
@@ -354,11 +411,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 style={{ width: 'auto', minWidth: 220 }}
               >
                 <option value="all">All Business Categories</option>
-                <option value="civil">Civil & Structural Engineering</option>
-                <option value="mep">MEP & Electrical Services</option>
-                <option value="suppliers">Material & Goods Suppliers</option>
-                <option value="consultants">Architects & Consultants</option>
-                <option value="equipment">Heavy Equipment & Machinery</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
               </select>
             </div>
 
@@ -436,7 +491,39 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         )}
 
-        {/* TAB 2: ACTIVE TENDERS MANAGER */}
+        {/* TAB 2: DYNAMIC CATEGORIES MANAGER */}
+        {activeTab === 'categories' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Empanelment Business Categories Manager</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Add, Edit, or Delete custom business categories that appear live in the public registration form</p>
+              </div>
+              <button onClick={() => setShowAddCatModal(true)} className="btn-primary" style={{ padding: '0.65rem 1.25rem' }}>
+                <PlusCircle style={{ width: 16, height: 16 }} />
+                <span>Add New Custom Category</span>
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
+              {categories.map((c) => (
+                <div key={c.id} style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Category Code: {c.id}</div>
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem' }}>{c.label}</h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1rem' }}>{c.description}</p>
+                  </div>
+                  <button onClick={() => handleDeleteCategory(c.id)} className="btn-secondary" style={{ width: '100%', justifyContent: 'center', color: '#ED1C24', fontSize: '0.8rem' }}>
+                    <Trash2 style={{ width: 14, height: 14 }} />
+                    <span>Delete Category</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: ACTIVE TENDERS MANAGER */}
         {activeTab === 'tenders' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -475,7 +562,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         )}
 
-        {/* TAB 3: TURNOVER ANALYTICS */}
+        {/* TAB 4: TURNOVER ANALYTICS */}
         {activeTab === 'analytics' && (
           <div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>Registered Vendors Financial Turnover Metrics</h3>
@@ -495,7 +582,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         )}
 
-        {/* TAB 4: AUDIT LOGS & SECURITY */}
+        {/* TAB 5: AUDIT LOGS & SECURITY */}
         {activeTab === 'security' && (
           <div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>VPS Server Security & Cryptographic Audit Trails</h3>
@@ -507,6 +594,37 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}><ShieldCheck style={{ width: 16, height: 16 }} /><span>SHA-256 Tamper-Proof Application Hashes Generated</span></li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}><ShieldCheck style={{ width: 16, height: 16 }} /><span>Strict MIME-type Document Whitelisting (.pdf, .jpg, .png)</span></li>
               </ul>
+            </div>
+          </div>
+        )}
+
+        {/* NEW CUSTOM CATEGORY MODAL */}
+        {showAddCatModal && (
+          <div className="modal-backdrop" onClick={() => setShowAddCatModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 500 }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>Add New Custom Empanelment Category</h3>
+              
+              <form onSubmit={handleAddCategory} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <div>
+                  <label className="form-label">Category Label / Title</label>
+                  <input type="text" value={newCat.label} onChange={(e) => setNewCat({ ...newCat, label: e.target.value })} placeholder="e.g. Pre-cast Concrete & Piling Contractors" className="form-input" required />
+                </div>
+
+                <div>
+                  <label className="form-label">Short Code / Slug (Optional)</label>
+                  <input type="text" value={newCat.id} onChange={(e) => setNewCat({ ...newCat, id: e.target.value })} placeholder="e.g. precast_concrete" className="form-input" />
+                </div>
+
+                <div>
+                  <label className="form-label">Scope Description</label>
+                  <textarea value={newCat.description} onChange={(e) => setNewCat({ ...newCat, description: e.target.value })} placeholder="Describe scope of work for this category..." className="form-input" style={{ minHeight: 80 }} />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                  <button type="button" onClick={() => setShowAddCatModal(false)} className="btn-secondary">Cancel</button>
+                  <button type="submit" className="btn-primary">Add Category to Live Portal</button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -526,10 +644,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 <div>
                   <label className="form-label">Category</label>
                   <select value={newTender.category} onChange={(e) => setNewTender({ ...newTender, category: e.target.value })} className="form-input">
-                    <option value="civil">Civil & Structural Engineering</option>
-                    <option value="mep">MEP & HVAC Systems</option>
-                    <option value="suppliers">Material Supply</option>
-                    <option value="consultants">Architects & BIM</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.label}</option>
+                    ))}
                   </select>
                 </div>
 

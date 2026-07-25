@@ -28,12 +28,31 @@ const DISCIPLINE_ROLES = [
   { code: 'hospitality', label: 's) Hospitality & Other Subject Specialist' }
 ];
 
+const DEFAULT_CATEGORIES = [
+  { id: 'consultants', label: 'Architects & BIM Engineering Consultants' },
+  { id: 'civil', label: 'Civil & Structural Engineering Contractors' },
+  { id: 'mep', label: 'MEP, HVAC & Electrical System Services' },
+  { id: 'suppliers', label: 'Material & Construction Goods Suppliers' },
+  { id: 'equipment', label: 'Heavy Machinery & Crane Rentals' },
+  { id: 'site_services', label: 'Facility & PMC Site Services' },
+  { id: 'interior', label: 'Interior Designers & Turnkey Decorators' },
+  { id: 'fire', label: 'Fire Protection & Safety Engineers' },
+  { id: 'soil', label: 'Geotechnical & Soil Testing Labs' },
+  { id: 'solar', label: 'Solar & Renewable Energy Integrators' }
+];
+
 export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const [signatureData, setSignatureData] = useState(null);
   
+  // Read dynamic categories from Admin manager
+  const [availableCategories, setAvailableCategories] = useState(() => {
+    const saved = localStorage.getItem('hipro_custom_categories');
+    return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
+  });
+
   const [formData, setFormData] = useState({
     category: category || 'civil',
     primaryRole: 'arch',
@@ -295,12 +314,9 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 <div className="form-group">
                   <label className="form-label">Empanelment Category</label>
                   <select name="category" value={formData.category} onChange={handleChange} className="form-input">
-                    <option value="consultants">Architects & BIM Engineering Consultants</option>
-                    <option value="civil">Civil & Structural Engineering Contractors</option>
-                    <option value="mep">MEP, HVAC & Electrical System Services</option>
-                    <option value="suppliers">Material & Construction Goods Suppliers</option>
-                    <option value="equipment">Heavy Machinery & Crane Rentals</option>
-                    <option value="site_services">Facility & PMC Site Services</option>
+                    {availableCategories.map(c => (
+                      <option key={c.id} value={c.id}>{c.label}</option>
+                    ))}
                   </select>
                 </div>
 
