@@ -31,6 +31,20 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
     { id: 'site_services', name: 'Facility & Site Logistics', icon: HardHat, desc: 'Safety Equipment & Workforce Support' },
   ];
 
+  const handleCategoryClick = (catId) => {
+    setSelectedCategory(catId);
+    if (onStartForm) {
+      onStartForm();
+    }
+    // Smooth Auto-Scroll to Registration Form Container
+    setTimeout(() => {
+      const formEl = document.querySelector('.form-container');
+      if (formEl) {
+        formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
   return (
     <section className="hero-section">
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -105,10 +119,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
               return (
                 <div
                   key={cat.id}
-                  onClick={() => {
-                    setSelectedCategory(cat.id);
-                    onStartForm();
-                  }}
+                  onClick={() => handleCategoryClick(cat.id)}
                   className={`category-card ${isSelected ? 'selected' : ''}`}
                 >
                   <div className="category-icon">

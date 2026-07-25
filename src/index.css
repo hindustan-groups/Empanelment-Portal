@@ -27,6 +27,30 @@
   --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* CUSTOM HIGH-PERFORMANCE SCROLLBAR */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0047AB 0%, #ED1C24 100%);
+  border-radius: 9999px;
+  border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ED1C24;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -124,6 +148,11 @@ body {
 
 .btn-icon-text:hover {
   border-color: #0047AB;
+  transform: translateY(-1px);
+}
+
+.btn-icon-text:active {
+  transform: scale(0.97);
 }
 
 .theme-toggle-btn {
@@ -136,6 +165,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.92);
 }
 
 .mobile-toggle-wrapper {
@@ -245,6 +279,12 @@ body {
   gap: 0.85rem;
   box-shadow: var(--shadow-sm);
   text-align: left;
+  transition: transform 0.25 ease, box-shadow 0.25s ease;
+}
+
+.trust-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .trust-icon-box {
@@ -298,23 +338,29 @@ body {
   border-radius: 20px;
   border: 1px solid var(--border-color);
   padding: 1.75rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   cursor: pointer;
   box-shadow: var(--shadow-md);
+  user-select: none;
 }
 
-.category-card:hover, .category-card.selected {
-  transform: translateY(-5px);
+.category-card:hover {
+  transform: translateY(-6px);
   border-color: #0047AB;
   box-shadow: var(--shadow-lg);
 }
 
+.category-card:active {
+  transform: scale(0.97);
+}
+
 .category-card.selected {
   background: linear-gradient(135deg, rgba(0, 71, 171, 0.05) 0%, rgba(237, 28, 36, 0.05) 100%);
-  border-width: 2px;
+  border: 2px solid #0047AB;
+  box-shadow: 0 0 20px rgba(0, 71, 171, 0.2);
 }
 
 .category-icon {
@@ -403,6 +449,11 @@ body {
   z-index: 2;
   cursor: pointer;
   min-width: 95px;
+  transition: transform 0.2s ease;
+}
+
+.step-item:active {
+  transform: scale(0.95);
 }
 
 .step-bubble {
@@ -536,6 +587,11 @@ body {
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.upload-btn:active {
+  transform: scale(0.95);
 }
 
 .form-actions {
@@ -547,7 +603,7 @@ body {
   border-top: 1px solid var(--border-color);
 }
 
-/* BUTTON UTILITIES */
+/* BUTTON UTILITIES WITH SMOOTH CLICK RESPONSE */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -562,12 +618,18 @@ body {
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(0, 71, 171, 0.35);
   text-decoration: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
 }
 
 .btn-primary:hover {
   opacity: 0.95;
-  transform: translateY(-1px);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(0, 71, 171, 0.45);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
 }
 
 .btn-accent {
@@ -584,12 +646,18 @@ body {
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(237, 28, 36, 0.35);
   text-decoration: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
 }
 
 .btn-accent:hover {
   opacity: 0.95;
-  transform: translateY(-1px);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(237, 28, 36, 0.45);
+}
+
+.btn-accent:active {
+  transform: scale(0.97);
 }
 
 .btn-secondary {
@@ -605,7 +673,17 @@ body {
   border: 1px solid var(--border-color);
   cursor: pointer;
   text-decoration: none;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  user-select: none;
+}
+
+.btn-secondary:hover {
+  border-color: #0047AB;
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
 }
 
 .btn-draft {
@@ -620,6 +698,11 @@ body {
   font-weight: 700;
   border: none;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.btn-draft:active {
+  transform: scale(0.95);
 }
 
 /* FOOTER STYLES */

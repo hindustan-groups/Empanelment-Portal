@@ -190,16 +190,25 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     return Object.keys(newErrors).length === 0;
   };
 
+  const scrollToFormTop = () => {
+    const el = document.getElementById('empanelment-form-container');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+  };
+
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, 5));
-      window.scrollTo({ top: 350, behavior: 'smooth' });
+      scrollToFormTop();
     }
   };
 
   const handleBack = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 350, behavior: 'smooth' });
+    scrollToFormTop();
   };
 
   const handleSaveDraft = () => {
@@ -293,7 +302,12 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               return (
                 <div 
                   key={st.num}
-                  onClick={() => isDone && setCurrentStep(st.num)}
+                  onClick={() => {
+                    if (isDone || st.num < currentStep) {
+                      setCurrentStep(st.num);
+                      scrollToFormTop();
+                    }
+                  }}
                   className={`step-item ${isDone ? 'done' : isActive ? 'active' : ''}`}
                 >
                   <div className="step-bubble">
