@@ -6,7 +6,7 @@ import {
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3, 
   Printer, FileText, Building2, CreditCard, DollarSign, MapPin, 
   User, Check, AlertTriangle, ShieldAlert, Award, FileCheck2, 
-  PlusCircle, Sliders, BarChart3, Lock, MessageSquare, ExternalLink, Calendar, HardHat, Layers 
+  PlusCircle, Sliders, BarChart3, Lock, MessageSquare, ExternalLink, Calendar, HardHat, Layers, Settings, Save 
 } from 'lucide-react';
 
 const DEFAULT_CATEGORIES = [
@@ -22,16 +22,40 @@ const DEFAULT_CATEGORIES = [
   { id: 'solar', label: 'Solar & Renewable Energy Integrators', description: 'Rooftop Solar, Inverters & Green Energy EPC' }
 ];
 
+const DEFAULT_SITE_CONFIG = {
+  companyTitle: 'Hindustan Projects',
+  subdomainPill: 'empanel.hindustanprojects.in',
+  helplinePhone: '+91 (011) 4500 8899 / 900',
+  corporateEmail: 'empanelment@hindustanprojects.in',
+  corporateAddress: 'Hindustan Projects Corporate Tower, Barakhamba Road, New Delhi - 110001',
+  heroBadge: 'Official Vendor & Contractor Registration FY 2026-27',
+  heroTitleBlue: 'Hindustan',
+  heroTitleRed: 'Projects',
+  heroSubtitle: 'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants. Fast-track technical & financial verification for active project tenders.',
+  processingFee: '5000',
+  gstRate: '18',
+  msmeWaiverActive: true,
+  footerCopyright: '© 2026 Hindustan Projects. All Rights Reserved. | Designed for empanel.hindustanprojects.in'
+};
+
 export default function AdminPage({ isAuthenticated, onLogout }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('applications');
+  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'site_cms' | 'categories' | 'tenders' | 'analytics' | 'security'
   const [vendors, setVendors] = useState([]);
   
+  // Dynamic Categories Manager State
   const [categories, setCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
     return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
   });
 
+  // Dynamic Site Content CMS State
+  const [siteConfig, setSiteConfig] = useState(() => {
+    const saved = localStorage.getItem('hipro_site_config');
+    return saved ? JSON.parse(saved) : DEFAULT_SITE_CONFIG;
+  });
+
+  const [cmsSavedAlert, setCmsSavedAlert] = useState(false);
   const [newCat, setNewCat] = useState({ id: '', label: '', description: '' });
   const [showAddCatModal, setShowAddCatModal] = useState(false);
 
@@ -61,6 +85,17 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   useEffect(() => {
     localStorage.setItem('hipro_custom_categories', JSON.stringify(categories));
   }, [categories]);
+
+  useEffect(() => {
+    localStorage.setItem('hipro_site_config', JSON.stringify(siteConfig));
+  }, [siteConfig]);
+
+  const handleSaveCMS = (e) => {
+    e.preventDefault();
+    localStorage.setItem('hipro_site_config', JSON.stringify(siteConfig));
+    setCmsSavedAlert(true);
+    setTimeout(() => setCmsSavedAlert(false), 3500);
+  };
 
   const fetchVendors = async () => {
     setLoading(true);
@@ -334,12 +369,21 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </button>
 
           <button 
+            onClick={() => setActiveTab('site_cms')}
+            className={`btn-secondary ${activeTab === 'site_cms' ? 'active' : ''}`}
+            style={{ backgroundColor: activeTab === 'site_cms' ? '#0047AB' : 'var(--bg-surface)', color: activeTab === 'site_cms' ? 'white' : 'var(--text-primary)', border: 'none' }}
+          >
+            <Settings style={{ width: 16, height: 16 }} />
+            <span>Website Content CMS</span>
+          </button>
+
+          <button 
             onClick={() => setActiveTab('categories')}
             className={`btn-secondary ${activeTab === 'categories' ? 'active' : ''}`}
             style={{ backgroundColor: activeTab === 'categories' ? '#0047AB' : 'var(--bg-surface)', color: activeTab === 'categories' ? 'white' : 'var(--text-primary)', border: 'none' }}
           >
             <Layers style={{ width: 16, height: 16 }} />
-            <span>Empanelment Categories Manager ({categories.length})</span>
+            <span>Categories Manager ({categories.length})</span>
           </button>
 
           <button 
@@ -349,15 +393,6 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           >
             <FileText style={{ width: 16, height: 16 }} />
             <span>Active Tenders Manager ({tenders.length})</span>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('analytics')}
-            className={`btn-secondary ${activeTab === 'analytics' ? 'active' : ''}`}
-            style={{ backgroundColor: activeTab === 'analytics' ? '#0047AB' : 'var(--bg-surface)', color: activeTab === 'analytics' ? 'white' : 'var(--text-primary)', border: 'none' }}
-          >
-            <BarChart3 style={{ width: 16, height: 16 }} />
-            <span>Turnover Analytics</span>
           </button>
 
           <button 
@@ -490,7 +525,113 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         )}
 
-        {/* TAB 2: DYNAMIC CATEGORIES MANAGER */}
+        {/* TAB 2: WEBSITE CONTENT CMS MANAGER */}
+        {activeTab === 'site_cms' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Website Content Live CMS Manager</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Edit any header text, helpline phone numbers, hero titles, footer address, and fee rates live on the public site</p>
+              </div>
+              <button onClick={handleSaveCMS} className="btn-primary" style={{ padding: '0.65rem 1.5rem' }}>
+                <Save style={{ width: 16, height: 16 }} />
+                <span>Publish Live Changes</span>
+              </button>
+            </div>
+
+            {cmsSavedAlert && (
+              <div style={{ padding: '0.85rem 1.15rem', borderRadius: 12, backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#047857', fontWeight: 800, fontSize: '0.85rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CheckCircle2 style={{ width: 18, height: 18 }} />
+                <span>Website Content Updated Live! Refresh public pages to view changes.</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveCMS} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              
+              {/* Header & Helpline Controls */}
+              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Building2 style={{ width: 16, height: 16 }} />
+                  <span>1. Header Navbar & Contact Information</span>
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+                  <div>
+                    <label className="form-label">Company Title</label>
+                    <input type="text" value={siteConfig.companyTitle} onChange={(e) => setSiteConfig({ ...siteConfig, companyTitle: e.target.value })} className="form-input" />
+                  </div>
+                  <div>
+                    <label className="form-label">Subdomain Pill Badge</label>
+                    <input type="text" value={siteConfig.subdomainPill} onChange={(e) => setSiteConfig({ ...siteConfig, subdomainPill: e.target.value })} className="form-input" />
+                  </div>
+                  <div>
+                    <label className="form-label">Helpline Phone Number</label>
+                    <input type="text" value={siteConfig.helplinePhone} onChange={(e) => setSiteConfig({ ...siteConfig, helplinePhone: e.target.value })} className="form-input" />
+                  </div>
+                  <div>
+                    <label className="form-label">Corporate Contact Email</label>
+                    <input type="email" value={siteConfig.corporateEmail} onChange={(e) => setSiteConfig({ ...siteConfig, corporateEmail: e.target.value })} className="form-input" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Hero Banner Controls */}
+              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <FileText style={{ width: 16, height: 16 }} />
+                  <span>2. Hero Banner Titles & Subtitle Text</span>
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div>
+                    <label className="form-label">Hero Badge Tagline</label>
+                    <input type="text" value={siteConfig.heroBadge} onChange={(e) => setSiteConfig({ ...siteConfig, heroBadge: e.target.value })} className="form-input" />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <label className="form-label">Hero Title (Blue Highlight)</label>
+                      <input type="text" value={siteConfig.heroTitleBlue} onChange={(e) => setSiteConfig({ ...siteConfig, heroTitleBlue: e.target.value })} className="form-input" />
+                    </div>
+                    <div>
+                      <label className="form-label">Hero Title (Red Highlight)</label>
+                      <input type="text" value={siteConfig.heroTitleRed} onChange={(e) => setSiteConfig({ ...siteConfig, heroTitleRed: e.target.value })} className="form-input" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="form-label">Hero Subtitle Description Paragraph</label>
+                    <textarea value={siteConfig.heroSubtitle} onChange={(e) => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })} className="form-input" style={{ minHeight: 70 }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer & Copyright Controls */}
+              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <MapPin style={{ width: 16, height: 16 }} />
+                  <span>3. Footer Corporate Address & Copyright Notice</span>
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div>
+                    <label className="form-label">Corporate Office Address</label>
+                    <input type="text" value={siteConfig.corporateAddress} onChange={(e) => setSiteConfig({ ...siteConfig, corporateAddress: e.target.value })} className="form-input" />
+                  </div>
+                  <div>
+                    <label className="form-label">Footer Copyright Notice</label>
+                    <input type="text" value={siteConfig.footerCopyright} onChange={(e) => setSiteConfig({ ...siteConfig, footerCopyright: e.target.value })} className="form-input" />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button type="submit" className="btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}>
+                  <Save style={{ width: 18, height: 18 }} />
+                  <span>Publish All Live Website Changes</span>
+                </button>
+              </div>
+
+            </form>
+          </div>
+        )}
+
+        {/* TAB 3: DYNAMIC CATEGORIES MANAGER */}
         {activeTab === 'categories' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -522,7 +663,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         )}
 
-        {/* TAB 3: ACTIVE TENDERS MANAGER */}
+        {/* TAB 4: ACTIVE TENDERS MANAGER */}
         {activeTab === 'tenders' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -557,26 +698,6 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   </button>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: TURNOVER ANALYTICS */}
-        {activeTab === 'analytics' && (
-          <div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>Registered Vendors Financial Turnover Metrics</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 800 }}>Class A Category (&gt; ₹ 5.0 Cr)</div>
-                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#10B981', margin: '0.35rem 0' }}>1 Entities</div>
-                <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>Qualifies for major commercial towers & EPC contracting.</p>
-              </div>
-
-              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 800 }}>Class B Category (₹ 50L - ₹ 5 Cr)</div>
-                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#0047AB', margin: '0.35rem 0' }}>1 Entities</div>
-                <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>Approved for MEP packages & material supply work orders.</p>
-              </div>
             </div>
           </div>
         )}
@@ -673,7 +794,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           <div className="modal-backdrop" onClick={() => setSelectedVendor(null)}>
             <div className="modal-content printable-area" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 850, maxHeight: '90vh', overflowY: 'auto' }}>
               
-              {/* Modal Print Header (Only visible on Print / Screen) */}
+              {/* Modal Print Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
                   <Logo height={42} />
@@ -684,7 +805,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 </div>
 
                 <div className="no-print" style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={handlePrintDossier} className="btn-secondary" style={{ padding: '0.4.rem 0.85rem', fontSize: '0.8rem', backgroundColor: '#0047AB', color: 'white', border: 'none' }}>
+                  <button onClick={handlePrintDossier} className="btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', backgroundColor: '#0047AB', color: 'white', border: 'none' }}>
                     <Printer style={{ width: 14, height: 14 }} />
                     <span>Print Clean Dossier (PDF)</span>
                   </button>
@@ -777,7 +898,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 )}
               </div>
 
-              {/* SECTION 6: Procurement Officer Official Seal & Approval Box (Visible in Print & Screen) */}
+              {/* SECTION 6: Procurement Officer Official Seal & Approval Box */}
               <div style={{ marginTop: '1.5rem', padding: '1rem', borderRadius: 12, border: '2px dashed #0047AB', backgroundColor: 'rgba(0, 71, 171, 0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Empanelment Approval Status</div>
@@ -793,7 +914,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
               </div>
 
               {/* SECTION 7: Action & Approval Bar (Hidden on Print) */}
-              <div className="no-print" style={{ marginTop: '1.25rem', padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)' }}>
+              <div className="no-print" style={{ marginTop: '1.25rem', padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1.5.px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.65rem' }}>Committee Decision & Empanelment Approval:</div>
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                   <button onClick={() => handleUpdateStatus(selectedVendor.tracking_id, 'Approved Class-A', 'Certificate Issued')} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', backgroundColor: '#10B981' }}>

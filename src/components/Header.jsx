@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import Logo from './Logo';
 import { Sun, Moon, Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck } from 'lucide-react';
 
+const DEFAULT_SITE_CONFIG = {
+  companyTitle: 'Hindustan Projects',
+  subdomainPill: 'empanel.hindustanprojects.in',
+  helplinePhone: '+91 (011) 4500 8899 / 900',
+  corporateEmail: 'empanelment@hindustanprojects.in'
+};
+
 export default function Header({ isDark, toggleTheme }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [siteConfig, setSiteConfig] = useState(DEFAULT_SITE_CONFIG);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('hipro_site_config');
+    if (saved) {
+      try {
+        setSiteConfig(JSON.parse(saved));
+      } catch (err) {
+        console.warn('Failed to parse site config:', err);
+      }
+    }
+  }, []);
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
@@ -14,14 +33,14 @@ export default function Header({ isDark, toggleTheme }) {
     <header className="header-navbar">
       <div className="header-inner">
         
-        {/* Left: Logo & Subdomain Badge */}
+        {/* Left: Logo & Dynamic Subdomain Badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link to="/" onClick={closeMobileMenu} style={{ textDecoration: 'none' }}>
             <Logo height={38} />
           </Link>
           <div className="subdomain-pill desktop-only">
             <span className="status-dot"></span>
-            <span>empanel.hindustanprojects.in</span>
+            <span>{siteConfig.subdomainPill || 'empanel.hindustanprojects.in'}</span>
           </div>
         </div>
 
@@ -75,7 +94,7 @@ export default function Header({ isDark, toggleTheme }) {
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.85rem', borderRadius: 9999, backgroundColor: 'var(--bg-surface)', fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', width: 'fit-content' }}>
               <ShieldCheck style={{ width: 14, height: 14, color: '#10B981' }} />
-              <span>empanel.hindustanprojects.in</span>
+              <span>{siteConfig.subdomainPill || 'empanel.hindustanprojects.in'}</span>
             </div>
 
             <NavLink 

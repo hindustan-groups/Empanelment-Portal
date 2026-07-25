@@ -1,7 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Award, Clock, FileCheck, Building2, Truck, Wrench, Compass, HardHat, PackageCheck } from 'lucide-react';
 
+const DEFAULT_SITE_CONFIG = {
+  heroBadge: 'Official Vendor & Contractor Registration FY 2026-27',
+  heroTitleBlue: 'Hindustan',
+  heroTitleRed: 'Projects',
+  heroSubtitle: 'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants. Fast-track technical & financial verification for active project tenders.'
+};
+
 export default function HeroSection({ selectedCategory, setSelectedCategory, onStartForm }) {
+  const [siteConfig, setSiteConfig] = useState(DEFAULT_SITE_CONFIG);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('hipro_site_config');
+    if (saved) {
+      try {
+        setSiteConfig(JSON.parse(saved));
+      } catch (err) {
+        console.warn('Failed to parse site config:', err);
+      }
+    }
+  }, []);
+
   const categories = [
     { id: 'civil', name: 'Civil & Structural Contractors', icon: Building2, desc: 'EPC, Commercial & Residential Construction' },
     { id: 'mep', name: 'MEP & Electrical Services', icon: Wrench, desc: 'HVAC, Firefighting, Plumbing & Power' },
@@ -15,18 +35,18 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
     <section className="hero-section">
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         
-        {/* Top Tag */}
+        {/* Dynamic Top Tag */}
         <div className="hero-tag">
           <Award style={{ width: 16, height: 16, color: '#ED1C24' }} />
-          <span>Official Vendor & Contractor Registration FY 2026-27</span>
+          <span>{siteConfig.heroBadge || 'Official Vendor & Contractor Registration FY 2026-27'}</span>
         </div>
 
-        {/* Hero Title */}
+        {/* Dynamic Hero Title */}
         <h1 className="hero-title">
-          Partner with <span className="text-blue">Hindustan</span> <span className="text-red">Projects</span>
+          Partner with <span className="text-blue">{siteConfig.heroTitleBlue || 'Hindustan'}</span> <span className="text-red">{siteConfig.heroTitleRed || 'Projects'}</span>
         </h1>
         <p className="hero-subtitle">
-          Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants. Fast-track technical & financial verification for active project tenders.
+          {siteConfig.heroSubtitle || 'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants.'}
         </p>
 
         {/* Trust Badges */}
