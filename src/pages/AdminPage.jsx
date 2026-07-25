@@ -38,6 +38,8 @@ const DEFAULT_SITE_CONFIG = {
   gstRate:          '18',
   msmeWaiverActive: true,
   footerCopyright:  '© 2026 Hindustan Projects. All Rights Reserved. | Designed for empanel.hindustanprojects.in',
+  footerAboutText:  'Official Vendor & Contractor Empanelment Portal of Hindustan Projects. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.',
+  mainWebsiteUrl:   'https://hindustanprojects.in',
 };
 
 const MOCK_AUDIT_LOGS = [
@@ -464,92 +466,119 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
             <form onSubmit={handleSaveCMS} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-              {/* 1. Header & Contact */}
+              {/* 1. Header & Navigation */}
               <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Building2 style={{ width: 15, height: 15 }} /> 1. Header Navbar & Contact Info
+                  <Building2 style={{ width: 15, height: 15 }} /> 1. Header Navbar & Subdomain Branding
                 </h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.85rem' }}>
-                  {[
-                    ['Company Title',       'companyTitle',    'text'],
-                    ['Subdomain Badge',     'subdomainPill',   'text'],
-                    ['Helpline Phone',      'helplinePhone',   'text'],
-                    ['Corporate Email',     'corporateEmail',  'email'],
-                    ['Corporate Address',   'corporateAddress','text'],
-                  ].map(([label, key, type]) => (
-                    <div key={key}>
-                      <label className="form-label">{label}</label>
-                      <input type={type} value={siteConfig[key]} onChange={e => setSiteConfig({ ...siteConfig, [key]: e.target.value })} className="form-input" />
-                    </div>
-                  ))}
+                  <div>
+                    <label className="form-label">Company Title</label>
+                    <input type="text" value={siteConfig.companyTitle || ''} onChange={e => setSiteConfig({ ...siteConfig, companyTitle: e.target.value })} className="form-input" />
+                  </div>
+                  <div>
+                    <label className="form-label">Subdomain Badge Pill</label>
+                    <input type="text" value={siteConfig.subdomainPill || ''} onChange={e => setSiteConfig({ ...siteConfig, subdomainPill: e.target.value })} className="form-input" />
+                  </div>
+                  <div>
+                    <label className="form-label">Main Company Website URL</label>
+                    <input type="text" value={siteConfig.mainWebsiteUrl || ''} onChange={e => setSiteConfig({ ...siteConfig, mainWebsiteUrl: e.target.value })} className="form-input" placeholder="https://hindustanprojects.in" />
+                  </div>
                 </div>
               </div>
 
               {/* 2. Hero Banner */}
               <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <FileText style={{ width: 15, height: 15 }} /> 2. Hero Banner Titles & Tagline
+                  <FileText style={{ width: 15, height: 15 }} /> 2. Hero Banner Titles & Subtitles
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <div>
-                    <label className="form-label">Hero Badge / Tagline</label>
-                    <input type="text" value={siteConfig.heroBadge} onChange={e => setSiteConfig({ ...siteConfig, heroBadge: e.target.value })} className="form-input" />
+                    <label className="form-label">Hero Badge / Announcement Tagline</label>
+                    <input type="text" value={siteConfig.heroBadge || ''} onChange={e => setSiteConfig({ ...siteConfig, heroBadge: e.target.value })} className="form-input" />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
                     <div>
-                      <label className="form-label">Hero Title — Blue Word</label>
-                      <input type="text" value={siteConfig.heroTitleBlue} onChange={e => setSiteConfig({ ...siteConfig, heroTitleBlue: e.target.value })} className="form-input" />
+                      <label className="form-label">Hero Title — Blue Highlight</label>
+                      <input type="text" value={siteConfig.heroTitleBlue || ''} onChange={e => setSiteConfig({ ...siteConfig, heroTitleBlue: e.target.value })} className="form-input" />
                     </div>
                     <div>
-                      <label className="form-label">Hero Title — Red Word</label>
-                      <input type="text" value={siteConfig.heroTitleRed} onChange={e => setSiteConfig({ ...siteConfig, heroTitleRed: e.target.value })} className="form-input" />
+                      <label className="form-label">Hero Title — Red Highlight</label>
+                      <input type="text" value={siteConfig.heroTitleRed || ''} onChange={e => setSiteConfig({ ...siteConfig, heroTitleRed: e.target.value })} className="form-input" />
                     </div>
                   </div>
                   <div>
-                    <label className="form-label">Hero Subtitle Paragraph</label>
-                    <textarea value={siteConfig.heroSubtitle} onChange={e => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })} className="form-input" style={{ minHeight: 70 }} />
+                    <label className="form-label">Hero Subtitle Description Paragraph</label>
+                    <textarea value={siteConfig.heroSubtitle || ''} onChange={e => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })} className="form-input" style={{ minHeight: 70 }} />
                   </div>
                 </div>
               </div>
 
-              {/* 3. Fee & MSME */}
+              {/* 3. Procurement Helpdesk & Contact Info */}
               <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <DollarSign style={{ width: 15, height: 15 }} /> 3. Processing Fee & MSME Waiver
+                  <MessageSquare style={{ width: 15, height: 15 }} /> 3. Procurement Helpdesk & Contact Information
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.85rem' }}>
+                  <div>
+                    <label className="form-label">Procurement Officer Helpline Phone</label>
+                    <input type="text" value={siteConfig.helplinePhone || ''} onChange={e => setSiteConfig({ ...siteConfig, helplinePhone: e.target.value })} className="form-input" />
+                  </div>
+                  <div>
+                    <label className="form-label">Official Vendor Support Email</label>
+                    <input type="email" value={siteConfig.corporateEmail || ''} onChange={e => setSiteConfig({ ...siteConfig, corporateEmail: e.target.value })} className="form-input" />
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label className="form-label">Corporate Office Address</label>
+                    <input type="text" value={siteConfig.corporateAddress || ''} onChange={e => setSiteConfig({ ...siteConfig, corporateAddress: e.target.value })} className="form-input" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Processing Fee & MSME Policy */}
+              <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <DollarSign style={{ width: 15, height: 15 }} /> 4. Processing Fee, Taxes & MSME Policy
                 </h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
                   <div>
-                    <label className="form-label">Processing Fee (₹)</label>
-                    <input type="number" value={siteConfig.processingFee} onChange={e => setSiteConfig({ ...siteConfig, processingFee: e.target.value })} className="form-input" />
+                    <label className="form-label">Empanelment Processing Fee (₹)</label>
+                    <input type="number" value={siteConfig.processingFee || ''} onChange={e => setSiteConfig({ ...siteConfig, processingFee: e.target.value })} className="form-input" />
                   </div>
                   <div>
-                    <label className="form-label">GST Rate (%)</label>
-                    <input type="number" value={siteConfig.gstRate} onChange={e => setSiteConfig({ ...siteConfig, gstRate: e.target.value })} className="form-input" />
+                    <label className="form-label">Applicable GST Rate (%)</label>
+                    <input type="number" value={siteConfig.gstRate || ''} onChange={e => setSiteConfig({ ...siteConfig, gstRate: e.target.value })} className="form-input" />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                    <label className="form-label">MSME Fee Waiver Active</label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                      <input type="checkbox" checked={siteConfig.msmeWaiverActive} onChange={e => setSiteConfig({ ...siteConfig, msmeWaiverActive: e.target.checked })} />
-                      <span style={{ fontSize: '0.83rem' }}>{siteConfig.msmeWaiverActive ? '✅ MSME Waiver ON' : '❌ MSME Waiver OFF'}</span>
+                    <label className="form-label">MSME Fee Waiver Policy</label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginTop: 4 }}>
+                      <input type="checkbox" checked={!!siteConfig.msmeWaiverActive} onChange={e => setSiteConfig({ ...siteConfig, msmeWaiverActive: e.target.checked })} />
+                      <span style={{ fontSize: '0.83rem', fontWeight: 700 }}>{siteConfig.msmeWaiverActive ? '✅ MSME Fee Waiver ON (₹0 Fee for UDYAM registered)' : '❌ MSME Waiver OFF'}</span>
                     </label>
                   </div>
                 </div>
               </div>
 
-              {/* 4. Footer */}
+              {/* 5. Footer Content & Copyright */}
               <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <MapPin style={{ width: 15, height: 15 }} /> 4. Footer Copyright Notice
+                  <MapPin style={{ width: 15, height: 15 }} /> 5. Footer About Text & Legal Copyright
                 </h4>
-                <div>
-                  <label className="form-label">Footer Copyright Text</label>
-                  <input type="text" value={siteConfig.footerCopyright} onChange={e => setSiteConfig({ ...siteConfig, footerCopyright: e.target.value })} className="form-input" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  <div>
+                    <label className="form-label">Footer About Paragraph Text</label>
+                    <textarea value={siteConfig.footerAboutText || ''} onChange={e => setSiteConfig({ ...siteConfig, footerAboutText: e.target.value })} className="form-input" style={{ minHeight: 70 }} />
+                  </div>
+                  <div>
+                    <label className="form-label">Footer Legal Copyright Notice</label>
+                    <input type="text" value={siteConfig.footerCopyright || ''} onChange={e => setSiteConfig({ ...siteConfig, footerCopyright: e.target.value })} className="form-input" />
+                  </div>
                 </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button type="submit" className="btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}>
-                  <Save style={{ width: 17, height: 17 }} /><span>Publish All Live Changes</span>
+                  <Save style={{ width: 17, height: 17 }} /><span>Publish All Live Website Changes</span>
                 </button>
               </div>
             </form>

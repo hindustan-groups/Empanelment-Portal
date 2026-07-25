@@ -4,6 +4,21 @@ import { Link } from 'react-router-dom';
 
 export default function SupportWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [siteConfig, setSiteConfig] = useState({
+    helplinePhone: '+91 (011) 4500 8899 / 900',
+    corporateEmail: 'empanelment@hindustanprojects.in',
+  });
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem('hipro_site_config');
+    if (saved) {
+      try {
+        setSiteConfig(JSON.parse(saved));
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  }, []);
 
   return (
     <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 45 }}>
@@ -62,7 +77,7 @@ export default function SupportWidget() {
           {/* Body Options */}
           <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.8rem' }}>
             <a
-              href="tel:+9101145008899"
+              href={`tel:${(siteConfig.helplinePhone || '').replace(/\D/g, '')}`}
               style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-surface)', textDecoration: 'none', color: 'var(--text-primary)', fontWeight: 600 }}
             >
               <div style={{ padding: '0.4rem', borderRadius: 6, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB' }}>
@@ -70,12 +85,12 @@ export default function SupportWidget() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Helpline Phone</div>
-                <div>+91 (011) 4500 8899</div>
+                <div>{siteConfig.helplinePhone || '+91 (011) 4500 8899'}</div>
               </div>
             </a>
 
             <a
-              href="mailto:empanelment@hindustanprojects.in"
+              href={`mailto:${siteConfig.corporateEmail || 'empanelment@hindustanprojects.in'}`}
               style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.65rem 0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-surface)', textDecoration: 'none', color: 'var(--text-primary)', fontWeight: 600 }}
             >
               <div style={{ padding: '0.4rem', borderRadius: 6, backgroundColor: 'rgba(237, 28, 36, 0.1)', color: '#ED1C24' }}>
@@ -83,7 +98,7 @@ export default function SupportWidget() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Official Email</div>
-                <div>empanelment@hindustanprojects.in</div>
+                <div>{siteConfig.corporateEmail || 'empanelment@hindustanprojects.in'}</div>
               </div>
             </a>
 

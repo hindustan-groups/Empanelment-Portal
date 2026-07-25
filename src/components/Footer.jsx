@@ -33,7 +33,9 @@ export default function Footer() {
         <div style={{ gridColumn: 'span 2' }}>
           <Logo height={44} />
           <p style={{ fontSize: '0.85rem', color: '#94A3B8', marginTop: '1rem', maxWidth: 450, lineHeight: 1.6 }}>
-            Official Vendor & Contractor Empanelment Portal of <strong>{siteConfig.companyTitle || 'Hindustan Projects'}</strong>. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.
+            {siteConfig.footerAboutText || (
+              <>Official Vendor & Contractor Empanelment Portal of <strong>{siteConfig.companyTitle || 'Hindustan Projects'}</strong>. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.</>
+            )}
           </p>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', padding: '0.35rem 0.75rem', borderRadius: 6, backgroundColor: '#1E293B', fontSize: '0.75rem', color: '#CBD5E1' }}>
             <ShieldCheck style={{ width: 14, height: 14, color: '#10B981' }} />
@@ -47,7 +49,7 @@ export default function Footer() {
             <li><Link to="/apply" style={{ color: '#94A3B8', textDecoration: 'none' }}>Submit Application</Link></li>
             <li><Link to="/track" style={{ color: '#94A3B8', textDecoration: 'none' }}>Track Application Status</Link></li>
             <li><Link to="/guidelines" style={{ color: '#94A3B8', textDecoration: 'none' }}>Empanelment Guidelines</Link></li>
-            <li><a href="https://hindustanprojects.in" target="_blank" rel="noreferrer" style={{ color: '#94A3B8', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><span>Main Site</span> <ExternalLink style={{ width: 12, height: 12 }} /></a></li>
+            <li><a href={siteConfig.mainWebsiteUrl || "https://hindustanprojects.in"} target="_blank" rel="noreferrer" style={{ color: '#94A3B8', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><span>Main Site</span> <ExternalLink style={{ width: 12, height: 12 }} /></a></li>
           </ul>
         </div>
 
