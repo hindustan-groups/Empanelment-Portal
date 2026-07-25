@@ -1,44 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Calendar, MapPin, ArrowUpRight, Flame, ShieldAlert, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Building2, Calendar, MapPin, ArrowUpRight, Flame, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+const DEFAULT_TENDERS = [
+  { id: 1, code: 'HP-TND-2026-081', title: 'EPC Civil & Structural Work - Commercial Tower (B+G+18)', category: 'civil',      location: 'Jaipur Industrial Site, Rajasthan',    estimatedCost: '₹ 45.0 Crores', deadline: '2026-08-15', status: 'OPEN FOR BIDDING' },
+  { id: 2, code: 'HP-TND-2026-094', title: 'MEP, HVAC & Chiller Plant System Commissioning',          category: 'mep',       location: 'Cyber City Hub, Gurgaon, Haryana',     estimatedCost: '₹ 12.5 Crores', deadline: '2026-08-20', status: 'OPEN FOR BIDDING' },
+  { id: 3, code: 'HP-TND-2026-105', title: 'TMT Fe550D Steel & Ready-Mix Concrete Bulk Supply',       category: 'suppliers', location: 'Pan-India Project Construction Sites', estimatedCost: '₹ 8.0 Crores',  deadline: '2026-08-30', status: 'OPEN FOR BIDDING' },
+];
 
 export default function ActiveTenders({ onEmpanelCategory }) {
   const navigate = useNavigate();
   const [liveTenders, setLiveTenders] = useState([]);
 
   useEffect(() => {
-    // Read live tenders from Admin or defaults
-    const defaultTenders = [
-      {
-        id: 'HP-TND-2026-081',
-        title: 'EPC Civil & Structural Work - Commercial Tower (B+G+18)',
-        category: 'civil',
-        location: 'Jaipur Industrial Site, Rajasthan',
-        estValue: '₹ 45.0 Crores',
-        dueDate: '15 August 2026',
-        status: 'Open for Empanelled Contractors'
-      },
-      {
-        id: 'HP-TND-2026-094',
-        title: 'MEP, HVAC & Chiller Plant System Commissioning',
-        category: 'mep',
-        location: 'Cyber City Hub, Gurgaon, Haryana',
-        estValue: '₹ 12.5 Crores',
-        dueDate: '20 August 2026',
-        status: 'Open for Empanelled MEP Vendors'
-      },
-      {
-        id: 'HP-TND-2026-105',
-        title: 'TMT Fe550D Steel & Ready-Mix Concrete Bulk Supply',
-        category: 'suppliers',
-        location: 'Pan-India Project Construction Sites',
-        estValue: '₹ 8.0 Crores',
-        dueDate: '30 August 2026',
-        status: 'Open for Approved Suppliers'
-      }
-    ];
-
-    setLiveTenders(defaultTenders);
+    // ✅ Read LIVE tenders from Admin panel (localStorage) — falls back to defaults
+    const saved = localStorage.getItem('hipro_tenders');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Only show OPEN tenders on homepage
+        const open = parsed.filter(t => t.status !== 'CLOSED');
+        setLiveTenders(open.length ? open : DEFAULT_TENDERS);
+        return;
+      } catch { /* fallback */ }
+    }
+    setLiveTenders(DEFAULT_TENDERS);
   }, []);
 
   const handleTenderEmpanel = (cat) => {
@@ -93,7 +79,7 @@ export default function ActiveTenders({ onEmpanelCategory }) {
               {/* Header Code & Badge */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', fontFamily: 'monospace', backgroundColor: 'rgba(0, 71, 171, 0.1)', padding: '0.2rem 0.6rem', borderRadius: 6 }}>
-                  {t.id}
+                  {t.code || t.id}
                 </span>
                 <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.65rem', borderRadius: 9999, backgroundColor: 'rgba(16, 185, 129, 0.12)', color: '#047857' }}>
                   {t.status}
@@ -113,11 +99,11 @@ export default function ActiveTenders({ onEmpanelCategory }) {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Building2 style={{ width: 14, height: 14, color: '#0047AB', flexShrink: 0 }} />
-                  <span>Est. Contract Value: <strong style={{ color: '#0047AB' }}>{t.estValue}</strong></span>
+                  <span>Est. Contract Value: <strong style={{ color: '#0047AB' }}>{t.estimatedCost || t.estValue}</strong></span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Calendar style={{ width: 14, height: 14, color: '#F59E0B', flexShrink: 0 }} />
-                  <span>Bidding Deadline: <strong>{t.dueDate}</strong></span>
+                  <span>Bidding Deadline: <strong>{t.deadline || t.dueDate}</strong></span>
                 </div>
               </div>
             </div>
