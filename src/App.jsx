@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -13,6 +13,17 @@ import TrackPage from './pages/TrackPage';
 import GuidelinesPage from './pages/GuidelinesPage';
 import AdminPage from './pages/AdminPage';
 import AdminLoginPage from './pages/AdminLoginPage';
+
+// Auto Scroll To Top Component on Route Navigation
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, [pathname]);
+
+  return null;
+}
 
 export default function App() {
   const [isDark, setIsDark] = useState(false);
@@ -59,6 +70,7 @@ export default function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="app-container">
         
         {/* Top Public Navbar */}
