@@ -3,7 +3,7 @@ import {
   Building, User, Mail, Phone, MapPin, CreditCard, ShieldCheck, 
   FileText, UploadCloud, CheckCircle2, ChevronRight, ChevronLeft, 
   AlertCircle, DollarSign, Award, FileCheck, Save, Sparkles, Loader2, X, HardHat, Edit3, 
-  Users, Layers, Wrench, FileBadge, Scale, Check, Zap 
+  Users, Layers, Wrench, FileBadge, Scale, Check 
 } from 'lucide-react';
 import GstVerifier from './GstVerifier';
 import PaymentSlip from './PaymentSlip';
@@ -26,7 +26,8 @@ const DISCIPLINE_ROLES = [
   { code: 'interior', label: 'p) Interior Designer & Turnkey Decor' },
   { code: 'qs', label: 'q) Quantity Surveyor & Cost Estimator' },
   { code: 'pmc', label: 'r) Project / Construction Manager (PMC)' },
-  { code: 'hospitality', label: 's) Hospitality & Other Subject Specialist' }
+  { code: 'hospitality', label: 's) Hospitality & Other Subject Specialist' },
+  { code: 'other', label: 'z) Other Custom Discipline (Specify Below)' }
 ];
 
 const DEFAULT_CATEGORIES = [
@@ -39,7 +40,8 @@ const DEFAULT_CATEGORIES = [
   { id: 'interior', label: 'Interior Designers & Turnkey Decorators' },
   { id: 'fire', label: 'Fire Protection & Safety Engineers' },
   { id: 'soil', label: 'Geotechnical & Soil Testing Labs' },
-  { id: 'solar', label: 'Solar & Renewable Energy Integrators' }
+  { id: 'solar', label: 'Solar & Renewable Energy Integrators' },
+  { id: 'other', label: 'Other Custom Business Line (Specify Below)' }
 ];
 
 export default function EmpanelmentForm({ category, onFormSubmit }) {
@@ -50,14 +52,21 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   
   const [availableCategories, setAvailableCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
-    return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
+    const list = saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
+    if (!list.some(c => c.id === 'other')) {
+      return [...list, { id: 'other', label: 'Other Custom Business Line (Specify Below)' }];
+    }
+    return list;
   });
 
   const [formData, setFormData] = useState({
     category: category || 'civil',
+    otherCategory: '',
     primaryRole: 'arch',
+    otherPrimaryRole: '',
     companyName: '',
     entityType: 'pvt_ltd',
+    otherEntityType: '',
     estYear: '',
     cinNo: '',
     coaRegNo: '',
@@ -128,56 +137,6 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     }));
   };
 
-  // 1-Click Quick Auto Fill Sample Data
-  const handleQuickAutoFill = () => {
-    setFormData({
-      category: category || 'civil',
-      primaryRole: 'arch',
-      companyName: 'Apex Infrastructure & Engineering Pvt Ltd',
-      entityType: 'pvt_ltd',
-      estYear: '2015',
-      cinNo: 'U45201RJ2015PTC038',
-      coaRegNo: 'CA/2018/84920',
-      experienceYears: '11',
-      manpowerCount: '15',
-      contactName: 'Rajesh Sharma',
-      designation: 'Managing Director',
-      email: 'rajesh@apexinfra.com',
-      phone: '9876543210',
-      address: 'Plot 45, Industrial Area Phase-2',
-      city: 'Jaipur',
-      state: 'Rajasthan',
-      pincode: '302013',
-      gstin: '08AAAAA0000A1Z5',
-      pan: 'ABCDE1234F',
-      epfNo: 'RJ/JPR/0048192/000',
-      msmeNo: 'UDYAM-RJ-14-0028491',
-      bankAccount: '50200088991200',
-      ifsc: 'HDFC0001234',
-      bankName: 'HDFC Bank, Ashok Nagar Branch',
-      netWorth: '450',
-      solvencyLimit: '250',
-      turnover2023: '380',
-      turnover2024: '410',
-      turnover2025: '450',
-      largestOrder: '250',
-      buaArea: '23',
-      cpaArea: '14',
-      machineryCheck: { batchingPlant: true, towerCrane: true, bimSoftware: true, totalStation: true },
-      gstDoc: null,
-      panDoc: null,
-      bankDoc: null,
-      expDoc: null,
-      declAntiBlacklist: true,
-      declIpAssignment: true,
-      declSiteVisit: true,
-      declDocNaming: true,
-      signatoryName: 'Rajesh Sharma (MD)',
-    });
-    setIsCaptchaVerified(true);
-    setErrors({});
-  };
-
   // 1-Click Accept All Legal Terms
   const handleAcceptAllTerms = () => {
     setFormData(prev => ({
@@ -224,6 +183,15 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       if (!formData.contactName.trim()) newErrors.contactName = 'Lead Professional / Proprietor Name is required';
       if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = 'Valid Email Address is required';
       if (!formData.phone.trim() || formData.phone.length < 10) newErrors.phone = 'Valid 10-digit Mobile Number is required';
+      if (formData.primaryRole === 'other' && !formData.otherPrimaryRole.trim()) {
+        newErrors.otherPrimaryRole = 'Please specify your custom discipline role';
+      }
+      if (formData.category === 'other' && !formData.otherCategory.trim()) {
+        newErrors.otherCategory = 'Please specify your custom business category';
+      }
+      if (formData.entityType === 'other' && !formData.otherEntityType.trim()) {
+        newErrors.otherEntityType = 'Please specify your custom legal entity type';
+      }
     }
 
     if (step === 2) {
@@ -291,15 +259,25 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
     try {
       const dataPayload = new FormData();
-      Object.keys(formData).forEach(key => {
-        if (formData[key] instanceof File) {
-          dataPayload.append(key, formData[key]);
-        } else if (typeof formData[key] === 'object' && formData[key] !== null) {
-          dataPayload.append(key, JSON.stringify(formData[key]));
-        } else if (formData[key] !== null && formData[key] !== undefined) {
-          dataPayload.append(key, formData[key]);
+      
+      // Compute final labels if 'other' was selected
+      const finalPayload = {
+        ...formData,
+        primaryRole: formData.primaryRole === 'other' ? `Other: ${formData.otherPrimaryRole}` : formData.primaryRole,
+        category: formData.category === 'other' ? `Other: ${formData.otherCategory}` : formData.category,
+        entityType: formData.entityType === 'other' ? `Other: ${formData.otherEntityType}` : formData.entityType,
+      };
+
+      Object.keys(finalPayload).forEach(key => {
+        if (finalPayload[key] instanceof File) {
+          dataPayload.append(key, finalPayload[key]);
+        } else if (typeof finalPayload[key] === 'object' && finalPayload[key] !== null) {
+          dataPayload.append(key, JSON.stringify(finalPayload[key]));
+        } else if (finalPayload[key] !== null && finalPayload[key] !== undefined) {
+          dataPayload.append(key, finalPayload[key]);
         }
       });
+
       if (signatureData) {
         dataPayload.append('signature', signatureData);
       }
@@ -311,9 +289,9 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
       const result = await response.json();
       if (result.success) {
-        onFormSubmit({ ...formData, signature: signatureData }, result.trackingId);
+        onFormSubmit({ ...finalPayload, signature: signatureData }, result.trackingId);
       } else {
-        onFormSubmit({ ...formData, signature: signatureData });
+        onFormSubmit({ ...finalPayload, signature: signatureData });
       }
     } catch (err) {
       console.warn('Using fallback submission:', err);
@@ -345,12 +323,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               <h2 className="form-header-title">Hindustan Projects Empanelment Portal</h2>
             </div>
             
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <button type="button" onClick={handleQuickAutoFill} className="btn-draft" style={{ backgroundColor: '#F59E0B', color: 'black' }}>
-                <Zap style={{ width: 14, height: 14 }} />
-                <span>⚡ Auto-Fill Demo</span>
-              </button>
-
+            <div>
               <button type="button" onClick={handleSaveDraft} className="btn-draft">
                 <Save style={{ width: 14, height: 14 }} />
                 <span>{isSavedLocal ? 'Draft Saved!' : 'Save Progress Draft'}</span>
@@ -401,6 +374,8 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               </div>
 
               <div className="form-grid-2">
+                
+                {/* Professional Discipline with OTHER custom input */}
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="form-label">Professional Discipline / Scope of Work <span className="required">*</span></label>
                   <select name="primaryRole" value={formData.primaryRole} onChange={handleChange} className="form-input" style={{ fontWeight: 800, color: '#0047AB' }}>
@@ -408,8 +383,23 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                       <option key={r.code} value={r.code}>{r.label}</option>
                     ))}
                   </select>
+
+                  {formData.primaryRole === 'other' && (
+                    <div style={{ marginTop: '0.6rem' }}>
+                      <input 
+                        type="text" 
+                        name="otherPrimaryRole" 
+                        value={formData.otherPrimaryRole} 
+                        onChange={handleChange} 
+                        placeholder="Please specify your custom discipline role (e.g. Acoustic & Soundproofing Engineer)..." 
+                        className={`form-input ${errors.otherPrimaryRole ? 'error' : ''}`} 
+                      />
+                      {errors.otherPrimaryRole && <span className="error-text">{errors.otherPrimaryRole}</span>}
+                    </div>
+                  )}
                 </div>
 
+                {/* Empanelment Business Category with OTHER custom input */}
                 <div className="form-group">
                   <label className="form-label">Empanelment Business Category <span className="required">*</span></label>
                   <select name="category" value={formData.category} onChange={handleChange} className="form-input" style={{ fontWeight: 700 }}>
@@ -417,6 +407,20 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
                   </select>
+
+                  {formData.category === 'other' && (
+                    <div style={{ marginTop: '0.6rem' }}>
+                      <input 
+                        type="text" 
+                        name="otherCategory" 
+                        value={formData.otherCategory} 
+                        onChange={handleChange} 
+                        placeholder="Specify custom business category title..." 
+                        className={`form-input ${errors.otherCategory ? 'error' : ''}`} 
+                      />
+                      {errors.otherCategory && <span className="error-text">{errors.otherCategory}</span>}
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -425,6 +429,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   {errors.companyName && <span className="error-text">{errors.companyName}</span>}
                 </div>
 
+                {/* Legal Entity Type with OTHER custom input */}
                 <div className="form-group">
                   <label className="form-label">Constitution / Legal Entity Type</label>
                   <select name="entityType" value={formData.entityType} onChange={handleChange} className="form-input">
@@ -432,7 +437,22 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     <option value="proprietorship">Sole Proprietorship / Individual Consultant</option>
                     <option value="partnership">Partnership Firm</option>
                     <option value="llp">Limited Liability Partnership (LLP)</option>
+                    <option value="other">Other Custom Legal Entity Type (Specify Below)</option>
                   </select>
+
+                  {formData.entityType === 'other' && (
+                    <div style={{ marginTop: '0.6rem' }}>
+                      <input 
+                        type="text" 
+                        name="otherEntityType" 
+                        value={formData.otherEntityType} 
+                        onChange={handleChange} 
+                        placeholder="Specify custom entity type (e.g. Public Limited / Trust / Joint Venture)..." 
+                        className={`form-input ${errors.otherEntityType ? 'error' : ''}`} 
+                      />
+                      {errors.otherEntityType && <span className="error-text">{errors.otherEntityType}</span>}
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">
