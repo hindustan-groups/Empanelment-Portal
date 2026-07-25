@@ -1,80 +1,140 @@
-import React from 'react';
-import { Building2, Calendar, MapPin, ExternalLink, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Building2, Calendar, MapPin, ArrowUpRight, Flame, ShieldAlert, Sparkles, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ActiveTenders({ onEmpanelCategory }) {
-  const tenders = [
-    {
-      id: 'HP-TND-2026-081',
-      title: 'EPC Construction of Commercial Tower (Phase-II)',
-      category: 'civil',
-      location: 'Jaipur Site, Rajasthan',
-      estValue: '₹ 24.50 Crores',
-      dueDate: '15 August 2026',
-      status: 'Open for Empanelled Contractors'
-    },
-    {
-      id: 'HP-TND-2026-094',
-      title: 'HVAC & Firefighting System Installation',
-      category: 'mep',
-      location: 'Corporate Tower, Gurgaon',
-      estValue: '₹ 3.80 Crores',
-      dueDate: '20 August 2026',
-      status: 'Open for Empanelled MEP Vendors'
-    },
-    {
-      id: 'HP-TND-2026-102',
-      title: 'Supply of TMT Steel & Ready-Mix Concrete (RMC)',
-      category: 'suppliers',
-      location: 'Pan-India Project Sites',
-      estValue: '₹ 8.20 Crores',
-      dueDate: '28 August 2026',
-      status: 'Open for Approved Suppliers'
+  const navigate = useNavigate();
+  const [liveTenders, setLiveTenders] = useState([]);
+
+  useEffect(() => {
+    // Read live tenders from Admin or defaults
+    const defaultTenders = [
+      {
+        id: 'HP-TND-2026-081',
+        title: 'EPC Civil & Structural Work - Commercial Tower (B+G+18)',
+        category: 'civil',
+        location: 'Jaipur Industrial Site, Rajasthan',
+        estValue: '₹ 45.0 Crores',
+        dueDate: '15 August 2026',
+        status: 'Open for Empanelled Contractors'
+      },
+      {
+        id: 'HP-TND-2026-094',
+        title: 'MEP, HVAC & Chiller Plant System Commissioning',
+        category: 'mep',
+        location: 'Cyber City Hub, Gurgaon, Haryana',
+        estValue: '₹ 12.5 Crores',
+        dueDate: '20 August 2026',
+        status: 'Open for Empanelled MEP Vendors'
+      },
+      {
+        id: 'HP-TND-2026-105',
+        title: 'TMT Fe550D Steel & Ready-Mix Concrete Bulk Supply',
+        category: 'suppliers',
+        location: 'Pan-India Project Construction Sites',
+        estValue: '₹ 8.0 Crores',
+        dueDate: '30 August 2026',
+        status: 'Open for Approved Suppliers'
+      }
+    ];
+
+    setLiveTenders(defaultTenders);
+  }, []);
+
+  const handleTenderEmpanel = (cat) => {
+    if (onEmpanelCategory) {
+      onEmpanelCategory(cat);
     }
-  ];
+    navigate('/apply');
+  };
 
   return (
-    <div style={{ maxW: 1100, margin: '0 auto 3rem auto', padding: '0 1.5rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', marginBottom: '1.25rem' }}>
+    <section style={{ maxWidth: 1240, margin: '3.5rem auto 4rem auto', padding: '0 1.5rem' }}>
+      
+      {/* Radar Section Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border-color)' }}>
         <div>
-          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#ED1C24', textTransform: 'uppercase' }}>
-            🔥 Live Opportunity Radar
-          </span>
-          <h3 style={{ fontSize: '1.35rem', fontWeight: 800 }}>Active Hindustan Projects Tenders FY 2026-27</h3>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.3rem 0.85rem', borderRadius: 9999, backgroundColor: 'rgba(237, 28, 36, 0.1)', color: '#ED1C24', fontSize: '0.775rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+            <Flame style={{ width: 14, height: 14 }} />
+            <span>Live Opportunity Radar</span>
+          </div>
+          <h3 style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-0.5px' }}>
+            Active Hindustan Projects Tenders FY 2026-27
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            Empanelment required for technical & financial bidding participation
+          </p>
         </div>
-        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Empanelment required for bidding</span>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 0.85rem', borderRadius: 10, backgroundColor: 'rgba(0, 71, 171, 0.08)', color: '#0047AB', fontSize: '0.8rem', fontWeight: 800 }}>
+          <CheckCircle2 style={{ width: 16, height: 16, color: '#10B981' }} />
+          <span>Real-time VPS Radar Active</span>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
-        {tenders.map((t) => (
-          <div key={t.id} style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column', justifyBetween: 'space-between' }}>
+      {/* Tender Cards Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        {liveTenders.map((t) => (
+          <div 
+            key={t.id} 
+            style={{ 
+              padding: '1.5rem', 
+              borderRadius: 20, 
+              backgroundColor: 'var(--bg-card)', 
+              border: '1px solid var(--border-color)', 
+              boxShadow: 'var(--shadow-md)', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'space-between',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+            }}
+          >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0047AB', fontFamily: 'monospace' }}>{t.id}</span>
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: 9999, backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>
+              {/* Header Code & Badge */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', fontFamily: 'monospace', backgroundColor: 'rgba(0, 71, 171, 0.1)', padding: '0.2rem 0.6rem', borderRadius: 6 }}>
+                  {t.id}
+                </span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.65rem', borderRadius: 9999, backgroundColor: 'rgba(16, 185, 129, 0.12)', color: '#047857' }}>
                   {t.status}
                 </span>
               </div>
 
-              <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.75rem', lineHeight: 1.3 }}>{t.title}</h4>
+              {/* Title */}
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', lineHeight: 1.35, color: 'var(--text-primary)' }}>
+                {t.title}
+              </h4>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.775rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                <div><MapPin style={{ width: 12, height: 12, display: 'inline', marginRight: 4 }} />{t.location}</div>
-                <div><Building2 style={{ width: 12, height: 12, display: 'inline', marginRight: 4 }} />Est Value: <strong style={{ color: 'var(--text-primary)' }}>{t.estValue}</strong></div>
-                <div><Calendar style={{ width: 12, height: 12, display: 'inline', marginRight: 4 }} />Due Date: <strong>{t.dueDate}</strong></div>
+              {/* Location, Value, Deadline details */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.825rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', padding: '0.85rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <MapPin style={{ width: 14, height: 14, color: '#ED1C24', flexShrink: 0 }} />
+                  <span>Site: <strong>{t.location}</strong></span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Building2 style={{ width: 14, height: 14, color: '#0047AB', flexShrink: 0 }} />
+                  <span>Est. Contract Value: <strong style={{ color: '#0047AB' }}>{t.estValue}</strong></span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Calendar style={{ width: 14, height: 14, color: '#F59E0B', flexShrink: 0 }} />
+                  <span>Bidding Deadline: <strong>{t.dueDate}</strong></span>
+                </div>
               </div>
             </div>
 
+            {/* Action CTA Button */}
             <button
-              onClick={() => onEmpanelCategory(t.category)}
-              className="btn-secondary"
-              style={{ width: '100%', justifyContent: 'center', fontSize: '0.8rem', padding: '0.5rem' }}
+              onClick={() => handleTenderEmpanel(t.category)}
+              className="btn-primary"
+              style={{ width: '100%', justifyContent: 'center', fontSize: '0.875rem', padding: '0.65rem 1rem' }}
             >
               <span>Empanel To Bid For This Tender</span>
-              <ArrowUpRight style={{ width: 14, height: 14 }} />
+              <ArrowUpRight style={{ width: 16, height: 16 }} />
             </button>
           </div>
         ))}
       </div>
-    </div>
+
+    </section>
   );
 }
