@@ -342,13 +342,23 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
             </button>
           </div>
 
-          {/* Entity Type Switcher — shown at top always */}
-          <div style={{ marginTop: '1rem', padding: '0.85rem 1rem', borderRadius: 12, background: 'rgba(0,71,171,0.06)', border: '1px solid rgba(0,71,171,0.15)' }}>
-            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0047AB', marginBottom: '0.5rem', letterSpacing: '0.03em' }}>
-              STEP 0 — TELL US ABOUT YOURSELF FIRST:
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {ENTITY_TYPES.map(et => (
+          {/* Entity Type Switcher — shown outside banner as white readable card */}
+        </div>{/* close form-header-banner here */}
+
+        {/* ── Entity Selector Card (white bg, fully readable) ── */}
+        <div style={{
+          background: '#fff',
+          borderBottom: '1px solid #E2E8F0',
+          padding: '1.25rem 2rem',
+        }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.08em', marginBottom: '0.65rem', textTransform: 'uppercase' }}>
+            First — Who are you? Select your entity type:
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {ENTITY_TYPES.map(et => {
+              const isSelected = formData.entityType === et.value;
+              return (
                 <button
                   key={et.value}
                   type="button"
@@ -357,49 +367,52 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     setErrors({});
                   }}
                   style={{
-                    padding: '0.45rem 0.9rem',
-                    borderRadius: 20,
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
+                    padding: '0.45rem 1rem',
+                    borderRadius: 99,
+                    fontSize: '0.82rem',
+                    fontWeight: isSelected ? 800 : 600,
                     cursor: 'pointer',
-                    border: formData.entityType === et.value ? '2px solid #0047AB' : '1px solid var(--border-color)',
-                    background: formData.entityType === et.value ? '#0047AB' : 'white',
-                    color: formData.entityType === et.value ? 'white' : 'var(--text-muted)',
-                    transition: 'all 0.2s',
+                    border: isSelected ? '2px solid #0047AB' : '1.5px solid #CBD5E1',
+                    background: isSelected ? '#0047AB' : '#F8FAFC',
+                    color: isSelected ? '#FFFFFF' : '#334155',
+                    boxShadow: isSelected ? '0 2px 10px rgba(0,71,171,0.25)' : 'none',
+                    transition: 'all 0.18s ease',
+                    lineHeight: 1.4,
                   }}
                 >
                   {et.label}
                 </button>
-              ))}
-            </div>
-            {formData.entityType === 'other' && (
-              <input
-                type="text"
-                name="otherEntityType"
-                value={formData.otherEntityType}
-                onChange={handleChange}
-                placeholder="Please describe your entity type..."
-                className={`form-input${errors.otherEntityType ? ' error' : ''}`}
-                style={{ marginTop: '0.6rem', maxWidth: 400 }}
-              />
-            )}
-            {errors.otherEntityType && <span className="error-text">{errors.otherEntityType}</span>}
-
-            {/* Context hint based on selection */}
-            {isSoleProp && (
-              <div style={{ marginTop: '0.6rem', fontSize: '0.78rem', color: '#047857', fontWeight: 600 }}>
-                ✅ Great! As a sole proprietor / freelancer, we've simplified this form — only the essentials are required.
-              </div>
-            )}
-            {!isSoleProp && formData.entityType !== '' && (
-              <div style={{ marginTop: '0.6rem', fontSize: '0.78rem', color: '#0047AB', fontWeight: 600 }}>
-                🏢 Full corporate registration form will be shown with all company credential fields.
-              </div>
-            )}
+              );
+            })}
           </div>
 
-          {/* Step Progress */}
-          <div className="progress-nav" style={{ marginTop: '1rem' }}>
+          {formData.entityType === 'other' && (
+            <input
+              type="text"
+              name="otherEntityType"
+              value={formData.otherEntityType}
+              onChange={handleChange}
+              placeholder="Please describe your entity type (e.g. Joint Venture, Public Trust...)"
+              className={`form-input${errors.otherEntityType ? ' error' : ''}`}
+              style={{ marginTop: '0.75rem', maxWidth: 480 }}
+            />
+          )}
+          {errors.otherEntityType && <span className="error-text">{errors.otherEntityType}</span>}
+
+          {isSoleProp ? (
+            <div style={{ marginTop: '0.65rem', fontSize: '0.8rem', fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              ✅ Great! We've simplified this form for you — only essential fields are shown.
+            </div>
+          ) : formData.entityType ? (
+            <div style={{ marginTop: '0.65rem', fontSize: '0.8rem', fontWeight: 700, color: '#0047AB', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              🏢 Full corporate empanelment form with all company credential fields will be shown.
+            </div>
+          ) : null}
+        </div>
+
+        {/* ── Step Progress Nav (inside blue banner strip) ── */}
+        <div style={{ background: 'linear-gradient(135deg, #0047AB 0%, #002B66 100%)', padding: '0.85rem 2rem 1.1rem 2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflowX: 'auto', gap: '0.5rem' }}>
             {STEPS.map((st) => {
               const Icon = st.icon;
               const isActive = currentStep === st.num;
