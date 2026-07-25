@@ -6,12 +6,12 @@ import {
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3, 
   Printer, FileText, Building2, CreditCard, DollarSign, MapPin, 
   User, Check, AlertTriangle, ShieldAlert, Award, FileCheck2, 
-  PlusCircle, Sliders, BarChart3, Lock, MessageSquare, ExternalLink, Calendar 
+  PlusCircle, Sliders, BarChart3, Lock, MessageSquare, ExternalLink, Calendar, HardHat 
 } from 'lucide-react';
 
 export default function AdminPage({ isAuthenticated, onLogout }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'tenders' | 'analytics' | 'security'
+  const [activeTab, setActiveTab] = useState('applications');
   const [vendors, setVendors] = useState([]);
   const [tenders, setTenders] = useState([
     { id: 1, code: 'HP-TND-2026-081', title: 'EPC Civil & Structural Work - Commercial Tower (B+G+18)', category: 'civil', location: 'Jaipur, Rajasthan', estimatedCost: '₹ 45.0 Crores', deadline: '2026-08-15', status: 'OPEN FOR BIDDING' },
@@ -24,11 +24,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [filterCategory, setFilterCategory] = useState('all');
   const [selectedVendor, setSelectedVendor] = useState(null);
   
-  // Evaluation Scoring State for selected vendor
   const [scores, setScores] = useState({ financial: 22, technical: 20, quality: 22, trackRecord: 21 });
-  const [clarificationText, setClarificationText] = useState('');
-
-  // New Tender Modal State
   const [showNewTenderModal, setShowNewTenderModal] = useState(false);
   const [newTender, setNewTender] = useState({ title: '', category: 'civil', location: '', estimatedCost: '', deadline: '' });
 
@@ -57,6 +53,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           tracking_id: 'HP-EMP-849201',
           hash_signature: '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
           category: 'civil',
+          primary_role: 'Architect & Structural Designer',
           company_name: 'Apex Infrastructure & Engineering Pvt Ltd',
           entity_type: 'Pvt Ltd',
           est_year: '2012',
@@ -78,12 +75,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           turnover_2024: '410',
           turnover_2025: '450',
           largest_order: '250',
+          bua_area: '23',
+          cpa_area: '14',
           existing_empanels: 'CPWD Class-I, L&T Approved Vendor List',
           gst_doc: 'gst_certificate_apex.pdf',
           pan_doc: 'pan_card_apex.pdf',
           bank_doc: 'cancelled_cheque_apex.pdf',
           exp_doc: 'completion_certificates.pdf',
           signatory_name: 'Rajesh Sharma (MD)',
+          signature_data: null,
           status: 'Under Verification',
           current_stage: 'Financial Committee Audit',
           ip_address: '103.45.12.98',
@@ -94,6 +94,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           tracking_id: 'HP-EMP-930214',
           hash_signature: '7b2c8901ef45a6d34190c128b9e0147a2139045c',
           category: 'mep',
+          primary_role: 'HVAC & Electrical Specialist',
           company_name: 'Hindustan Electro-Mechanical Services',
           entity_type: 'Partnership',
           est_year: '2016',
@@ -115,12 +116,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           turnover_2024: '160',
           turnover_2025: '180',
           largest_order: '95',
+          bua_area: '18',
+          cpa_area: '10',
           existing_empanels: 'HVAC Specialist List - DLF',
           gst_doc: 'gst_hems.pdf',
           pan_doc: 'pan_hems.pdf',
           bank_doc: 'cheque_hems.pdf',
           exp_doc: 'mep_work_orders.pdf',
           signatory_name: 'Amit Agarwal (Partner)',
+          signature_data: null,
           status: 'Approved Class-B',
           current_stage: 'Empanelment Certificate Issued',
           ip_address: '122.160.45.12',
@@ -548,7 +552,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         )}
 
-        {/* FULL 360° VENDOR AUDIT DOSSIER MODAL WITH SCORING CHECKLIST */}
+        {/* FULL 360° VENDOR AUDIT DOSSIER MODAL WITH SIGNATURE DISPLAY */}
         {selectedVendor && (
           <div className="modal-backdrop" onClick={() => setSelectedVendor(null)}>
             <div className="modal-content printable-area" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 850, maxHeight: '90vh', overflowY: 'auto' }}>
@@ -644,7 +648,20 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 </div>
               </div>
 
-              {/* SECTION 5: Action & Approval Bar */}
+              {/* SECTION 5: Captured Digital Signature Image */}
+              <div style={{ marginBottom: '1.5rem', padding: '1rem', borderRadius: 12, backgroundColor: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', fontSize: '0.825rem' }}>
+                <div style={{ fontWeight: 800, color: '#047857', marginBottom: '0.35rem' }}>✓ Digital Signature & Affidavit Compliance Verified</div>
+                <div>Authorized Signatory: <strong>{selectedVendor.signatory_name}</strong></div>
+                <div>Submitted IP Timestamp: <strong>{selectedVendor.ip_address || '103.45.12.98'} • {new Date(selectedVendor.submitted_at).toLocaleString()}</strong></div>
+                
+                {selectedVendor.signature_data && (
+                  <div style={{ marginTop: '0.75rem', padding: '0.5rem', backgroundColor: 'white', borderRadius: 8, display: 'inline-block', border: '1px solid #CBD5E1' }}>
+                    <img src={selectedVendor.signature_data} alt="Digital Signature" style={{ height: 55 }} />
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION 6: Action & Approval Bar */}
               <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.65rem' }}>Committee Decision & Empanelment Approval:</div>
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>

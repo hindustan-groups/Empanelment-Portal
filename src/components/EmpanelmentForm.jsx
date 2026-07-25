@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   Building, User, Mail, Phone, MapPin, CreditCard, ShieldCheck, 
   FileText, UploadCloud, CheckCircle2, ChevronRight, ChevronLeft, 
-  AlertCircle, DollarSign, Award, FileCheck, Save, Sparkles, Loader2, X, HardHat 
+  AlertCircle, DollarSign, Award, FileCheck, Save, Sparkles, Loader2, X, HardHat, Edit3 
 } from 'lucide-react';
 import GstVerifier from './GstVerifier';
 import PaymentSlip from './PaymentSlip';
 import SecurityCaptcha from './SecurityCaptcha';
+import DigitalSignature from './DigitalSignature';
 
 const DISCIPLINE_ROLES = [
   { code: 'arch', label: 'a) Architect & Architectural Designer' },
@@ -31,6 +32,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  const [signatureData, setSignatureData] = useState(null);
   
   const [formData, setFormData] = useState({
     category: category || 'civil',
@@ -63,7 +65,10 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     panDoc: null,
     bankDoc: null,
     expDoc: null,
-    isDeclared: false,
+    declAntiBlacklist: false,
+    declIpAssignment: false,
+    declSiteVisit: false,
+    declDocNaming: false,
     signatoryName: '',
   });
 
@@ -117,7 +122,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     const newErrors = {};
 
     if (step === 1) {
-      if (!formData.companyName.trim()) newErrors.companyName = 'Company / Professional Firm Title is required';
+      if (!formData.companyName.trim()) newErrors.companyName = 'Company / Firm Title is required';
       if (!formData.contactName.trim()) newErrors.contactName = 'Lead Professional / Contact Name is required';
       if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = 'Valid Email Address is required';
       if (!formData.phone.trim() || formData.phone.length < 10) newErrors.phone = 'Valid 10-digit Mobile Number is required';
@@ -137,8 +142,11 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     }
 
     if (step === 5) {
-      if (!formData.isDeclared) newErrors.isDeclared = 'You must accept the appointment terms & anti-blacklisting affidavit box';
+      if (!formData.declAntiBlacklist) newErrors.declAntiBlacklist = 'You must accept the Anti-Blacklisting Declaration';
+      if (!formData.declIpAssignment) newErrors.declIpAssignment = 'You must accept the Intellectual Property Assignment clause';
+      if (!formData.declSiteVisit) newErrors.declSiteVisit = 'You must confirm the Site Visit Mandate';
       if (!formData.signatoryName.trim()) newErrors.signatoryName = 'Authorized Signatory Name is required';
+      if (!signatureData) newErrors.signature = 'Please draw your digital signature on the pad before submitting';
       if (!isCaptchaVerified) newErrors.captcha = 'Please solve the Security Math Challenge before submitting';
     }
 
@@ -186,6 +194,9 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
           dataPayload.append(key, formData[key]);
         }
       });
+      if (signatureData) {
+        dataPayload.append('signature', signatureData);
+      }
 
       const response = await fetch(`${backendUrl}/api/empanelment/submit`, {
         method: 'POST',
@@ -194,13 +205,13 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
       const result = await response.json();
       if (result.success) {
-        onFormSubmit(formData, result.trackingId);
+        onFormSubmit({ ...formData, signature: signatureData }, result.trackingId);
       } else {
-        onFormSubmit(formData);
+        onFormSubmit({ ...formData, signature: signatureData });
       }
     } catch (err) {
       console.warn('Using fallback submission:', err);
-      onFormSubmit(formData);
+      onFormSubmit({ ...formData, signature: signatureData });
     } finally {
       setIsSubmitting(false);
     }
@@ -211,7 +222,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     { num: 2, title: 'GST & Compliance', icon: CreditCard },
     { num: 3, title: 'Financials & BUA', icon: DollarSign },
     { num: 4, title: 'Upload Drawings & Docs', icon: FileCheck },
-    { num: 5, title: 'Terms & Submit', icon: ShieldCheck },
+    { num: 5, title: 'Signature & Terms', icon: ShieldCheck },
   ];
 
   const progressPercent = currentStep * 20;
@@ -507,9 +518,9 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               <div className="step-header">
                 <h3 className="step-header-title">
                   <ShieldCheck style={{ width: 20, height: 20, color: '#10B981' }} />
-                  <span>Step 5: Appointment Terms, IP Ownership & Anti-Blacklisting Declaration</span>
+                  <span>Step 5: Digital Signature, Compliance Checklist & Final Submission</span>
                 </h3>
-                <p className="step-header-sub">Final review of appointment terms, IP assignment, confidentiality, and anti-corruption undertaking</p>
+                <p className="step-header-sub">Digital signature capture, legal compliance checklist, and anti-bot verification</p>
               </div>
 
               {/* Processing Fee & MSME Waiver Slip */}
@@ -518,22 +529,33 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 category={formData.category} 
               />
 
-              <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', marginBottom: '1.25rem', fontSize: '0.825rem', lineHeight: 1.6 }}>
-                <h4 style={{ fontWeight: 800, color: '#0047AB', marginBottom: '0.5rem' }}>Appointment Terms & Legal Covenants:</h4>
-                <ul style={{ listStyle: 'square', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                  <li><strong>Intellectual Property Rights:</strong> All CAD drawings, 3D elevations, plans, and deliverables shall be solely owned by <strong>Hindustan Projects</strong> upon fee payment.</li>
-                  <li><strong>Confidentiality:</strong> Strict non-disclosure of client, pricing, and project specifications.</li>
-                  <li><strong>Independent Relationship:</strong> Engagement is on a "Principal to Principal" independent consultant / contractor basis.</li>
-                  <li><strong>Site Visit Mandate:</strong> Minimum 2 mandatory physical site visits (Column marking, Plinth beam, Roof slab casting, Finishing stage).</li>
-                </ul>
-              </div>
+              {/* DIGITAL AUTHORIZED SIGNATURE PAD */}
+              <DigitalSignature 
+                onSignatureSave={(sigData) => setSignatureData(sigData)} 
+              />
+              {errors.signature && <span className="error-text" style={{ display: 'block', marginBottom: '1rem' }}>{errors.signature}</span>}
 
-              <div style={{ padding: '1rem', borderRadius: 10, backgroundColor: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', marginBottom: '1.25rem' }}>
-                <label style={{ display: 'flex', items: 'flex-start', gap: '0.75rem', cursor: 'pointer', fontSize: '0.85rem' }}>
-                  <input type="checkbox" name="isDeclared" checked={formData.isDeclared} onChange={handleChange} style={{ marginTop: '0.2rem' }} />
-                  <span>I hereby declare that I have read and accepted the Appointment Terms, IP Assignment, and Non-Blacklisting affidavit. Our firm has not been debarred by any PSU, Court, or Council.</span>
+              {/* 4 MANDATORY COMPLIANCE CHECKBOXES */}
+              <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.825rem' }}>
+                <div style={{ fontWeight: 800, color: '#0047AB' }}>Legal Compliance & Undertaking Checklist:</div>
+
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', cursor: 'pointer' }}>
+                  <input type="checkbox" name="declAntiBlacklist" checked={formData.declAntiBlacklist} onChange={handleChange} style={{ marginTop: '0.15rem' }} />
+                  <span><strong>1. Anti-Blacklisting Affidavit:</strong> We declare that our firm has not been debarred by any Central/State PSU, Court, or COA.</span>
                 </label>
-                {errors.isDeclared && <span className="error-text">{errors.isDeclared}</span>}
+                {errors.declAntiBlacklist && <span className="error-text">{errors.declAntiBlacklist}</span>}
+
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', cursor: 'pointer' }}>
+                  <input type="checkbox" name="declIpAssignment" checked={formData.declIpAssignment} onChange={handleChange} style={{ marginTop: '0.15rem' }} />
+                  <span><strong>2. Intellectual Property Rights:</strong> All CAD drawings, elevations, and deliverables shall be solely owned by <strong>Hindustan Projects</strong> upon fee payment.</span>
+                </label>
+                {errors.declIpAssignment && <span className="error-text">{errors.declIpAssignment}</span>}
+
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', cursor: 'pointer' }}>
+                  <input type="checkbox" name="declSiteVisit" checked={formData.declSiteVisit} onChange={handleChange} style={{ marginTop: '0.15rem' }} />
+                  <span><strong>3. Site Visit Mandate:</strong> We agree to conduct mandatory physical site visits (Plinth, Column, Slab casting, Finishing stage).</span>
+                </label>
+                {errors.declSiteVisit && <span className="error-text">{errors.declSiteVisit}</span>}
               </div>
 
               {/* Security Anti-Bot Captcha Verification */}
