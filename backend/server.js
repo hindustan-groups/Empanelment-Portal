@@ -14,41 +14,29 @@ const PORT = process.env.PORT || 5000;
 
 // 1. SECURITY HEADERS (Helmet)
 app.use(helmet({
-  contentSecurityPolicy: false, // Allows cross-origin asset loading from Vercel
+  contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// 2. RATE LIMITING (Anti-Brute Force & Anti-DDoS)
+// 2. RATE LIMITING
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
-  message: { success: false, error: 'Too many requests from this IP, please try again after 15 minutes.' }
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { success: false, error: 'Too many requests from this IP.' }
 });
 
 const submitLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // Limit each IP to 10 form submissions per hour
-  message: { success: false, error: 'Submission limit reached for this IP. Please try again in an hour.' }
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: { success: false, error: 'Submission limit reached for this IP.' }
 });
 
 app.use('/api/', apiLimiter);
 
 // 3. CORS SECURITY CONFIGURATION
-const allowedOrigins = [
-  'https://empanel.hindustanprojects.in',
-  'http://localhost:5173',
-  'http://localhost:3000'
-];
-
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
-      callback(null, true);
-    } else {
-      callback(null, true); // Permissive CORS for cross-domain Vercel deployment
-    }
-  },
-  methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
+  origin: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
@@ -62,7 +50,7 @@ if (!fs.existsSync(uploadDir)) {
 }
 app.use('/uploads', express.static(uploadDir));
 
-// 4. SECURE FILE FILTER (Whitelisting .pdf, .jpg, .jpeg, .png ONLY)
+// 4. SECURE FILE FILTER
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir);
@@ -78,7 +66,6 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];
   const allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/pjpeg'];
-  
   const ext = path.extname(file.originalname).toLowerCase();
   
   if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(file.mimetype)) {
@@ -91,10 +78,10 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ 
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB strict limit per file
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-// Database Initialization (SQLite on VPS)
+// Database Initialization
 const dbPath = path.join(__dirname, 'empanelment.db');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -149,16 +136,11 @@ db.serialize(() => {
 
 // --- API ENDPOINTS ---
 
-// Health Check API
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    security: 'Active (Helmet + RateLimiter + FileSanitizer)',
-    message: 'Hindustan Projects Secure Empanelment VPS Backend Active' 
-  });
+  res.json({ status: 'OK', message: 'Hindustan Projects Secure VPS Backend Active' });
 });
 
-// Submit Empanelment Application API
+// Submit Application API
 app.post('/api/empanelment/submit', submitLimiter, upload.fields([
   { name: 'gstDoc', maxCount: 1 },
   { name: 'panDoc', maxCount: 1 },
@@ -170,7 +152,6 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
     const files = req.files || {};
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '103.45.12.98';
 
-    // Generate SHA-256 Hash Signature for Digital Audit Trail
     const trackingId = `HP-EMP-${Math.floor(100000 + Math.random() * 900000)}`;
     const hashData = `${trackingId}-${data.companyName}-${data.gstin}-${Date.now()}`;
     const hashSignature = crypto.createHash('sha256').update(hashData).digest('hex');
@@ -199,13 +180,11 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
 
     db.run(query, params, function(err) {
       if (err) {
-        console.error('Database Error:', err.message);
-        return res.status(500).json({ success: false, error: 'Database saving failed: ' + err.message });
+        return res.status(500).json({ success: false, error: err.message });
       }
 
       res.status(201).json({
         success: true,
-        message: 'Application encrypted & saved successfully to VPS Database',
         trackingId: trackingId,
         hashSignature: hashSignature,
         submittedAt: new Date().toISOString()
@@ -213,23 +192,18 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
     });
 
   } catch (error) {
-    console.error('Server Error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Track Application Status API
+// Track Status API
 app.get('/api/empanelment/status/:trackingId', (req, res) => {
   const trackingId = req.params.trackingId.toUpperCase();
 
   db.get(`SELECT tracking_id, hash_signature, company_name, category, status, current_stage, submitted_at FROM vendors WHERE tracking_id = ?`, [trackingId], (err, row) => {
-    if (err) {
-      return res.status(500).json({ success: false, error: err.message });
-    }
-    if (!row) {
+    if (err || !row) {
       return res.status(404).json({ success: false, error: 'Application Reference ID not found' });
     }
-
     res.json({
       success: true,
       data: {
@@ -245,9 +219,9 @@ app.get('/api/empanelment/status/:trackingId', (req, res) => {
   });
 });
 
-// Admin: Get All Applications List API
+// Admin: Get All Applications List
 app.get('/api/empanelment/admin/applications', (req, res) => {
-  db.all(`SELECT id, tracking_id, hash_signature, category, company_name, entity_type, contact_name, email, phone, gstin, pan, turnover_2025, status, current_stage, submitted_at FROM vendors ORDER BY id DESC`, [], (err, rows) => {
+  db.all(`SELECT * FROM vendors ORDER BY id DESC`, [], (err, rows) => {
     if (err) {
       return res.status(500).json({ success: false, error: err.message });
     }
@@ -255,10 +229,37 @@ app.get('/api/empanelment/admin/applications', (req, res) => {
   });
 });
 
-// Start Express VPS Server
+// Admin Control: Update Vendor Status & Stage API
+app.patch('/api/empanelment/admin/status', (req, res) => {
+  const { trackingId, status, currentStage } = req.body;
+
+  if (!trackingId || !status) {
+    return res.status(400).json({ success: false, error: 'Tracking ID and Status are required' });
+  }
+
+  const query = `UPDATE vendors SET status = ?, current_stage = ? WHERE tracking_id = ?`;
+  db.run(query, [status, currentStage || 'Technical Committee Review', trackingId], function(err) {
+    if (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+    res.json({ success: true, message: `Status updated to ${status} for ${trackingId}` });
+  });
+});
+
+// Admin Control: Delete / Archive Application API
+app.delete('/api/empanelment/admin/delete/:trackingId', (req, res) => {
+  const trackingId = req.params.trackingId;
+  db.run(`DELETE FROM vendors WHERE tracking_id = ?`, [trackingId], function(err) {
+    if (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+    res.json({ success: true, message: `Application ${trackingId} deleted successfully` });
+  });
+});
+
+// Start Server
 app.listen(PORT, () => {
   console.log(`====================================================`);
-  console.log(`🔒 Hindustan Projects SECURE VPS Backend Active!`);
-  console.log(`📡 Listening on Port: ${PORT}`);
+  console.log(`🔒 Hindustan Projects SECURE VPS Backend Active on ${PORT}`);
   console.log(`====================================================`);
 });
