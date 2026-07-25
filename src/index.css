@@ -58,6 +58,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -81,7 +82,7 @@ h1, h2, h3, h4, h5, h6 {
   top: 0;
   z-index: 40;
   width: 100%;
-  height: 76px;
+  min-height: 76px;
   background-color: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
@@ -97,10 +98,11 @@ h1, h2, h3, h4, h5, h6 {
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0.75rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 .subdomain-pill {
@@ -114,6 +116,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .status-dot {
@@ -135,6 +138,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .btn-icon-text {
@@ -150,6 +154,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
   text-decoration: none;
   cursor: pointer;
+  white-space: nowrap;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -209,9 +214,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-title {
-  font-size: 3rem;
+  font-size: clamp(1.8rem, 4vw, 3rem);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.2;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
 }
@@ -222,7 +227,7 @@ h1, h2, h3, h4, h5, h6 {
 .hero-subtitle {
   max-width: 720px;
   margin: 0 auto 2.5rem auto;
-  font-size: 1.1rem;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
   color: var(--text-secondary);
   line-height: 1.65;
 }
@@ -230,7 +235,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Trust Badges Grid */
 .trust-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.15rem;
   max-width: 1050px;
   margin: 0 auto 3.5rem auto;
@@ -261,6 +266,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .trust-label {
@@ -296,7 +302,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.35rem;
 }
 
@@ -337,6 +343,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--bg-surface);
   color: var(--brand-blue);
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .category-card.selected .category-icon {
@@ -360,7 +367,7 @@ h1, h2, h3, h4, h5, h6 {
 .form-container {
   max-width: 1000px;
   margin: 0 auto 4rem auto;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
 }
 
 .form-card {
@@ -372,7 +379,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-header-banner {
-  padding: 2.25rem;
+  padding: 2.25rem 1.5rem;
   background: linear-gradient(135deg, #002B66 0%, #0047AB 60%, #0F172A 100%);
   color: white;
 }
@@ -382,6 +389,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .form-header-tag {
@@ -394,7 +402,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-header-title {
-  font-size: 1.85rem;
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
   font-weight: 800;
 }
 
@@ -412,6 +420,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.4rem;
   backdrop-filter: blur(6px);
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .btn-draft:hover {
@@ -454,6 +463,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: rgba(255, 255, 255, 0.2);
   color: white;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .step-item.active .step-bubble {
@@ -475,7 +485,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Form Body & Inputs */
 .form-body {
-  padding: 2.25rem;
+  padding: 2.25rem 1.5rem;
 }
 
 .step-header {
@@ -490,6 +500,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  flex-wrap: wrap;
 }
 
 .step-header-sub {
@@ -500,13 +511,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .form-grid-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.35rem;
 }
 
 .form-grid-3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.15rem;
 }
 
@@ -595,6 +606,8 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .btn-primary {
@@ -706,7 +719,7 @@ h1, h2, h3, h4, h5, h6 {
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 2.25rem;
   padding-bottom: 2.25rem;
   border-bottom: 1px solid #1E293B;
@@ -718,4 +731,77 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
   font-size: 0.825rem;
   color: #64748B;
+}
+
+/* ==========================================================================
+   📱 COMPREHENSIVE RESPONSIVE MEDIA QUERIES FOR ALL DEVICES
+   (Smartphones 320px-480px, Tablets 768px-1024px, Laptops, 4K Monitors)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .nav-actions {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+  }
+
+  .btn-icon-text {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  .progress-nav {
+    display: flex;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 0.5rem;
+  }
+
+  .step-item {
+    min-width: 70px;
+  }
+
+  .step-title {
+    font-size: 0.65rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .form-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 2rem 1rem 1.5rem 1rem;
+  }
+
+  .subdomain-pill {
+    font-size: 0.675rem;
+    padding: 0.25rem 0.65rem;
+  }
+
+  .form-body {
+    padding: 1.5rem 1rem;
+  }
+
+  .modal-content {
+    padding: 1.35rem;
+  }
 }
