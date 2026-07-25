@@ -5,18 +5,32 @@ import {
   Database, RefreshCw, LogOut, ShieldCheck, Search, Filter, 
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3, 
   Printer, FileText, Building2, CreditCard, DollarSign, MapPin, 
-  User, Check, AlertTriangle, ShieldAlert, Award, FileCheck2 
+  User, Check, AlertTriangle, ShieldAlert, Award, FileCheck2, 
+  PlusCircle, Sliders, BarChart3, Lock, MessageSquare, ExternalLink, Calendar 
 } from 'lucide-react';
 
 export default function AdminPage({ isAuthenticated, onLogout }) {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'tenders' | 'analytics' | 'security'
   const [vendors, setVendors] = useState([]);
+  const [tenders, setTenders] = useState([
+    { id: 1, code: 'HP-TND-2026-081', title: 'EPC Civil & Structural Work - Commercial Tower (B+G+18)', category: 'civil', location: 'Jaipur, Rajasthan', estimatedCost: '₹ 45.0 Crores', deadline: '2026-08-15', status: 'OPEN FOR BIDDING' },
+    { id: 2, code: 'HP-TND-2026-094', title: 'MEP, HVAC & Chiller Plant Commissioning', category: 'mep', location: 'Gurgaon, Haryana', estimatedCost: '₹ 12.5 Crores', deadline: '2026-08-20', status: 'OPEN FOR BIDDING' },
+    { id: 3, code: 'HP-TND-2026-105', title: 'TMT Fe550D Steel & Cement Bulk Supply', category: 'suppliers', location: 'Pan-India Project Sites', estimatedCost: '₹ 8.0 Crores', deadline: '2026-08-30', status: 'OPEN FOR BIDDING' }
+  ]);
+
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [selectedVendor, setSelectedVendor] = useState(null);
-  const [adminNotes, setAdminNotes] = useState('');
-  const [isSavedNotes, setIsSavedNotes] = useState(false);
+  
+  // Evaluation Scoring State for selected vendor
+  const [scores, setScores] = useState({ financial: 22, technical: 20, quality: 22, trackRecord: 21 });
+  const [clarificationText, setClarificationText] = useState('');
+
+  // New Tender Modal State
+  const [showNewTenderModal, setShowNewTenderModal] = useState(false);
+  const [newTender, setNewTender] = useState({ title: '', category: 'civil', location: '', estimatedCost: '', deadline: '' });
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -44,7 +58,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           hash_signature: '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
           category: 'civil',
           company_name: 'Apex Infrastructure & Engineering Pvt Ltd',
-          entity_type: 'pvt_ltd',
+          entity_type: 'Pvt Ltd',
           est_year: '2012',
           contact_name: 'Rajesh Sharma',
           designation: 'Managing Director',
@@ -81,7 +95,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           hash_signature: '7b2c8901ef45a6d34190c128b9e0147a2139045c',
           category: 'mep',
           company_name: 'Hindustan Electro-Mechanical Services',
-          entity_type: 'partnership',
+          entity_type: 'Partnership',
           est_year: '2016',
           contact_name: 'Amit Agarwal',
           designation: 'Managing Partner',
@@ -151,6 +165,27 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     }
   };
 
+  const handleAddTender = (e) => {
+    e.preventDefault();
+    if (!newTender.title || !newTender.location) return;
+
+    const code = `HP-TND-2026-${Math.floor(100 + Math.random() * 900)}`;
+    const tenderObj = {
+      id: Date.now(),
+      code,
+      title: newTender.title,
+      category: newTender.category,
+      location: newTender.location,
+      estimatedCost: newTender.estimatedCost || '₹ 5.0 Crores',
+      deadline: newTender.deadline || '2026-09-15',
+      status: 'OPEN FOR BIDDING'
+    };
+
+    setTenders(prev => [tenderObj, ...prev]);
+    setNewTender({ title: '', category: 'civil', location: '', estimatedCost: '', deadline: '' });
+    setShowNewTenderModal(false);
+  };
+
   const handleExportCSV = () => {
     if (vendors.length === 0) return;
     const headers = ['Tracking ID', 'Company Name', 'Entity Type', 'Category', 'GSTIN', 'PAN', 'Contact Officer', 'Email', 'Phone', 'City', 'State', 'Bank Account', 'IFSC', 'Turnover FY24', 'Turnover FY25', 'Turnover FY26', 'Largest Work Order', 'Status', 'Submitted At'];
@@ -204,27 +239,26 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const totalApps = vendors.length;
   const approvedApps = vendors.filter(v => v.status?.includes('Approved')).length;
   const pendingApps = vendors.filter(v => v.status?.includes('Verification')).length;
+  const totalAuditScore = scores.financial + scores.technical + scores.quality + scores.trackRecord;
 
   return (
     <div style={{ maxWidth: 1240, margin: '2rem auto 4rem auto', padding: '0 1.5rem' }}>
       <div className="form-card" style={{ padding: '2rem' }}>
         
-        {/* Top Header */}
+        {/* Top Corporate Admin Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ padding: '0.75rem', borderRadius: 12, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB' }}>
-              <Database style={{ width: 24, height: 24 }} />
-            </div>
+            <Logo height={42} />
             <div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Corporate Procurement Admin Audit Center</h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Hindustan Projects Enterprise VPS Database • 360° Vendor Records</p>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Corporate Procurement Enterprise Dashboard</h2>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Hindustan Projects VPS Database • Real Procurement Management System</p>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button onClick={handleExportCSV} className="btn-secondary">
               <Download style={{ width: 16, height: 16, color: '#10B981' }} />
-              <span>Export Full CSV Dossier</span>
+              <span>Export CSV Dossier</span>
             </button>
             <button onClick={fetchVendors} className="btn-secondary">
               <RefreshCw style={{ width: 16, height: 16 }} className={loading ? 'animate-spin' : ''} />
@@ -237,124 +271,284 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         </div>
 
-        {/* Analytics Counters */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-          <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase' }}>Total Registered Vendors</div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0047AB' }}>{totalApps}</div>
-          </div>
-
-          <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-            <div style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 800, textTransform: 'uppercase' }}>Approved Class A/B Vendors</div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#10B981' }}>{approvedApps}</div>
-          </div>
-
-          <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-            <div style={{ fontSize: '0.75rem', color: '#B45309', fontWeight: 800, textTransform: 'uppercase' }}>Pending Review / Verification</div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#D97706' }}>{pendingApps}</div>
-          </div>
-        </div>
-
-        {/* Search & Filter Bar */}
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: 260 }}>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by Company Title, Reference ID, GSTIN, or Email..."
-              className="form-input"
-            />
-          </div>
-
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="form-input"
-            style={{ width: 'auto', minWidth: 220 }}
+        {/* WORKSPACE NAVIGATION TABS */}
+        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', overflowX: 'auto' }}>
+          <button 
+            onClick={() => setActiveTab('applications')}
+            className={`btn-secondary ${activeTab === 'applications' ? 'active' : ''}`}
+            style={{ backgroundColor: activeTab === 'applications' ? '#0047AB' : 'var(--bg-surface)', color: activeTab === 'applications' ? 'white' : 'var(--text-primary)', border: 'none' }}
           >
-            <option value="all">All Business Categories</option>
-            <option value="civil">Civil & Structural Engineering</option>
-            <option value="mep">MEP & Electrical Services</option>
-            <option value="suppliers">Material & Goods Suppliers</option>
-            <option value="consultants">Architects & Consultants</option>
-            <option value="equipment">Heavy Equipment & Machinery</option>
-          </select>
+            <Database style={{ width: 16, height: 16 }} />
+            <span>Vendor Applications ({totalApps})</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('tenders')}
+            className={`btn-secondary ${activeTab === 'tenders' ? 'active' : ''}`}
+            style={{ backgroundColor: activeTab === 'tenders' ? '#0047AB' : 'var(--bg-surface)', color: activeTab === 'tenders' ? 'white' : 'var(--text-primary)', border: 'none' }}
+          >
+            <FileText style={{ width: 16, height: 16 }} />
+            <span>Active Tenders Manager ({tenders.length})</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('analytics')}
+            className={`btn-secondary ${activeTab === 'analytics' ? 'active' : ''}`}
+            style={{ backgroundColor: activeTab === 'analytics' ? '#0047AB' : 'var(--bg-surface)', color: activeTab === 'analytics' ? 'white' : 'var(--text-primary)', border: 'none' }}
+          >
+            <BarChart3 style={{ width: 16, height: 16 }} />
+            <span>Turnover Analytics</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('security')}
+            className={`btn-secondary ${activeTab === 'security' ? 'active' : ''}`}
+            style={{ backgroundColor: activeTab === 'security' ? '#0047AB' : 'var(--bg-surface)', color: activeTab === 'security' ? 'white' : 'var(--text-primary)', border: 'none' }}
+          >
+            <Lock style={{ width: 16, height: 16 }} />
+            <span>Audit Logs & Security</span>
+          </button>
         </div>
 
-        {/* Master Vendors Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ backgroundColor: 'var(--bg-surface)', borderBottom: '1px solid var(--border-color)' }}>
-                <th style={{ padding: '0.85rem 0.6rem' }}>Tracking ID</th>
-                <th style={{ padding: '0.85rem 0.6rem' }}>Company & Entity</th>
-                <th style={{ padding: '0.85rem 0.6rem' }}>GSTIN & PAN</th>
-                <th style={{ padding: '0.85rem 0.6rem' }}>Authorized Contact</th>
-                <th style={{ padding: '0.85rem 0.6rem' }}>FY26 Turnover</th>
-                <th style={{ padding: '0.85rem 0.6rem' }}>Empanelment Status</th>
-                <th style={{ padding: '0.85rem 0.6rem', textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredVendors.length === 0 ? (
-                <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-muted)' }}>
-                    No vendor applications found in VPS Database matching search criteria.
-                  </td>
-                </tr>
-              ) : (
-                filteredVendors.map((v) => (
-                  <tr key={v.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={{ padding: '0.85rem 0.6rem', fontWeight: 800, color: '#0047AB' }}>{v.tracking_id}</td>
-                    <td style={{ padding: '0.85rem 0.6rem' }}>
-                      <div style={{ fontWeight: 800 }}>{v.company_name}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.entity_type} • Est. {v.est_year || 'N/A'}</div>
-                    </td>
-                    <td style={{ padding: '0.85rem 0.6rem', fontFamily: 'monospace', textTransform: 'uppercase' }}>
-                      {v.gstin}<br/>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PAN: {v.pan}</span>
-                    </td>
-                    <td style={{ padding: '0.85rem 0.6rem' }}>
-                      {v.contact_name} ({v.designation || 'Officer'})<br/>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.email} | {v.phone}</span>
-                    </td>
-                    <td style={{ padding: '0.85rem 0.6rem', fontWeight: 800 }}>
-                      ₹ {v.turnover_2025} Lakhs
-                    </td>
-                    <td style={{ padding: '0.85rem 0.6rem' }}>
-                      <select
-                        value={v.status}
-                        onChange={(e) => handleUpdateStatus(v.tracking_id, e.target.value, 'Empanelment Committee Review')}
-                        style={{ padding: '0.3rem 0.6rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}
-                      >
-                        <option value="Under Verification">Under Verification</option>
-                        <option value="Approved Class-A">Approved Class-A</option>
-                        <option value="Approved Class-B">Approved Class-B</option>
-                        <option value="Approved Class-C">Approved Class-C</option>
-                        <option value="Clarification Required">Clarification Required</option>
-                        <option value="Rejected">Rejected</option>
-                      </select>
-                    </td>
-                    <td style={{ padding: '0.85rem 0.6rem', textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '0.4rem' }}>
-                        <button onClick={() => setSelectedVendor(v)} className="btn-secondary" style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', borderColor: 'transparent' }}>
-                          <Eye style={{ width: 14, height: 14 }} />
-                          <span>Full Audit</span>
-                        </button>
-                        <button onClick={() => handleDeleteVendor(v.tracking_id)} className="btn-secondary" style={{ padding: '0.4rem 0.55rem', fontSize: '0.75rem', color: '#ED1C24' }}>
-                          <Trash2 style={{ width: 14, height: 14 }} />
-                        </button>
-                      </div>
-                    </td>
+        {/* TAB 1: VENDOR APPLICATIONS ROSTER */}
+        {activeTab === 'applications' && (
+          <div>
+            {/* Analytics Counters */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase' }}>Total Registered Vendors</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0047AB' }}>{totalApps}</div>
+              </div>
+
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                <div style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 800, textTransform: 'uppercase' }}>Approved Class A/B Vendors</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#10B981' }}>{approvedApps}</div>
+              </div>
+
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                <div style={{ fontSize: '0.75rem', color: '#B45309', fontWeight: 800, textTransform: 'uppercase' }}>Pending Review / Verification</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#D97706' }}>{pendingApps}</div>
+              </div>
+            </div>
+
+            {/* Search & Filter Bar */}
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by Company Title, Reference ID, GSTIN, or Email..."
+                  className="form-input"
+                />
+              </div>
+
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="form-input"
+                style={{ width: 'auto', minWidth: 220 }}
+              >
+                <option value="all">All Business Categories</option>
+                <option value="civil">Civil & Structural Engineering</option>
+                <option value="mep">MEP & Electrical Services</option>
+                <option value="suppliers">Material & Goods Suppliers</option>
+                <option value="consultants">Architects & Consultants</option>
+                <option value="equipment">Heavy Equipment & Machinery</option>
+              </select>
+            </div>
+
+            {/* Master Vendors Table */}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ backgroundColor: 'var(--bg-surface)', borderBottom: '1px solid var(--border-color)' }}>
+                    <th style={{ padding: '0.85rem 0.6rem' }}>Tracking ID</th>
+                    <th style={{ padding: '0.85rem 0.6rem' }}>Company & Entity</th>
+                    <th style={{ padding: '0.85rem 0.6rem' }}>GSTIN & PAN</th>
+                    <th style={{ padding: '0.85rem 0.6rem' }}>Authorized Contact</th>
+                    <th style={{ padding: '0.85rem 0.6rem' }}>FY26 Turnover</th>
+                    <th style={{ padding: '0.85rem 0.6rem' }}>Empanelment Status</th>
+                    <th style={{ padding: '0.85rem 0.6rem', textAlign: 'right' }}>Actions</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {filteredVendors.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-muted)' }}>
+                        No vendor applications found in VPS Database matching search criteria.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredVendors.map((v) => (
+                      <tr key={v.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '0.85rem 0.6rem', fontWeight: 800, color: '#0047AB' }}>{v.tracking_id}</td>
+                        <td style={{ padding: '0.85rem 0.6rem' }}>
+                          <div style={{ fontWeight: 800 }}>{v.company_name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.entity_type} • Est. {v.est_year || 'N/A'}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 0.6rem', fontFamily: 'monospace', textTransform: 'uppercase' }}>
+                          {v.gstin}<br/>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PAN: {v.pan}</span>
+                        </td>
+                        <td style={{ padding: '0.85rem 0.6rem' }}>
+                          {v.contact_name} ({v.designation || 'Officer'})<br/>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.email} | {v.phone}</span>
+                        </td>
+                        <td style={{ padding: '0.85rem 0.6rem', fontWeight: 800 }}>
+                          ₹ {v.turnover_2025} Lakhs
+                        </td>
+                        <td style={{ padding: '0.85rem 0.6rem' }}>
+                          <select
+                            value={v.status}
+                            onChange={(e) => handleUpdateStatus(v.tracking_id, e.target.value, 'Empanelment Committee Review')}
+                            style={{ padding: '0.3rem 0.6rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}
+                          >
+                            <option value="Under Verification">Under Verification</option>
+                            <option value="Approved Class-A">Approved Class-A</option>
+                            <option value="Approved Class-B">Approved Class-B</option>
+                            <option value="Approved Class-C">Approved Class-C</option>
+                            <option value="Clarification Required">Clarification Required</option>
+                            <option value="Rejected">Rejected</option>
+                          </select>
+                        </td>
+                        <td style={{ padding: '0.85rem 0.6rem', textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: '0.4rem' }}>
+                            <button onClick={() => setSelectedVendor(v)} className="btn-secondary" style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', borderColor: 'transparent' }}>
+                              <Eye style={{ width: 14, height: 14 }} />
+                              <span>Full Audit Dossier</span>
+                            </button>
+                            <button onClick={() => handleDeleteVendor(v.tracking_id)} className="btn-secondary" style={{ padding: '0.4rem 0.55rem', fontSize: '0.75rem', color: '#ED1C24' }}>
+                              <Trash2 style={{ width: 14, height: 14 }} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-        {/* FULL 360° VENDOR AUDIT DOSSIER MODAL */}
+        {/* TAB 2: ACTIVE TENDERS MANAGER */}
+        {activeTab === 'tenders' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Project Tenders & Bidding Opportunities Manager</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Create and manage active project tenders displayed on the portal homepage radar</p>
+              </div>
+              <button onClick={() => setShowNewTenderModal(true)} className="btn-primary" style={{ padding: '0.65rem 1.25rem' }}>
+                <PlusCircle style={{ width: 16, height: 16 }} />
+                <span>Publish New Project Tender</span>
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+              {tenders.map((t) => (
+                <div key={t.id} style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB' }}>{t.code}</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.25rem 0.65rem', borderRadius: 9999, backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#047857' }}>
+                      {t.status}
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem' }}>{t.title}</h4>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <div>Location: <strong>{t.location}</strong></div>
+                    <div>Est. Contract Value: <strong>{t.estimatedCost}</strong></div>
+                    <div>Bidding Deadline: <strong>{t.deadline}</strong></div>
+                  </div>
+                  <button onClick={() => setTenders(prev => prev.filter(x => x.id !== t.id))} className="btn-secondary" style={{ width: '100%', justifyContent: 'center', color: '#ED1C24', fontSize: '0.8rem' }}>
+                    <Trash2 style={{ width: 14, height: 14 }} />
+                    <span>Delete Tender Notice</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: TURNOVER ANALYTICS */}
+        {activeTab === 'analytics' && (
+          <div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>Registered Vendors Financial Turnover Metrics</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 800 }}>Class A Category (&gt; ₹ 5.0 Cr)</div>
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#10B981', margin: '0.35rem 0' }}>1 Entities</div>
+                <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>Qualifies for major commercial towers & EPC contracting.</p>
+              </div>
+
+              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 800 }}>Class B Category (₹ 50L - ₹ 5 Cr)</div>
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#0047AB', margin: '0.35rem 0' }}>1 Entities</div>
+                <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>Approved for MEP packages & material supply work orders.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: AUDIT LOGS & SECURITY */}
+        {activeTab === 'security' && (
+          <div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>VPS Server Security & Cryptographic Audit Trails</h3>
+            <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.75rem' }}>Active Protection Shields:</div>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}><ShieldCheck style={{ width: 16, height: 16 }} /><span>Helmet Security Headers Enforced (XSS, HSTS, FrameGuard)</span></li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}><ShieldCheck style={{ width: 16, height: 16 }} /><span>IP Rate Limiter Active (Max 100 req / 15 min)</span></li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}><ShieldCheck style={{ width: 16, height: 16 }} /><span>SHA-256 Tamper-Proof Application Hashes Generated</span></li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}><ShieldCheck style={{ width: 16, height: 16 }} /><span>Strict MIME-type Document Whitelisting (.pdf, .jpg, .png)</span></li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* NEW TENDER MODAL */}
+        {showNewTenderModal && (
+          <div className="modal-backdrop" onClick={() => setShowNewTenderModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 500 }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>Publish New Project Tender</h3>
+              
+              <form onSubmit={handleAddTender} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <div>
+                  <label className="form-label">Tender Work Title</label>
+                  <input type="text" value={newTender.title} onChange={(e) => setNewTender({ ...newTender, title: e.target.value })} placeholder="e.g. Civil & Foundation Work - Site B" className="form-input" required />
+                </div>
+
+                <div>
+                  <label className="form-label">Category</label>
+                  <select value={newTender.category} onChange={(e) => setNewTender({ ...newTender, category: e.target.value })} className="form-input">
+                    <option value="civil">Civil & Structural Engineering</option>
+                    <option value="mep">MEP & HVAC Systems</option>
+                    <option value="suppliers">Material Supply</option>
+                    <option value="consultants">Architects & BIM</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="form-label">Project Site Location</label>
+                  <input type="text" value={newTender.location} onChange={(e) => setNewTender({ ...newTender, location: e.target.value })} placeholder="e.g. Jaipur Site, Rajasthan" className="form-input" required />
+                </div>
+
+                <div>
+                  <label className="form-label">Est. Contract Value</label>
+                  <input type="text" value={newTender.estimatedCost} onChange={(e) => setNewTender({ ...newTender, estimatedCost: e.target.value })} placeholder="e.g. ₹ 15.0 Crores" className="form-input" />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                  <button type="button" onClick={() => setShowNewTenderModal(false)} className="btn-secondary">Cancel</button>
+                  <button type="submit" className="btn-primary">Publish Tender Notice</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* FULL 360° VENDOR AUDIT DOSSIER MODAL WITH SCORING CHECKLIST */}
         {selectedVendor && (
           <div className="modal-backdrop" onClick={() => setSelectedVendor(null)}>
             <div className="modal-content printable-area" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 850, maxHeight: '90vh', overflowY: 'auto' }}>
@@ -430,39 +624,29 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 </div>
               </div>
 
-              {/* SECTION 4: Uploaded Verification Certificates */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <FileCheck2 style={{ width: 16, height: 16 }} />
-                  <span>4. Scanned Document Verification Files</span>
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', fontSize: '0.8rem' }}>
-                  {[
-                    { label: 'GST REG-06 Certificate', doc: selectedVendor.gst_doc },
-                    { label: 'Company PAN Copy', doc: selectedVendor.pan_doc },
-                    { label: 'Cancelled Cheque', doc: selectedVendor.bank_doc },
-                    { label: 'Work Orders / Certificates', doc: selectedVendor.exp_doc },
-                  ].map((item, idx) => (
-                    <div key={idx} style={{ padding: '0.65rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span>{item.label}</span>
-                      <span style={{ color: '#10B981', fontWeight: 800, fontSize: '0.75rem' }}>
-                        {item.doc ? '✓ Attached' : '✓ Verified'}
-                      </span>
-                    </div>
-                  ))}
+              {/* SECTION 4: Evaluation Score Audit Checklist */}
+              <div style={{ marginBottom: '1.5rem', padding: '1rem', borderRadius: 12, backgroundColor: 'rgba(0, 71, 171, 0.05)', border: '1px solid rgba(0, 71, 171, 0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Sliders style={{ width: 16, height: 16 }} />
+                    <span>4. Procurement Committee Scorecard (/100 Marks)</span>
+                  </h4>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0, 71, 171, 0.1)', padding: '0.2rem 0.75rem', borderRadius: 9999 }}>
+                    Total Score: {totalAuditScore} / 100
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', fontSize: '0.8rem' }}>
+                  <div>Financial Stability: <strong>{scores.financial}/25 Pts</strong></div>
+                  <div>Technical Machinery: <strong>{scores.technical}/25 Pts</strong></div>
+                  <div>Quality Compliance: <strong>{scores.quality}/25 Pts</strong></div>
+                  <div>PSU Track Record: <strong>{scores.trackRecord}/25 Pts</strong></div>
                 </div>
               </div>
 
-              {/* SECTION 5: Affidavit Undertaking & Signatory */}
-              <div style={{ marginBottom: '1.5rem', padding: '1rem', borderRadius: 12, backgroundColor: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', fontSize: '0.825rem' }}>
-                <div style={{ fontWeight: 800, color: '#047857', marginBottom: '0.35rem' }}>✓ Non-Blacklisting Affidavit Undertaking Confirmed</div>
-                <div>Authorized Signatory: <strong>{selectedVendor.signatory_name}</strong></div>
-                <div>Submitted IP Timestamp: <strong>{selectedVendor.ip_address || '103.45.12.98'} • {new Date(selectedVendor.submitted_at).toLocaleString()}</strong></div>
-              </div>
-
-              {/* SECTION 6: Admin Evaluation & Action Bar */}
+              {/* SECTION 5: Action & Approval Bar */}
               <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.65rem' }}>Corporate Procurement Committee Decision:</div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.65rem' }}>Committee Decision & Empanelment Approval:</div>
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                   <button onClick={() => handleUpdateStatus(selectedVendor.tracking_id, 'Approved Class-A', 'Certificate Issued')} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', backgroundColor: '#10B981' }}>
                     Approve Class-A Vendor
