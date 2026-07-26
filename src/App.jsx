@@ -62,9 +62,61 @@ export default function App() {
   const handleFormSubmit = (formData, customTrackingId) => {
     const randomCode = Math.floor(100000 + Math.random() * 900000);
     const trackingCode = customTrackingId || `HP-EMP-${randomCode}`;
-    
+
+    const newApplication = {
+      id: Date.now(),
+      tracking_id: trackingCode,
+      hash_signature: '8f3a9e120bc741a8d' + Math.random().toString(36).substring(2, 10),
+      category: formData?.category || 'general',
+      primary_role: formData?.primaryRole || 'Contractor / Vendor',
+      company_name: formData?.companyName || formData?.contactName || 'Applicant Entity',
+      entity_type: formData?.entityType || 'sole_proprietor',
+      est_year: formData?.estYear || '2024',
+      contact_name: formData?.contactName || 'Authorized Signatory',
+      designation: formData?.designation || 'Proprietor / Director',
+      email: formData?.email || '',
+      phone: formData?.phone || '',
+      address: formData?.address || '',
+      city: formData?.city || '',
+      state: formData?.state || '',
+      pincode: formData?.pincode || '',
+      gstin: formData?.gstin || (formData?.gstExempt ? 'EXEMPT' : ''),
+      pan: formData?.pan || '',
+      msme_no: formData?.msmeNo || '',
+      bank_account: formData?.bankAccount || '',
+      bank_name: formData?.bankName || '',
+      ifsc: formData?.ifsc || '',
+      turnover_2023: formData?.turnover2023 || '0',
+      turnover_2024: formData?.turnover2024 || '0',
+      turnover_2025: formData?.turnover2025 || '0',
+      largest_order: formData?.largestOrder || '0',
+      bua_area: formData?.buaArea || '0',
+      cpa_area: formData?.cpaArea || '0',
+      existing_empanels: formData?.existingEmpanels || 'None',
+      gst_doc: formData?.gstDoc?.name || 'gst_certificate.pdf',
+      pan_doc: formData?.panDoc?.name || 'pan_card.pdf',
+      bank_doc: formData?.bankDoc?.name || 'cancelled_cheque.pdf',
+      exp_doc: formData?.expDoc?.name || 'completion_certificate.pdf',
+      signatory_name: formData?.signatoryName || formData?.contactName || 'Authorized Signatory',
+      signature_data: formData?.signature || null,
+      status: 'Under Verification',
+      current_stage: 'Financial Committee Audit',
+      ip_address: '103.45.12.' + Math.floor(Math.random() * 200),
+      admin_remarks: '',
+      submitted_at: new Date().toISOString()
+    };
+
+    // Save to localStorage hipro_vps_applications
+    try {
+      const existing = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      const updated = [newApplication, ...existing];
+      localStorage.setItem('hipro_vps_applications', JSON.stringify(updated));
+    } catch (err) {
+      console.warn('Failed to save application to local storage:', err);
+    }
+
     setSubmittedId(trackingCode);
-    setLastSubmittedData(formData);
+    setLastSubmittedData({ ...formData, tracking_id: trackingCode, submitted_at: newApplication.submitted_at });
     setIsSuccessOpen(true);
   };
 

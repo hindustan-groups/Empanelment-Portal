@@ -12,16 +12,49 @@ export default function StatusModal({ isOpen, onClose }) {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!trackingId.trim()) return;
+    const query = trackingId.trim().toLowerCase();
+    if (!query) return;
 
     setLoading(true);
     setErrorMsg(null);
     setResult(null);
 
+    // 1. Check local storage first
+    try {
+      const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      const match = localApps.find(a =>
+        (a.tracking_id || '').toLowerCase() === query ||
+        (a.phone || '').replace(/\D/g, '').includes(query) ||
+        (a.gstin || '').toLowerCase() === query ||
+        (a.email || '').toLowerCase() === query
+      );
+
+      if (match) {
+        setResult({
+          id: match.tracking_id,
+          company: match.company_name || match.contact_name,
+          category: match.category ? match.category.toUpperCase() : 'GENERAL',
+          submittedDate: new Date(match.submitted_at).toLocaleDateString(),
+          stage: match.current_stage || 'Financial Audit',
+          status: match.status || 'Under Verification',
+          fullData: match,
+          steps: [
+            { label: 'Application Submitted', date: new Date(match.submitted_at).toLocaleDateString(), done: true },
+            { label: 'Document & Statutory Verification', date: 'Done', done: true },
+            { label: match.current_stage || 'Financial & Technical Committee Audit', date: 'In Progress', done: false, active: true },
+            { label: 'Empanelment Certificate Issuance', date: 'Pending', done: false },
+          ]
+        });
+        setLoading(false);
+        return;
+      }
+    } catch { /* fallback */ }
+
+    // 2. Fetch API
     const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
     try {
-      const response = await fetch(`${backendUrl}/api/empanelment/status/${trackingId.trim()}`);
+      const response = await fetch(`${backendUrl}/api/empanelment/status/${query}`);
       const data = await response.json();
 
       if (data.success && data.data) {
@@ -40,24 +73,10 @@ export default function StatusModal({ isOpen, onClose }) {
           ]
         });
       } else {
-        setErrorMsg(data.error || 'Reference ID not found in database');
+        setErrorMsg(`No application found for "${trackingId.trim()}". Please check your Reference ID, Mobile Number, or GSTIN.`);
       }
-    } catch (err) {
-      // Offline simulation fallback
-      setResult({
-        id: trackingId.toUpperCase(),
-        company: 'Applicant Entity',
-        category: 'Empanelment Candidate',
-        submittedDate: new Date().toLocaleDateString(),
-        stage: 'Financial Committee Review',
-        status: 'Under Verification',
-        steps: [
-          { label: 'Application Submitted', date: new Date().toLocaleDateString(), done: true },
-          { label: 'Document & GST Screening', date: 'Done', done: true },
-          { label: 'Technical & Financial Audit', date: 'In Progress', done: false, active: true },
-          { label: 'Empanelment Certificate Issue', date: 'Pending', done: false },
-        ]
-      });
+    } catch {
+      setErrorMsg(`Application "${trackingId.trim()}" not found in current database session.`);
     } finally {
       setLoading(false);
     }
