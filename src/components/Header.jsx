@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import Logo from './Logo';
-import { Sun, Moon, Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck } from 'lucide-react';
+import { Sun, Moon, Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink } from 'lucide-react';
 
 const DEFAULT_SITE_CONFIG = {
   companyTitle: 'Hindustan Projects',
@@ -46,6 +46,17 @@ export default function Header({ isDark, toggleTheme }) {
 
         {/* Right Desktop Nav Options */}
         <div className="nav-actions desktop-only">
+          <a
+            href={siteConfig.mainWebsiteUrl || "https://hindustanprojects.in"}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-icon-text"
+            style={{ backgroundColor: 'rgba(237, 28, 36, 0.08)', color: '#ED1C24', borderColor: 'rgba(237, 28, 36, 0.2)' }}
+          >
+            <span>Main Site</span>
+            <ExternalLink style={{ width: 14, height: 14 }} />
+          </a>
+
           <NavLink 
             to="/apply" 
             className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}
@@ -96,6 +107,18 @@ export default function Header({ isDark, toggleTheme }) {
               <ShieldCheck style={{ width: 14, height: 14, color: '#10B981' }} />
               <span>{siteConfig.subdomainPill || 'empanel.hindustanprojects.in'}</span>
             </div>
+
+            <a
+              href={siteConfig.mainWebsiteUrl || "https://hindustanprojects.in"}
+              target="_blank"
+              rel="noreferrer"
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+              style={{ backgroundColor: 'rgba(237, 28, 36, 0.08)', color: '#ED1C24' }}
+            >
+              <ExternalLink style={{ width: 18, height: 18 }} />
+              <span>Visit Main Corporate Website</span>
+            </a>
 
             <NavLink 
               to="/apply" 
