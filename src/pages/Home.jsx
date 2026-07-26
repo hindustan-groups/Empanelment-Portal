@@ -1,8 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
-import PortalPreviewObject from '../components/PortalPreviewObject';
-import EligibilityCalculator from '../components/EligibilityCalculator';
 import ActiveTenders from '../components/ActiveTenders';
 import { ShieldCheck, Award, FileText, ArrowRight, CheckCircle2, Building2 } from 'lucide-react';
 
@@ -20,16 +18,6 @@ export default function Home({ selectedCategory, setSelectedCategory }) {
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         onStartForm={handleStartForm}
-      />
-
-      {/* Enterprise Procurement Console Preview Object */}
-      <PortalPreviewObject 
-        onStartForm={handleStartForm}
-      />
-
-      {/* PRO Tool: Vendor Score Calculator */}
-      <EligibilityCalculator 
-        onApplyCategory={handleStartForm}
       />
 
       {/* 4-Step Empanelment Journey Workflow */}
