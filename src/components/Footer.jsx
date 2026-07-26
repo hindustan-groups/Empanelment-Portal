@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
-import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, Lock, Award, Clock, ArrowRight, CheckCircle2, Building2 } from 'lucide-react';
+import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, Lock, Award, Clock, ArrowRight, Building2 } from 'lucide-react';
 
 const DEFAULT_SITE_CONFIG = {
-  companyTitle: 'Hindustan Projects',
-  subdomainPill: 'empanel.hindustanprojects.in',
-  helplinePhone: '+91 (011) 4500 8899 / 900',
-  corporateEmail: 'empanelment@hindustanprojects.in',
-  corporateAddress: 'Hindustan Projects Corporate Tower, Barakhamba Road, New Delhi - 110001',
-  footerCopyright: '© 2026 Hindustan Projects. All Rights Reserved. | Designed for empanel.hindustanprojects.in',
-  mainWebsiteUrl: 'https://hindustanprojects.in'
+  companyTitle:           'Hindustan Projects',
+  subdomainPill:          'empanel.hindustanprojects.in',
+  helplinePhone:          '+91 (011) 4500 8899 / 900',
+  corporateEmail:         'empanelment@hindustanprojects.in',
+  corporateAddress:       'Hindustan Projects Corporate Tower, Barakhamba Road, New Delhi - 110001',
+  footerCopyright:        '© 2026 Hindustan Projects. All Rights Reserved. | Designed for empanel.hindustanprojects.in',
+  footerAboutText:        'Official Vendor & Contractor Empanelment Portal of Hindustan Projects. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.',
+  mainWebsiteUrl:         'https://hindustanprojects.in',
+  isoBadgeText:           'ISO 9001:2015 Verified',
+  cvcBadgeText:           'CVC Procurement Valid',
+  supportHours:           'Mon – Sat: 09:00 AM – 06:00 PM IST',
+  sslRibbonText:          '✓ 256-Bit SSL Encrypted Registration System',
+  helpdeskBannerTitle:    'Need Assistance with Empanelment Filing?',
+  helpdeskBannerSubtitle: 'Our Procurement Helpdesk is available Monday – Saturday (09:00 AM – 06:00 PM IST)'
 };
 
 export default function Footer() {
@@ -20,7 +27,7 @@ export default function Footer() {
     const saved = localStorage.getItem('hipro_site_config');
     if (saved) {
       try {
-        setSiteConfig(JSON.parse(saved));
+        setSiteConfig({ ...DEFAULT_SITE_CONFIG, ...JSON.parse(saved) });
       } catch (err) {
         console.warn('Failed to parse site config:', err);
       }
@@ -31,7 +38,7 @@ export default function Footer() {
     <footer className="footer">
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
 
-        {/* Top Assistance Banner */}
+        {/* Top Assistance Banner (Fully Admin Dynamic) */}
         <div style={{
           padding: '1.5rem 2rem',
           borderRadius: 20,
@@ -50,9 +57,11 @@ export default function Footer() {
               <Building2 style={{ width: 24, height: 24 }} />
             </div>
             <div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>Need Assistance with Empanelment Filing?</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>
+                {siteConfig.helpdeskBannerTitle || 'Need Assistance with Empanelment Filing?'}
+              </div>
               <div style={{ fontSize: '0.825rem', color: '#94A3B8', marginTop: 2 }}>
-                Our Procurement Helpdesk is available Monday – Saturday (09:00 AM – 06:00 PM IST)
+                {siteConfig.helpdeskBannerSubtitle || 'Our Procurement Helpdesk is available Monday – Saturday (09:00 AM – 06:00 PM IST)'}
               </div>
             </div>
           </div>
@@ -77,27 +86,25 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* 4-Column Main Corporate Footer Grid */}
+        {/* 4-Column Main Corporate Footer Grid (Fully Admin Dynamic) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2.5rem', paddingBottom: '3rem', borderBottom: '1px solid var(--border-color)' }}>
           
-          {/* Column 1: Company Profile & ISO Seal */}
+          {/* Column 1: Company Profile & Seals */}
           <div style={{ gridColumn: 'span 2' }}>
             <Logo height={44} />
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '1.1rem', maxWidth: 460, lineHeight: 1.65 }}>
-              {siteConfig.footerAboutText || (
-                <>Official Vendor & Contractor Empanelment Portal of <strong>{siteConfig.companyTitle || 'Hindustan Projects'}</strong>. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.</>
-              )}
+              {siteConfig.footerAboutText || `Official Vendor & Contractor Empanelment Portal of ${siteConfig.companyTitle || 'Hindustan Projects'}. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.`}
             </p>
 
             <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.75rem', borderRadius: 8, backgroundColor: 'rgba(0, 71, 171, 0.08)', fontSize: '0.75rem', color: '#0047AB', fontWeight: 800, border: '1px solid rgba(0,71,171,0.2)' }}>
                 <ShieldCheck style={{ width: 14, height: 14, color: '#10B981' }} />
-                <span>ISO 9001:2015 Verified</span>
+                <span>{siteConfig.isoBadgeText || 'ISO 9001:2015 Verified'}</span>
               </div>
 
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.75rem', borderRadius: 8, backgroundColor: 'rgba(237, 28, 36, 0.08)', fontSize: '0.75rem', color: '#ED1C24', fontWeight: 800, border: '1px solid rgba(237, 28, 36, 0.2)' }}>
                 <Award style={{ width: 14, height: 14 }} />
-                <span>CVC Procurement Valid</span>
+                <span>{siteConfig.cvcBadgeText || 'CVC Procurement Valid'}</span>
               </div>
 
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.75rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, border: '1px solid var(--border-color)' }}>
@@ -119,7 +126,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: Corporate Helpdesk & Head Office */}
+          {/* Column 3: Helpdesk & Office */}
           <div>
             <h4 style={{ color: 'var(--text-primary)', fontSize: '0.875rem', textTransform: 'uppercase', marginBottom: '1.2rem', letterSpacing: '0.05em', fontWeight: 900 }}>
               Corporate Helpdesk
@@ -135,11 +142,11 @@ export default function Footer() {
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
                 <MapPin style={{ width: 15, height: 15, color: '#64748B', marginTop: 3, flexShrink: 0 }} />
-                <span style={{ lineHeight: 1.4 }}>{siteConfig.corporateAddress || 'Hindustan Projects Corporate Tower, Barakhamba Road, New Delhi - 110001'}</span>
+                <span style={{ lineHeight: 1.4 }}>{siteConfig.corporateAddress || 'Hindustan Projects Corporate Tower, New Delhi - 110001'}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                 <Clock style={{ width: 14, height: 14, color: '#F59E0B' }} />
-                <span>Mon – Sat: 09:00 AM – 06:00 PM IST</span>
+                <span>{siteConfig.supportHours || 'Mon – Sat: 09:00 AM – 06:00 PM IST'}</span>
               </div>
             </div>
           </div>
@@ -151,7 +158,7 @@ export default function Footer() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <span>{siteConfig.footerCopyright || `© ${new Date().getFullYear()} Hindustan Projects. All Rights Reserved.`}</span>
             <span style={{ opacity: 0.5 }}>|</span>
-            <span style={{ color: '#047857', fontWeight: 700 }}>✓ 256-Bit SSL Encrypted Registration System</span>
+            <span style={{ color: '#047857', fontWeight: 700 }}>{siteConfig.sslRibbonText || '✓ 256-Bit SSL Encrypted Registration System'}</span>
           </div>
 
           <div>

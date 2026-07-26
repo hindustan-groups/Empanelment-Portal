@@ -25,21 +25,27 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const DEFAULT_SITE_CONFIG = {
-  companyTitle:     'Hindustan Projects',
-  subdomainPill:    'empanel.hindustanprojects.in',
-  helplinePhone:    '+91 (011) 4500 8899 / 900',
-  corporateEmail:   'empanelment@hindustanprojects.in',
-  corporateAddress: 'Hindustan Projects Corporate Tower, Barakhamba Road, New Delhi - 110001',
-  heroBadge:        'Official Vendor & Contractor Registration FY 2026-27',
-  heroTitleBlue:    'Hindustan',
-  heroTitleRed:     'Projects',
-  heroSubtitle:     'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants. Fast-track technical & financial verification for active project tenders.',
-  processingFee:    '5000',
-  gstRate:          '18',
-  msmeWaiverActive: true,
-  footerCopyright:  '© 2026 Hindustan Projects. All Rights Reserved. | Designed for empanel.hindustanprojects.in',
-  footerAboutText:  'Official Vendor & Contractor Empanelment Portal of Hindustan Projects. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.',
-  mainWebsiteUrl:   'https://hindustanprojects.in',
+  companyTitle:           'Hindustan Projects',
+  subdomainPill:          'empanel.hindustanprojects.in',
+  helplinePhone:          '+91 (011) 4500 8899 / 900',
+  corporateEmail:         'empanelment@hindustanprojects.in',
+  corporateAddress:       'Hindustan Projects Corporate Tower, Barakhamba Road, New Delhi - 110001',
+  heroBadge:              'Official Vendor & Contractor Registration FY 2026-27',
+  heroTitleBlue:          'Hindustan',
+  heroTitleRed:           'Projects',
+  heroSubtitle:           'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants. Fast-track technical & financial verification for active project tenders.',
+  processingFee:          '5000',
+  gstRate:                '18',
+  msmeWaiverActive:       true,
+  footerCopyright:        '© 2026 Hindustan Projects. All Rights Reserved. | Designed for empanel.hindustanprojects.in',
+  footerAboutText:        'Official Vendor & Contractor Empanelment Portal of Hindustan Projects. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.',
+  mainWebsiteUrl:         'https://hindustanprojects.in',
+  isoBadgeText:           'ISO 9001:2015 Verified',
+  cvcBadgeText:           'CVC Procurement Valid',
+  supportHours:           'Mon – Sat: 09:00 AM – 06:00 PM IST',
+  sslRibbonText:          '✓ 256-Bit SSL Encrypted Registration System',
+  helpdeskBannerTitle:    'Need Assistance with Empanelment Filing?',
+  helpdeskBannerSubtitle: 'Our Procurement Helpdesk is available Monday – Saturday (09:00 AM – 06:00 PM IST)'
 };
 
 const MOCK_AUDIT_LOGS = [
@@ -582,19 +588,49 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 </div>
               </div>
 
-              {/* 5. Footer Content & Copyright */}
+              {/* 5. Complete Footer & Helpdesk Controls */}
               <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <MapPin style={{ width: 15, height: 15 }} /> 5. Footer About Text & Legal Copyright
+                  <MapPin style={{ width: 15, height: 15 }} /> 5. Complete Footer & Helpdesk Controls
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   <div>
                     <label className="form-label">Footer About Paragraph Text</label>
                     <textarea value={siteConfig.footerAboutText || ''} onChange={e => setSiteConfig({ ...siteConfig, footerAboutText: e.target.value })} className="form-input" style={{ minHeight: 70 }} />
                   </div>
-                  <div>
-                    <label className="form-label">Footer Legal Copyright Notice</label>
-                    <input type="text" value={siteConfig.footerCopyright || ''} onChange={e => setSiteConfig({ ...siteConfig, footerCopyright: e.target.value })} className="form-input" />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                    <div>
+                      <label className="form-label">Top Banner Title</label>
+                      <input type="text" value={siteConfig.helpdeskBannerTitle || ''} onChange={e => setSiteConfig({ ...siteConfig, helpdeskBannerTitle: e.target.value })} className="form-input" />
+                    </div>
+                    <div>
+                      <label className="form-label">Top Banner Subtitle / Hours</label>
+                      <input type="text" value={siteConfig.helpdeskBannerSubtitle || ''} onChange={e => setSiteConfig({ ...siteConfig, helpdeskBannerSubtitle: e.target.value })} className="form-input" />
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.85rem' }}>
+                    <div>
+                      <label className="form-label">ISO Seal Badge Text</label>
+                      <input type="text" value={siteConfig.isoBadgeText || ''} onChange={e => setSiteConfig({ ...siteConfig, isoBadgeText: e.target.value })} className="form-input" />
+                    </div>
+                    <div>
+                      <label className="form-label">CVC Seal Badge Text</label>
+                      <input type="text" value={siteConfig.cvcBadgeText || ''} onChange={e => setSiteConfig({ ...siteConfig, cvcBadgeText: e.target.value })} className="form-input" />
+                    </div>
+                    <div>
+                      <label className="form-label">Operating Hours Label</label>
+                      <input type="text" value={siteConfig.supportHours || ''} onChange={e => setSiteConfig({ ...siteConfig, supportHours: e.target.value })} className="form-input" />
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                    <div>
+                      <label className="form-label">Footer Legal Copyright Notice</label>
+                      <input type="text" value={siteConfig.footerCopyright || ''} onChange={e => setSiteConfig({ ...siteConfig, footerCopyright: e.target.value })} className="form-input" />
+                    </div>
+                    <div>
+                      <label className="form-label">SSL Security Ribbon Text</label>
+                      <input type="text" value={siteConfig.sslRibbonText || ''} onChange={e => setSiteConfig({ ...siteConfig, sslRibbonText: e.target.value })} className="form-input" />
+                    </div>
                   </div>
                 </div>
               </div>
