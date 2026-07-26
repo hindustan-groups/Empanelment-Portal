@@ -70,8 +70,8 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
               <ShieldCheck style={{ width: 22, height: 22 }} />
             </div>
             <div>
-              <div className="trust-label">Security</div>
-              <div className="trust-value">ISO 9001:2015</div>
+              <div className="trust-label">Compliance Shield</div>
+              <div className="trust-value">ISO 9001 & CVC Valid</div>
             </div>
           </div>
 
@@ -80,8 +80,8 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
               <Clock style={{ width: 22, height: 22 }} />
             </div>
             <div>
-              <div className="trust-label">TAT Review</div>
-              <div className="trust-value">48-72 Hr Review</div>
+              <div className="trust-label">Verification TAT</div>
+              <div className="trust-value">48-72 Hr Fast-Track</div>
             </div>
           </div>
 
@@ -90,8 +90,8 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
               <FileCheck style={{ width: 22, height: 22 }} />
             </div>
             <div>
-              <div className="trust-label">Process</div>
-              <div className="trust-value">100% Digital</div>
+              <div className="trust-label">Digital Audit</div>
+              <div className="trust-value">100% Paperless</div>
             </div>
           </div>
 
@@ -100,9 +100,38 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
               <Award style={{ width: 22, height: 22 }} />
             </div>
             <div>
-              <div className="trust-label">Panelling</div>
-              <div className="trust-value">Pan-India</div>
+              <div className="trust-label">Empanelment Scope</div>
+              <div className="trust-value">Pan-India Projects</div>
             </div>
+          </div>
+        </div>
+
+        {/* Enterprise Metrics Counter Banner */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '1rem',
+          padding: '1.25rem 2rem',
+          borderRadius: 20,
+          background: 'linear-gradient(135deg, #0F172A 0%, #002B66 50%, #0047AB 100%)',
+          color: 'white',
+          boxShadow: '0 12px 32px rgba(0, 71, 171, 0.25)',
+          marginBottom: '3.5rem',
+          textAlign: 'center'
+        }}>
+          <div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#60A5FA', letterSpacing: '-0.5px' }}>₹ 2,450 Cr+</div>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>Active Tender Pipeline</div>
+          </div>
+
+          <div style={{ borderLeft: '1px solid rgba(255,255,255,0.15)', borderRight: '1px solid rgba(255,255,255,0.15)' }}>
+            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#34D399', letterSpacing: '-0.5px' }}>4,820+</div>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>Empanelled Contractors</div>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#FBBF24', letterSpacing: '-0.5px' }}>₹ 0 Fee</div>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>MSME Udyam Exemption</div>
           </div>
         </div>
 
