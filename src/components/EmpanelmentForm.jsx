@@ -226,8 +226,23 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   };
 
   const handleFile = (field, file) => {
-    if (file && file.size > 10 * 1024 * 1024) { alert('File too large (max 10 MB)'); return; }
-    setFormData(prev => ({ ...prev, [field]: file || null }));
+    if (!file) {
+      setFormData(prev => ({ ...prev, [field]: null }));
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size exceeds maximum limit of 10 MB');
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      [field]: {
+        name: file.name || 'document.pdf',
+        size: file.size || 0,
+        type: file.type || 'application/pdf',
+        rawFile: file
+      }
+    }));
   };
 
   const handleGstVerified = ({ gstin, pan }) => {
@@ -245,10 +260,21 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   };
 
   const handleSaveDraft = () => {
-    const safe = { ...formData, gstDoc: null, panDoc: null, bankDoc: null, expDoc: null };
-    localStorage.setItem('hipro_empanel_draft', JSON.stringify(safe));
-    setSavedDraft(true);
-    setTimeout(() => setSavedDraft(false), 2500);
+    const safe = { ...formData };
+    ['gstDoc', 'panDoc', 'bankDoc', 'expDoc'].forEach(f => {
+      if (safe[f]) {
+        safe[f] = { name: safe[f].name || 'uploaded_doc.pdf' };
+      } else {
+        safe[f] = null;
+      }
+    });
+    try {
+      localStorage.setItem('hipro_empanel_draft', JSON.stringify(safe));
+      setSavedDraft(true);
+      setTimeout(() => setSavedDraft(false), 2500);
+    } catch (err) {
+      console.warn('Draft save notice:', err);
+    }
   };
 
   const scrollToTop = () => {
@@ -301,9 +327,22 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         entityType: formData.entityType === 'other' ? `Other: ${formData.otherEntityType}` : formData.entityType,
       };
       Object.entries(payload).forEach(([k, v]) => {
-        if (v instanceof File) fd.append(k, v);
-        else if (typeof v === 'object' && v !== null) fd.append(k, JSON.stringify(v));
-        else if (v !== null && v !== undefined) fd.append(k, v);
+        if (!v) return;
+        if (v && v.rawFile instanceof File) {
+          fd.append(k, v.rawFile);
+        } else if (v instanceof File) {
+          fd.append(k, v);
+        } else if (typeof v === 'object') {
+          try {
+            const cleanObj = { ...v };
+            delete cleanObj.rawFile;
+            fd.append(k, JSON.stringify(cleanObj));
+          } catch {
+            /* ignore serialization error */
+          }
+        } else if (v !== null && v !== undefined) {
+          fd.append(k, v);
+        }
       });
       if (signatureData) fd.append('signature', signatureData);
       const res = await fetch(`${backendUrl}/api/empanelment/submit`, { method: 'POST', body: fd });
