@@ -3,6 +3,7 @@ import { Edit3, RotateCcw, CheckCircle2 } from 'lucide-react';
 
 export default function DigitalSignature({ onSignatureSave, onSaveSignature }) {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSigned, setHasSigned] = useState(false);
 
@@ -11,26 +12,69 @@ export default function DigitalSignature({ onSignatureSave, onSaveSignature }) {
     if (typeof onSignatureSave === 'function') onSignatureSave(data);
   };
 
-  useEffect(() => {
+  // Setup High-DPI Canvas Resolution on Mount & Window Resize
+  const setupCanvasResolution = () => {
     const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = '#0047AB'; // Royal Blue signature ink
-    }
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
+    const rect = container.getBoundingClientRect();
+    const width = Math.max(rect.width, 300);
+    const height = 160;
+
+    // Set internal high-DPI canvas buffer resolution
+    canvas.width = width * 2;
+    canvas.height = height * 2;
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#0047AB'; // Royal Blue signature ink
+  };
+
+  useEffect(() => {
+    setupCanvasResolution();
+    window.addEventListener('resize', setupCanvasResolution);
+    return () => window.removeEventListener('resize', setupCanvasResolution);
   }, []);
 
+  // Compute exact precision coordinates mapped 1:1 to cursor / touch position
+  const getCoordinates = (e) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    }
+
+    const x = (clientX - rect.left);
+    const y = (clientY - rect.top);
+
+    return { x, y };
+  };
+
   const startDrawing = (e) => {
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
 
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#0047AB';
+
+    const { x, y } = getCoordinates(e);
     ctx.beginPath();
     ctx.moveTo(x, y);
     setIsDrawing(true);
@@ -39,21 +83,19 @@ export default function DigitalSignature({ onSignatureSave, onSaveSignature }) {
 
   const draw = (e) => {
     if (!isDrawing) return;
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
 
+    const { x, y } = getCoordinates(e);
     ctx.lineTo(x, y);
     ctx.stroke();
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (e) => {
     if (isDrawing) {
+      if (e) e.preventDefault();
       setIsDrawing(false);
       const canvas = canvasRef.current;
       if (canvas) {
@@ -72,6 +114,7 @@ export default function DigitalSignature({ onSignatureSave, onSaveSignature }) {
     if (canvas) {
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      setupCanvasResolution();
     }
     setHasSigned(false);
     notifySave(null);
@@ -94,11 +137,9 @@ export default function DigitalSignature({ onSignatureSave, onSaveSignature }) {
         )}
       </div>
 
-      <div style={{ border: '2px dashed #CBD5E1', borderRadius: 12, backgroundColor: 'white', overflow: 'hidden', cursor: 'crosshair', position: 'relative' }}>
+      <div ref={containerRef} style={{ border: '2px dashed #CBD5E1', borderRadius: 12, backgroundColor: 'white', overflow: 'hidden', cursor: 'crosshair', position: 'relative' }}>
         <canvas
           ref={canvasRef}
-          width={450}
-          height={140}
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -106,7 +147,7 @@ export default function DigitalSignature({ onSignatureSave, onSaveSignature }) {
           onTouchStart={startDrawing}
           onTouchMove={draw}
           onTouchEnd={stopDrawing}
-          style={{ width: '100%', height: 140, display: 'block', touchAction: 'none' }}
+          style={{ width: '100%', height: 160, display: 'block', touchAction: 'none' }}
         />
         {!hasSigned && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', color: '#94A3B8', fontSize: '0.85rem', fontWeight: 600 }}>
