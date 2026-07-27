@@ -32,9 +32,17 @@ export default function App() {
   const [submittedId, setSubmittedId] = useState('');
   const [lastSubmittedData, setLastSubmittedData] = useState(null);
 
-  // Admin Auth State
+  // Admin Auth State & Security Session Expiry
   const [isAdminAuth, setIsAdminAuth] = useState(() => {
-    return localStorage.getItem('hipro_admin_session') === 'true';
+    const isSession = localStorage.getItem('hipro_admin_session') === 'true';
+    const expiry = localStorage.getItem('hipro_admin_session_expiry');
+    if (isSession && expiry && Date.now() > parseInt(expiry, 10)) {
+      localStorage.removeItem('hipro_admin_session');
+      localStorage.removeItem('hipro_admin_session_expiry');
+      localStorage.removeItem('hipro_admin_email');
+      return false;
+    }
+    return isSession;
   });
 
   useEffect(() => {
@@ -51,12 +59,13 @@ export default function App() {
 
   const handleAdminLogin = () => {
     setIsAdminAuth(true);
-    localStorage.setItem('hipro_admin_session', 'true');
   };
 
   const handleAdminLogout = () => {
     setIsAdminAuth(false);
     localStorage.removeItem('hipro_admin_session');
+    localStorage.removeItem('hipro_admin_session_expiry');
+    localStorage.removeItem('hipro_admin_email');
   };
 
   const handleFormSubmit = (formData, customTrackingId) => {
