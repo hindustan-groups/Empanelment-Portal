@@ -1,10 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Edit3, RotateCcw, CheckCircle2 } from 'lucide-react';
 
-export default function DigitalSignature({ onSignatureSave }) {
+export default function DigitalSignature({ onSignatureSave, onSaveSignature }) {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSigned, setHasSigned] = useState(false);
+
+  const notifySave = (data) => {
+    if (typeof onSaveSignature === 'function') onSaveSignature(data);
+    if (typeof onSignatureSave === 'function') onSignatureSave(data);
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -18,10 +23,13 @@ export default function DigitalSignature({ onSignatureSave }) {
 
   const startDrawing = (e) => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || e.touches[0].clientX) - rect.left;
-    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
 
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -32,10 +40,13 @@ export default function DigitalSignature({ onSignatureSave }) {
   const draw = (e) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || e.touches[0].clientX) - rect.left;
-    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
 
     ctx.lineTo(x, y);
     ctx.stroke();
@@ -45,17 +56,25 @@ export default function DigitalSignature({ onSignatureSave }) {
     if (isDrawing) {
       setIsDrawing(false);
       const canvas = canvasRef.current;
-      const dataUrl = canvas.toDataURL('image/png');
-      onSignatureSave(dataUrl);
+      if (canvas) {
+        try {
+          const dataUrl = canvas.toDataURL('image/png');
+          notifySave(dataUrl);
+        } catch (err) {
+          console.error('Error saving signature canvas:', err);
+        }
+      }
     }
   };
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
     setHasSigned(false);
-    onSignatureSave(null);
+    notifySave(null);
   };
 
   return (

@@ -213,7 +213,16 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   };
 
   const handleMachinery = (key) => {
-    setFormData(prev => ({ ...prev, machineryCheck: { ...prev.machineryCheck, [key]: !prev.machineryCheck[key] } }));
+    setFormData(prev => {
+      const currentCheck = prev.machineryCheck || { batchingPlant: false, towerCrane: false, bimSoftware: false, totalStation: false };
+      return {
+        ...prev,
+        machineryCheck: {
+          ...currentCheck,
+          [key]: !currentCheck[key]
+        }
+      };
+    });
   };
 
   const handleFile = (field, file) => {
@@ -734,7 +743,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                       ['totalStation',  'Total Station Survey Equipment'],
                     ].map(([key, lbl]) => (
                       <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.83rem', cursor: 'pointer' }}>
-                        <input type="checkbox" checked={formData.machineryCheck[key]} onChange={() => handleMachinery(key)} />
+                        <input type="checkbox" checked={Boolean(formData.machineryCheck?.[key])} onChange={() => handleMachinery(key)} />
                         <span>{lbl}</span>
                       </label>
                     ))}
