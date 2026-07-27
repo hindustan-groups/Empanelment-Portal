@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, RefreshCw, Lock } from 'lucide-react';
 
-export default function SecurityCaptcha({ onCaptchaVerify }) {
+export default function SecurityCaptcha({ onCaptchaVerify, onVerify }) {
   const [num1, setNum1] = useState(7);
   const [num2, setNum2] = useState(4);
   const [userAnswer, setUserAnswer] = useState('');
   const [isVerified, setIsVerified] = useState(false);
   const [error, setError] = useState(false);
+
+  const notifyVerify = (status) => {
+    if (typeof onCaptchaVerify === 'function') onCaptchaVerify(status);
+    if (typeof onVerify === 'function') onVerify(status);
+  };
 
   const generateCaptcha = () => {
     const n1 = Math.floor(Math.random() * 12) + 2;
@@ -16,7 +21,7 @@ export default function SecurityCaptcha({ onCaptchaVerify }) {
     setUserAnswer('');
     setIsVerified(false);
     setError(false);
-    onCaptchaVerify(false);
+    notifyVerify(false);
   };
 
   useEffect(() => {
@@ -29,10 +34,10 @@ export default function SecurityCaptcha({ onCaptchaVerify }) {
     if (parseInt(val, 10) === expected) {
       setIsVerified(true);
       setError(false);
-      onCaptchaVerify(true);
+      notifyVerify(true);
     } else {
       setIsVerified(false);
-      onCaptchaVerify(false);
+      notifyVerify(false);
     }
   };
 
