@@ -4,7 +4,6 @@ import {
   FileCheck, UploadCloud, CheckCircle2, ChevronRight, ChevronLeft,
   DollarSign, Save, Loader2, UserCheck, Briefcase
 } from 'lucide-react';
-import GstVerifier from './GstVerifier';
 import SecurityCaptcha from './SecurityCaptcha';
 import DigitalSignature from './DigitalSignature';
 
@@ -940,8 +939,6 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   }
                 </p>
               </div>
-
-              <GstVerifier gstin={formData.gstin} pan={formData.pan} onVerifySuccess={handleGstVerified} />
 
               <div className="form-grid-2" style={{ marginTop: '1.25rem' }}>
 
