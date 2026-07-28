@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
+import SecurityCaptcha from '../components/SecurityCaptcha';
+import ContractManager from '../components/ContractManager';
 import {
   Database, RefreshCw, LogOut, ShieldCheck, Search,
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3,
   Printer, FileText, Building2, CreditCard, DollarSign, MapPin,
   User, AlertTriangle, FileCheck2,
   PlusCircle, Layers, Lock, MessageSquare, Settings, Save,
-  Key, ToggleLeft, ToggleRight, Bell, ChevronDown, ChevronUp, X
+  Key, ToggleLeft, ToggleRight, Bell, ChevronDown, ChevronUp, X, FileSignature
 } from 'lucide-react';
 
 /* ─── Constants ───────────────────────────────────────────────── */
@@ -328,6 +330,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const TABS = [
     { id: 'applications', label: `Applications (${totalApps})`,          icon: Database },
+    { id: 'contracts',    label: 'Contracts & Work Orders',              icon: FileSignature },
     { id: 'site_cms',     label: 'Website CMS',                          icon: Settings },
     { id: 'categories',   label: `Categories (${categories.length})`,    icon: Layers },
     { id: 'tenders',      label: `Tenders (${tenders.length})`,          icon: FileText },
@@ -474,6 +477,17 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* ════════════════ TAB: CONTRACTS & WORK ORDERS ════════════════ */}
+        {activeTab === 'contracts' && (
+          <div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0047AB' }}>Contract & Work Order Management (अनुबंध व कार्यादेश प्रबंधन)</h3>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Generate, preview, and print official Contractor Declarations, Contract Agreements, and Work Orders with Company Seal & Stamp.</p>
+            </div>
+            <ContractManager selectedVendor={selectedVendor} />
           </div>
         )}
 
