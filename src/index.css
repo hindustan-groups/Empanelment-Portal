@@ -990,25 +990,33 @@ body {
 }
 
 /* ════════════════ ULTIMATE DARK MODE COMPREHENSIVE FIX ════════════════ */
-.dark body {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
+.dark, .dark body {
+  background-color: #0B132B !important;
+  color: #F8FAFC !important;
 }
 
-.dark .form-card,
-.dark .modal-content,
-.dark .category-card,
-.dark .trust-card,
-.dark .upload-card,
-.dark .step-header,
-.dark .form-group,
-.dark .printable-area {
-  background-color: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
+.dark main,
+.dark header,
+.dark nav,
+.dark section,
+.dark article,
+.dark div,
+.dark p,
+.dark span,
+.dark label,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6,
+.dark li,
+.dark th,
+.dark td {
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* Specific text color fixes for dark mode */
+/* Force light readable text on all hardcoded dark inline color styles */
 .dark [style*="color: #0F172A"],
 .dark [style*="color: #0f172a"],
 .dark [style*="color: rgb(15, 23, 42)"],
@@ -1016,8 +1024,9 @@ body {
 .dark [style*="color: #1e293b"],
 .dark [style*="color: #334155"],
 .dark [style*="color: #475569"],
-.dark [style*="color: black"],
-.dark [style*="color: #000"] {
+.dark [style*="color: #000000"],
+.dark [style*="color: #000"],
+.dark [style*="color: black"] {
   color: #F8FAFC !important;
 }
 
@@ -1031,7 +1040,14 @@ body {
   color: #60A5FA !important;
 }
 
-/* Specific background color fixes for dark mode */
+/* Hardcoded light background container overrides for dark mode */
+.dark .form-card,
+.dark .modal-content,
+.dark .category-card,
+.dark .trust-card,
+.dark .upload-card,
+.dark .step-header,
+.dark .form-group,
 .dark [style*="background: #fff"],
 .dark [style*="background: #FFF"],
 .dark [style*="background: #ffffff"],
@@ -1047,8 +1063,9 @@ body {
 .dark [style*="backgroundColor: #ffffff"],
 .dark [style*="backgroundColor: #FFFFFF"],
 .dark [style*="backgroundColor: white"] {
-  background-color: #1E293B !important;
+  background-color: #1C2541 !important;
   color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 .dark [style*="background: #F8FAFC"],
@@ -1058,33 +1075,82 @@ body {
 .dark [style*="background: #F1F5F9"],
 .dark [style*="background: #f1f5f9"],
 .dark [style*="background-color: #F1F5F9"],
-.dark [style*="background-color: #f1f5f9"] {
-  background-color: #0F172A !important;
+.dark [style*="background-color: #f1f5f9"],
+.dark [style*="background: #FAFAFA"],
+.dark [style*="background-color: #FAFAFA"] {
+  background-color: #0B132B !important;
   color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* Inputs, Selects & Options in Dark Mode */
-.dark .form-input,
+/* Light blue/amber alert box overrides in dark mode */
+.dark [style*="background: rgba(0, 71, 171, 0.05)"],
+.dark [style*="background: rgba(0, 71, 171, 0.04)"],
+.dark [style*="background: rgba(0,71,171,0.05)"] {
+  background-color: rgba(96, 165, 250, 0.1) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+/* Inputs, Selects & Textareas in Dark Mode */
+.dark input.form-input,
 .dark select.form-input,
-.dark textarea.form-input {
-  background-color: #0F172A !important;
+.dark textarea.form-input,
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="number"],
+.dark input[type="tel"],
+.dark select {
+  background-color: #0B132B !important;
   color: #F8FAFC !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748B !important;
 }
 
 .dark option {
-  background-color: #0F172A !important;
+  background-color: #1C2541 !important;
   color: #F8FAFC !important;
 }
 
-/* Table borders in Dark Mode */
-.dark table, .dark th, .dark td {
+/* Table borders & header cells in Dark Mode */
+.dark table {
   border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
 .dark table th {
-  background-color: #0F172A !important;
+  background-color: #0B132B !important;
   color: #60A5FA !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark table td {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #F8FAFC !important;
+}
+
+/* Navbar & Header in Dark Mode */
+.dark .header-navbar {
+  background-color: #1C2541 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .mobile-drawer-overlay {
+  background-color: #1C2541 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Footer in Dark Mode */
+.dark .footer {
+  background-color: #0B132B !important;
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .footer-banner {
+  background: linear-gradient(135deg, #1C2541 0%, #0B132B 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 /* ════════════════ PRINT DOSSIER CSS MEDIA RULES ════════════════ */
