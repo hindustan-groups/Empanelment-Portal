@@ -136,7 +136,7 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
         {/* Verification Footer & Digital Signature */}
         <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', fontSize: '0.8rem', marginBottom: '1.25rem' }}>
           <div style={{ fontWeight: 800, color: '#047857', marginBottom: 2 }}>✓ Digital Legal Undertaking Verified</div>
-          <div>Authorized Signatory: <strong>{formData?.signatoryName || formData?.contactName || 'Authorized Officer'}</strong></div>
+          <div>Authorized Signatory: <strong>{formData?.signatoryName || formData?.contactName || 'Authorized Officer'}</strong> • Place: <strong>{formData?.signatoryPlace || 'New Delhi'}</strong></div>
           <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Submission Timestamp: {new Date(formData?.submitted_at || Date.now()).toLocaleString()}</div>
           
           {formData?.signature && (

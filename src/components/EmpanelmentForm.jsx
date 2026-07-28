@@ -262,12 +262,14 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     panDoc: null,
     bankDoc: null,
     expDoc: null,
+    aadharDoc: null,
 
     /* Step 5 */
     declAntiBlacklist: false,
     declIpAssignment: false,
     declSiteVisit: false,
     signatoryName: '',
+    signatoryPlace: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -448,6 +450,11 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       const signatory = (formData.signatoryName || '').trim();
       if (!signatory || signatory.length < 3) {
         e.signatoryName = 'Authorized Signatory full name is required (min 3 letters)';
+      }
+
+      const signatoryPlace = (formData.signatoryPlace || '').trim();
+      if (!signatoryPlace || signatoryPlace.length < 2) {
+        e.signatoryPlace = 'Place / City of signing is required (min 2 letters, e.g. New Delhi)';
       }
 
       if (!signatureData) e.signature = 'Please draw your digital signature on the canvas pad above';
@@ -1038,6 +1045,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 {[
                   ['gstDoc', 'GST REG-06 Certificate', '.pdf,.jpg,.png'],
                   ['panDoc', 'PAN Card Copy', '.pdf,.jpg,.png'],
+                  ['aadharDoc', 'Aadhaar Card Copy (Front & Back)', '.pdf,.jpg,.png'],
                   ['bankDoc', 'Cancelled Bank Cheque', '.pdf,.jpg,.png'],
                   ['expDoc', isSoleProp ? 'Work Portfolio / COA Certificate' : 'CAD Portfolio / Work Orders', '.pdf,.jpg,.png'],
                 ].map(([field, label, accept]) => (
@@ -1086,11 +1094,20 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 {errors.signature && <span className="error-text">{errors.signature}</span>}
               </div>
 
-              <FieldGroup label={isSoleProp ? 'Your Full Name (as Signatory)' : 'Authorized Signatory Full Name'} required error={errors.signatoryName}>
-                <Input name="signatoryName" value={formData.signatoryName} onChange={handleChange}
-                  placeholder={isSoleProp ? 'e.g. Rajesh Kumar Sharma' : 'e.g. Anil Verma (Managing Director)'}
-                  error={errors.signatoryName} />
-              </FieldGroup>
+              {/* Signatory Name & Place / City of Signing */}
+              <div className="form-grid-2" style={{ marginBottom: '1.25rem' }}>
+                <FieldGroup label={isSoleProp ? 'Your Full Name (as Signatory)' : 'Authorized Signatory Full Name'} required error={errors.signatoryName}>
+                  <Input name="signatoryName" value={formData.signatoryName} onChange={handleChange}
+                    placeholder={isSoleProp ? 'e.g. Rajesh Kumar Sharma' : 'e.g. Anil Verma (Managing Director)'}
+                    error={errors.signatoryName} />
+                </FieldGroup>
+
+                <FieldGroup label="Place / City of Signing" required error={errors.signatoryPlace} hint="e.g. New Delhi, Jaipur, Mumbai">
+                  <Input name="signatoryPlace" value={formData.signatoryPlace} onChange={handleChange}
+                    placeholder="e.g. New Delhi"
+                    error={errors.signatoryPlace} />
+                </FieldGroup>
+              </div>
 
               {/* Declarations */}
               <div style={{ padding: '1.1rem 1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem', marginTop: '1rem' }}>
