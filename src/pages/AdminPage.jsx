@@ -47,7 +47,7 @@ const DEFAULT_SITE_CONFIG = {
   helpdeskBannerTitle:    'Need Assistance with Empanelment Filing?',
   helpdeskBannerSubtitle: 'Our Procurement Helpdesk is available Monday – Saturday (09:00 AM – 06:00 PM IST)',
   ongoingProjectsCount:   '10+',
-  activePipelineValue:    '₹ 100 Cr+',
+  activePipelineValue:    '₹ 1 Cr+',
   baseContractorCount:    '100+'
 };
 
@@ -550,7 +550,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                     </div>
                     <div>
                       <label className="form-label">Active Pipeline Value</label>
-                      <input type="text" value={siteConfig.activePipelineValue || '₹ 100 Cr+'} onChange={e => setSiteConfig({ ...siteConfig, activePipelineValue: e.target.value })} className="form-input" placeholder="₹ 100 Cr+" />
+                      <input type="text" value={siteConfig.activePipelineValue || '₹ 1 Cr+'} onChange={e => setSiteConfig({ ...siteConfig, activePipelineValue: e.target.value })} className="form-input" placeholder="₹ 1 Cr+" />
                     </div>
                     <div>
                       <label className="form-label">Base Empanelled Contractors</label>

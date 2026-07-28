@@ -7,7 +7,7 @@ const DEFAULT_SITE_CONFIG = {
   heroTitleRed: 'Projects',
   heroSubtitle: 'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants. Fast-track technical & financial verification for active project tenders.',
   ongoingProjectsCount: '10+',
-  activePipelineValue: '₹ 100 Cr+',
+  activePipelineValue: '₹ 1 Cr+',
   baseContractorCount: '100+'
 };
 
@@ -148,7 +148,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
 
           <div style={{ borderLeft: '1px solid rgba(255,255,255,0.15)', borderRight: '1px solid rgba(255,255,255,0.15)' }}>
             <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#60A5FA', letterSpacing: '-0.5px' }}>
-              {siteConfig.activePipelineValue || '₹ 100 Cr+'}
+              {siteConfig.activePipelineValue || '₹ 1 Cr+'}
             </div>
             <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>
               Active Tender Pipeline
