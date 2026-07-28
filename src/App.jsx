@@ -69,8 +69,8 @@ export default function App() {
   };
 
   const handleFormSubmit = (formData, customTrackingId) => {
-    const randomCode = Math.floor(100000 + Math.random() * 900000);
-    const trackingCode = customTrackingId || `HP-EMP-${randomCode}`;
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const trackingCode = customTrackingId || `HP-EMP-025${randomSuffix}`;
 
     const newApplication = {
       id: Date.now(),
