@@ -198,6 +198,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const [signatureData, setSignatureData] = useState(null);
   const [savedDraft, setSavedDraft] = useState(false);
+  const [previewFile, setPreviewFile] = useState(null);
 
   const [availableCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
@@ -257,12 +258,13 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     /* Equipment (corporate-only) */
     machineryCheck: { batchingPlant: false, towerCrane: false, bimSoftware: false, totalStation: false },
 
-    /* Documents */
-    gstDoc: null,
+    /* Mandatory & Optional Documents */
     panDoc: null,
+    aadharFrontDoc: null,
+    aadharBackDoc: null,
+    gstDoc: null,
     bankDoc: null,
     expDoc: null,
-    aadharDoc: null,
 
     /* Step 5 */
     declAntiBlacklist: false,
@@ -303,21 +305,25 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   const handleFile = (field, file) => {
     if (!file) {
       setFormData(prev => ({ ...prev, [field]: null }));
+      if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
       alert('File size exceeds maximum limit of 10 MB');
       return;
     }
+    const previewUrl = URL.createObjectURL(file);
     setFormData(prev => ({
       ...prev,
       [field]: {
         name: file.name || 'document.pdf',
         size: file.size || 0,
         type: file.type || 'application/pdf',
+        previewUrl,
         rawFile: file
       }
     }));
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
   };
 
   const handleGstVerified = ({ gstin, pan }) => {
@@ -438,6 +444,19 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       const ifsc = (formData.ifsc || '').trim().toUpperCase();
       if (ifsc && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
         e.ifsc = 'Invalid Bank IFSC Code format! (e.g. HDFC0001234)';
+      }
+    }
+
+    // Step 3: Mandatory Document Upload Checks (PAN + Aadhaar Front + Aadhaar Back)
+    if (step === 3) {
+      if (!formData.panDoc) {
+        e.panDoc = 'PAN Card copy is MANDATORY. Please upload your PAN Card document.';
+      }
+      if (!formData.aadharFrontDoc) {
+        e.aadharFrontDoc = 'Aadhaar Card (Front Side) is MANDATORY. Please upload Aadhaar front side.';
+      }
+      if (!formData.aadharBackDoc) {
+        e.aadharBackDoc = 'Aadhaar Card (Back Side) is MANDATORY. Please upload Aadhaar back side.';
       }
     }
 
@@ -1037,34 +1056,68 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
               )}
 
-              {/* Document Uploads — always shown, all optional */}
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.75rem', letterSpacing: '0.04em' }}>
-                DOCUMENT UPLOADS — ALL OPTIONAL (HELPS FASTER APPROVAL)
+              {/* Document Uploads Header */}
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.85rem', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyBetween: 'space-between' }}>
+                <span>Identity & Statutory Document Uploads:</span>
               </div>
+
               <div className="form-grid-2">
                 {[
-                  ['gstDoc', 'GST REG-06 Certificate', '.pdf,.jpg,.png'],
-                  ['panDoc', 'PAN Card Copy', '.pdf,.jpg,.png'],
-                  ['aadharDoc', 'Aadhaar Card Copy (Front & Back)', '.pdf,.jpg,.png'],
-                  ['bankDoc', 'Cancelled Bank Cheque', '.pdf,.jpg,.png'],
-                  ['expDoc', isSoleProp ? 'Work Portfolio / COA Certificate' : 'CAD Portfolio / Work Orders', '.pdf,.jpg,.png'],
-                ].map(([field, label, accept]) => (
-                  <div key={field} className="upload-card">
-                    <div style={{ fontSize: '0.83rem', fontWeight: 800, marginBottom: '0.4rem' }}>{label} <span style={{ fontWeight: 400, color: 'var(--text-muted)', fontSize: '0.75rem' }}>(Optional)</span></div>
-                    {formData[field] ? (
-                      <div style={{ fontSize: '0.79rem', color: '#10B981', fontWeight: 700 }}>
-                        ✓ {formData[field].name}
-                        <button type="button" onClick={() => handleFile(field, null)} style={{ marginLeft: 8, color: '#ED1C24', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.79rem' }}>✕ Remove</button>
+                  ['panDoc',          'PAN Card Copy',                      '.pdf,.jpg,.png,.jpeg', true],
+                  ['aadharFrontDoc',  'Aadhaar Card — Front Side',          '.pdf,.jpg,.png,.jpeg', true],
+                  ['aadharBackDoc',   'Aadhaar Card — Back Side',           '.pdf,.jpg,.png,.jpeg', true],
+                  ['gstDoc',          'GST REG-06 Certificate',             '.pdf,.jpg,.png,.jpeg', false],
+                  ['bankDoc',         'Cancelled Bank Cheque',              '.pdf,.jpg,.png,.jpeg', false],
+                  ['expDoc',          isSoleProp ? 'Work Portfolio / COA Certificate' : 'CAD Portfolio / Work Orders', '.pdf,.jpg,.png,.jpeg', false],
+                ].map(([field, label, accept, isRequired]) => {
+                  const doc = formData[field];
+                  const hasErr = Boolean(errors[field]);
+
+                  return (
+                    <div key={field} className="upload-card" style={{ border: hasErr ? '1.5px solid #ED1C24' : undefined, backgroundColor: hasErr ? 'rgba(237,28,36,0.02)' : undefined }}>
+                      <div style={{ fontSize: '0.83rem', fontWeight: 800, marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>{label}</span>
+                        {isRequired ? (
+                          <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#ED1C24', backgroundColor: 'rgba(237,28,36,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6 }}>REQUIRED *</span>
+                        ) : (
+                          <span style={{ fontWeight: 400, color: 'var(--text-muted)', fontSize: '0.72rem' }}>(Optional)</span>
+                        )}
                       </div>
-                    ) : (
-                      <label className="upload-btn">
-                        <UploadCloud style={{ width: 14, height: 14 }} />
-                        <span>Upload {label.split(' ')[0]}</span>
-                        <input type="file" accept={accept} onChange={(e) => handleFile(field, e.target.files[0])} style={{ display: 'none' }} />
-                      </label>
-                    )}
-                  </div>
-                ))}
+
+                      {doc ? (
+                        <div>
+                          <div style={{ fontSize: '0.79rem', color: '#10B981', fontWeight: 700, marginBottom: '0.35rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            ✓ {doc.name}
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button
+                              type="button"
+                              onClick={() => setPreviewFile({ name: `${label} (${doc.name})`, url: doc.previewUrl, type: doc.type })}
+                              style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', background: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', cursor: 'pointer' }}
+                            >
+                              👁️ Preview Document
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleFile(field, null)}
+                              style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 700, color: '#ED1C24', background: 'rgba(237,28,36,0.08)', border: '1px solid rgba(237,28,36,0.2)', cursor: 'pointer' }}
+                            >
+                              ✕ Remove
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label className="upload-btn">
+                          <UploadCloud style={{ width: 14, height: 14 }} />
+                          <span>Upload {label.split(' ')[0]}</span>
+                          <input type="file" accept={accept} onChange={(e) => handleFile(field, e.target.files[0])} style={{ display: 'none' }} />
+                        </label>
+                      )}
+
+                      {hasErr && <span className="error-text" style={{ marginTop: '0.4rem', display: 'block' }}>{errors[field]}</span>}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1154,6 +1207,97 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
         </form>
       </div>
+
+      {/* ── Document Preview Modal ── */}
+      {previewFile && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem'
+        }}>
+          <div style={{
+            backgroundColor: 'var(--bg-card)',
+            borderRadius: 20,
+            maxWidth: 750,
+            width: '100%',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+          }}>
+            <div style={{
+              padding: '1.1rem 1.5rem',
+              borderBottom: '1px solid var(--border-color)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: 'var(--bg-surface)'
+            }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: '#0047AB' }}>
+                  📄 Document File Preview
+                </h3>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{previewFile.name}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewFile(null)}
+                style={{
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: 99,
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--bg-card)',
+                  cursor: 'pointer',
+                  fontWeight: 800,
+                  fontSize: '0.85rem'
+                }}
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <div style={{ padding: '1.5rem', overflowY: 'auto', textAlign: 'center', backgroundColor: '#F8FAFC', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {previewFile.url ? (
+                previewFile.type?.startsWith('image/') || previewFile.url?.startsWith('blob:') || previewFile.url?.startsWith('data:image') ? (
+                  <img
+                    src={previewFile.url}
+                    alt={previewFile.name}
+                    style={{ maxWidth: '100%', maxHeight: '65vh', objectFit: 'contain', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
+                  />
+                ) : (
+                  <iframe
+                    src={previewFile.url}
+                    title={previewFile.name}
+                    style={{ width: '100%', height: '65vh', border: 'none', borderRadius: 12 }}
+                  />
+                )
+              ) : (
+                <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>
+                  Preview unavailable for this file format. File is safely attached to application.
+                </div>
+              )}
+            </div>
+
+            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border-color)', textAlign: 'right', backgroundColor: 'var(--bg-surface)' }}>
+              <button
+                type="button"
+                onClick={() => setPreviewFile(null)}
+                className="btn-primary"
+                style={{ padding: '0.5rem 1.5rem', fontSize: '0.85rem' }}
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
