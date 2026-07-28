@@ -989,6 +989,104 @@ body {
   }
 }
 
+/* ════════════════ ULTIMATE DARK MODE COMPREHENSIVE FIX ════════════════ */
+.dark body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .form-card,
+.dark .modal-content,
+.dark .category-card,
+.dark .trust-card,
+.dark .upload-card,
+.dark .step-header,
+.dark .form-group,
+.dark .printable-area {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Specific text color fixes for dark mode */
+.dark [style*="color: #0F172A"],
+.dark [style*="color: #0f172a"],
+.dark [style*="color: rgb(15, 23, 42)"],
+.dark [style*="color: #1E293B"],
+.dark [style*="color: #1e293b"],
+.dark [style*="color: #334155"],
+.dark [style*="color: #475569"],
+.dark [style*="color: black"],
+.dark [style*="color: #000"] {
+  color: #F8FAFC !important;
+}
+
+.dark [style*="color: #64748B"],
+.dark [style*="color: #64748b"] {
+  color: #94A3B8 !important;
+}
+
+.dark [style*="color: #0047AB"],
+.dark [style*="color: #0047ab"] {
+  color: #60A5FA !important;
+}
+
+/* Specific background color fixes for dark mode */
+.dark [style*="background: #fff"],
+.dark [style*="background: #FFF"],
+.dark [style*="background: #ffffff"],
+.dark [style*="background: #FFFFFF"],
+.dark [style*="background: white"],
+.dark [style*="background-color: #fff"],
+.dark [style*="background-color: #FFF"],
+.dark [style*="background-color: #ffffff"],
+.dark [style*="background-color: #FFFFFF"],
+.dark [style*="background-color: white"],
+.dark [style*="backgroundColor: #fff"],
+.dark [style*="backgroundColor: #FFF"],
+.dark [style*="backgroundColor: #ffffff"],
+.dark [style*="backgroundColor: #FFFFFF"],
+.dark [style*="backgroundColor: white"] {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+.dark [style*="background: #F8FAFC"],
+.dark [style*="background: #f8fafc"],
+.dark [style*="background-color: #F8FAFC"],
+.dark [style*="background-color: #f8fafc"],
+.dark [style*="background: #F1F5F9"],
+.dark [style*="background: #f1f5f9"],
+.dark [style*="background-color: #F1F5F9"],
+.dark [style*="background-color: #f1f5f9"] {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+/* Inputs, Selects & Options in Dark Mode */
+.dark .form-input,
+.dark select.form-input,
+.dark textarea.form-input {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark option {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+/* Table borders in Dark Mode */
+.dark table, .dark th, .dark td {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark table th {
+  background-color: #0F172A !important;
+  color: #60A5FA !important;
+}
+
 /* ════════════════ PRINT DOSSIER CSS MEDIA RULES ════════════════ */
 @media print {
   @page {
