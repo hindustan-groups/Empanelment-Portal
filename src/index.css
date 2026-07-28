@@ -943,9 +943,25 @@ body {
     width: 98% !important;
   }
 
-  .footer-inner {
+  .footer-grid {
     grid-template-columns: 1fr !important;
     gap: 1.5rem !important;
+  }
+
+  .footer-banner-btns {
+    width: 100% !important;
+    flex-direction: column !important;
+  }
+
+  .footer-banner-btns a, .footer-banner-btns button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .footer-bottom-bar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
   }
 }
 
