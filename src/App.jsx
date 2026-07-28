@@ -69,8 +69,14 @@ export default function App() {
   };
 
   const handleFormSubmit = (formData, customTrackingId) => {
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const trackingCode = customTrackingId || `HP-EMP-025${randomSuffix}`;
+    let trackingCode = customTrackingId;
+
+    if (!trackingCode) {
+      const currentCounter = parseInt(localStorage.getItem('hipro_emp_counter') || '25', 10);
+      const formattedNum = currentCounter < 100 ? currentCounter.toString().padStart(3, '0') : currentCounter.toString();
+      trackingCode = `HP-EMP-${formattedNum}`;
+      localStorage.setItem('hipro_emp_counter', (currentCounter + 1).toString());
+    }
 
     const newApplication = {
       id: Date.now(),
