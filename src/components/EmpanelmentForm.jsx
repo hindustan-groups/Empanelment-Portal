@@ -441,13 +441,25 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         e.pan = 'Invalid PAN format! Must be 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)';
       }
 
+      const bankAccount = (formData.bankAccount || '').trim();
+      if (!bankAccount || bankAccount.length < 6) {
+        e.bankAccount = 'Bank Account Number is MANDATORY for vendor payout processing';
+      }
+
       const ifsc = (formData.ifsc || '').trim().toUpperCase();
-      if (ifsc && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
+      if (!ifsc) {
+        e.ifsc = 'Bank IFSC Code is MANDATORY (e.g. HDFC0001234)';
+      } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
         e.ifsc = 'Invalid Bank IFSC Code format! (e.g. HDFC0001234)';
+      }
+
+      const bankName = (formData.bankName || '').trim();
+      if (!bankName || bankName.length < 3) {
+        e.bankName = 'Bank Name & Branch location is MANDATORY';
       }
     }
 
-    // Step 3: Mandatory Document Upload Checks (PAN + Aadhaar Front + Aadhaar Back)
+    // Step 3: Mandatory Document Upload Checks (PAN + Aadhaar Front + Aadhaar Back + Bank Cheque)
     if (step === 3) {
       if (!formData.panDoc) {
         e.panDoc = 'PAN Card copy is MANDATORY. Please upload your PAN Card document.';
@@ -457,6 +469,9 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       }
       if (!formData.aadharBackDoc) {
         e.aadharBackDoc = 'Aadhaar Card (Back Side) is MANDATORY. Please upload Aadhaar back side.';
+      }
+      if (!formData.bankDoc) {
+        e.bankDoc = 'Cancelled Bank Cheque / Passbook copy is MANDATORY. Please upload your bank document.';
       }
     }
 
@@ -969,23 +984,24 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   </FieldGroup>
                 )}
 
-                {/* Bank Details — always optional */}
+                {/* Bank Details — MANDATORY FOR PAYOUT PROCESSING */}
                 <div style={{ gridColumn: '1 / -1', borderTop: '1px dashed var(--border-color)', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.85rem', letterSpacing: '0.04em' }}>
-                    BANK ACCOUNT DETAILS (OPTIONAL — FOR PAYMENT PROCESSING)
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.85rem', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <CreditCard style={{ width: 16, height: 16 }} />
+                    <span>Bank Account Credentials — Mandatory for Vendor Payouts & EMD Refunds *</span>
                   </div>
                   <div className="form-grid-2">
-                    <FieldGroup label="Account Number" optional>
+                    <FieldGroup label="Bank Account Number" required error={errors.bankAccount}>
                       <Input name="bankAccount" value={formData.bankAccount} onChange={handleChange}
-                        placeholder="e.g. 50200088991200" />
+                        placeholder="e.g. 50200088991200" error={errors.bankAccount} />
                     </FieldGroup>
-                    <FieldGroup label="IFSC Code" optional>
+                    <FieldGroup label="Bank IFSC Code" required error={errors.ifsc} hint="11-character IFSC code e.g. HDFC0001234">
                       <Input name="ifsc" value={formData.ifsc} onChange={handleChange}
-                        placeholder="e.g. HDFC0001234" upper />
+                        placeholder="e.g. HDFC0001234" upper error={errors.ifsc} />
                     </FieldGroup>
-                    <FieldGroup label="Bank Branch Name" optional>
+                    <FieldGroup label="Bank Branch & Bank Name" required error={errors.bankName} style={{ gridColumn: '1 / -1' }}>
                       <Input name="bankName" value={formData.bankName} onChange={handleChange}
-                        placeholder="e.g. HDFC Bank, Jaipur" />
+                        placeholder="e.g. HDFC Bank, Ashok Nagar Branch, Jaipur" error={errors.bankName} />
                     </FieldGroup>
                   </div>
                 </div>
@@ -1063,58 +1079,63 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
               <div className="form-grid-2">
                 {[
-                  ['panDoc',          'PAN Card Copy',                      '.pdf,.jpg,.png,.jpeg', true],
-                  ['aadharFrontDoc',  'Aadhaar Card — Front Side',          '.pdf,.jpg,.png,.jpeg', true],
-                  ['aadharBackDoc',   'Aadhaar Card — Back Side',           '.pdf,.jpg,.png,.jpeg', true],
-                  ['gstDoc',          'GST REG-06 Certificate',             '.pdf,.jpg,.png,.jpeg', false],
-                  ['bankDoc',         'Cancelled Bank Cheque',              '.pdf,.jpg,.png,.jpeg', false],
-                  ['expDoc',          isSoleProp ? 'Work Portfolio / COA Certificate' : 'CAD Portfolio / Work Orders', '.pdf,.jpg,.png,.jpeg', false],
-                ].map(([field, label, accept, isRequired]) => {
+                  ['panDoc',         'PAN Card Copy',                    '.pdf,.jpg,.png,.jpeg', true,  'Income Tax Dept PAN Card. Required for statutory tax identity & TDS processing. Upload clear front side photo/PDF.'],
+                  ['aadharFrontDoc', 'Aadhaar Card — Front Side',        '.pdf,.jpg,.png,.jpeg', true,  'UIDAI Govt National ID (Front). Required for authorized signatory identity verification. Upload photo showing Aadhaar number & photo.'],
+                  ['aadharBackDoc',  'Aadhaar Card — Back Side',         '.pdf,.jpg,.png,.jpeg', true,  'UIDAI Govt National ID (Back). Required for registered workplace/residential address verification. Upload photo showing complete address & PIN.'],
+                  ['bankDoc',        'Cancelled Bank Cheque / Passbook', '.pdf,.jpg,.png,.jpeg', true,  'Printed Cheque leaf with "CANCELLED" written or Passbook 1st page. Required to verify Bank Account No & IFSC for RTGS payouts.'],
+                  ['gstDoc',         'GST REG-06 Certificate',           '.pdf,.jpg,.png,.jpeg', false, 'Official 3-page GST Registration Certificate issued by CBIC. Required to verify active GST tax status.'],
+                  ['expDoc',         isSoleProp ? 'Work Portfolio / COA Certificate' : 'CAD Portfolio / Work Orders', '.pdf,.jpg,.png,.jpeg', false, 'Past Work Completion Certificates, Purchase Orders or CAD Portfolio. Helps fast-track Class-A tier rating.'],
+                ].map(([field, label, accept, isRequired, helpText]) => {
                   const doc = formData[field];
                   const hasErr = Boolean(errors[field]);
 
                   return (
-                    <div key={field} className="upload-card" style={{ border: hasErr ? '1.5px solid #ED1C24' : undefined, backgroundColor: hasErr ? 'rgba(237,28,36,0.02)' : undefined }}>
-                      <div style={{ fontSize: '0.83rem', fontWeight: 800, marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>{label}</span>
+                    <div key={field} className="upload-card" style={{ border: hasErr ? '1.5px solid #ED1C24' : '1px solid var(--border-color)', backgroundColor: hasErr ? 'rgba(237,28,36,0.02)' : 'var(--bg-surface)', padding: '1rem', borderRadius: 14 }}>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ color: '#0F172A' }}>{label}</span>
                         {isRequired ? (
-                          <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#ED1C24', backgroundColor: 'rgba(237,28,36,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6 }}>REQUIRED *</span>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#ED1C24', backgroundColor: 'rgba(237,28,36,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6 }}>MANDATORY *</span>
                         ) : (
-                          <span style={{ fontWeight: 400, color: 'var(--text-muted)', fontSize: '0.72rem' }}>(Optional)</span>
+                          <span style={{ fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.72rem' }}>(Optional)</span>
                         )}
                       </div>
 
+                      {/* Clear Guidance & Purpose Note */}
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0 0 0.65rem 0', lineHeight: 1.45 }}>
+                        💡 <strong>Why & How:</strong> {helpText}
+                      </p>
+
                       {doc ? (
                         <div>
-                          <div style={{ fontSize: '0.79rem', color: '#10B981', fontWeight: 700, marginBottom: '0.35rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: '0.79rem', color: '#10B981', fontWeight: 700, marginBottom: '0.45rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             ✓ {doc.name}
                           </div>
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <button
                               type="button"
                               onClick={() => setPreviewFile({ name: `${label} (${doc.name})`, url: doc.previewUrl, type: doc.type })}
-                              style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', background: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', cursor: 'pointer' }}
+                              style={{ padding: '0.3rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', background: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
                             >
                               👁️ Preview Document
                             </button>
                             <button
                               type="button"
                               onClick={() => handleFile(field, null)}
-                              style={{ padding: '0.25rem 0.6rem', borderRadius: 6, fontSize: '0.75rem', fontWeight: 700, color: '#ED1C24', background: 'rgba(237,28,36,0.08)', border: '1px solid rgba(237,28,36,0.2)', cursor: 'pointer' }}
+                              style={{ padding: '0.3rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700, color: '#ED1C24', background: 'rgba(237,28,36,0.08)', border: '1px solid rgba(237,28,36,0.2)', cursor: 'pointer' }}
                             >
                               ✕ Remove
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <label className="upload-btn">
-                          <UploadCloud style={{ width: 14, height: 14 }} />
-                          <span>Upload {label.split(' ')[0]}</span>
+                        <label className="upload-btn" style={{ padding: '0.6rem 1rem' }}>
+                          <UploadCloud style={{ width: 15, height: 15 }} />
+                          <span>Choose & Upload {label.split(' ')[0]}</span>
                           <input type="file" accept={accept} onChange={(e) => handleFile(field, e.target.files[0])} style={{ display: 'none' }} />
                         </label>
                       )}
 
-                      {hasErr && <span className="error-text" style={{ marginTop: '0.4rem', display: 'block' }}>{errors[field]}</span>}
+                      {hasErr && <span className="error-text" style={{ marginTop: '0.45rem', display: 'block', fontWeight: 700 }}>{errors[field]}</span>}
                     </div>
                   );
                 })}
