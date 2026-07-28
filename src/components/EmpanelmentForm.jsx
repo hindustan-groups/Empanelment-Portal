@@ -460,7 +460,10 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
   const handleNext = () => {
     if (validate(currentStep)) {
+      setErrors({});
       setCurrentStep(p => p + 1);
+      scrollToTop();
+    } else {
       scrollToTop();
     }
   };
@@ -638,6 +641,43 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
             })}
           </div>
         </div>
+
+        {/* ── Global Validation Error Alert Banner ── */}
+        {Object.keys(errors).length > 0 && (
+          <div style={{
+            margin: '1.25rem 2rem 0 2rem',
+            padding: '1rem 1.25rem',
+            borderRadius: 14,
+            backgroundColor: '#FEF2F2',
+            border: '1.5px solid #F87171',
+            boxShadow: '0 4px 14px rgba(239, 68, 68, 0.15)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.85rem'
+          }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: '50%',
+              backgroundColor: '#EF4444', color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: 900, fontSize: '1.1rem', flexShrink: 0
+            }}>
+              ⚠️
+            </div>
+            <div>
+              <h4 style={{ margin: 0, color: '#991B1B', fontSize: '0.95rem', fontWeight: 900 }}>
+                Validation Error — Unable to proceed to Next Step
+              </h4>
+              <p style={{ margin: '0.2rem 0 0.4rem 0', color: '#B91C1C', fontSize: '0.825rem', fontWeight: 600 }}>
+                Please correct the following highlighted error(s) before continuing:
+              </p>
+              <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#991B1B', fontSize: '0.825rem', fontWeight: 700 }}>
+                {Object.values(errors).map((errText, idx) => (
+                  <li key={idx} style={{ marginBottom: 2 }}>{errText}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
 
         {/* ── Form Body ── */}
         <form onSubmit={handleSubmit} className="form-body">
