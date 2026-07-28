@@ -47,7 +47,7 @@ export default function GuidelinesPage() {
         </div>
 
         {/* 4 Master Navigation Modules */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem', marginBottom: '2rem' }}>
           {[
             { id: 'policy', label: '1. Eligibility & Tier Rating', icon: Building2 },
             { id: 'nbc_matrix', label: '2. NBC Building Classifications', icon: HardHat },

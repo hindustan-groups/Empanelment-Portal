@@ -121,10 +121,10 @@ export default function TrackPage() {
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="e.g. HP-EMP-025 or 08AAAAA0000A1Z5 or rajesh@apexinfra.com"
                 className="form-input"
-                style={{ flex: 1, minWidth: 260, fontSize: '1rem', fontWeight: 700 }}
+                style={{ flex: '1 1 220px', width: '100%', fontSize: '0.95rem', fontWeight: 700 }}
                 required
               />
-              <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '0.75rem 1.75rem' }}>
+              <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '0.75rem 1.75rem', flex: '1 1 120px', justifyContent: 'center' }}>
                 {loading ? <Loader2 style={{ width: 18, height: 18 }} className="animate-spin" /> : 'Search Status'}
               </button>
             </div>

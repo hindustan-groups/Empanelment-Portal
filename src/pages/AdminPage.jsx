@@ -400,15 +400,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
             {/* Filters */}
             <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-              <div style={{ flex: 1, minWidth: 240 }}>
+              <div style={{ flex: '1 1 240px' }}>
                 <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                   placeholder="Search by Company, Tracking ID, GSTIN, Email, Contact…" className="form-input" style={{ fontSize: '0.85rem' }} />
               </div>
-              <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="form-input" style={{ width: 'auto', minWidth: 200, fontSize: '0.85rem' }}>
+              <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="form-input" style={{ flex: '1 1 180px', fontSize: '0.85rem' }}>
                 <option value="all">All Categories</option>
                 {categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
               </select>
-              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="form-input" style={{ width: 'auto', minWidth: 180, fontSize: '0.85rem' }}>
+              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="form-input" style={{ flex: '1 1 160px', fontSize: '0.85rem' }}>
                 <option value="all">All Statuses</option>
                 {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
