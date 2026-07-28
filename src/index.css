@@ -984,25 +984,41 @@ body {
   }
 }
 
-/* PRINT DOSSIER CSS MEDIA RULES */
+/* ════════════════ PRINT DOSSIER CSS MEDIA RULES ════════════════ */
 @media print {
-  body {
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 12mm 15mm;
   }
 
-  .header-navbar, .footer, .support-widget, .no-print, button, .progress-nav {
+  html, body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Hide non-printable elements */
+  .header-navbar, .footer, .support-widget, .no-print, button, .progress-nav, .hero-section {
     display: none !important;
   }
 
+  /* Reset modal containers for A4 page flow */
   .modal-backdrop {
     position: static !important;
-    background: transparent !important;
+    background: #FFFFFF !important;
     backdrop-filter: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
   }
 
-  .modal-content.printable-area {
+  .modal-content, .printable-area {
+    position: static !important;
     background: #FFFFFF !important;
     color: #000000 !important;
     border: none !important;
@@ -1010,20 +1026,42 @@ body {
     max-width: 100% !important;
     width: 100% !important;
     max-height: none !important;
+    height: auto !important;
     overflow: visible !important;
     padding: 0 !important;
+    margin: 0 !important;
   }
 
-  .printable-area div, .printable-area h3, .printable-area h4 {
-    color: #000000 !important;
+  .printable-section {
+    page-break-inside: avoid !important;
+    margin-bottom: 0.85rem !important;
   }
 
-  .printable-area strong {
-    color: #0047AB !important;
+  /* Universal tabular layout for printed dossiers */
+  table.print-dossier-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 0.85rem !important;
+    font-size: 9.5pt !important;
+    page-break-inside: avoid !important;
   }
 
-  @page {
-    size: A4;
-    margin: 1.5cm;
+  table.print-dossier-table td, table.print-dossier-table th {
+    border: 1px solid #1E293B !important;
+    padding: 5px 8px !important;
+    text-align: left !important;
+    vertical-align: middle !important;
+    color: #0F172A !important;
+  }
+
+  table.print-dossier-table th {
+    background-color: #F1F5F9 !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    font-size: 8.5pt !important;
+  }
+
+  .no-print-input {
+    border: none !important;
   }
 }
