@@ -90,9 +90,9 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
           </h4>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.6rem', fontSize: '0.825rem', padding: '0.85rem', borderRadius: 10, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
             <div>Entity Type: <strong>{(formData?.entityType || 'sole_proprietor').toUpperCase().replace('_', ' ')}</strong></div>
-            <div>Business Category: <strong>{(formData?.category || 'CIVIL').toUpperCase()}</strong></div>
-            <div>Primary Role: <strong>{formData?.primaryRole || 'Contractor'}</strong></div>
-            <div>Est. Year: <strong>{formData?.estYear || '2024'}</strong></div>
+            <div>Main Category Scope: <strong>{formData?.primaryRole || 'Architect / Engineer'}</strong></div>
+            <div>NBC Sub-Category Code: <strong>{(formData?.nbcSubCategory || 'Group E-1 (Business & Offices)').toUpperCase()}</strong></div>
+            <div>Empanelment Category: <strong>{(formData?.category || 'CIVIL').toUpperCase()}</strong></div>
             <div>Authorized Contact: <strong>{formData?.contactName || 'Applicant'} ({formData?.designation || 'Officer'})</strong></div>
             <div>Email Address: <strong>{formData?.email || 'N/A'}</strong></div>
             <div>Mobile Number: <strong>{formData?.phone || 'N/A'}</strong></div>

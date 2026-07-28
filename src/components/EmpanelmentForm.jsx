@@ -53,6 +53,77 @@ const DEFAULT_CATEGORIES = [
   { id: 'other',         label: '✏️ Other – Specify Below' },
 ];
 
+export const NBC_BUILDING_GROUPS = [
+  {
+    group: 'Group A: Residential Buildings',
+    items: [
+      { value: 'nbc_a1', label: 'Group A-1: Lodging and rooming houses' },
+      { value: 'nbc_a2', label: 'Group A-2: One or two-family private dwellings' },
+      { value: 'nbc_a3', label: 'Group A-3: Dormitories' },
+      { value: 'nbc_a4', label: 'Group A-4: Apartment houses' },
+      { value: 'nbc_a5', label: 'Group A-5: Hotels & Luxury Hospitality' },
+    ]
+  },
+  {
+    group: 'Group B: Educational Buildings',
+    items: [
+      { value: 'nbc_b1', label: 'Group B-1: Schools up to senior secondary level' },
+      { value: 'nbc_b2', label: 'Group B-2: All other training / educational institutions' },
+    ]
+  },
+  {
+    group: 'Group C: Institutional Buildings',
+    items: [
+      { value: 'nbc_c1', label: 'Group C-1: Hospitals and sanatoria' },
+      { value: 'nbc_c2', label: 'Group C-2: Custodial institutions (e.g. orphanages, elder care)' },
+      { value: 'nbc_c3', label: 'Group C-3: Penal and mental institutions' },
+    ]
+  },
+  {
+    group: 'Group D: Assembly Buildings',
+    items: [
+      { value: 'nbc_d1', label: 'Group D-1: Theaters & stages (seating capacity > 1,000)' },
+      { value: 'nbc_d2', label: 'Group D-2: Theaters & auditoriums (seating capacity < 1,000)' },
+      { value: 'nbc_d3', label: 'Group D-3: Halls, museums, and places of worship' },
+      { value: 'nbc_d4', label: 'Group D-4: Outdoor assembly structures (grandstands, stadiums)' },
+    ]
+  },
+  {
+    group: 'Group E: Business Buildings',
+    items: [
+      { value: 'nbc_e1', label: 'Group E-1: Offices, banks, & professional establishments' },
+      { value: 'nbc_e2', label: 'Group E-2: Laboratories and research facilities' },
+      { value: 'nbc_e3', label: 'Group E-3: Telephone exchanges & telecom hubs' },
+      { value: 'nbc_e4', label: 'Group E-4: Data processing centers / Data Centers' },
+    ]
+  },
+  {
+    group: 'Group F: Mercantile Buildings',
+    items: [
+      { value: 'nbc_f1', label: 'Group F-1: Shops, stores, & markets (display & sale)' },
+      { value: 'nbc_f2', label: 'Group F-2: Underground & large departmental stores / Malls' },
+    ]
+  },
+  {
+    group: 'Group G: Industrial Buildings',
+    items: [
+      { value: 'nbc_g1_g3', label: 'Group G-1 to G-3: Factories, assembly plants, refineries, & power plants' },
+    ]
+  },
+  {
+    group: 'Group H: Storage Buildings',
+    items: [
+      { value: 'nbc_h1_h2', label: 'Group H-1 & H-2: Warehouses, cold storages, freight depots, transit sheds' },
+    ]
+  },
+  {
+    group: 'Group J: Hazardous Buildings',
+    items: [
+      { value: 'nbc_j1_j3', label: 'Group J-1 to J-3: Buildings handling explosive, combustible, or toxic materials' },
+    ]
+  }
+];
+
 const STATE_LIST = [
   'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat',
   'Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh',
@@ -135,13 +206,15 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   });
 
   const [formData, setFormData] = useState({
-    /* Entity & Classification */
+    /* Entity & Discipline Classification */
     entityType: 'sole_proprietor',
     otherEntityType: '',
-    category: category || 'consultants',
-    otherCategory: '',
     primaryRole: 'arch',
     otherPrimaryRole: '',
+    category: category || 'civil',
+    otherCategory: '',
+    nbcSubCategory: '',
+    otherNbcSubCategory: '',
 
     /* Identity */
     companyName: '',        // firm name OR "self-employed" for sole prop
@@ -319,9 +392,15 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       }
 
       if (!formData.category) {
-        e.category = 'Please select an empanelment category';
+        e.category = 'Please select an empanelment trade category';
       } else if (formData.category === 'other' && !(formData.otherCategory || '').trim()) {
         e.otherCategory = 'Please specify your business category';
+      }
+
+      if (!formData.nbcSubCategory) {
+        e.nbcSubCategory = 'Please select NBC Building Code Classification / Sub-Category';
+      } else if (formData.nbcSubCategory === 'other' && !(formData.otherNbcSubCategory || '').trim()) {
+        e.otherNbcSubCategory = 'Please specify your building sub-category';
       }
 
       if (formData.entityType === 'other' && !(formData.otherEntityType || '').trim()) {
@@ -630,11 +709,12 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     placeholder="Office / WhatsApp number" />
                 </FieldGroup>
 
-                {/* ── Professional Discipline ── */}
+                {/* ── Main Category: Professional Discipline / Scope ── */}
                 <FieldGroup
-                  label="Professional Discipline / Scope of Work"
+                  label="Main Category — Professional Discipline / Scope of Work"
                   required
                   error={errors.primaryRole}
+                  hint="Select your primary engineering, architectural, contracting, or supply domain"
                   style={{ gridColumn: '1 / -1' }}
                 >
                   <SelectWithOther
@@ -650,9 +730,51 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   />
                 </FieldGroup>
 
-                {/* ── Empanelment Category ── */}
+                {/* ── Sub-Category: NBC Building Classification (Groups A through J) ── */}
                 <FieldGroup
-                  label="Empanelment Business Category"
+                  label="Sub-Category — NBC Building Classification (National Building Code of India)"
+                  required
+                  error={errors.nbcSubCategory}
+                  hint="Select building group code (Group A: Residential to Group J: Hazardous)"
+                  style={{ gridColumn: '1 / -1' }}
+                >
+                  <select
+                    name="nbcSubCategory"
+                    value={formData.nbcSubCategory}
+                    onChange={handleChange}
+                    className={`form-input${errors.nbcSubCategory ? ' error' : ''}`}
+                  >
+                    <option value="">– Select NBC Building Classification / Sub-Category –</option>
+                    {NBC_BUILDING_GROUPS.map((grp) => (
+                      <optgroup key={grp.group} label={grp.group}>
+                        {grp.items.map((item) => (
+                          <option key={item.value} value={item.value}>{item.label}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                    <option value="other">✏️ Other Custom Building / Infrastructure Sub-Category</option>
+                  </select>
+                  {errors.nbcSubCategory && <span className="error-text">{errors.nbcSubCategory}</span>}
+
+                  {formData.nbcSubCategory === 'other' && (
+                    <div style={{ marginTop: '0.5rem' }}>
+                      <input
+                        type="text"
+                        name="otherNbcSubCategory"
+                        value={formData.otherNbcSubCategory}
+                        onChange={handleChange}
+                        placeholder="Describe your custom NBC Building Classification or Sub-Category..."
+                        className={`form-input${errors.otherNbcSubCategory ? ' error' : ''}`}
+                        style={{ borderColor: '#0047AB44' }}
+                      />
+                      {errors.otherNbcSubCategory && <span className="error-text">{errors.otherNbcSubCategory}</span>}
+                    </div>
+                  )}
+                </FieldGroup>
+
+                {/* ── Empanelment Business Category ── */}
+                <FieldGroup
+                  label="Empanelment Trade Line Category"
                   required
                   error={errors.category}
                 >
