@@ -1023,29 +1023,32 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </p>
               </div>
 
-              {/* Financials — corporate only */}
-              {!isSoleProp && (
-                <div className="form-grid-3" style={{ marginBottom: '1.75rem' }}>
-                  <FieldGroup label="FY 2023-24 Turnover (₹ Lakhs)" optional>
-                    <Input name="turnover2023" type="number" value={formData.turnover2023} onChange={handleChange} placeholder="₹ in Lakhs" />
-                  </FieldGroup>
-                  <FieldGroup label="FY 2024-25 Turnover (₹ Lakhs)" optional>
-                    <Input name="turnover2024" type="number" value={formData.turnover2024} onChange={handleChange} placeholder="₹ in Lakhs" />
-                  </FieldGroup>
-                  <FieldGroup label="FY 2025-26 Turnover (₹ Lakhs)" optional>
-                    <Input name="turnover2025" type="number" value={formData.turnover2025} onChange={handleChange} placeholder="₹ in Lakhs" />
-                  </FieldGroup>
-                  <FieldGroup label="Largest Single Order (₹ Lakhs)" optional>
-                    <Input name="largestOrder" type="number" value={formData.largestOrder} onChange={handleChange} placeholder="₹ in Lakhs" />
-                  </FieldGroup>
-                  <FieldGroup label="BUA Rate Quoted (₹/sq ft)" optional>
-                    <Input name="buaRate" value={formData.buaRate} onChange={handleChange} placeholder="e.g. 18" />
-                  </FieldGroup>
-                  <FieldGroup label="CPA Rate Quoted (₹/sq ft)" optional>
-                    <Input name="cpaRate" value={formData.cpaRate} onChange={handleChange} placeholder="e.g. 10" />
-                  </FieldGroup>
-                </div>
-              )}
+              {/* Financial Turnovers & Quoted Rate Card Header */}
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.85rem', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <DollarSign style={{ width: 16, height: 16 }} />
+                <span>Financial Turnovers & Quoted Rate Card (Optional — Enter NIL if new entity):</span>
+              </div>
+
+              <div className="form-grid-3" style={{ marginBottom: '1.75rem' }}>
+                <FieldGroup label="FY 2023-24 Turnover (₹ Lakhs)" optional hint="Enter turnover in ₹ Lakhs or 0 for NIL">
+                  <Input name="turnover2023" type="number" value={formData.turnover2023} onChange={handleChange} placeholder="e.g. 250" />
+                </FieldGroup>
+                <FieldGroup label="FY 2024-25 Turnover (₹ Lakhs)" optional hint="Enter turnover in ₹ Lakhs or 0 for NIL">
+                  <Input name="turnover2024" type="number" value={formData.turnover2024} onChange={handleChange} placeholder="e.g. 320" />
+                </FieldGroup>
+                <FieldGroup label="FY 2025-26 Turnover (₹ Lakhs)" optional hint="Enter turnover in ₹ Lakhs or 0 for NIL">
+                  <Input name="turnover2025" type="number" value={formData.turnover2025} onChange={handleChange} placeholder="e.g. 410" />
+                </FieldGroup>
+                <FieldGroup label="Largest Single Order (₹ Lakhs)" optional hint="Highest single work order value received">
+                  <Input name="largestOrder" type="number" value={formData.largestOrder} onChange={handleChange} placeholder="e.g. 180" />
+                </FieldGroup>
+                <FieldGroup label="BUA Rate Quoted (₹/sq ft)" optional hint="Built-Up Area execution rate">
+                  <Input name="buaRate" value={formData.buaRate} onChange={handleChange} placeholder="e.g. 1800" />
+                </FieldGroup>
+                <FieldGroup label="CPA Rate Quoted (₹/sq ft)" optional hint="Covered/Plot Area execution rate">
+                  <Input name="cpaRate" value={formData.cpaRate} onChange={handleChange} placeholder="e.g. 1200" />
+                </FieldGroup>
+              </div>
 
               {/* Equipment Checklist — corporate only */}
               {!isSoleProp && (
