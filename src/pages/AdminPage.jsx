@@ -45,7 +45,10 @@ const DEFAULT_SITE_CONFIG = {
   supportHours:           'Mon – Sat: 09:00 AM – 06:00 PM IST',
   sslRibbonText:          '✓ 256-Bit SSL Encrypted Registration System',
   helpdeskBannerTitle:    'Need Assistance with Empanelment Filing?',
-  helpdeskBannerSubtitle: 'Our Procurement Helpdesk is available Monday – Saturday (09:00 AM – 06:00 PM IST)'
+  helpdeskBannerSubtitle: 'Our Procurement Helpdesk is available Monday – Saturday (09:00 AM – 06:00 PM IST)',
+  ongoingProjectsCount:   '10+',
+  activePipelineValue:    '₹ 100 Cr+',
+  baseContractorCount:    '100+'
 };
 
 const MOCK_AUDIT_LOGS = [
@@ -539,6 +542,20 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   <div>
                     <label className="form-label">Hero Subtitle Description Paragraph</label>
                     <textarea value={siteConfig.heroSubtitle || ''} onChange={e => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })} className="form-input" style={{ minHeight: 70 }} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem' }}>
+                    <div>
+                      <label className="form-label">Ongoing Projects Counter</label>
+                      <input type="text" value={siteConfig.ongoingProjectsCount || '10+'} onChange={e => setSiteConfig({ ...siteConfig, ongoingProjectsCount: e.target.value })} className="form-input" placeholder="10+" />
+                    </div>
+                    <div>
+                      <label className="form-label">Active Pipeline Value</label>
+                      <input type="text" value={siteConfig.activePipelineValue || '₹ 100 Cr+'} onChange={e => setSiteConfig({ ...siteConfig, activePipelineValue: e.target.value })} className="form-input" placeholder="₹ 100 Cr+" />
+                    </div>
+                    <div>
+                      <label className="form-label">Base Empanelled Contractors</label>
+                      <input type="text" value={siteConfig.baseContractorCount || '100+'} onChange={e => setSiteConfig({ ...siteConfig, baseContractorCount: e.target.value })} className="form-input" placeholder="100+" />
+                    </div>
                   </div>
                 </div>
               </div>

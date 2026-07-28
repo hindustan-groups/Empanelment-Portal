@@ -5,20 +5,38 @@ const DEFAULT_SITE_CONFIG = {
   heroBadge: 'Official Vendor & Contractor Registration FY 2026-27',
   heroTitleBlue: 'Hindustan',
   heroTitleRed: 'Projects',
-  heroSubtitle: 'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants. Fast-track technical & financial verification for active project tenders.'
+  heroSubtitle: 'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants. Fast-track technical & financial verification for active project tenders.',
+  ongoingProjectsCount: '10+',
+  activePipelineValue: '₹ 100 Cr+',
+  baseContractorCount: '100+'
 };
 
 export default function HeroSection({ selectedCategory, setSelectedCategory, onStartForm }) {
   const [siteConfig, setSiteConfig] = useState(DEFAULT_SITE_CONFIG);
+  const [realContractorsCount, setRealContractorsCount] = useState(100);
 
   useEffect(() => {
-    const saved = localStorage.getItem('hipro_site_config');
-    if (saved) {
+    // 1. Load Admin Config
+    const savedConfig = localStorage.getItem('hipro_site_config');
+    if (savedConfig) {
       try {
-        setSiteConfig(JSON.parse(saved));
+        setSiteConfig(prev => ({ ...prev, ...JSON.parse(savedConfig) }));
       } catch (err) {
         console.warn('Failed to parse site config:', err);
       }
+    }
+
+    // 2. Dynamically calculate real applications count added by users
+    try {
+      const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      const extraCount = localApps.length;
+      
+      const baseText = (savedConfig ? JSON.parse(savedConfig).baseContractorCount : '100+') || '100+';
+      const baseNum = parseInt(baseText.replace(/\D/g, ''), 10) || 100;
+
+      setRealContractorsCount(baseNum + extraCount);
+    } catch {
+      setRealContractorsCount(100);
     }
   }, []);
 
@@ -106,7 +124,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
           </div>
         </div>
 
-        {/* Enterprise Metrics Counter Banner */}
+        {/* Dynamic Enterprise Metrics Banner (Auto-incrementing with real vendor submissions) */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
@@ -120,18 +138,30 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
           textAlign: 'center'
         }}>
           <div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#60A5FA', letterSpacing: '-0.5px' }}>₹ 2,450 Cr+</div>
-            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>Active Tender Pipeline</div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#FBBF24', letterSpacing: '-0.5px' }}>
+              {siteConfig.ongoingProjectsCount || '10+'}
+            </div>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>
+              Ongoing Projects
+            </div>
           </div>
 
           <div style={{ borderLeft: '1px solid rgba(255,255,255,0.15)', borderRight: '1px solid rgba(255,255,255,0.15)' }}>
-            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#34D399', letterSpacing: '-0.5px' }}>4,820+</div>
-            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>Empanelled Contractors</div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#60A5FA', letterSpacing: '-0.5px' }}>
+              {siteConfig.activePipelineValue || '₹ 100 Cr+'}
+            </div>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>
+              Active Tender Pipeline
+            </div>
           </div>
 
           <div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#FBBF24', letterSpacing: '-0.5px' }}>₹ 0 Fee</div>
-            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>MSME Udyam Exemption</div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#34D399', letterSpacing: '-0.5px' }}>
+              {realContractorsCount}+
+            </div>
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 800, opacity: 0.8, marginTop: 2 }}>
+              Empanelled Contractors
+            </div>
           </div>
         </div>
 
