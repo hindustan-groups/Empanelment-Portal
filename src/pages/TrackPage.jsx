@@ -1,24 +1,61 @@
 import React, { useState } from 'react';
-import { Search, Loader2, CheckCircle2, Clock, ShieldCheck, AlertCircle, Building2, FileCheck2, CreditCard, Award, ArrowRight, HelpCircle, PhoneCall, FilePlus } from 'lucide-react';
+import { Search, Loader2, CheckCircle2, Clock, ShieldCheck, AlertCircle, Building2, FileCheck2, CreditCard, Award, ArrowRight, HelpCircle, PhoneCall, FilePlus, Printer } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SuccessModal from '../components/SuccessModal';
 
 export default function TrackPage() {
   const [searchInput, setSearchInput] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    const query = searchInput.trim();
+    const query = searchInput.trim().toLowerCase();
     if (!query) return;
 
     setLoading(true);
-    setErrorMsg(null);
     setNotFound(false);
     setResult(null);
 
+    // 1. Check local database applications first for 100% accurate match
+    try {
+      const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      const match = localApps.find(a =>
+        (a.tracking_id || '').toLowerCase() === query ||
+        (a.phone || '').replace(/\D/g, '').includes(query) ||
+        (a.gstin || '').toLowerCase() === query ||
+        (a.email || '').toLowerCase() === query
+      );
+
+      if (match) {
+        setResult({
+          id: match.tracking_id,
+          company: match.company_name || match.contact_name || 'Applicant Entity',
+          gstin: match.gstin || (match.gstExempt ? 'EXEMPT / NO GST' : 'GST PENDING'),
+          category: match.category ? match.category.toUpperCase() : 'GENERAL',
+          submittedDate: new Date(match.submitted_at || Date.now()).toLocaleDateString(),
+          stage: match.current_stage || 'Financial & Technical Committee Audit',
+          status: match.status || 'Under Verification',
+          hashSignature: match.hash_signature || '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
+          fullData: match,
+          steps: [
+            { label: 'Application Filed & SHA-256 Hash Generated', desc: `Submitted on ${new Date(match.submitted_at || Date.now()).toLocaleDateString()}`, done: true },
+            { label: 'GSTIN REG-06 & MCA Statutory Verification', desc: 'Statutory identity verification cleared', done: true },
+            { label: match.current_stage || 'Financial & Technical Committee Audit', desc: 'Reviewing turnovers & equipment capability', done: false, active: true },
+            { label: 'Empanelment Tier Classification & Certificate Issue', desc: 'Class-A / B Tier Rating assignment', done: false },
+            { label: 'Active Bidding Clearance & Portal Onboarding', desc: 'Qualified for active Hindustan Projects tenders', done: false }
+          ]
+        });
+        setLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.warn('Local apps check error:', err);
+    }
+
+    // 2. Query API Backend
     const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
     try {
@@ -35,6 +72,7 @@ export default function TrackPage() {
           stage: data.data.current_stage || 'Financial & Technical Committee Audit',
           status: data.data.status || 'Under Verification',
           hashSignature: data.data.hash_signature || '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
+          fullData: data.data,
           steps: [
             { label: 'Application Filed & SHA-256 Hash Generated', desc: 'Digital registration logged on empanel.hindustanprojects.in', done: true },
             { label: 'GSTIN REG-06 & MCA Statutory Verification', desc: 'Active tax status & PAN verification cleared', done: true },
@@ -44,51 +82,10 @@ export default function TrackPage() {
           ]
         });
       } else {
-        // Test fallback match for demo entries
-        if (query.toUpperCase().includes('HP-EMP') || query.length >= 10 || query.includes('@')) {
-          setResult({
-            id: query.toUpperCase().startsWith('HP-') ? query.toUpperCase() : `HP-EMP-849201`,
-            company: 'Apex Infrastructure & Engineering Pvt Ltd',
-            gstin: query.length === 15 ? query.toUpperCase() : '08AAAAA0000A1Z5',
-            category: 'CIVIL & STRUCTURAL CONTRACTORS',
-            submittedDate: new Date().toLocaleDateString(),
-            stage: 'Financial & Technical Committee Audit',
-            status: 'Under Verification',
-            hashSignature: '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
-            steps: [
-              { label: 'Application Filed & SHA-256 Hash Generated', desc: 'Digital registration logged on empanel.hindustanprojects.in', done: true },
-              { label: 'GSTIN REG-06 & MCA Statutory Verification', desc: 'Active tax status & PAN verification cleared', done: true },
-              { label: 'Financial & Technical Committee Audit', desc: 'Reviewing 3-year turnovers & equipment capability', done: false, active: true },
-              { label: 'Empanelment Tier Classification & Certificate Issue', desc: 'Class-A / B Tier Rating assignment', done: false },
-              { label: 'Active Bidding Clearance & Portal Onboarding', desc: 'Qualified for active Hindustan Projects tenders', done: false }
-            ]
-          });
-        } else {
-          setNotFound(true);
-        }
-      }
-    } catch (err) {
-      if (query.toUpperCase().includes('HP-EMP') || query.length >= 10 || query.includes('@')) {
-        setResult({
-          id: query.toUpperCase().startsWith('HP-') ? query.toUpperCase() : 'HP-EMP-849201',
-          company: 'Apex Infrastructure & Engineering Pvt Ltd',
-          gstin: '08AAAAA0000A1Z5',
-          category: 'CIVIL & STRUCTURAL CONTRACTORS',
-          submittedDate: new Date().toLocaleDateString(),
-          stage: 'Financial & Technical Committee Audit',
-          status: 'Under Verification',
-          hashSignature: '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
-          steps: [
-            { label: 'Application Filed & SHA-256 Hash Generated', desc: 'Digital registration logged on empanel.hindustanprojects.in', done: true },
-            { label: 'GSTIN REG-06 & MCA Statutory Verification', desc: 'Active tax status & PAN verification cleared', done: true },
-            { label: 'Financial & Technical Committee Audit', desc: 'Reviewing 3-year turnovers & equipment capability', done: false, active: true },
-            { label: 'Empanelment Tier Classification & Certificate Issue', desc: 'Class-A / B Tier Rating assignment', done: false },
-            { label: 'Active Bidding Clearance & Portal Onboarding', desc: 'Qualified for active Hindustan Projects tenders', done: false }
-          ]
-        });
-      } else {
         setNotFound(true);
       }
+    } catch {
+      setNotFound(true);
     } finally {
       setLoading(false);
     }
@@ -106,7 +103,7 @@ export default function TrackPage() {
           <div>
             <h2 style={{ fontSize: '1.65rem', fontWeight: 900 }}>Track Vendor Empanelment Status</h2>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-              Search using your <strong>Tracking ID (HP-EMP-XXXXXX)</strong>, <strong>GSTIN Number</strong>, or <strong>Registered Email/Mobile</strong>
+              Search using your <strong>Tracking ID (e.g. HP-EMP-025)</strong>, <strong>GSTIN Number</strong>, <strong>Mobile</strong>, or <strong>Email</strong>
             </p>
           </div>
         </div>
@@ -122,7 +119,7 @@ export default function TrackPage() {
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="e.g. HP-EMP-849201 or 08AAAAA0000A1Z5 or rajesh@apexinfra.com"
+                placeholder="e.g. HP-EMP-025 or 08AAAAA0000A1Z5 or rajesh@apexinfra.com"
                 className="form-input"
                 style={{ flex: 1, minWidth: 260, fontSize: '1rem', fontWeight: 700 }}
                 required
@@ -134,12 +131,12 @@ export default function TrackPage() {
           </div>
         </form>
 
-        {/* WRONG NUMBER / NOT FOUND CLEAR ERROR STATE */}
+        {/* NOT FOUND CLEAR ERROR STATE */}
         {notFound && (
           <div style={{ padding: '1.75rem', borderRadius: 18, backgroundColor: 'rgba(237, 28, 36, 0.05)', border: '1.5px solid rgba(237, 28, 36, 0.3)', marginBottom: '1.5rem' }}>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ width: 42, height: 42, borderRadius: '50%', backgroundColor: 'rgba(237, 28, 36, 0.15)', color: '#ED1C24', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 42, height: 42, borderRadius: '50%', backgroundColor: 'rgba(237, 28, 36, 0.15)', color: '#ED1C24', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <AlertCircle style={{ width: 24, height: 24 }} />
               </div>
               <div>
@@ -159,7 +156,7 @@ export default function TrackPage() {
                 <span>How to resolve this issue:</span>
               </div>
               <ul style={{ paddingLeft: '1.25rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-                <li><strong>Tracking ID format:</strong> Ensure 9-character reference format (e.g. <code>HP-EMP-849201</code>).</li>
+                <li><strong>Tracking ID format:</strong> Ensure valid reference code format (e.g. <code>HP-EMP-025</code>).</li>
                 <li><strong>GSTIN format:</strong> Verify your 15-digit GSTIN (e.g. <code>08AAAAA0000A1Z5</code>).</li>
                 <li><strong>Mobile / Email:</strong> Make sure you are entering the exact mobile number or email used during registration.</li>
                 <li><strong>Haven't filed yet?</strong> If you have not submitted the empanelment form, please register below.</li>
@@ -182,7 +179,7 @@ export default function TrackPage() {
           </div>
         )}
 
-        {/* VALID SEARCH RESULTS DISPLAY */}
+        {/* VALID REAL SEARCH RESULTS DISPLAY */}
         {result && (
           <div style={{ padding: '1.5rem', borderRadius: 18, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
             
@@ -201,14 +198,27 @@ export default function TrackPage() {
                 </div>
               </div>
 
-              <div style={{ padding: '0.5rem 1rem', borderRadius: 9999, fontSize: '0.85rem', fontWeight: 800, backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#B45309', border: '1px solid rgba(245, 158, 11, 0.3)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Clock style={{ width: 16, height: 16 }} />
-                <span>{result.status}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                <div style={{ padding: '0.5rem 1rem', borderRadius: 9999, fontSize: '0.85rem', fontWeight: 800, backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#B45309', border: '1px solid rgba(245, 158, 11, 0.3)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Clock style={{ width: 16, height: 16 }} />
+                  <span>{result.status}</span>
+                </div>
+
+                {result.fullData && (
+                  <button
+                    onClick={() => setShowReceiptModal(true)}
+                    className="btn-secondary"
+                    style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: 8 }}
+                  >
+                    <Printer style={{ width: 13, height: 13 }} />
+                    <span>Print Application Slip</span>
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Cryptographic SHA-256 Hash Ribbon */}
-            <div style={{ padding: '0.6rem 0.85rem', borderRadius: 8, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.725rem', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '1.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '0.6rem 0.85rem', borderRadius: 8, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.725rem', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '1.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
               <span>🔒 SHA-256 Hash Signature: <strong>{result.hashSignature}</strong></span>
               <span style={{ color: '#047857', fontWeight: 800 }}>✓ Verified Audit Trail</span>
             </div>
@@ -253,6 +263,16 @@ export default function TrackPage() {
         )}
 
       </div>
+
+      {/* Printable Receipt Slip Modal */}
+      {showReceiptModal && result?.fullData && (
+        <SuccessModal
+          isOpen={showReceiptModal}
+          onClose={() => setShowReceiptModal(false)}
+          trackingId={result.id}
+          formData={result.fullData}
+        />
+      )}
     </div>
   );
 }
