@@ -285,33 +285,111 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
   const validate = (step) => {
     const e = {};
+
+    // Step 1: Contact & Entity Profile Validation
     if (step === 1) {
-      if (!formData.contactName.trim()) e.contactName = 'Your name is required';
-      if (!formData.email.trim() || !formData.email.includes('@')) e.email = 'Valid email address is required';
-      if (!formData.phone.trim() || formData.phone.replace(/\D/g, '').length < 10) e.phone = 'Valid 10-digit mobile number required';
-      if (!isSoleProp && !formData.companyName.trim()) e.companyName = 'Company / Firm registered name is required';
-      if (formData.entityType === 'other' && !formData.otherEntityType.trim()) e.otherEntityType = 'Please specify entity type';
-      if (formData.primaryRole === 'other' && !formData.otherPrimaryRole.trim()) e.otherPrimaryRole = 'Please specify your discipline';
-      if (formData.category === 'other' && !formData.otherCategory.trim()) e.otherCategory = 'Please specify category';
+      const contactName = (formData.contactName || '').trim();
+      if (!contactName || contactName.length < 2) {
+        e.contactName = 'Please enter authorized contact person name (min 2 letters)';
+      }
+
+      const email = (formData.email || '').trim();
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!email || !emailRegex.test(email)) {
+        e.email = 'Please enter a valid corporate email address (e.g. name@domain.com)';
+      }
+
+      const phone = (formData.phone || '').replace(/\D/g, '');
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phone || !phoneRegex.test(phone)) {
+        e.phone = 'Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9';
+      }
+
+      if (!isSoleProp) {
+        const companyName = (formData.companyName || '').trim();
+        if (!companyName || companyName.length < 3) {
+          e.companyName = 'Registered Company / Firm name is required (min 3 characters)';
+        }
+      }
+
+      if (!formData.primaryRole) {
+        e.primaryRole = 'Please select your professional discipline';
+      } else if (formData.primaryRole === 'other' && !(formData.otherPrimaryRole || '').trim()) {
+        e.otherPrimaryRole = 'Please specify your discipline';
+      }
+
+      if (!formData.category) {
+        e.category = 'Please select an empanelment category';
+      } else if (formData.category === 'other' && !(formData.otherCategory || '').trim()) {
+        e.otherCategory = 'Please specify your business category';
+      }
+
+      if (formData.entityType === 'other' && !(formData.otherEntityType || '').trim()) {
+        e.otherEntityType = 'Please specify your entity type';
+      }
+
+      const pincode = (formData.pincode || '').trim();
+      if (pincode && !/^\d{6}$/.test(pincode)) {
+        e.pincode = 'Pincode must be a valid 6-digit number (e.g. 302001)';
+      }
     }
+
+    // Step 2: Statutory Tax & Compliance Validation (GSTIN + PAN + Bank)
     if (step === 2) {
-      if (!formData.gstExempt && !formData.gstin.trim()) e.gstin = 'Enter your 15-digit GSTIN or tick "No GSTIN / Exempt"';
-      if (!formData.pan.trim() || formData.pan.replace(/\s/g, '').length < 10) e.pan = 'Valid 10-character PAN is required';
+      if (!formData.gstExempt) {
+        const gstin = (formData.gstin || '').replace(/\s/g, '').toUpperCase();
+        const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+        if (!gstin) {
+          e.gstin = 'Enter your 15-character GSTIN or check "No GSTIN / Exempt"';
+        } else if (!gstinRegex.test(gstin)) {
+          e.gstin = 'Invalid GSTIN format! Must be 15 characters (e.g. 08AAAAA0000A1Z5)';
+        }
+      }
+
+      const pan = (formData.pan || '').replace(/\s/g, '').toUpperCase();
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (!pan) {
+        e.pan = '10-character PAN Card number is required';
+      } else if (!panRegex.test(pan)) {
+        e.pan = 'Invalid PAN format! Must be 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)';
+      }
+
+      const ifsc = (formData.ifsc || '').trim().toUpperCase();
+      if (ifsc && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
+        e.ifsc = 'Invalid Bank IFSC Code format! (e.g. HDFC0001234)';
+      }
     }
+
+    // Step 4: Undertakings, Signature & Security Captcha
     if (step === 4) {
-      if (!formData.declAntiBlacklist) e.declAntiBlacklist = 'Please confirm this declaration';
-      if (!formData.declIpAssignment) e.declIpAssignment = 'Please confirm this declaration';
-      if (!formData.declSiteVisit) e.declSiteVisit = 'Please confirm this declaration';
-      if (!formData.signatoryName.trim()) e.signatoryName = 'Signatory name is required';
-      if (!signatureData) e.signature = 'Please draw your signature on the canvas pad';
-      if (!isCaptchaVerified) e.captcha = 'Please solve the security challenge below';
+      if (!formData.declAntiBlacklist) e.declAntiBlacklist = 'You must confirm the non-blacklisting declaration';
+      if (!formData.declIpAssignment) e.declIpAssignment = 'You must confirm the IP assignment undertaking';
+      if (!formData.declSiteVisit) e.declSiteVisit = 'You must confirm the site visit commitment';
+      
+      const signatory = (formData.signatoryName || '').trim();
+      if (!signatory || signatory.length < 3) {
+        e.signatoryName = 'Authorized Signatory full name is required (min 3 letters)';
+      }
+
+      if (!signatureData) e.signature = 'Please draw your digital signature on the canvas pad above';
+      if (!isCaptchaVerified) e.captcha = 'Please solve the anti-bot security challenge above';
     }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const handleNext = () => { if (validate(currentStep)) { setCurrentStep(p => p + 1); scrollToTop(); } };
-  const handleBack = () => { setCurrentStep(p => p - 1); scrollToTop(); };
+  const handleNext = () => {
+    if (validate(currentStep)) {
+      setCurrentStep(p => p + 1);
+      scrollToTop();
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(p => p - 1);
+    scrollToTop();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
