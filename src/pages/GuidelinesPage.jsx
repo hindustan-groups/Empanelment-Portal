@@ -98,32 +98,33 @@ export default function GuidelinesPage() {
         {activeSubTab === 'architect_terms' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.875rem', lineHeight: 1.6 }}>
             
-            {/* Fee & Payment Milestones */}
+            {/* Commercial Rate Card & Procurement Fee Framework */}
             <div style={{ padding: '1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
               <h3 style={{ color: '#0047AB', fontWeight: 800, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <DollarSign style={{ width: 18, height: 18 }} />
-                <span>Standard Architect & Design Fee Structure:</span>
+                <span>Commercial Rate Card & Procurement Fee Policy Framework:</span>
               </h3>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-                <div style={{ padding: '0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-card)' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Built Up Area (BUA) Fee Rate</div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0047AB' }}>₹ 15 – ₹ 23 / sq ft</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>(1.5% of basic cost of construction)</div>
+                <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase', marginBottom: 2 }}>Project-Based Competitive Quotes</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0F172A' }}>Scope-Based Pricing</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>Tailored rates based on NBC Building Classification (Group A to J)</div>
                 </div>
 
-                <div style={{ padding: '0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-card)' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Covered Parking Area (CPA) Rate</div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#10B981' }}>₹ 7 – ₹ 14 / sq ft</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Exclusive of GST</div>
+                <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', marginBottom: 2 }}>Fast-Track Payment Release</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0F172A' }}>Direct RTGS / NEFT</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>Milestone-linked payouts within 7 working days of audit sign-off</div>
                 </div>
               </div>
 
               <div style={{ fontSize: '0.825rem' }}>
-                <strong>Design Fee Payment Milestones:</strong>
-                <ol style={{ paddingLeft: '1.25rem', marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                  <li><strong>Milestone 1 (Schematic Designs):</strong> On approval of Floor Plans & 3D Elevations — Flat ₹ 15,000 / Tranche.</li>
-                  <li><strong>Milestone 2 (GFC & MEP Drawings):</strong> On approval of Good For Construction (GFC), Electrical & Plumbing drawings by Solutions Manager.</li>
-                  <li><strong>Milestone 3 (Site Visit Completion):</strong> 20% of total design fee upon completion of critical site visits (Column marking, Plinth, Floor slab casting).</li>
+                <strong>Standard Design & Consultancy Milestone Payment Schedule:</strong>
+                <ol style={{ paddingLeft: '1.25rem', marginTop: '0.4rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <li><strong>Milestone 1 (Concept & Schematic Approval):</strong> 30% Payment Tranche on approval of master floor plans, elevations & 3D renders.</li>
+                  <li><strong>Milestone 2 (Good For Construction GFC & MEP Release):</strong> 50% Payment Tranche on technical committee release of GFC structural & MEP working drawings.</li>
+                  <li><strong>Milestone 3 (Site Quality Audit & Final Completion):</strong> 20% Final Retention Release upon physical site milestone clearance.</li>
                 </ol>
               </div>
             </div>
