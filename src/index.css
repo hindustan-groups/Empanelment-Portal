@@ -1252,22 +1252,6 @@ body {
   align-items: flex-start;
   margin-bottom: 1.75rem;
   padding-bottom: 1.5rem;
-  border-bottom: 2px solid var(--border-color);
-  flex-wrap: wrap;
-  gap: 1.25rem;
-}
-
-.guidelines-module-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-
-.responsive-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
-  gap: 0.85rem;
 }
 
 @media (max-width: 640px) {

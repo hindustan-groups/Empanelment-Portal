@@ -18,26 +18,32 @@ export default function GuidelinesPage() {
         {/* Executive Top Banner Header */}
         <div className="guidelines-header-banner">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-            <div style={{ padding: '0.75rem', borderRadius: 14, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', shrink: 0 }}>
+            <div style={{ padding: '0.75rem', borderRadius: 14, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', flexShrink: 0 }}>
               <ShieldCheck style={{ width: 28, height: 28 }} />
             </div>
             <div>
-              <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div style={{ fontSize: '0.725rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 HINDUSTAN PROJECTS • CORPORATE MANUAL FY 2026-27
               </div>
-              <h1 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0F172A', marginTop: 2, marginBottom: 2, wordBreak: 'break-word' }}>
-                Vendor & Contractor Empanelment Policy
+              <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', marginTop: 2, marginBottom: 2 }}>
+                Vendor & Contractor Empanelment Policy Guidelines
               </h1>
-              <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: 4 }}>
-                <span>✓ ISO 9001:2015</span>
+              <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: 4 }}>
+                <span>✓ ISO 9001:2015 Verified</span>
                 <span>•</span>
-                <span>✓ CVC Compliant</span>
+                <span>✓ CVC Procurement Standards</span>
+                <span>•</span>
+                <span>✓ NBC 2016 Compliant</span>
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: '100%', smWidth: 'auto' }}>
-            <button onClick={() => navigate('/apply')} className="btn-primary" style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', width: '100%' }}>
+          <div>
+            <button
+              onClick={() => navigate('/apply')}
+              className="btn-accent"
+              style={{ padding: '0.65rem 1.35rem', fontSize: '0.875rem', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+            >
               <FilePlus style={{ width: 16, height: 16 }} />
               <span>Apply for Empanelment</span>
             </button>
@@ -47,10 +53,10 @@ export default function GuidelinesPage() {
         {/* 4 Master Navigation Modules */}
         <div className="guidelines-module-grid">
           {[
-            { id: 'policy', label: '1. Eligibility & Rating', icon: Building2 },
-            { id: 'nbc_matrix', label: '2. NBC Building Code', icon: HardHat },
-            { id: 'commercial_terms', label: '3. Rates & Payments', icon: DollarSign },
-            { id: 'legal_cvc', label: '4. Legal, CVC & FAQ', icon: Scale },
+            { id: 'policy', label: '1. Eligibility & Rating Matrix', icon: Building2 },
+            { id: 'nbc_matrix', label: '2. NBC Building Code Standards', icon: HardHat },
+            { id: 'commercial_terms', label: '3. Rates & Payout Terms', icon: DollarSign },
+            { id: 'legal_cvc', label: '4. Legal, CVC & FAQs', icon: Scale },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeSubTab === tab.id;
@@ -59,9 +65,9 @@ export default function GuidelinesPage() {
                 key={tab.id}
                 onClick={() => setActiveSubTab(tab.id)}
                 style={{
-                  padding: '0.75rem 0.85rem',
-                  borderRadius: 12,
-                  fontSize: '0.8rem',
+                  padding: '0.85rem 1rem',
+                  borderRadius: 14,
+                  fontSize: '0.85rem',
                   fontWeight: isActive ? 900 : 700,
                   cursor: 'pointer',
                   border: isActive ? '2px solid #0047AB' : '1px solid var(--border-color)',
@@ -70,13 +76,13 @@ export default function GuidelinesPage() {
                   boxShadow: isActive ? '0 4px 14px rgba(0, 71, 171, 0.25)' : 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.4rem',
+                  gap: '0.5rem',
                   justifyContent: 'center',
                   transition: 'all 0.18s ease'
                 }}
               >
-                <Icon style={{ width: 15, height: 15, color: isActive ? '#FFFFFF' : '#0047AB', shrink: 0 }} />
-                <span className="truncate">{tab.label}</span>
+                <Icon style={{ width: 16, height: 16, color: isActive ? '#FFFFFF' : '#0047AB', flexShrink: 0 }} />
+                <span>{tab.label}</span>
               </button>
             );
           })}
@@ -84,51 +90,51 @@ export default function GuidelinesPage() {
 
         {/* ════════════════════ MODULE 1: ELIGIBILITY & TIER RATING ════════════════════ */}
         {activeSubTab === 'policy' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.875rem', lineHeight: 1.6 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', fontSize: '0.875rem', lineHeight: 1.6 }}>
             
             {/* Essential Prerequisites Checklist */}
-            <div style={{ padding: '1rem', borderRadius: 14, backgroundColor: 'rgba(0, 71, 171, 0.04)', border: '1.5px solid rgba(0, 71, 171, 0.2)' }}>
-              <h3 style={{ color: '#0047AB', fontWeight: 900, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '1rem', flexWrap: 'wrap' }}>
-                <CheckCircle2 style={{ width: 18, height: 18, shrink: 0 }} />
+            <div style={{ padding: '1.25rem 1.5rem', borderRadius: 16, backgroundColor: 'rgba(0, 71, 171, 0.04)', border: '1.5px solid rgba(0, 71, 171, 0.2)' }}>
+              <h3 style={{ color: '#0047AB', fontWeight: 900, marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '1.05rem' }}>
+                <CheckCircle2 style={{ width: 20, height: 20, flexShrink: 0, color: '#10B981' }} />
                 <span>Mandatory Vendor Filing Prerequisites:</span>
               </h3>
               <div className="responsive-card-grid">
-                <div style={{ padding: '0.75rem 0.85rem', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                   <strong style={{ color: '#0F172A', display: 'block', marginBottom: 2 }}>🆔 Valid Govt Tax Identity</strong>
-                  <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)' }}>10-Digit PAN Card & 15-Digit GSTIN Certificate (or MSME GST exemption declaration).</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>10-Digit PAN Card & 15-Digit GSTIN Certificate (or MSME GST exemption declaration).</span>
                 </div>
-                <div style={{ padding: '0.75rem 0.85rem', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                   <strong style={{ color: '#0F172A', display: 'block', marginBottom: 2 }}>🏦 Verified Banking Credentials</strong>
-                  <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)' }}>Cancelled Cheque or Passbook 1st page showing Account Number & IFSC code.</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Cancelled Cheque or Passbook 1st page showing Account Number & IFSC code.</span>
                 </div>
-                <div style={{ padding: '0.75rem 0.85rem', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                   <strong style={{ color: '#0F172A', display: 'block', marginBottom: 2 }}>📄 Identity Documents (Front & Back)</strong>
-                  <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)' }}>Mandatory upload of PAN Card and Aadhaar Card (Front & Back side scans).</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Mandatory upload of PAN Card and Aadhaar Card (Front & Back side scans).</span>
                 </div>
-                <div style={{ padding: '0.75rem 0.85rem', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                   <strong style={{ color: '#0F172A', display: 'block', marginBottom: 2 }}>✍️ Digital Legal Signature</strong>
-                  <span style={{ fontSize: '0.775rem', color: 'var(--text-muted)' }}>Digital canvas signature & Place of Signing declaration on final step.</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Digital canvas signature & Place of Signing declaration on final step.</span>
                 </div>
               </div>
             </div>
 
             {/* Empanelment Classification Tiers */}
             <div>
-              <h3 style={{ fontWeight: 900, marginBottom: '0.75rem', color: '#0F172A', fontSize: '1rem', wordBreak: 'break-word' }}>
+              <h3 style={{ fontWeight: 900, marginBottom: '1rem', color: '#0F172A', fontSize: '1.1rem' }}>
                 Vendor Classification & Tier Capability Rating Matrix:
               </h3>
-              <div className="responsive-card-grid">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.15rem' }}>
                 
                 {/* Class A */}
-                <div style={{ padding: '1rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '2px solid #0047AB', boxShadow: '0 4px 16px rgba(0,71,171,0.08)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.35rem' }}>
-                    <span style={{ color: '#0047AB', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-A (TIER 1 PRIME)</span>
-                    <span style={{ padding: '0.2rem 0.5rem', borderRadius: 99, background: 'rgba(0,71,171,0.1)', color: '#0047AB', fontSize: '0.68rem', fontWeight: 900 }}>PAN-INDIA</span>
+                <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '2px solid #0047AB', boxShadow: '0 4px 16px rgba(0,71,171,0.08)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                    <span style={{ color: '#0047AB', fontWeight: 900, fontSize: '1rem' }}>CLASS-A (TIER 1 PRIME)</span>
+                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'rgba(0,71,171,0.12)', color: '#0047AB', fontSize: '0.725rem', fontWeight: 900 }}>PAN-INDIA</span>
                   </div>
-                  <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
                     Prime EPC Contractors, Turnkey Infrastructure Firms, and Certified Lead Architects.
                   </p>
-                  <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                     <li><strong>Turnover:</strong> &gt; ₹ 5.0 Crores per annum.</li>
                     <li><strong>Eligibility:</strong> Full commercial towers & major civil works.</li>
                     <li><strong>EMD Benefit:</strong> EMD Waiver on active tenders.</li>
@@ -136,15 +142,15 @@ export default function GuidelinesPage() {
                 </div>
 
                 {/* Class B */}
-                <div style={{ padding: '1rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1.5px solid #10B981', boxShadow: '0 4px 16px rgba(16,185,129,0.08)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.35rem' }}>
-                    <span style={{ color: '#047857', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-B (TIER 2 SPECIALISTS)</span>
-                    <span style={{ padding: '0.2rem 0.5rem', borderRadius: 99, background: 'rgba(16,185,129,0.1)', color: '#047857', fontSize: '0.68rem', fontWeight: 900 }}>REGIONAL</span>
+                <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1.5px solid #10B981', boxShadow: '0 4px 16px rgba(16,185,129,0.08)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                    <span style={{ color: '#047857', fontWeight: 900, fontSize: '1rem' }}>CLASS-B (TIER 2 SPECIALISTS)</span>
+                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'rgba(16,185,129,0.12)', color: '#047857', fontSize: '0.725rem', fontWeight: 900 }}>REGIONAL</span>
                   </div>
-                  <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
                     Specialist Sub-Contractors, MEP Engineers, Material Suppliers, and Interior Decorators.
                   </p>
-                  <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                     <li><strong>Turnover:</strong> ₹ 50 Lakhs to ₹ 5.0 Crores per annum.</li>
                     <li><strong>Eligibility:</strong> MEP works, HVAC installation & steel supply.</li>
                     <li><strong>Payouts:</strong> 7-day milestone payment release.</li>
@@ -152,18 +158,18 @@ export default function GuidelinesPage() {
                 </div>
 
                 {/* Class C */}
-                <div style={{ padding: '1rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1.5px solid #F59E0B' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.35rem' }}>
-                    <span style={{ color: '#B45309', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-C (TIER 3 MSME)</span>
-                    <span style={{ padding: '0.2rem 0.5rem', borderRadius: 99, background: 'rgba(245,158,11,0.1)', color: '#B45309', fontSize: '0.68rem', fontWeight: 900 }}>MSME</span>
+                <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1.5px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                    <span style={{ color: '#64748B', fontWeight: 900, fontSize: '1rem' }}>CLASS-C (TIER 3 SUPPLIERS)</span>
+                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'var(--bg-surface)', color: '#64748B', fontSize: '0.725rem', fontWeight: 900 }}>LOCAL</span>
                   </div>
-                  <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-                    Sole Proprietors, MSME Udyam Enterprise Holders, Freelance Architects & Consultants.
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
+                    Local Material Vendors, Heavy Equipment Hirers, Soil Testing Labs, and PMC Support.
                   </p>
-                  <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                    <li><strong>Turnover:</strong> &lt; ₹ 50 Lakhs per annum.</li>
-                    <li><strong>Fee Exemption:</strong> ₹ 0 Registration Fee under MSME Waiver.</li>
-                    <li><strong>Process:</strong> Fast-track 48-hour online clearance.</li>
+                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <li><strong>Turnover:</strong> Up to ₹ 50 Lakhs per annum.</li>
+                    <li><strong>MSME Exemption:</strong> 100% Processing Fee Waiver for UDYAM.</li>
+                    <li><strong>Empanelment:</strong> Valid for 1 Financial Year.</li>
                   </ul>
                 </div>
 
@@ -173,148 +179,121 @@ export default function GuidelinesPage() {
           </div>
         )}
 
-        {/* ════════════════════ MODULE 2: NBC BUILDING CODE MATRIX ════════════════════ */}
+        {/* ════════════════════ MODULE 2: NBC BUILDING CODE STANDARDS ════════════════════ */}
         {activeSubTab === 'nbc_matrix' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', fontSize: '0.85rem', lineHeight: 1.6 }}>
-            <div style={{ padding: '0.85rem 1rem', borderRadius: 12, backgroundColor: 'rgba(0,71,171,0.05)', border: '1px solid rgba(0,71,171,0.2)' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 900, color: '#0047AB', marginBottom: 2 }}>
-                National Building Code of India (NBC 2016) Categorization Matrix:
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.875rem', lineHeight: 1.6 }}>
+            <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <HardHat style={{ width: 20, height: 20, color: '#0047AB' }} />
+                <span>NBC 2016 Structural & Fire Safety Compliance Standards:</span>
               </h3>
-              <p style={{ fontSize: '0.775rem', color: 'var(--text-muted)', margin: 0 }}>
-                Empanelment sub-categories follow official NBC Group A through Group J classifications:
+              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+                All empanelled contractors executing works on Hindustan Projects commercial & residential sites must strictly adhere to the National Building Code of India (NBC 2016).
               </p>
             </div>
 
-            <div className="responsive-card-grid">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.15rem' }}>
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: 4 }}>IS 456:2000 Concrete Standards</h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>RCC work mix design M25 to M50 grade with NABL laboratory cube test certificates.</p>
+              </div>
+
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: 4 }}>IS 1786:2008 TMT Steel Bar Specs</h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Fe550D grade corrosion-resistant steel from primary producers (SAIL, TATA, JSW).</p>
+              </div>
+
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: 4 }}>NBC Part 4 Fire & Life Safety</h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Fire NOC compliance, 2-hour fire-rated doors, wet risers & automatic sprinkler systems.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════ MODULE 3: COMMERCIAL & PAYOUT TERMS ════════════════════ */}
+        {activeSubTab === 'commercial_terms' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.875rem', lineHeight: 1.6 }}>
+            <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <DollarSign style={{ width: 20, height: 20, color: '#10B981' }} />
+                <span>Commercial Schedule & 7-Day RTGS Payout Terms:</span>
+              </h3>
+              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+                Hindustan Projects guarantees fast-track 7-day bank payouts for all verified milestone Running Account (RA) bills.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.15rem' }}>
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#047857', marginBottom: 2 }}>Tranche 1: 30% Advance / Concept Release</h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Released upon GFC drawings sign-off & initial site mobilization.</p>
+              </div>
+
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: 2 }}>Tranche 2: 50% Progress Milestone Release</h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Released based on certified RA bills & quality audit inspection clearance.</p>
+              </div>
+
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#F59E0B', marginBottom: 2 }}>Tranche 3: 20% Retention / Final Clearance</h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Released upon successful project handover & Defect Liability Period (DLP) sign-off.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════ MODULE 4: LEGAL, CVC & FAQ ════════════════════ */}
+        {activeSubTab === 'legal_cvc' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.875rem', lineHeight: 1.6 }}>
+            <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Scale style={{ width: 20, height: 20, color: '#0047AB' }} />
+                <span>Frequently Asked Questions & CVC Legal Guidance:</span>
+              </h3>
+              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+                Clarifications regarding empanelment validity, MSME fee waivers, and document re-submission.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {[
-                { group: 'Group A: Residential', desc: 'A-1 Lodging/Rooming, A-2 Private Dwellings, A-3 Dormitories, A-4 Apartments, A-5 Hotels & Hospitality.' },
-                { group: 'Group B: Educational', desc: 'B-1 Primary & Senior Secondary Schools, B-2 Training Institutions & Universities.' },
-                { group: 'Group C: Institutional', desc: 'C-1 Hospitals & Sanatoria, C-2 Custodial Institutions, C-3 Mental & Penal Facilities.' },
-                { group: 'Group D: Assembly', desc: 'D-1 Theaters (>1k seats), D-2 Auditoriums (<1k seats), D-3 Museums, D-4 Outdoor Stadiums.' },
-                { group: 'Group E: Business', desc: 'E-1 Commercial Offices & Banks, E-2 R&D Laboratories, E-3 Telecom Hubs, E-4 Data Centers.' },
-                { group: 'Group F: Mercantile', desc: 'F-1 Shops & Stores, F-2 Large Shopping Malls & Underground Departmental Stores.' },
-                { group: 'Group G: Industrial', desc: 'G-1 to G-3 Factories, Assembly Plants, Oil Refineries & Power Plants.' },
-                { group: 'Group H: Storage', desc: 'H-1 & H-2 Commercial Warehouses, Cold Storages, Freight Depots & Transit Sheds.' },
-                { group: 'Group J: Hazardous', desc: 'J-1 to J-3 Processing & storage of explosive, highly combustible, or toxic chemical materials.' },
-              ].map((item, idx) => (
-                <div key={idx} style={{ padding: '0.75rem 0.9rem', borderRadius: 10, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontWeight: 900, color: '#0047AB', fontSize: '0.85rem', marginBottom: 2 }}>{item.group}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.desc}</div>
+                { q: 'What is the validity period of the Empanelment Certificate?', a: 'Class-A certificates are valid for 3 Financial Years. Class-B and Class-C certificates are valid for 1 Financial Year and can be renewed online.' },
+                { q: 'How does the MSME Processing Fee Waiver work?', a: 'Firms registered under UDYAM MSME with valid URN certificate are 100% exempt from the ₹ 5,000 processing fee under Central Public Procurement Policy.' },
+                { q: 'What happens if my application requires clarification?', a: 'Our procurement committee will send an email and SMS with the required document update instructions. You can track status on the /track page.' }
+              ].map((faq, idx) => (
+                <div key={idx} style={{ borderRadius: 14, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                  <button
+                    onClick={() => toggleFaq(idx)}
+                    style={{
+                      width: '100%',
+                      padding: '1rem 1.25rem',
+                      display: 'flex',
+                      justify: 'space-between',
+                      alignItems: 'center',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      fontWeight: 800,
+                      color: '#0F172A'
+                    }}
+                  >
+                    <span>{faq.q}</span>
+                    {openFaq === idx ? <ChevronUp style={{ width: 18, height: 18, color: '#0047AB' }} /> : <ChevronDown style={{ width: 18, height: 18, color: 'var(--text-muted)' }} />}
+                  </button>
+
+                  {openFaq === idx && (
+                    <div style={{ padding: '0 1.25rem 1rem 1.25rem', fontSize: '0.825rem', color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
+                      {faq.a}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         )}
-
-        {/* ════════════════════ MODULE 3: COMMERCIAL RATE CARD & PAYMENT TERMS ════════════════════ */}
-        {activeSubTab === 'commercial_terms' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', fontSize: '0.85rem', lineHeight: 1.6 }}>
-            
-            <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-              <h3 style={{ color: '#0047AB', fontWeight: 900, marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '1rem', flexWrap: 'wrap' }}>
-                <DollarSign style={{ width: 18, height: 18 }} />
-                <span>Commercial Rate Card & Payment Milestone Policy Framework:</span>
-              </h3>
-
-              <div className="responsive-card-grid" style={{ marginBottom: '1rem' }}>
-                <div style={{ padding: '0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase', marginBottom: 2 }}>Competitive Quoting</div>
-                  <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A' }}>Scope-Based Rates</div>
-                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', marginTop: 2 }}>Determined per project via competitive bidding & NBC classification.</div>
-                </div>
-
-                <div style={{ padding: '0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', marginBottom: 2 }}>Fast-Track Payment Release</div>
-                  <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A' }}>Direct RTGS / NEFT</div>
-                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', marginTop: 2 }}>Payouts released within 7 working days of milestone audit clearance.</div>
-                </div>
-              </div>
-
-              <div style={{ fontSize: '0.8rem' }}>
-                <strong style={{ color: '#0F172A' }}>Standard Consultancy & Execution Milestone Payment Schedule:</strong>
-                <ol style={{ paddingLeft: '1.1rem', marginTop: '0.4rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <li><strong>Milestone 1 (Concept Approval):</strong> 30% Payment Tranche upon client sign-off of floor plans & 3D elevations.</li>
-                  <li><strong>Milestone 2 (Good For Construction Drawings):</strong> 50% Payment Tranche upon technical committee release of GFC structural & MEP drawings.</li>
-                  <li><strong>Milestone 3 (Site Audit & Completion):</strong> 20% Retention Tranche upon physical site milestone clearance certificate.</li>
-                </ol>
-              </div>
-            </div>
-
-            {/* Mandatory Document Naming Convention */}
-            <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'rgba(0, 71, 171, 0.04)', border: '1px solid rgba(0, 71, 171, 0.2)' }}>
-              <h3 style={{ color: '#0047AB', fontWeight: 900, marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.95rem', flexWrap: 'wrap' }}>
-                <FileCheck2 style={{ width: 16, height: 16 }} />
-                <span>Mandatory Document Naming Convention:</span>
-              </h3>
-              <p style={{ fontSize: '0.775rem', marginBottom: '0.4rem' }}>All technical drawings and project submissions must strictly follow corporate format:</p>
-              <div style={{ padding: '0.65rem 0.85rem', borderRadius: 8, backgroundColor: 'var(--bg-card)', fontFamily: 'monospace', fontWeight: 900, color: '#0047AB', fontSize: '0.775rem', wordBreak: 'break-all' }}>
-                DDMMYY-HP-[PROJECT TITLE]-[DOCUMENT NAME]-R[REVISION]
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* ════════════════════ MODULE 4: LEGAL, CVC & FAQ SUPPORT ════════════════════ */}
-        {activeSubTab === 'legal_cvc' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.85rem', lineHeight: 1.6 }}>
-            
-            {/* IP Rights & CVC Code */}
-            <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-              <h3 style={{ color: '#0047AB', fontWeight: 900, marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '1rem', flexWrap: 'wrap' }}>
-                <Scale style={{ width: 18, height: 18 }} />
-                <span>IP Rights, Confidentiality & CVC Anti-Corruption Code:</span>
-              </h3>
-              <ul style={{ listStyle: 'square', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.775rem' }}>
-                <li><strong>Intellectual Property Rights:</strong> All CAD drawings, BIM models, and architectural renders created for Hindustan Projects shall be solely owned by <strong>Hindustan Projects</strong>.</li>
-                <li><strong>CVC Anti-Corruption Compliance:</strong> Strict zero-tolerance policy towards non-ethical practices or gifts as per CVC guidelines.</li>
-                <li><strong>Independent Status:</strong> Empanelment is on a Principal-to-Principal basis.</li>
-              </ul>
-            </div>
-
-            {/* Frequently Asked Questions (FAQ Accordion) */}
-            <div>
-              <h3 style={{ fontWeight: 900, marginBottom: '0.75rem', color: '#0F172A', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <HelpCircle style={{ width: 18, height: 18, color: '#0047AB', shrink: 0 }} />
-                <span>Empanelment Frequently Asked Questions (FAQ):</span>
-              </h3>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {[
-                  { q: 'Which documents are mandatory for online empanelment filing?', a: 'PAN Card Copy, Aadhaar Card (Front Side), Aadhaar Card (Back Side), and Cancelled Cheque / Passbook copy are 100% MANDATORY for all applicants.' },
-                  { q: 'How long does the verification and approval process take?', a: 'Verification is completed within 48 to 72 hours. Once cleared, your Class-A/B Tier Rating certificate is issued digitally.' },
-                  { q: 'Can MSME / Sole Proprietors apply without GSTIN?', a: 'Yes! Sole proprietors with annual turnover below ₹20 Lakhs can check "No GSTIN / Exempt" and enjoy ₹0 fee MSME registration waiver.' },
-                  { q: 'What is the tracking ID format and how do I check my status?', a: 'Tracking IDs follow the sequential format starting with HP-EMP-025... (e.g. HP-EMP-025). Enter this reference code on the Track page (/track) anytime.' },
-                  { q: 'How are vendor payouts processed after work completion?', a: 'All vendor payments are released directly via RTGS / NEFT to your verified bank account within 7 working days of milestone clearance.' }
-                ].map((faq, idx) => (
-                  <div key={idx} style={{ borderRadius: 10, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-                    <button
-                      onClick={() => toggleFaq(idx)}
-                      style={{ width: '100%', padding: '0.75rem 1rem', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 800, fontSize: '0.8rem', color: '#0F172A', gap: '0.5rem' }}
-                    >
-                      <span>{faq.q}</span>
-                      {openFaq === idx ? <ChevronUp style={{ width: 15, height: 15, color: '#0047AB', shrink: 0 }} /> : <ChevronDown style={{ width: 15, height: 15, color: 'var(--text-muted)', shrink: 0 }} />}
-                    </button>
-                    {openFaq === idx && (
-                      <div style={{ padding: '0 1rem 0.85rem 1rem', fontSize: '0.775rem', color: 'var(--text-secondary)', borderTop: '1px dashed var(--border-color)', paddingTop: '0.65rem' }}>
-                        {faq.a}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* Bottom CTA Action Bar */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-color)', gap: '0.75rem' }}>
-          <button onClick={() => navigate('/apply')} className="btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '0.9rem', borderRadius: 12, width: '100%' }}>
-            <span>Proceed to Registration Wizard</span>
-            <ArrowRight style={{ width: 16, height: 16 }} />
-          </button>
-        </div>
 
       </div>
     </div>
