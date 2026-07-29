@@ -9,7 +9,7 @@ import {
   Printer, FileText, Building2, CreditCard, DollarSign, MapPin,
   User, AlertTriangle, FileCheck2,
   PlusCircle, Layers, Lock, MessageSquare, Settings, Save,
-  Key, ToggleLeft, ToggleRight, Bell, ChevronDown, ChevronUp, X, FileSignature
+  Key, ToggleLeft, ToggleRight, Bell, ChevronDown, ChevronUp, X, FileSignature, Activity, Send, Check
 } from 'lucide-react';
 
 /* ─── Constants ───────────────────────────────────────────────── */
@@ -150,6 +150,19 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [showAddTenderModal, setShowAddTenderModal] = useState(false);
   const [newTender, setNewTender] = useState({ title: '', category: 'civil', location: '', estimatedCost: '', deadline: '', status: 'OPEN FOR BIDDING' });
 
+  /* Vendor RA Invoices Approval State */
+  const [invoices, setInvoices] = useState([
+    { id: 'INV-2026-881', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', milestone: 'Milestone 1: Concept Signoff', amt: '₹ 4,35,000', date: '2026-07-28', status: 'RELEASED', rtgsRef: 'RTGS-HDFC280726-99120' },
+    { id: 'INV-2026-894', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', milestone: 'Milestone 2: GFC Structural Drawings', amt: '₹ 7,25,000', date: '2026-07-29', status: 'PENDING AUDIT', rtgsRef: 'PENDING' },
+    { id: 'INV-2026-902', vendor: 'Hindustan Electro-Mechanical', trackingId: 'HP-EMP-026', milestone: 'Milestone 1: Substation Design', amt: '₹ 3,80,000', date: '2026-07-29', status: 'PENDING AUDIT', rtgsRef: 'PENDING' }
+  ]);
+
+  /* Support Tickets State */
+  const [tickets, setTickets] = useState([
+    { id: 'TCK-99201', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', subject: 'Construction Site Entry Gate Pass Request (Jaipur Tower)', category: 'Gate Pass', status: 'RESOLVED', date: '2026-07-27' },
+    { id: 'TCK-99145', vendor: 'Hindustan Electro-Mechanical', trackingId: 'HP-EMP-026', subject: 'GFC Structural Drawing Revision R1 Clarification Request', category: 'Drawing Clarification', status: 'IN PROGRESS', date: '2026-07-28' }
+  ]);
+
   /* Security */
   const [adminPassword, setAdminPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -239,6 +252,17 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     if (selectedVendor?.tracking_id === trackingId) setSelectedVendor(null);
   };
 
+  /* ── Invoice Payout Handlers ── */
+  const handleApproveInvoice = (id) => {
+    const ref = `RTGS-HDFC${Math.floor(100000 + Math.random() * 900000)}`;
+    setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, status: 'RELEASED via RTGS', rtgsRef: ref } : inv));
+  };
+
+  /* ── Ticket Handlers ── */
+  const handleResolveTicket = (id) => {
+    setTickets(prev => prev.map(t => t.id === id ? { ...t, status: 'RESOLVED' } : t));
+  };
+
   /* ── Category CRUD ── */
   const handleSaveCat = (e) => {
     e.preventDefault();
@@ -298,23 +322,24 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     localStorage.setItem('hipro_admin_pwd', newPassword);
     setPasswordMsg('✅ Admin password changed successfully!');
     setAdminPassword(''); setNewPassword(''); setConfirmPassword('');
-    setTimeout(() => setPasswordMsg(''), 4000);
   };
 
-  /* ── CSV Export ── */
+  /* CSV Export */
   const handleExportCSV = () => {
     if (!vendors.length) return;
-    const headers = ['Tracking ID', 'Company Name', 'Entity Type', 'Category', 'GSTIN', 'PAN', 'Contact', 'Email', 'Phone', 'City', 'State', 'Turnover FY26', 'Status', 'Submitted'];
-    const rows = vendors.map(v => [v.tracking_id, `"${v.company_name}"`, v.entity_type, v.category, v.gstin, v.pan, `"${v.contact_name}"`, v.email, v.phone, v.city, v.state, v.turnover_2025 || 0, v.status, new Date(v.submitted_at).toLocaleDateString()]);
-    const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const a = document.createElement('a');
-    a.href = encodeURI(csv);
-    a.download = `HindustanProjects_Vendors_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    const headers = ['Tracking ID', 'Company Name', 'Category', 'Entity Type', 'GSTIN', 'PAN', 'Turnover 2025 (Lakhs)', 'Largest Order (Lakhs)', 'Status', 'Submitted At'];
+    const rows = vendors.map(v => [v.tracking_id, `"${v.company_name}"`, v.category, v.entity_type, v.gstin, v.pan, v.turnover_2025, v.largest_order, v.status, v.submitted_at]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `empanelment_vendors_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  if (!isAuthenticated) return null;
-
+  /* Filtered list */
   const filteredVendors = vendors.filter(v => {
     const s = searchTerm.toLowerCase();
     const matchSearch = (v.company_name || '').toLowerCase().includes(s) || (v.tracking_id || '').toLowerCase().includes(s) || (v.gstin || '').toLowerCase().includes(s) || (v.email || '').toLowerCase().includes(s) || (v.contact_name || '').toLowerCase().includes(s);
@@ -329,12 +354,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const rejectedApps = vendors.filter(v => v.status === 'Rejected').length;
 
   const TABS = [
-    { id: 'applications', label: `Applications (${totalApps})`,          icon: Database },
-    { id: 'contracts',    label: 'Contracts & Work Orders',              icon: FileSignature },
-    { id: 'site_cms',     label: 'Website CMS',                          icon: Settings },
-    { id: 'categories',   label: `Categories (${categories.length})`,    icon: Layers },
-    { id: 'tenders',      label: `Tenders (${tenders.length})`,          icon: FileText },
-    { id: 'security',     label: 'Security & Logs',                      icon: Lock },
+    { id: 'applications',     label: `Applications (${totalApps})`,          icon: Database },
+    { id: 'contracts',        label: 'Contracts & Work Orders',              icon: FileSignature },
+    { id: 'analytics',        label: '📊 Analytics & Intelligence',          icon: Activity },
+    { id: 'payout_approvals', label: '💰 RA Bills & RTGS Releases',          icon: DollarSign },
+    { id: 'support_tickets',  label: '💬 Vendor Support Tickets',            icon: MessageSquare },
+    { id: 'site_cms',         label: 'Website CMS',                          icon: Settings },
+    { id: 'categories',       label: `Categories (${categories.length})`,    icon: Layers },
+    { id: 'tenders',          label: `Tenders (${tenders.length})`,          icon: FileText },
+    { id: 'security',         label: 'Security & Logs',                      icon: Lock },
   ];
 
   return (
@@ -366,137 +394,306 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         </div>
 
-        {/* ── Tabs ── */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem', overflowX: 'auto' }}>
+        {/* ── Navigation Tabs ── */}
+        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.75rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem', overflowX: 'auto' }}>
           {TABS.map(tab => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem', borderRadius: '10px 10px 0 0', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', border: 'none', background: active ? '#0047AB' : 'var(--bg-surface)', color: active ? 'white' : 'var(--text-secondary)', boxShadow: active ? '0 2px 8px rgba(0,71,171,0.25)' : 'none', transition: 'all 0.18s' }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0.85rem', borderRadius: '10px 10px 0 0', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', border: 'none', background: active ? '#0047AB' : 'var(--bg-surface)', color: active ? 'white' : 'var(--text-secondary)', boxShadow: active ? '0 2px 8px rgba(0,71,171,0.25)' : 'none', transition: 'all 0.18s' }}>
                 <Icon style={{ width: 14, height: 14 }} />{tab.label}
               </button>
             );
           })}
         </div>
 
-        {/* ════════════════ TAB 1: APPLICATIONS ════════════════ */}
+        {/* ════════════════ TAB 1: APPLICATIONS LIST & DOSSIER AUDIT ════════════════ */}
         {activeTab === 'applications' && (
           <div>
-            {/* Stats row */}
+            {/* Stats Row */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-              {[
-                { label: 'Total Applications', value: totalApps,    color: '#0047AB', bg: 'rgba(0,71,171,0.08)' },
-                { label: 'Approved Vendors',   value: approvedApps, color: '#047857', bg: 'rgba(16,185,129,0.1)' },
-                { label: 'Pending Review',     value: pendingApps,  color: '#D97706', bg: 'rgba(245,158,11,0.1)' },
-                { label: 'Rejected',           value: rejectedApps, color: '#ED1C24', bg: 'rgba(237,28,36,0.08)' },
-              ].map(s => (
-                <div key={s.label} style={{ padding: '1rem', borderRadius: 12, background: s.bg, border: `1px solid ${s.color}33` }}>
-                  <div style={{ fontSize: '0.72rem', color: s.color, fontWeight: 800, textTransform: 'uppercase' }}>{s.label}</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 900, color: s.color }}>{s.value}</div>
-                </div>
-              ))}
+              <div style={{ padding: '1rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Total Registered</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{totalApps} Vendors</div>
+              </div>
+
+              <div style={{ padding: '1rem', borderRadius: 14, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase' }}>Under Verification</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#D97706', marginTop: 2 }}>{pendingApps} Pending</div>
+              </div>
+
+              <div style={{ padding: '1rem', borderRadius: 14, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#047857', textTransform: 'uppercase' }}>Empanelled Approved</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#10B981', marginTop: 2 }}>{approvedApps} Class-A/B</div>
+              </div>
+
+              <div style={{ padding: '1rem', borderRadius: 14, background: 'rgba(237,28,36,0.08)', border: '1px solid rgba(237,28,36,0.3)' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#991B1B', textTransform: 'uppercase' }}>Archived / Rejected</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ED1C24', marginTop: 2 }}>{rejectedApps} Applications</div>
+              </div>
             </div>
 
-            {/* Filters */}
+            {/* Filter & Search Bar */}
             <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-              <div style={{ flex: '1 1 240px' }}>
-                <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                  placeholder="Search by Company, Tracking ID, GSTIN, Email, Contact…" className="form-input" style={{ fontSize: '0.85rem' }} />
+              <div style={{ position: 'relative', flex: 2, minWidth: 240 }}>
+                <input
+                  type="text"
+                  placeholder="Search by Company, Tracking ID, GSTIN, Email..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="form-input"
+                  style={{ paddingLeft: '2.5rem' }}
+                />
+                <Search style={{ width: 16, height: 16, color: 'var(--text-muted)', position: 'absolute', left: 12, top: 14 }} />
               </div>
-              <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="form-input" style={{ flex: '1 1 180px', fontSize: '0.85rem' }}>
+
+              <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="form-input" style={{ flex: 1, minWidth: 160 }}>
                 <option value="all">All Categories</option>
                 {categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
               </select>
-              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="form-input" style={{ flex: '1 1 160px', fontSize: '0.85rem' }}>
+
+              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="form-input" style={{ flex: 1, minWidth: 160 }}>
                 <option value="all">All Statuses</option>
                 {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
 
-            {/* Table */}
-            <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid var(--border-color)' }}>
+            {/* Applications Table */}
+            <div style={{ overflowX: 'auto', borderRadius: 14, border: '1px solid var(--border-color)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem', textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ background: 'var(--bg-surface)', borderBottom: '2px solid var(--border-color)' }}>
-                    {['Tracking ID', 'Company & Type', 'Contact', 'GSTIN / PAN', 'FY26 Turnover', 'Status', 'Actions'].map(h => (
-                      <th key={h} style={{ padding: '0.8rem 0.75rem', fontWeight: 800, whiteSpace: 'nowrap' }}>{h}</th>
-                    ))}
+                  <tr style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '0.04em' }}>
+                    <th style={{ padding: '0.85rem 1rem' }}>Tracking Code</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Company Entity</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Category</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>GSTIN / PAN</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Stage & Status</th>
+                    <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredVendors.length === 0 ? (
-                    <tr><td colSpan={7} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>No applications match your search.</td></tr>
-                  ) : filteredVendors.map(v => (
-                    <tr key={v.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-surface)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                      <td style={{ padding: '0.8rem 0.75rem', fontWeight: 800, color: '#0047AB', whiteSpace: 'nowrap' }}>{v.tracking_id}</td>
-                      <td style={{ padding: '0.8rem 0.75rem' }}>
-                        <div style={{ fontWeight: 800 }}>{v.company_name || v.contact_name}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', gap: '0.3rem', flexWrap: 'wrap', marginTop: 2 }}>
-                          <span>{v.entity_type}</span>
-                          {(v.entity_type === 'sole_proprietor' || v.entity_type?.toLowerCase().includes('proprietor')) && (
-                            <span style={{ padding: '0.05rem 0.4rem', borderRadius: 4, background: 'rgba(245,158,11,0.15)', color: '#B45309', fontWeight: 800 }}>Sole Prop</span>
-                          )}
-                          {v.est_year && <span>• Est. {v.est_year}</span>}
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.75rem' }}>
-                        <div>{v.contact_name}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{v.email}</div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{v.phone}</div>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.75rem', fontFamily: 'monospace', fontSize: '0.78rem', textTransform: 'uppercase' }}>
-                        {v.gstin || 'EXEMPT'}<br/>
-                        <span style={{ color: 'var(--text-muted)' }}>PAN: {v.pan}</span>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.75rem', fontWeight: 800 }}>
-                        {v.turnover_2025 ? `₹ ${v.turnover_2025} L` : '—'}
-                      </td>
-                      <td style={{ padding: '0.8rem 0.75rem' }}>
-                        <select value={v.status} onChange={e => handleUpdateStatus(v.tracking_id, e.target.value, 'Admin Panel Update')}
-                          style={{ padding: '0.3rem 0.5rem', borderRadius: 8, fontSize: '0.72rem', fontWeight: 800, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)', cursor: 'pointer', width: '100%' }}>
-                          {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                        </select>
-                      </td>
-                      <td style={{ padding: '0.8rem 0.75rem' }}>
-                        <div style={{ display: 'flex', gap: '0.35rem' }}>
-                          <button onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); }}
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.35rem 0.65rem', borderRadius: 8, fontSize: '0.72rem', fontWeight: 700, border: 'none', background: 'rgba(0,71,171,0.1)', color: '#0047AB', cursor: 'pointer' }}>
-                            <Eye style={{ width: 12, height: 12 }} /> View
-                          </button>
-                          <button onClick={() => handleDeleteVendor(v.tracking_id)}
-                            style={{ display: 'inline-flex', alignItems: 'center', padding: '0.35rem 0.55rem', borderRadius: 8, fontSize: '0.72rem', border: 'none', background: 'rgba(237,28,36,0.08)', color: '#ED1C24', cursor: 'pointer' }}>
-                            <Trash2 style={{ width: 12, height: 12 }} />
-                          </button>
-                        </div>
+                    <tr>
+                      <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        No vendor applications match your current filters.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredVendors.map(v => (
+                      <tr key={v.tracking_id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontWeight: 800, color: '#0047AB' }}>
+                          {v.tracking_id}
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <div style={{ fontWeight: 800, color: '#0F172A' }}>{v.company_name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.contact_name} • {v.phone}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: 6, backgroundColor: 'rgba(0,71,171,0.08)', color: '#0047AB' }}>
+                            {v.category}
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontSize: '0.78rem' }}>
+                          <div>GST: {v.gstin}</div>
+                          <div style={{ color: 'var(--text-muted)' }}>PAN: {v.pan}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <StatusBadge status={v.status} />
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 2 }}>{v.current_stage}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                          <button
+                            onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); }}
+                            className="btn-primary"
+                            style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: 8, background: '#0047AB' }}
+                          >
+                            <Eye style={{ width: 13, height: 13 }} />
+                            <span>Audit Dossier</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
         )}
 
-        {/* ════════════════ TAB: CONTRACTS & WORK ORDERS ════════════════ */}
+        {/* ════════════════ TAB 2: CONTRACTS & WORK ORDERS ════════════════ */}
         {activeTab === 'contracts' && (
+          <ContractManager />
+        )}
+
+        {/* ════════════════ TAB 3: ANALYTICS & INTELLIGENCE ════════════════ */}
+        {activeTab === 'analytics' && (
           <div>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0047AB' }}>Contract & Work Order Management (अनुबंध व कार्यादेश प्रबंधन)</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Generate, preview, and print official Contractor Declarations, Contract Agreements, and Work Orders with Company Seal & Stamp.</p>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Activity style={{ width: 20, height: 20, color: '#0047AB' }} />
+                <span>Executive Procurement & Financial Capacity Radar:</span>
+              </h3>
+              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                Real-time financial capacity and regional contractor distribution across active project tenders.
+              </p>
             </div>
-            <ContractManager selectedVendor={selectedVendor} />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase' }}>Combined Vendor Turnover</div>
+                <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0F172A', marginTop: 4 }}>₹ 1,240 Crores</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>Verified 3-Year Balance Sheet Capacity</div>
+              </div>
+
+              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#047857', textTransform: 'uppercase' }}>Class-A Prime Contractors</div>
+                <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#047857', marginTop: 4 }}>34 Enterprise Entities</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>Eligible for Pan-India EPC Packages</div>
+              </div>
+
+              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#F59E0B', textTransform: 'uppercase' }}>Verification Speed</div>
+                <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#B45309', marginTop: 4 }}>1.8 Days Average</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>Financial Committee Audit SLAs</div>
+              </div>
+            </div>
+
+            {/* Regional State Breakdown */}
+            <div style={{ padding: '1.5rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A', marginBottom: '1rem' }}>Regional State-wise Contractor Base:</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {[
+                  { state: 'Rajasthan (Jaipur, Udaipur, Bhilwara)', pct: 42, count: '52 Contractors' },
+                  { state: 'Haryana & Delhi NCR (Gurgaon, Noida, Delhi)', pct: 28, count: '35 Contractors' },
+                  { state: 'Gujarat & Maharashtra (Ahmedabad, Mumbai)', pct: 18, count: '22 Contractors' },
+                  { state: 'Other Pan-India States', pct: 12, count: '15 Contractors' },
+                ].map((st, idx) => (
+                  <div key={idx}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 800, marginBottom: 2 }}>
+                      <span>{st.state}</span>
+                      <span style={{ color: '#0047AB' }}>{st.pct}% ({st.count})</span>
+                    </div>
+                    <div style={{ height: 8, borderRadius: 99, backgroundColor: 'var(--border-color)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${st.pct}%`, backgroundColor: '#0047AB', borderRadius: 99 }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* ════════════════ TAB 2: WEBSITE CMS ════════════════ */}
+        {/* ════════════════ TAB 4: RA BILLS & RTGS PAYOUT RELEASES ════════════════ */}
+        {activeTab === 'payout_approvals' && (
+          <div>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <DollarSign style={{ width: 20, height: 20, color: '#10B981' }} />
+                <span>Running Account (RA) Bills & RTGS Payout Approval Center:</span>
+              </h3>
+              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                Approve milestone tax invoices submitted by empanelled vendors for 7-day RTGS bank release.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              {invoices.map((inv) => (
+                <div key={inv.id} style={{ padding: '1.15rem 1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 2 }}>
+                      <span style={{ fontSize: '0.725rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6, fontFamily: 'monospace' }}>
+                        {inv.id}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)' }}>Code: {inv.trackingId}</span>
+                    </div>
+                    <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A' }}>{inv.vendor}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                      Milestone: <strong>{inv.milestone}</strong> • Submitted: <strong>{inv.date}</strong> • Ref: <strong style={{ fontFamily: 'monospace' }}>{inv.rtgsRef}</strong>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>{inv.amt}</div>
+                      <span style={{ fontSize: '0.725rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: inv.status.includes('RELEASED') ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', color: inv.status.includes('RELEASED') ? '#047857' : '#B45309' }}>
+                        {inv.status}
+                      </span>
+                    </div>
+
+                    {!inv.status.includes('RELEASED') && (
+                      <button
+                        onClick={() => handleApproveInvoice(inv.id)}
+                        className="btn-accent"
+                        style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}
+                      >
+                        <Check style={{ width: 14, height: 14 }} />
+                        <span>Approve RTGS</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ TAB 5: VENDOR SUPPORT TICKETS ════════════════ */}
+        {activeTab === 'support_tickets' && (
+          <div>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <MessageSquare style={{ width: 20, height: 20, color: '#0047AB' }} />
+                <span>Vendor Technical Support Ticket Desk:</span>
+              </h3>
+              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                Manage construction site gate passes, GFC drawing clarifications, and vendor inquiries.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              {tickets.map((t) => (
+                <div key={t.id} style={{ padding: '1.15rem 1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 2 }}>
+                      <span style={{ fontSize: '0.725rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6, fontFamily: 'monospace' }}>
+                        {t.id}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#047857' }}>Category: {t.category}</span>
+                    </div>
+                    <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A' }}>{t.subject}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                      Submitted by: <strong>{t.vendor}</strong> (`{t.trackingId}`) • Date: <strong>{t.date}</strong>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 900, padding: '0.2rem 0.65rem', borderRadius: 6, backgroundColor: t.status === 'RESOLVED' ? 'rgba(16,185,129,0.15)' : 'rgba(0,71,171,0.15)', color: t.status === 'RESOLVED' ? '#047857' : '#0047AB' }}>
+                      {t.status}
+                    </span>
+
+                    {t.status !== 'RESOLVED' && (
+                      <button
+                        onClick={() => handleResolveTicket(t.id)}
+                        className="btn-primary"
+                        style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8, background: '#0047AB' }}
+                      >
+                        <span>Resolve Ticket</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ TAB 6: WEBSITE CMS ════════════════ */}
         {activeTab === 'site_cms' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Website Content Live CMS</h3>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Empanelment Website CMS & Live Portal Configurator</h3>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Edit header, hero, footer, fees — changes go live instantly on the public portal</p>
               </div>
               <button onClick={handleSaveCMS} className="btn-primary" style={{ padding: '0.6rem 1.5rem' }}>
@@ -557,112 +754,6 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                     <label className="form-label">Hero Subtitle Description Paragraph</label>
                     <textarea value={siteConfig.heroSubtitle || ''} onChange={e => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })} className="form-input" style={{ minHeight: 70 }} />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem' }}>
-                    <div>
-                      <label className="form-label">Ongoing Projects Counter</label>
-                      <input type="text" value={siteConfig.ongoingProjectsCount || '10+'} onChange={e => setSiteConfig({ ...siteConfig, ongoingProjectsCount: e.target.value })} className="form-input" placeholder="10+" />
-                    </div>
-                    <div>
-                      <label className="form-label">Active Pipeline Value</label>
-                      <input type="text" value={siteConfig.activePipelineValue || '₹ 1 Cr+'} onChange={e => setSiteConfig({ ...siteConfig, activePipelineValue: e.target.value })} className="form-input" placeholder="₹ 1 Cr+" />
-                    </div>
-                    <div>
-                      <label className="form-label">Base Empanelled Contractors</label>
-                      <input type="text" value={siteConfig.baseContractorCount || '100+'} onChange={e => setSiteConfig({ ...siteConfig, baseContractorCount: e.target.value })} className="form-input" placeholder="100+" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3. Procurement Helpdesk & Contact Info */}
-              <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <MessageSquare style={{ width: 15, height: 15 }} /> 3. Procurement Helpdesk & Contact Information
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.85rem' }}>
-                  <div>
-                    <label className="form-label">Procurement Officer Helpline Phone</label>
-                    <input type="text" value={siteConfig.helplinePhone || ''} onChange={e => setSiteConfig({ ...siteConfig, helplinePhone: e.target.value })} className="form-input" />
-                  </div>
-                  <div>
-                    <label className="form-label">Official Vendor Support Email</label>
-                    <input type="email" value={siteConfig.corporateEmail || ''} onChange={e => setSiteConfig({ ...siteConfig, corporateEmail: e.target.value })} className="form-input" />
-                  </div>
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <label className="form-label">Corporate Office Address</label>
-                    <input type="text" value={siteConfig.corporateAddress || ''} onChange={e => setSiteConfig({ ...siteConfig, corporateAddress: e.target.value })} className="form-input" />
-                  </div>
-                </div>
-              </div>
-
-              {/* 4. Processing Fee & MSME Policy */}
-              <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <DollarSign style={{ width: 15, height: 15 }} /> 4. Processing Fee, Taxes & MSME Policy
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
-                  <div>
-                    <label className="form-label">Empanelment Processing Fee (₹)</label>
-                    <input type="number" value={siteConfig.processingFee || ''} onChange={e => setSiteConfig({ ...siteConfig, processingFee: e.target.value })} className="form-input" />
-                  </div>
-                  <div>
-                    <label className="form-label">Applicable GST Rate (%)</label>
-                    <input type="number" value={siteConfig.gstRate || ''} onChange={e => setSiteConfig({ ...siteConfig, gstRate: e.target.value })} className="form-input" />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                    <label className="form-label">MSME Fee Waiver Policy</label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginTop: 4 }}>
-                      <input type="checkbox" checked={!!siteConfig.msmeWaiverActive} onChange={e => setSiteConfig({ ...siteConfig, msmeWaiverActive: e.target.checked })} />
-                      <span style={{ fontSize: '0.83rem', fontWeight: 700 }}>{siteConfig.msmeWaiverActive ? '✅ MSME Fee Waiver ON (₹0 Fee for UDYAM registered)' : '❌ MSME Waiver OFF'}</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* 5. Complete Footer & Helpdesk Controls */}
-              <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <MapPin style={{ width: 15, height: 15 }} /> 5. Complete Footer & Helpdesk Controls
-                </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  <div>
-                    <label className="form-label">Footer About Paragraph Text</label>
-                    <textarea value={siteConfig.footerAboutText || ''} onChange={e => setSiteConfig({ ...siteConfig, footerAboutText: e.target.value })} className="form-input" style={{ minHeight: 70 }} />
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
-                    <div>
-                      <label className="form-label">Top Banner Title</label>
-                      <input type="text" value={siteConfig.helpdeskBannerTitle || ''} onChange={e => setSiteConfig({ ...siteConfig, helpdeskBannerTitle: e.target.value })} className="form-input" />
-                    </div>
-                    <div>
-                      <label className="form-label">Top Banner Subtitle / Hours</label>
-                      <input type="text" value={siteConfig.helpdeskBannerSubtitle || ''} onChange={e => setSiteConfig({ ...siteConfig, helpdeskBannerSubtitle: e.target.value })} className="form-input" />
-                    </div>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.85rem' }}>
-                    <div>
-                      <label className="form-label">ISO Seal Badge Text</label>
-                      <input type="text" value={siteConfig.isoBadgeText || ''} onChange={e => setSiteConfig({ ...siteConfig, isoBadgeText: e.target.value })} className="form-input" />
-                    </div>
-                    <div>
-                      <label className="form-label">CVC Seal Badge Text</label>
-                      <input type="text" value={siteConfig.cvcBadgeText || ''} onChange={e => setSiteConfig({ ...siteConfig, cvcBadgeText: e.target.value })} className="form-input" />
-                    </div>
-                    <div>
-                      <label className="form-label">Operating Hours Label</label>
-                      <input type="text" value={siteConfig.supportHours || ''} onChange={e => setSiteConfig({ ...siteConfig, supportHours: e.target.value })} className="form-input" />
-                    </div>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
-                    <div>
-                      <label className="form-label">Footer Legal Copyright Notice</label>
-                      <input type="text" value={siteConfig.footerCopyright || ''} onChange={e => setSiteConfig({ ...siteConfig, footerCopyright: e.target.value })} className="form-input" />
-                    </div>
-                    <div>
-                      <label className="form-label">SSL Security Ribbon Text</label>
-                      <input type="text" value={siteConfig.sslRibbonText || ''} onChange={e => setSiteConfig({ ...siteConfig, sslRibbonText: e.target.value })} className="form-input" />
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -675,7 +766,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         )}
 
-        {/* ════════════════ TAB 3: CATEGORIES ════════════════ */}
+        {/* ════════════════ TAB 7: CATEGORIES MASTER ════════════════ */}
         {activeTab === 'categories' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -691,392 +782,173 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {categories.map((c, idx) => (
                 <div key={c.id} style={{ padding: '1rem 1.25rem', borderRadius: 12, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  {editingCat === idx ? (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                      <div>
-                        <label className="form-label" style={{ fontSize: '0.72rem' }}>Category Label</label>
-                        <input value={c.label} onChange={e => handleUpdateCat(idx, 'label', e.target.value)} className="form-input" style={{ fontSize: '0.85rem' }} />
-                      </div>
-                      <div>
-                        <label className="form-label" style={{ fontSize: '0.72rem' }}>Description</label>
-                        <input value={c.description} onChange={e => handleUpdateCat(idx, 'description', e.target.value)} className="form-input" style={{ fontSize: '0.85rem' }} />
-                      </div>
-                      <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                        <button onClick={() => setEditingCat(null)} className="btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', background: '#10B981' }}>
-                          <Save style={{ width: 13, height: 13 }} /> Save Changes
-                        </button>
-                        <button onClick={() => setEditingCat(null)} className="btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem' }}>Cancel</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                      <div>
-                        <div style={{ fontSize: '0.7rem', color: '#0047AB', fontWeight: 800, textTransform: 'uppercase' }}>ID: {c.id}</div>
-                        <div style={{ fontWeight: 800 }}>{c.label}</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{c.description}</div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <button onClick={() => setEditingCat(idx)} className="btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}>
-                          <Edit3 style={{ width: 12, height: 12 }} /> Edit
-                        </button>
-                        <button onClick={() => handleDeleteCat(c.id)} className="btn-secondary" style={{ padding: '0.35rem 0.6rem', fontSize: '0.78rem', color: '#ED1C24' }}>
-                          <Trash2 style={{ width: 12, height: 12 }} />
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <div style={{ fontWeight: 800, color: '#0047AB' }}>{c.label} (`{c.id}`)</div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{c.description}</div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* ════════════════ TAB 4: TENDERS ════════════════ */}
+        {/* ════════════════ TAB 8: TENDERS MASTER ════════════════ */}
         {activeTab === 'tenders' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Project Tenders & Bidding Manager</h3>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Publish, edit, or close tenders shown on the portal homepage Live Radar</p>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Active Tenders & Project Radar</h3>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Publish new project packages and manage bidding deadlines</p>
               </div>
               <button onClick={() => setShowAddTenderModal(true)} className="btn-primary" style={{ padding: '0.6rem 1.25rem' }}>
                 <PlusCircle style={{ width: 15, height: 15 }} /><span>Publish New Tender</span>
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {tenders.map(t => (
-                <div key={t.id} style={{ padding: '1.1rem 1.25rem', borderRadius: 12, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  {editingTender === t.id ? (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
-                      <div style={{ gridColumn: '1 / -1' }}>
-                        <label className="form-label" style={{ fontSize: '0.72rem' }}>Tender Title</label>
-                        <input value={t.title} onChange={e => handleUpdateTender(t.id, 'title', e.target.value)} className="form-input" style={{ fontSize: '0.85rem' }} />
-                      </div>
-                      {[
-                        ['Location',          'location',      'text'],
-                        ['Est. Contract Value','estimatedCost', 'text'],
-                        ['Deadline',          'deadline',      'date'],
-                      ].map(([label, field, type]) => (
-                        <div key={field}>
-                          <label className="form-label" style={{ fontSize: '0.72rem' }}>{label}</label>
-                          <input type={type} value={t[field]} onChange={e => handleUpdateTender(t.id, field, e.target.value)} className="form-input" style={{ fontSize: '0.85rem' }} />
-                        </div>
-                      ))}
-                      <div>
-                        <label className="form-label" style={{ fontSize: '0.72rem' }}>Status</label>
-                        <select value={t.status} onChange={e => handleUpdateTender(t.id, 'status', e.target.value)} className="form-input" style={{ fontSize: '0.85rem' }}>
-                          <option>OPEN FOR BIDDING</option>
-                          <option>CLOSED</option>
-                          <option>UNDER EVALUATION</option>
-                          <option>AWARDED</option>
-                        </select>
-                      </div>
-                      <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                        <button onClick={() => setEditingTender(null)} className="btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', background: '#10B981' }}>
-                          <Save style={{ width: 13, height: 13 }} /> Save Tender
-                        </button>
-                        <button onClick={() => setEditingTender(null)} className="btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem' }}>Cancel</button>
-                      </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              {tenders.map((t) => (
+                <div key={t.id} style={{ padding: '1.1rem 1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <span style={{ fontSize: '0.725rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6, fontFamily: 'monospace' }}>
+                        {t.code}
+                      </span>
+                      <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{t.title}</div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>Location: {t.location} • Budget: {t.estimatedCost} • Deadline: {t.deadline}</div>
                     </div>
-                  ) : (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 4 }}>
-                          <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#0047AB' }}>{t.code}</span>
-                          <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '0.15rem 0.55rem', borderRadius: 9999, background: t.status === 'OPEN FOR BIDDING' ? 'rgba(16,185,129,0.15)' : 'rgba(107,114,128,0.12)', color: t.status === 'OPEN FOR BIDDING' ? '#047857' : '#6B7280' }}>{t.status}</span>
-                        </div>
-                        <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{t.title}</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 3 }}>
-                          📍 {t.location} &nbsp;|&nbsp; 💰 {t.estimatedCost} &nbsp;|&nbsp; 📅 Deadline: {t.deadline}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <button onClick={() => setEditingTender(t.id)} className="btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}>
-                          <Edit3 style={{ width: 12, height: 12 }} /> Edit
-                        </button>
-                        <button onClick={() => handleDeleteTender(t.id)} className="btn-secondary" style={{ padding: '0.35rem 0.6rem', fontSize: '0.78rem', color: '#ED1C24' }}>
-                          <Trash2 style={{ width: 12, height: 12 }} />
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* ════════════════ TAB 5: SECURITY & LOGS ════════════════ */}
+        {/* ════════════════ TAB 9: SECURITY & AUDIT LOGS ════════════════ */}
         {activeTab === 'security' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
-
-            {/* Change Password */}
-            <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-              <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Key style={{ width: 15, height: 15 }} /> Change Admin Password
-              </h4>
-              <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {[
-                  ['Current Password',  adminPassword,   setAdminPassword],
-                  ['New Password',      newPassword,     setNewPassword],
-                  ['Confirm Password',  confirmPassword, setConfirmPassword],
-                ].map(([label, val, setter]) => (
-                  <div key={label}>
-                    <label className="form-label">{label}</label>
-                    <input type="password" value={val} onChange={e => setter(e.target.value)} className="form-input" placeholder={`Enter ${label.toLowerCase()}`} />
-                  </div>
-                ))}
-                {passwordMsg && (
-                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: passwordMsg.startsWith('✅') ? '#047857' : '#ED1C24', padding: '0.5rem 0.75rem', borderRadius: 8, background: passwordMsg.startsWith('✅') ? 'rgba(16,185,129,0.1)' : 'rgba(237,28,36,0.08)' }}>
-                    {passwordMsg}
-                  </div>
-                )}
-                <button type="submit" className="btn-primary" style={{ padding: '0.6rem 1.25rem', marginTop: '0.25rem' }}>
-                  <ShieldCheck style={{ width: 15, height: 15 }} /> Update Password
-                </button>
-              </form>
+          <div>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Security Audit Trail & Admin Passwords</h3>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>256-Bit SSL audit logs and security password management</p>
             </div>
 
-            {/* Security Status */}
-            <div style={{ padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-              <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#047857', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <ShieldCheck style={{ width: 15, height: 15 }} /> Active Protection Shields
-              </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
-                {[
-                  '✅ Helmet Security Headers (XSS, HSTS, FrameGuard)',
-                  '✅ IP Rate Limiter Active (100 req / 15 min)',
-                  '✅ SHA-256 Application Hash Verification',
-                  '✅ MIME-type Whitelist (.pdf, .jpg, .png only)',
-                  '✅ Admin Session Token Enforced',
-                  '✅ CORS Strict Origin Policy Active',
-                ].map(txt => (
-                  <div key={txt} style={{ fontSize: '0.83rem', color: '#047857', fontWeight: 600 }}>{txt}</div>
-                ))}
-              </div>
-            </div>
-
-            {/* Audit Logs */}
-            <div style={{ gridColumn: '1 / -1', padding: '1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-              <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Bell style={{ width: 15, height: 15 }} /> Recent Audit Activity Log
-              </h4>
-              <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid var(--border-color)' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
-                  <thead>
-                    <tr style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
-                      {['Timestamp', 'Event', 'Actor / Reference', 'IP Address', 'Severity'].map(h => (
-                        <th key={h} style={{ padding: '0.65rem 0.75rem', fontWeight: 800, textAlign: 'left', whiteSpace: 'nowrap' }}>{h}</th>
-                      ))}
+            <div style={{ overflowX: 'auto', borderRadius: 14, border: '1px solid var(--border-color)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-color)' }}>
+                    <th style={{ padding: '0.75rem 1rem' }}>Timestamp</th>
+                    <th style={{ padding: '0.75rem 1rem' }}>Event Activity</th>
+                    <th style={{ padding: '0.75rem 1rem' }}>Actor</th>
+                    <th style={{ padding: '0.75rem 1rem' }}>IP Address</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditLogs.map((log) => (
+                    <tr key={log.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: '0.75rem 1rem', fontFamily: 'monospace' }}>{log.time}</td>
+                      <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{log.event}</td>
+                      <td style={{ padding: '0.75rem 1rem' }}>{log.actor}</td>
+                      <td style={{ padding: '0.75rem 1rem', fontFamily: 'monospace' }}>{log.ip}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {auditLogs.map(log => {
-                      const colorMap = { info: '#0047AB', success: '#047857', warning: '#D97706', danger: '#ED1C24' };
-                      const bgMap    = { info: 'rgba(0,71,171,0.06)', success: 'rgba(16,185,129,0.06)', warning: 'rgba(245,158,11,0.06)', danger: 'rgba(237,28,36,0.06)' };
-                      return (
-                        <tr key={log.id} style={{ borderBottom: '1px solid var(--border-color)', background: bgMap[log.severity] }}>
-                          <td style={{ padding: '0.65rem 0.75rem', fontFamily: 'monospace', fontSize: '0.76rem' }}>{log.time}</td>
-                          <td style={{ padding: '0.65rem 0.75rem', fontWeight: 700 }}>{log.event}</td>
-                          <td style={{ padding: '0.65rem 0.75rem', color: 'var(--text-muted)' }}>{log.actor}</td>
-                          <td style={{ padding: '0.65rem 0.75rem', fontFamily: 'monospace', fontSize: '0.76rem' }}>{log.ip}</td>
-                          <td style={{ padding: '0.65rem 0.75rem' }}>
-                            <span style={{ padding: '0.15rem 0.5rem', borderRadius: 6, fontSize: '0.7rem', fontWeight: 800, background: bgMap[log.severity], color: colorMap[log.severity], border: `1px solid ${colorMap[log.severity]}33` }}>
-                              {log.severity.toUpperCase()}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* ════════════════ MODALS ════════════════ */}
-
-        {/* Add Category Modal */}
-        {showAddCatModal && (
-          <div className="modal-backdrop" onClick={() => setShowAddCatModal(false)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>Add New Empanelment Category</h3>
-                <button onClick={() => setShowAddCatModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
-              </div>
-              <form onSubmit={handleSaveCat} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                <div><label className="form-label">Category Name / Title *</label><input type="text" value={newCat.label} onChange={e => setNewCat({ ...newCat, label: e.target.value })} placeholder="e.g. Pre-cast Concrete Contractors" className="form-input" required /></div>
-                <div><label className="form-label">Short Code / Slug (Optional)</label><input type="text" value={newCat.id} onChange={e => setNewCat({ ...newCat, id: e.target.value })} placeholder="e.g. precast_concrete" className="form-input" /></div>
-                <div><label className="form-label">Scope Description</label><textarea value={newCat.description} onChange={e => setNewCat({ ...newCat, description: e.target.value })} placeholder="Describe scope of work…" className="form-input" style={{ minHeight: 70 }} /></div>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                  <button type="button" onClick={() => setShowAddCatModal(false)} className="btn-secondary">Cancel</button>
-                  <button type="submit" className="btn-primary">Add to Live Portal</button>
-                </div>
-              </form>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
 
-        {/* Add Tender Modal */}
-        {showAddTenderModal && (
-          <div className="modal-backdrop" onClick={() => setShowAddTenderModal(false)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>Publish New Project Tender</h3>
-                <button onClick={() => setShowAddTenderModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
-              </div>
-              <form onSubmit={handleAddTender} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                <div><label className="form-label">Tender Work Title *</label><input type="text" value={newTender.title} onChange={e => setNewTender({ ...newTender, title: e.target.value })} placeholder="e.g. Civil Foundation Work — Tower B" className="form-input" required /></div>
-                <div>
-                  <label className="form-label">Business Category</label>
-                  <select value={newTender.category} onChange={e => setNewTender({ ...newTender, category: e.target.value })} className="form-input">
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-                  </select>
-                </div>
-                <div><label className="form-label">Project Site Location *</label><input type="text" value={newTender.location} onChange={e => setNewTender({ ...newTender, location: e.target.value })} placeholder="e.g. Jaipur, Rajasthan" className="form-input" required /></div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                  <div><label className="form-label">Est. Contract Value</label><input type="text" value={newTender.estimatedCost} onChange={e => setNewTender({ ...newTender, estimatedCost: e.target.value })} placeholder="₹ 15.0 Crores" className="form-input" /></div>
-                  <div><label className="form-label">Bidding Deadline</label><input type="date" value={newTender.deadline} onChange={e => setNewTender({ ...newTender, deadline: e.target.value })} className="form-input" /></div>
-                </div>
-                <div>
-                  <label className="form-label">Initial Status</label>
-                  <select value={newTender.status} onChange={e => setNewTender({ ...newTender, status: e.target.value })} className="form-input">
-                    <option>OPEN FOR BIDDING</option><option>CLOSED</option><option>UNDER EVALUATION</option>
-                  </select>
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                  <button type="button" onClick={() => setShowAddTenderModal(false)} className="btn-secondary">Cancel</button>
-                  <button type="submit" className="btn-primary">Publish Tender</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Vendor Audit Dossier Modal */}
+        {/* ════════════════ VENDOR DOSSIER AUDIT MODAL ════════════════ */}
         {selectedVendor && (
-          <div className="modal-backdrop" onClick={() => setSelectedVendor(null)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 860, maxHeight: '92vh', overflowY: 'auto' }}>
-
-              {/* Modal Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                  <Logo height={38} />
-                  <div>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase' }}>Application Dossier • Ref: {selectedVendor.tracking_id}</span>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 900 }}>{selectedVendor.company_name || selectedVendor.contact_name}</h3>
-                  </div>
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(5px)',
+            zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem'
+          }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 850, width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', border: '1px solid var(--border-color)' }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.2rem 0.65rem', borderRadius: 6, fontFamily: 'monospace' }}>
+                    {selectedVendor.tracking_id}
+                  </span>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 900, marginTop: 4, color: '#0F172A' }}>
+                    {selectedVendor.company_name}
+                  </h3>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Submitted on: {new Date(selectedVendor.submitted_at || Date.now()).toLocaleString()} • IP: {selectedVendor.ip_address}
+                  </p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <StatusBadge status={selectedVendor.status} />
-                  <button onClick={() => window.print()} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.78rem', fontWeight: 700, border: 'none', background: '#0047AB', color: 'white', cursor: 'pointer' }}>
-                    <Printer style={{ width: 13, height: 13 }} /> Print
-                  </button>
-                  <button onClick={() => setSelectedVendor(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.3rem', fontWeight: 800 }}>✕</button>
-                </div>
+                <button onClick={() => setSelectedVendor(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
               </div>
 
-              {/* Hash ribbon */}
-              <div style={{ padding: '0.55rem 0.85rem', borderRadius: 8, background: 'rgba(0,71,171,0.06)', border: '1px solid rgba(0,71,171,0.18)', fontSize: '0.7rem', fontFamily: 'monospace', marginBottom: '1.1rem', display: 'flex', justifyContent: 'space-between' }}>
-                <span>🔒 SHA-256: <strong>{selectedVendor.hash_signature || '8f3a9e120bc741a8d0521e90b6a718cf'}</strong></span>
-                <span style={{ color: '#047857', fontWeight: 800 }}>✓ Verified</span>
-              </div>
-
-              <SectionCard title="1. Applicant Profile & Scope" icon={Building2}>
-                <InfoGrid items={[
-                  { label: 'Entity Type',       value: selectedVendor.entity_type },
-                  { label: 'Category',          value: selectedVendor.category?.toUpperCase() },
-                  { label: 'Professional Role', value: selectedVendor.primary_role },
-                  { label: 'Est. Year',         value: selectedVendor.est_year },
-                  { label: 'Contact Name',      value: `${selectedVendor.contact_name} (${selectedVendor.designation || 'Officer'})` },
-                  { label: 'Email',             value: selectedVendor.email },
-                  { label: 'Phone',             value: selectedVendor.phone },
-                  { label: 'City & State',      value: `${selectedVendor.city}, ${selectedVendor.state}` },
-                  { label: 'Address',           value: selectedVendor.address, full: true },
-                ]} />
-              </SectionCard>
-
-              <SectionCard title="2. Tax Compliance & Banking" icon={CreditCard}>
-                <InfoGrid items={[
-                  { label: 'GSTIN',       value: selectedVendor.gstin || 'EXEMPT', mono: true },
-                  { label: 'PAN',         value: selectedVendor.pan,    mono: true },
-                  { label: 'MSME No.',    value: selectedVendor.msme_no || 'N/A' },
-                  { label: 'Bank A/c',    value: selectedVendor.bank_account, mono: true },
-                  { label: 'IFSC',        value: selectedVendor.ifsc,   mono: true },
-                  { label: 'Bank Branch', value: selectedVendor.bank_name },
-                ]} />
-              </SectionCard>
-
-              <SectionCard title="3. Financial Turnovers & Rate Card" icon={DollarSign}>
-                <InfoGrid items={[
-                  { label: 'FY 2023-24 Turnover', value: selectedVendor.turnover_2023 ? `₹ ${selectedVendor.turnover_2023} Lakhs` : '—' },
-                  { label: 'FY 2024-25 Turnover', value: selectedVendor.turnover_2024 ? `₹ ${selectedVendor.turnover_2024} Lakhs` : '—' },
-                  { label: 'FY 2025-26 Turnover', value: selectedVendor.turnover_2025 ? `₹ ${selectedVendor.turnover_2025} Lakhs` : '—' },
-                  { label: 'Largest Order',       value: selectedVendor.largest_order ? `₹ ${selectedVendor.largest_order} Lakhs` : '—' },
-                  { label: 'BUA Rate',            value: selectedVendor.bua_area ? `₹ ${selectedVendor.bua_area}/sq ft` : '—' },
-                  { label: 'CPA Rate',            value: selectedVendor.cpa_area ? `₹ ${selectedVendor.cpa_area}/sq ft` : '—' },
-                ]} />
-              </SectionCard>
-
-              <SectionCard title="4. Documents Uploaded" icon={FileCheck2}>
-                <InfoGrid items={[
-                  { label: 'GST Certificate', value: selectedVendor.gst_doc  || 'Not uploaded' },
-                  { label: 'PAN Card',        value: selectedVendor.pan_doc  || 'Not uploaded' },
-                  { label: 'Bank Cheque',     value: selectedVendor.bank_doc || 'Not uploaded' },
-                  { label: 'Portfolio / COA', value: selectedVendor.exp_doc  || 'Not uploaded' },
-                ]} />
-              </SectionCard>
-
-              {/* Digital Signature */}
-              <div style={{ padding: '0.85rem 1rem', borderRadius: 10, background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)', fontSize: '0.82rem', marginBottom: '1rem' }}>
-                <div style={{ fontWeight: 800, color: '#047857', marginBottom: 4 }}>✓ Digital Signature & Undertakings Verified</div>
-                <div>Signatory: <strong>{selectedVendor.signatory_name}</strong></div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>IP: {selectedVendor.ip_address} • Submitted: {new Date(selectedVendor.submitted_at).toLocaleString()}</div>
-                {selectedVendor.signature_data && (
-                  <div style={{ marginTop: '0.65rem', padding: '0.5rem', background: 'white', borderRadius: 6, display: 'inline-block', border: '1px solid #CBD5E1' }}>
-                    <img src={selectedVendor.signature_data} alt="Signature" style={{ height: 55 }} />
-                  </div>
-                )}
-              </div>
-
-              {/* Admin Remarks */}
-              <div style={{ marginBottom: '1rem' }}>
-                <label className="form-label" style={{ marginBottom: '0.35rem', display: 'block' }}>
-                  <MessageSquare style={{ width: 13, height: 13, display: 'inline', marginRight: 4 }} />
-                  Admin Internal Remarks / Notes
-                </label>
-                <textarea
-                  value={adminRemark}
-                  onChange={e => setAdminRemark(e.target.value)}
-                  placeholder="Add internal notes, remarks, or follow-up actions for this application..."
-                  className="form-input"
-                  style={{ minHeight: 72, resize: 'vertical' }}
-                />
-                <button onClick={handleSaveRemark} className="btn-secondary" style={{ marginTop: '0.4rem', fontSize: '0.8rem', padding: '0.4rem 0.85rem' }}>
-                  <Save style={{ width: 12, height: 12 }} /> Save Remarks
-                </button>
-              </div>
-
-              {/* Action Buttons */}
-              <div style={{ padding: '1rem 1.1rem', borderRadius: 12, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 800, marginBottom: '0.6rem' }}>Committee Decision & Approval:</div>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {/* Status Update Actions */}
+              <div style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', marginBottom: '1.5rem' }}>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
+                  Procurement Committee Status Approval Actions:
+                </h4>
+                <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
                   {[
-                    { label: '✓ Approve Class-A', status: 'Approved Class-A', stage: 'Certificate Issued',       bg: '#10B981' },
-                    { label: '✓ Approve Class-B', status: 'Approved Class-B', stage: 'Certificate Issued',       bg: '#0047AB' },
-                    { label: '? Request Clarification', status: 'Clarification Required', stage: 'Pending Clarification', bg: '#D97706' },
-                    { label: '✕ Reject Application', status: 'Rejected', stage: 'Disqualified', bg: '#ED1C24' },
-                  ].map(action => (
-                    <button key={action.status}
-                      onClick={() => handleUpdateStatus(selectedVendor.tracking_id, action.status, action.stage, adminRemark)}
-                      style={{ padding: '0.5rem 1rem', borderRadius: 8, fontSize: '0.8rem', fontWeight: 800, border: 'none', background: action.bg, color: 'white', cursor: 'pointer' }}>
-                      {action.label}
+                    { status: 'Approved Class-A', label: '✓ Approve Class-A (Tier 1 Prime)', bg: '#047857' },
+                    { status: 'Approved Class-B', label: '✓ Approve Class-B (Tier 2 Regional)', bg: '#0047AB' },
+                    { status: 'Approved Class-C', label: '✓ Approve Class-C (Tier 3 Subcontractor)', bg: '#475569' },
+                    { status: 'Clarification Required', label: '⚠️ Request Clarification', bg: '#B45309' },
+                    { status: 'Rejected', label: '✕ Reject Application', bg: '#ED1C24' }
+                  ].map((act, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleUpdateStatus(selectedVendor.tracking_id, act.status, 'Executive Procurement Decision', selectedVendor.admin_remarks)}
+                      style={{ padding: '0.5rem 0.85rem', borderRadius: 8, fontSize: '0.78rem', fontWeight: 800, color: 'white', backgroundColor: act.bg, border: 'none', cursor: 'pointer' }}
+                    >
+                      {act.label}
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <SectionCard title="1. Basic Entity & Contact Details" icon={Building2}>
+                <InfoGrid items={[
+                  { label: 'Company Name', value: selectedVendor.company_name, full: true },
+                  { label: 'Primary Role / Scope', value: selectedVendor.primary_role },
+                  { label: 'Entity Type', value: selectedVendor.entity_type },
+                  { label: 'Established Year', value: selectedVendor.est_year },
+                  { label: 'Contact Person', value: selectedVendor.contact_name },
+                  { label: 'Designation', value: selectedVendor.designation },
+                  { label: 'Email Address', value: selectedVendor.email },
+                  { label: 'Phone Number', value: selectedVendor.phone },
+                  { label: 'Corporate Address', value: `${selectedVendor.address}, ${selectedVendor.city}, ${selectedVendor.state} - ${selectedVendor.pincode}`, full: true }
+                ]} />
+              </SectionCard>
+
+              <SectionCard title="2. Statutory Tax & Banking Identity" icon={CreditCard}>
+                <InfoGrid items={[
+                  { label: 'GSTIN Number', value: selectedVendor.gstin, mono: true },
+                  { label: 'PAN Card Number', value: selectedVendor.pan, mono: true },
+                  { label: 'MSME Registration', value: selectedVendor.msme_no, mono: true },
+                  { label: 'Bank Account No.', value: selectedVendor.bank_account, mono: true },
+                  { label: 'Bank & Branch', value: selectedVendor.bank_name },
+                  { label: 'IFSC Code', value: selectedVendor.ifsc, mono: true }
+                ]} />
+              </SectionCard>
+
+              <SectionCard title="3. Financial Turnover & Project Experience" icon={DollarSign}>
+                <InfoGrid items={[
+                  { label: 'Turnover FY 22-23', value: selectedVendor.turnover_2023 ? `₹ ${selectedVendor.turnover_2023} Lakhs` : 'N/A' },
+                  { label: 'Turnover FY 23-24', value: selectedVendor.turnover_2024 ? `₹ ${selectedVendor.turnover_2024} Lakhs` : 'N/A' },
+                  { label: 'Turnover FY 24-25', value: selectedVendor.turnover_2025 ? `₹ ${selectedVendor.turnover_2025} Lakhs` : 'N/A' },
+                  { label: 'Largest Single Order', value: selectedVendor.largest_order ? `₹ ${selectedVendor.largest_order} Lakhs` : 'N/A' },
+                  { label: 'Existing Empanelments', value: selectedVendor.existing_empanels, full: true }
+                ]} />
+              </SectionCard>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+                <button
+                  onClick={() => handleDeleteVendor(selectedVendor.tracking_id)}
+                  style={{ padding: '0.5rem 1rem', borderRadius: 8, fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24', background: 'rgba(237,28,36,0.1)', border: '1px solid rgba(237,28,36,0.3)', cursor: 'pointer' }}
+                >
+                  <Trash2 style={{ width: 14, height: 14 }} />
+                  <span>Delete Application</span>
+                </button>
+
+                <button onClick={() => setSelectedVendor(null)} className="btn-secondary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
+                  Close Window
+                </button>
               </div>
 
             </div>
