@@ -47,7 +47,7 @@ export default function VendorDashboardPage() {
       }}>
         <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <Link to="/vendor-dashboard" style={{ textDecoration: 'none' }}>
               <Logo height={36} />
             </Link>
@@ -55,6 +55,9 @@ export default function VendorDashboardPage() {
               <ShieldCheck style={{ width: 14, height: 14, color: '#10B981' }} />
               <span>OFFICIAL VENDOR PORTAL</span>
             </div>
+            <Link to="/" style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0047AB', textDecoration: 'none', padding: '0.3rem 0.65rem', borderRadius: 8, backgroundColor: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span>← Main Site</span>
+            </Link>
           </div>
 
           {/* Navigation Tabs */}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Lock, Mail, CreditCard, KeyRound, ArrowRight, Building2, CheckCircle2, UserCheck } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, CreditCard, KeyRound, ArrowRight, ArrowLeft, Home, Building2, CheckCircle2, UserCheck } from 'lucide-react';
 import Logo from '../components/Logo';
 
 export default function VendorLoginPage() {
@@ -68,8 +68,33 @@ export default function VendorLoginPage() {
   };
 
   return (
-    <div style={{ maxWidth: 460, margin: '3.5rem auto', padding: '0 1rem' }}>
-      <div style={{
+    <div style={{ maxWidth: 460, margin: '2.5rem auto', padding: '0 1rem' }}>
+      
+      {/* Top Back to Home Button */}
+      <div style={{ marginBottom: '1.25rem' }}>
+        <Link
+          to="/"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            fontSize: '0.85rem',
+            fontWeight: 800,
+            color: '#0047AB',
+            textDecoration: 'none',
+            padding: '0.45rem 0.85rem',
+            borderRadius: 10,
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            boxShadow: 'var(--shadow-sm)'
+          }}
+        >
+          <ArrowLeft style={{ width: 16, height: 16 }} />
+          <span>Back to Main Home Page</span>
+        </Link>
+      </div>
+
+      <div className="vendor-login-card" style={{
         padding: '2.25rem',
         borderRadius: 24,
         backgroundColor: 'var(--bg-card)',
@@ -180,10 +205,17 @@ export default function VendorLoginPage() {
           </button>
         </form>
 
-        <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-color)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          Haven't empanelled yet?{' '}
-          <Link to="/apply" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>
-            Submit Registration Form
+        <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div>
+            Haven't empanelled yet?{' '}
+            <Link to="/apply" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>
+              Submit Form
+            </Link>
+          </div>
+
+          <Link to="/" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <Home style={{ width: 13, height: 13 }} />
+            <span>Home Page</span>
           </Link>
         </div>
 
