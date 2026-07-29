@@ -3,9 +3,9 @@
   "short_name": "HiPRO Empanel",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/hipro-logo.jpg",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ],
