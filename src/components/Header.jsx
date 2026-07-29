@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import Logo from './Logo';
-import { Sun, Moon, Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink } from 'lucide-react';
+import { Sun, Moon, Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink, Home } from 'lucide-react';
 
 const DEFAULT_SITE_CONFIG = {
   companyTitle: 'Hindustan Projects',
@@ -113,17 +113,14 @@ export default function Header({ isDark, toggleTheme }) {
               <span>{siteConfig.subdomainPill || 'empanel.hindustanprojects.in'}</span>
             </div>
 
-            <a
-              href={siteConfig.mainWebsiteUrl || "https://hindustanprojects.in"}
-              target="_blank"
-              rel="noreferrer"
+            <NavLink 
+              to="/" 
               onClick={closeMobileMenu}
               className="mobile-nav-link"
-              style={{ backgroundColor: 'rgba(237, 28, 36, 0.08)', color: '#ED1C24' }}
             >
-              <ExternalLink style={{ width: 18, height: 18 }} />
-              <span>Visit Main Corporate Website</span>
-            </a>
+              <Home style={{ width: 18, height: 18, color: '#0047AB' }} />
+              <span>Home Page</span>
+            </NavLink>
 
             <NavLink 
               to="/apply" 
@@ -133,6 +130,16 @@ export default function Header({ isDark, toggleTheme }) {
             >
               <PlusCircle style={{ width: 18, height: 18 }} />
               <span>Empanelment Form</span>
+            </NavLink>
+
+            <NavLink 
+              to="/vendor-login" 
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+              style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', color: '#047857', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+            >
+              <ShieldCheck style={{ width: 18, height: 18, color: '#10B981' }} />
+              <span>Empanelled Vendor Login</span>
             </NavLink>
 
             <NavLink 
@@ -152,6 +159,18 @@ export default function Header({ isDark, toggleTheme }) {
               <HelpCircle style={{ width: 18, height: 18, color: '#64748B' }} />
               <span>Empanelment Guidelines</span>
             </NavLink>
+
+            <a
+              href={siteConfig.mainWebsiteUrl || "https://hindustanprojects.in"}
+              target="_blank"
+              rel="noreferrer"
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+              style={{ backgroundColor: 'rgba(237, 28, 36, 0.08)', color: '#ED1C24', marginTop: '0.5rem' }}
+            >
+              <ExternalLink style={{ width: 18, height: 18 }} />
+              <span>Visit Main Corporate Website</span>
+            </a>
 
           </div>
         </div>
