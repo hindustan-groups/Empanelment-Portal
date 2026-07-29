@@ -12,12 +12,12 @@ export default function GuidelinesPage() {
   };
 
   return (
-    <div className="guidelines-page-wrapper">
-      <div className="form-card guidelines-form-card">
+    <div style={{ maxWidth: 1200, margin: '2.5rem auto 4rem auto', padding: '0 1.5rem' }}>
+      <div className="form-card" style={{ padding: '2.25rem', borderRadius: 24, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
         
         {/* Executive Top Banner Header */}
-        <div className="guidelines-header-banner">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem', marginBottom: '1.75rem', paddingBottom: '1.5rem', borderBottom: '2px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, minWidth: 280 }}>
             <div style={{ padding: '0.75rem', borderRadius: 14, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', flexShrink: 0 }}>
               <ShieldCheck style={{ width: 28, height: 28 }} />
             </div>
@@ -25,7 +25,7 @@ export default function GuidelinesPage() {
               <div style={{ fontSize: '0.725rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 HINDUSTAN PROJECTS • CORPORATE MANUAL FY 2026-27
               </div>
-              <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', marginTop: 2, marginBottom: 2 }}>
+              <h1 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0F172A', marginTop: 2, marginBottom: 2 }}>
                 Vendor & Contractor Empanelment Policy Guidelines
               </h1>
               <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: 4 }}>
@@ -42,7 +42,7 @@ export default function GuidelinesPage() {
             <button
               onClick={() => navigate('/apply')}
               className="btn-accent"
-              style={{ padding: '0.65rem 1.35rem', fontSize: '0.875rem', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              style={{ padding: '0.65rem 1.35rem', fontSize: '0.875rem', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
             >
               <FilePlus style={{ width: 16, height: 16 }} />
               <span>Apply for Empanelment</span>
@@ -51,7 +51,7 @@ export default function GuidelinesPage() {
         </div>
 
         {/* 4 Master Navigation Modules */}
-        <div className="guidelines-module-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.85rem', marginBottom: '2rem', width: '100%' }}>
           {[
             { id: 'policy', label: '1. Eligibility & Rating Matrix', icon: Building2 },
             { id: 'nbc_matrix', label: '2. NBC Building Code Standards', icon: HardHat },
@@ -98,7 +98,7 @@ export default function GuidelinesPage() {
                 <CheckCircle2 style={{ width: 20, height: 20, flexShrink: 0, color: '#10B981' }} />
                 <span>Mandatory Vendor Filing Prerequisites:</span>
               </h3>
-              <div className="responsive-card-grid">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem' }}>
                 <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                   <strong style={{ color: '#0F172A', display: 'block', marginBottom: 2 }}>🆔 Valid Govt Tax Identity</strong>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>10-Digit PAN Card & 15-Digit GSTIN Certificate (or MSME GST exemption declaration).</span>
