@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, Printer, Download, ShieldCheck, QrCode, CheckCircle2, Edit3, Save, UploadCloud } from 'lucide-react';
-import Logo from './Logo';
+import { X, Printer, ShieldCheck, Edit3 } from 'lucide-react';
 
 export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
   if (!isOpen || !vendorData) return null;
 
-  // Local state for editable ID Card fields
+  // Local state for ID Card fields (populated from vendorData)
   const [cardData, setCardData] = useState({
     name: vendorData.contactName || vendorData.contact_name || vendorData.name || 'MOHMMAD DILSHAN',
     designation: vendorData.designation || 'Developer',
@@ -160,36 +159,45 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             fontFamily: 'Arial, sans-serif'
           }}>
             
-            {/* Top Punch Hole Slot */}
-            <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', width: 48, height: 12, backgroundColor: '#E2E8F0', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
+            {/* Top Navy Blue Geometric Header Bar */}
+            <div style={{ height: 42, background: '#0B1B3D', position: 'relative' }}>
+              {/* Punch Hole Slot */}
+              <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 50, height: 12, backgroundColor: '#FFFFFF', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
+              {/* Red Right Diagonal Cut */}
+              <div style={{ position: 'absolute', top: 0, right: 0, width: 85, height: 42, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
+              <div style={{ position: 'absolute', top: 18, right: 0, width: 95, height: 4, backgroundColor: '#ED1C24' }} />
+            </div>
 
-            {/* Top Navy Blue & Red Header Geometric Cuts */}
-            <div style={{ height: 115, background: 'linear-gradient(135deg, #0B1B3D 0%, #002B66 100%)', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 14 }}>
-              {/* Red Top Angle Accent */}
-              <div style={{ position: 'absolute', top: 0, right: 0, width: 95, height: 48, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
+            {/* Header Content on White Background */}
+            <div style={{ textAlign: 'center', padding: '10px 1rem 4px 1rem', position: 'relative' }}>
+              {/* Left Navy & Right Red Polygon Background Accents */}
+              <div style={{ position: 'absolute', top: 10, left: -25, width: 70, height: 55, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 100% 50%, 0 100%)', opacity: 0.95 }} />
+              <div style={{ position: 'absolute', top: 15, right: -25, width: 70, height: 55, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', opacity: 0.95 }} />
 
-              {/* Logo Image & Company Title */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: 2, zIndex: 2 }}>
-                <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 32, width: 'auto', objectFit: 'contain', borderRadius: 4, backgroundColor: '#FFF', padding: 2 }} />
-              </div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '0.06em', textTransform: 'uppercase', zIndex: 2 }}>
+              {/* Logo Image */}
+              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 38, width: 'auto', objectFit: 'contain', margin: '0 auto 2px auto', display: 'block', position: 'relative', zIndex: 2 }} />
+
+              <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase', position: 'relative', zIndex: 2 }}>
                 HINDUSTAN PROJECTS
               </div>
-              <div style={{ fontSize: '0.46rem', fontWeight: 700, color: '#94A3B8', marginTop: 1, zIndex: 2 }}>
-                Engineering • Construction • Infrastructure • Digital solution With Marketing
+              <div style={{ fontSize: '0.48rem', fontWeight: 700, color: '#0F172A', marginTop: 1, position: 'relative', zIndex: 2 }}>
+                Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Infrastructure
+              </div>
+              <div style={{ fontSize: '0.48rem', fontWeight: 800, color: '#0B1B3D', marginTop: 1, position: 'relative', zIndex: 2 }}>
+                <span style={{ color: '#ED1C24' }}>•</span> Digital solution With Marketing <span style={{ color: '#ED1C24' }}>•</span>
               </div>
             </div>
 
             {/* Middle Profile Photo Frame */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: -25, zIndex: 5 }}>
-              <div style={{ width: 115, height: 135, borderRadius: 14, overflow: 'hidden', border: '3px solid #0B1B3D', backgroundColor: '#F1F5F9', boxShadow: '0 6px 16px rgba(0,0,0,0.18)' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6, zIndex: 5 }}>
+              <div style={{ width: 112, height: 132, borderRadius: 12, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
                 <img src={cardData.photoUrl} alt={cardData.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             </div>
 
             {/* Vendor Name & Designation */}
-            <div style={{ textAlign: 'center', padding: '0.65rem 1rem 0.25rem 1rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.03em', margin: 0, textTransform: 'uppercase' }}>
+            <div style={{ textAlign: 'center', padding: '0.55rem 1rem 0.2rem 1rem' }}>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.04em', margin: 0, textTransform: 'uppercase' }}>
                 {cardData.name}
               </h2>
               <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ED1C24', marginTop: 2 }}>
@@ -198,42 +206,45 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             </div>
 
             {/* Vendor Details Table */}
-            <div style={{ padding: '0.5rem 1.25rem', flex: 1 }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.76rem', color: '#1E293B' }}>
+            <div style={{ padding: '0.4rem 1.4rem', flex: 1 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', color: '#0B1B3D' }}>
                 <tbody>
                   <tr>
-                    <td style={{ padding: '3px 0', fontWeight: 700, width: '42%', color: '#334155' }}>Employee ID</td>
-                    <td style={{ padding: '3px 0', fontWeight: 800, color: '#0B1B3D' }}>: &nbsp;{cardData.vendorId}</td>
+                    <td style={{ padding: '3px 0', fontWeight: 800, width: '42%' }}>Employee ID</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;{cardData.vendorId}</td>
                   </tr>
                   <tr>
-                    <td style={{ padding: '3px 0', fontWeight: 700, color: '#334155' }}>Department</td>
-                    <td style={{ padding: '3px 0', fontWeight: 800, color: '#0B1B3D' }}>: &nbsp;{cardData.department}</td>
+                    <td style={{ padding: '3px 0', fontWeight: 800 }}>Department</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;{cardData.department}</td>
                   </tr>
                   <tr>
-                    <td style={{ padding: '3px 0', fontWeight: 700, color: '#334155' }}>Designation</td>
-                    <td style={{ padding: '3px 0', fontWeight: 800, color: '#0B1B3D' }}>: &nbsp;{cardData.designation}</td>
+                    <td style={{ padding: '3px 0', fontWeight: 800 }}>Designation</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;{cardData.designation}</td>
                   </tr>
                   <tr>
-                    <td style={{ padding: '3px 0', fontWeight: 700, color: '#334155' }}>Blood Group</td>
-                    <td style={{ padding: '3px 0', fontWeight: 800, color: '#ED1C24' }}>: &nbsp;{cardData.bloodGroup}</td>
+                    <td style={{ padding: '3px 0', fontWeight: 800 }}>Blood Group</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;{cardData.bloodGroup}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             {/* Bottom Verification QR Code & Corner Geometry */}
-            <div style={{ padding: '0.5rem 1.25rem 1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', position: 'relative' }}>
-              <div style={{ padding: 4, backgroundColor: '#FFFFFF', borderRadius: 8, border: '1.5px solid #0B1B3D' }}>
-                <img src={qrVerificationUrl} alt="QR Scan" style={{ width: 46, height: 46, display: 'block' }} />
+            <div style={{ padding: '0.4rem 1.25rem 0.85rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', position: 'relative' }}>
+              <div style={{ padding: 3, backgroundColor: '#FFFFFF', borderRadius: 6, border: '2px solid #0B1B3D' }}>
+                <img src={qrVerificationUrl} alt="QR Scan" style={{ width: 44, height: 44, display: 'block' }} />
               </div>
               <div style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#0B1B3D', lineHeight: 1.2 }}>Scan for</div>
                 <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#0B1B3D', lineHeight: 1.2 }}>Verification</div>
               </div>
 
-              {/* Bottom Red & Blue Corner Geometry Accents */}
-              <div style={{ position: 'absolute', bottom: 0, left: 0, width: 44, height: 44, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 0 100%, 100% 100%)' }} />
-              <div style={{ position: 'absolute', bottom: 0, right: 0, width: 44, height: 44, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }} />
+              {/* Bottom Diagonal Angle Cuts (Left & Right) */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, width: 45, height: 45, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 0 100%, 100% 100%)' }} />
+              <div style={{ position: 'absolute', bottom: 0, left: 0, width: 32, height: 32, backgroundColor: '#ED1C24', clipPath: 'polygon(0 0, 0 100%, 100% 100%)' }} />
+
+              <div style={{ position: 'absolute', bottom: 0, right: 0, width: 45, height: 45, backgroundColor: '#0B1B3D', clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }} />
+              <div style={{ position: 'absolute', bottom: 0, right: 0, width: 32, height: 32, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }} />
             </div>
 
           </div>
@@ -246,46 +257,54 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             fontFamily: 'Arial, sans-serif'
           }}>
             
-            {/* Top Punch Hole Slot */}
-            <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', width: 48, height: 12, backgroundColor: '#E2E8F0', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
+            {/* Top Navy Blue Header Bar */}
+            <div style={{ height: 42, background: '#0B1B3D', position: 'relative' }}>
+              {/* Punch Hole Slot */}
+              <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 50, height: 12, backgroundColor: '#FFFFFF', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
+              {/* Red Accent Stripe Underneath Header */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, backgroundColor: '#ED1C24' }} />
+            </div>
 
-            {/* Header Banner */}
-            <div style={{ padding: '22px 1rem 12px 1rem', textAlign: 'center', borderBottom: '2px solid #ED1C24' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}>
-                <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 28, width: 'auto', objectFit: 'contain' }} />
-              </div>
-              <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 2 }}>
+            {/* Header Content on White Background */}
+            <div style={{ padding: '14px 1rem 8px 1rem', textAlign: 'center' }}>
+              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 34, width: 'auto', objectFit: 'contain', margin: '0 auto 2px auto', display: 'block' }} />
+
+              <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
                 HINDUSTAN PROJECTS
               </div>
-              <div style={{ fontSize: '0.45rem', fontWeight: 700, color: '#64748B' }}>
-                Engineering • Construction • Infrastructure • Digital solution With Marketing
+              <div style={{ fontSize: '0.46rem', fontWeight: 700, color: '#0F172A', marginTop: 1 }}>
+                Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Infrastructure
+              </div>
+              <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#0B1B3D', marginTop: 1 }}>
+                Digital solution With Marketing
               </div>
             </div>
 
             {/* Terms & Conditions Body */}
-            <div style={{ padding: '1rem 1.25rem', flex: 1 }}>
-              <h3 style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0B1B3D', textAlign: 'center', letterSpacing: '0.05em', marginBottom: '0.65rem' }}>
+            <div style={{ padding: '0.85rem 1.25rem', flex: 1 }}>
+              <h3 style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0B1B3D', textAlign: 'center', letterSpacing: '0.05em', margin: '0 0 2px 0' }}>
                 TERMS & CONDITIONS
               </h3>
-              <div style={{ width: 30, height: 2, backgroundColor: '#ED1C24', margin: '-0.4rem auto 0.75rem auto' }} />
+              <div style={{ width: 30, height: 2, backgroundColor: '#ED1C24', margin: '0 auto 0.75rem auto' }} />
 
-              <ul style={{ paddingLeft: '0.85rem', margin: 0, fontSize: '0.72rem', color: '#1E293B', display: 'flex', flexDirection: 'column', gap: '0.6rem', lineHeight: 1.45 }}>
+              <ul style={{ paddingLeft: '0.85rem', margin: 0, fontSize: '0.72rem', color: '#1E293B', display: 'flex', flexDirection: 'column', gap: '0.55rem', lineHeight: 1.45 }}>
                 <li><strong style={{ color: '#ED1C24' }}>•</strong> This card is the property of Hindustan Projects.</li>
                 <li><strong style={{ color: '#ED1C24' }}>•</strong> This card must be worn at all times.</li>
                 <li><strong style={{ color: '#ED1C24' }}>•</strong> If found, please return to Human Resources Department.</li>
                 <li><strong style={{ color: '#ED1C24' }}>•</strong> Misuse of this card is a punishable offense.</li>
               </ul>
 
-              {/* Authorized Signatory Signature Line */}
-              <div style={{ marginTop: '2.25rem', textAlign: 'center' }}>
-                <div style={{ width: 150, height: 1.5, backgroundColor: '#0B1B3D', margin: '0 auto 4px auto' }} />
+              {/* Authorized Signatory Section with Official CEO Cursive Signature */}
+              <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
+                <img src="/ceo-signature.jpg" alt="CEO Signature" style={{ height: 42, width: 'auto', objectFit: 'contain', margin: '0 auto -6px auto', display: 'block' }} />
+                <div style={{ width: 160, height: 1.5, backgroundColor: '#0B1B3D', margin: '0 auto 3px auto' }} />
                 <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0B1B3D' }}>
                   Authorized Signatory
                 </div>
               </div>
             </div>
 
-            {/* Dark Blue Footer Block */}
+            {/* Dark Blue Bottom Footer Block (#0B1B3D) */}
             <div style={{ backgroundColor: '#0B1B3D', color: '#FFFFFF', padding: '0.85rem 1rem', textAlign: 'center', fontSize: '0.68rem', lineHeight: 1.55 }}>
               <div style={{ fontWeight: 700 }}>{cardData.address}</div>
               <div style={{ fontWeight: 700, marginTop: 1 }}>{cardData.phone}</div>
