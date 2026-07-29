@@ -257,32 +257,26 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             fontFamily: 'Arial, sans-serif'
           }}>
             
-            {/* Top Navy Blue Geometric Header Bar (Matching Front Side) */}
+            {/* Top Navy Blue Header Bar with Red Horizontal Accent Line */}
             <div style={{ height: 42, background: '#0B1B3D', position: 'relative' }}>
               {/* Punch Hole Slot */}
               <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 50, height: 12, backgroundColor: '#FFFFFF', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
-              {/* Red Right Diagonal Cut */}
-              <div style={{ position: 'absolute', top: 0, right: 0, width: 85, height: 42, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
-              <div style={{ position: 'absolute', top: 18, right: 0, width: 95, height: 4, backgroundColor: '#ED1C24' }} />
+              {/* Red Accent Stripe Underneath Header */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, backgroundColor: '#ED1C24' }} />
             </div>
 
-            {/* Header Content on White Background (Matching Front Side) */}
-            <div style={{ textAlign: 'center', padding: '10px 1rem 4px 1rem', position: 'relative' }}>
-              {/* Left Navy & Right Red Polygon Background Accents */}
-              <div style={{ position: 'absolute', top: 10, left: -25, width: 70, height: 55, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 100% 50%, 0 100%)', opacity: 0.95 }} />
-              <div style={{ position: 'absolute', top: 15, right: -25, width: 70, height: 55, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', opacity: 0.95 }} />
+            {/* Header Content on White Background */}
+            <div style={{ padding: '14px 1rem 8px 1rem', textAlign: 'center' }}>
+              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 34, width: 'auto', objectFit: 'contain', margin: '0 auto 2px auto', display: 'block' }} />
 
-              {/* Logo Image */}
-              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 38, width: 'auto', objectFit: 'contain', margin: '0 auto 2px auto', display: 'block', position: 'relative', zIndex: 2 }} />
-
-              <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase', position: 'relative', zIndex: 2 }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
                 HINDUSTAN PROJECTS
               </div>
-              <div style={{ fontSize: '0.48rem', fontWeight: 700, color: '#0F172A', marginTop: 1, position: 'relative', zIndex: 2 }}>
+              <div style={{ fontSize: '0.46rem', fontWeight: 700, color: '#0F172A', marginTop: 1 }}>
                 Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Infrastructure
               </div>
-              <div style={{ fontSize: '0.48rem', fontWeight: 800, color: '#0B1B3D', marginTop: 1, position: 'relative', zIndex: 2 }}>
-                <span style={{ color: '#ED1C24' }}>•</span> Digital solution With Marketing <span style={{ color: '#ED1C24' }}>•</span>
+              <div style={{ fontSize: '0.46rem', fontWeight: 800, color: '#0B1B3D', marginTop: 1 }}>
+                Digital solution With Marketing
               </div>
             </div>
 
@@ -300,7 +294,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                 <li><strong style={{ color: '#ED1C24' }}>•</strong> Misuse of this card is a punishable offense.</li>
               </ul>
 
-              {/* Authorized Signatory Section with Exact Uploaded CEO Signature */}
+              {/* Authorized Signatory Section with Exact Uploaded CEO Signature Image */}
               <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.25rem' }}>
                   <img
@@ -315,11 +309,15 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                     }}
                   />
                 </div>
-                <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0B1B3D', letterSpacing: '0.04em' }}>
+                <div style={{ width: 170, height: 1.5, backgroundColor: '#0B1B3D', margin: '0 auto 3px auto' }} />
+                <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0B1B3D' }}>
                   Authorized Signatory
                 </div>
               </div>
             </div>
+
+            {/* Red Horizontal Line Above Footer */}
+            <div style={{ height: 3, backgroundColor: '#ED1C24' }} />
 
             {/* Dark Blue Bottom Footer Block (#0B1B3D) */}
             <div style={{ backgroundColor: '#0B1B3D', color: '#FFFFFF', padding: '0.85rem 1rem', textAlign: 'center', fontSize: '0.68rem', lineHeight: 1.55 }}>
