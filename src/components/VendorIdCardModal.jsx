@@ -294,18 +294,18 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                 <li><strong style={{ color: '#ED1C24' }}>•</strong> Misuse of this card is a punishable offense.</li>
               </ul>
 
-              {/* Authorized Signatory Section with Official CEO Cursive Signature */}
-              <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: -10 }}>
+              {/* Authorized Signatory Section with Official CEO Signature */}
+              <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.25rem' }}>
                   <img
                     src="/ceo-signature.jpg"
                     alt="Yogesh Kharol CEO Signature"
                     style={{
-                      height: 56,
-                      width: 'auto',
+                      width: 145,
+                      height: 'auto',
                       objectFit: 'contain',
-                      mixBlendMode: 'multiply',
-                      filter: 'contrast(120%)'
+                      display: 'block',
+                      mixBlendMode: 'multiply'
                     }}
                   />
                 </div>
