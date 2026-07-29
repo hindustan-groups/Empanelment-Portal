@@ -160,12 +160,12 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
           }}>
             
             {/* Top Navy Blue Geometric Header Bar */}
-            <div style={{ height: 42, background: '#0B1B3D', position: 'relative' }}>
+            <div style={{ height: 42, minHeight: 42, background: '#0B1B3D', position: 'relative', width: '100%', overflow: 'hidden' }}>
               {/* Punch Hole Slot */}
               <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 50, height: 12, backgroundColor: '#FFFFFF', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
               {/* Red Right Diagonal Cut */}
-              <div style={{ position: 'absolute', top: 0, right: 0, width: 85, height: 42, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
-              <div style={{ position: 'absolute', top: 18, right: 0, width: 95, height: 4, backgroundColor: '#ED1C24' }} />
+              <div style={{ position: 'absolute', top: 0, right: 0, width: 85, height: 42, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)', zIndex: 5 }} />
+              <div style={{ position: 'absolute', top: 18, right: 0, width: 95, height: 4, backgroundColor: '#ED1C24', zIndex: 6 }} />
             </div>
 
             {/* Header Content on White Background (Identical Symmetrical Top Header) */}
@@ -258,12 +258,12 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
           }}>
             
             {/* Top Navy Blue Geometric Header Bar (Matching Front Side Top Bar Exactly) */}
-            <div style={{ height: 42, background: '#0B1B3D', position: 'relative' }}>
+            <div style={{ height: 42, minHeight: 42, background: '#0B1B3D', position: 'relative', width: '100%', overflow: 'hidden' }}>
               {/* Punch Hole Slot */}
               <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 50, height: 12, backgroundColor: '#FFFFFF', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
               {/* Red Right Diagonal Cut */}
-              <div style={{ position: 'absolute', top: 0, right: 0, width: 85, height: 42, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
-              <div style={{ position: 'absolute', top: 18, right: 0, width: 95, height: 4, backgroundColor: '#ED1C24' }} />
+              <div style={{ position: 'absolute', top: 0, right: 0, width: 85, height: 42, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)', zIndex: 5 }} />
+              <div style={{ position: 'absolute', top: 18, right: 0, width: 95, height: 4, backgroundColor: '#ED1C24', zIndex: 6 }} />
             </div>
 
             {/* Header Content on White Background (Identical Symmetrical Top Header) */}
