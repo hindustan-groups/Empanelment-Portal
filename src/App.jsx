@@ -36,7 +36,11 @@ function MainAppLayout() {
   const [lastSubmittedData, setLastSubmittedData] = useState(null);
 
   // Standalone Software Portal check
-  const isStandalonePortal = location.pathname === '/vendor-dashboard' || location.pathname === '/internal-admin-dashboard';
+  const isStandalonePortal = location.pathname === '/vendor-dashboard' || 
+                             location.pathname === '/vendor-login' || 
+                             location.pathname === '/internal-admin-dashboard' || 
+                             location.pathname === '/internal-portal-login' || 
+                             location.pathname === '/admin-login';
 
   // Admin Auth State & Security Session Expiry
   const [isAdminAuth, setIsAdminAuth] = useState(() => {
