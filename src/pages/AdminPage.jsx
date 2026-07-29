@@ -4,11 +4,12 @@ import Logo from '../components/Logo';
 import SecurityCaptcha from '../components/SecurityCaptcha';
 import ContractManager from '../components/ContractManager';
 import SuccessModal from '../components/SuccessModal';
+import VendorIdCardModal from '../components/VendorIdCardModal';
 import {
   Database, RefreshCw, LogOut, ShieldCheck, Search,
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3,
   Printer, FileText, Building2, CreditCard, DollarSign, MapPin,
-  User, AlertTriangle, FileCheck2,
+  User, AlertTriangle, FileCheck2, UserCheck,
   PlusCircle, Layers, Lock, MessageSquare, Settings, Save,
   Key, ToggleLeft, ToggleRight, Bell, ChevronDown, ChevronUp, X, FileSignature, Activity, Send, Check
 } from 'lucide-react';
@@ -122,6 +123,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [adminRemark, setAdminRemark] = useState('');
   const [showAdminCertModal, setShowAdminCertModal] = useState(false);
+  const [showAdminIdCardModal, setShowAdminIdCardModal] = useState(false);
 
   /* Categories */
   const [categories, setCategories] = useState(() => {
@@ -969,14 +971,23 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   <span>Delete Application</span>
                 </button>
 
-                <div style={{ display: 'flex', gap: '0.65rem' }}>
+                <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => setShowAdminCertModal(true)}
-                    className="btn-accent"
+                    className="btn-secondary"
                     style={{ padding: '0.5rem 1.15rem', fontSize: '0.825rem', borderRadius: 8 }}
                   >
                     <Printer style={{ width: 15, height: 15 }} />
-                    <span>Print A4 Dossier & Certificate (PDF)</span>
+                    <span>Print A4 Certificate</span>
+                  </button>
+
+                  <button
+                    onClick={() => setShowAdminIdCardModal(true)}
+                    className="btn-accent"
+                    style={{ padding: '0.5rem 1.15rem', fontSize: '0.825rem', borderRadius: 8 }}
+                  >
+                    <UserCheck style={{ width: 15, height: 15 }} />
+                    <span>🪪 Issue & Print Vendor Smart ID Card</span>
                   </button>
 
                   <button onClick={() => setSelectedVendor(null)} className="btn-secondary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
@@ -1001,6 +1012,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
               category: selectedVendor.category,
               submitted_at: selectedVendor.submitted_at || new Date().toISOString()
             }}
+          />
+        )}
+
+        {/* ════════════════ VENDOR SMART ID CARD PRINT MODAL FOR ADMIN ════════════════ */}
+        {showAdminIdCardModal && selectedVendor && (
+          <VendorIdCardModal
+            isOpen={showAdminIdCardModal}
+            onClose={() => setShowAdminIdCardModal(false)}
+            vendorData={selectedVendor}
           />
         )}
         {/* ════════════════ ADD NEW TENDER MODAL ════════════════ */}

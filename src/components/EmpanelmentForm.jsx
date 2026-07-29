@@ -789,6 +789,42 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     placeholder="Office / WhatsApp number" />
                 </FieldGroup>
 
+                {/* ── Blood Group (For Official Vendor ID Card) ── */}
+                <FieldGroup label="Blood Group (For Official Smart ID Card)" optional>
+                  <select name="bloodGroup" value={formData.bloodGroup || 'B+'} onChange={handleChange} className="form-input">
+                    {['B+', 'A+', 'O+', 'AB+', 'B-', 'A-', 'O-', 'AB-'].map(bg => (
+                      <option key={bg} value={bg}>{bg}</option>
+                    ))}
+                  </select>
+                </FieldGroup>
+
+                {/* ── Passport Size Photo Upload (For Official Vendor ID Card) ── */}
+                <FieldGroup label="Passport Size Photo (For Smart ID Card Badge)" optional hint="Upload clear front-facing passport photo (PNG/JPG up to 5MB)">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFormData(prev => ({ ...prev, passportPhoto: reader.result }));
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="form-input"
+                      style={{ padding: '0.4rem' }}
+                    />
+                    {formData.passportPhoto && (
+                      <div style={{ width: 44, height: 50, borderRadius: 6, overflow: 'hidden', border: '2px solid #0047AB', flexShrink: 0 }}>
+                        <img src={formData.passportPhoto} alt="ID Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    )}
+                  </div>
+                </FieldGroup>
+
                 {/* ── Main Category: Professional Discipline / Scope ── */}
                 <FieldGroup
                   label="Main Category — Professional Discipline / Scope of Work"

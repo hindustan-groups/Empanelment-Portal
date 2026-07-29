@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, Award, FileText, Download, DollarSign, Clock, CheckCircle2, Building2, Briefcase, Lock, UserCheck, Printer, LogOut, Search, ExternalLink, FileCheck2, FolderCheck, ArrowRight, X, AlertCircle, HelpCircle, MessageSquarePlus, Send, Activity, ShieldAlert } from 'lucide-react';
 import SuccessModal from '../components/SuccessModal';
+import VendorIdCardModal from '../components/VendorIdCardModal';
 import Logo from '../components/Logo';
 
 export default function VendorDashboardPage() {
@@ -9,6 +10,7 @@ export default function VendorDashboardPage() {
   const [vendor, setVendor] = useState(null);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'tenders' | 'payouts' | 'documents' | 'support'
   const [showCertificateModal, setShowCertificateModal] = useState(false);
+  const [showIdCardModal, setShowIdCardModal] = useState(false);
   const [biddingTender, setBiddingTender] = useState(null);
   const [bidSubmitted, setBidSubmitted] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -187,11 +189,20 @@ export default function VendorDashboardPage() {
           <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
             <button
               onClick={() => setShowCertificateModal(true)}
-              className="btn-accent"
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.875rem', borderRadius: 12 }}
+              className="btn-secondary"
+              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
             >
               <Printer style={{ width: 16, height: 16 }} />
               <span>Print Official A4 Certificate</span>
+            </button>
+
+            <button
+              onClick={() => setShowIdCardModal(true)}
+              className="btn-accent"
+              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12 }}
+            >
+              <UserCheck style={{ width: 16, height: 16 }} />
+              <span>🪪 Print Official Vendor Smart ID Card</span>
             </button>
           </div>
         </div>
@@ -684,6 +695,14 @@ export default function VendorDashboardPage() {
             category: vendor.category,
             submitted_at: new Date().toISOString()
           }}
+        />
+      )}
+      {/* ════════════════ VENDOR SMART ID CARD MODAL ════════════════ */}
+      {showIdCardModal && (
+        <VendorIdCardModal
+          isOpen={showIdCardModal}
+          onClose={() => setShowIdCardModal(false)}
+          vendorData={vendor}
         />
       )}
 

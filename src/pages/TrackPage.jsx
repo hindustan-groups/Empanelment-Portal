@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, ShieldCheck, CheckCircle2, Clock, FileText, AlertCircle, PhoneCall, FilePlus, ArrowLeft, Printer, HelpCircle, Lock, Building2, MapPin, Mail } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import SuccessModal from '../components/SuccessModal';
+import VendorIdCardModal from '../components/VendorIdCardModal';
 
 export default function TrackPage() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function TrackPage() {
   const [result, setResult] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [showIdCardModal, setShowIdCardModal] = useState(false);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -252,14 +254,24 @@ export default function TrackPage() {
                 </div>
 
                 {result.fullData && (
-                  <button
-                    onClick={() => setShowReceiptModal(true)}
-                    className="btn-primary"
-                    style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8, background: '#0047AB' }}
-                  >
-                    <Printer style={{ width: 14, height: 14 }} />
-                    <span>Print Official Application Dossier (A4)</span>
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setShowReceiptModal(true)}
+                      className="btn-secondary"
+                      style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}
+                    >
+                      <Printer style={{ width: 14, height: 14 }} />
+                      <span>Print A4 Dossier</span>
+                    </button>
+
+                    <button
+                      onClick={() => setShowIdCardModal(true)}
+                      className="btn-accent"
+                      style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}
+                    >
+                      <span>🪪 Print Vendor Smart ID Card</span>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -345,6 +357,15 @@ export default function TrackPage() {
           onClose={() => setShowReceiptModal(false)}
           trackingId={result.id}
           formData={result.fullData}
+        />
+      )}
+
+      {/* Printable Vendor Smart ID Card Modal */}
+      {showIdCardModal && result?.fullData && (
+        <VendorIdCardModal
+          isOpen={showIdCardModal}
+          onClose={() => setShowIdCardModal(false)}
+          vendorData={result.fullData}
         />
       )}
     </div>
