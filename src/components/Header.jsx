@@ -76,6 +76,11 @@ export default function Header({ isDark, toggleTheme }) {
             <span>Guidelines</span>
           </NavLink>
 
+          <NavLink to="/vendor-login" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`} style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#047857', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+            <ShieldCheck style={{ width: 16, height: 16, color: '#10B981' }} />
+            <span>Vendor Login</span>
+          </NavLink>
+
           <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">
             {isDark ? <Sun style={{ width: 18, height: 18, color: '#F59E0B' }} /> : <Moon style={{ width: 18, height: 18, color: '#475569' }} />}
           </button>

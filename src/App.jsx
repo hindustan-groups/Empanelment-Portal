@@ -13,6 +13,8 @@ import TrackPage from './pages/TrackPage';
 import GuidelinesPage from './pages/GuidelinesPage';
 import AdminPage from './pages/AdminPage';
 import AdminLoginPage from './pages/AdminLoginPage';
+import VendorLoginPage from './pages/VendorLoginPage';
+import VendorDashboardPage from './pages/VendorDashboardPage';
 
 // Auto Scroll To Top Component on Route Navigation
 function ScrollToTop() {
@@ -171,19 +173,24 @@ export default function App() {
 
             <Route path="/track" element={<TrackPage />} />
             <Route path="/guidelines" element={<GuidelinesPage />} />
+
+            {/* Vendor Auth & Portal Dashboard */}
+            <Route path="/vendor-login" element={<VendorLoginPage />} />
+            <Route path="/vendor-dashboard" element={<VendorDashboardPage />} />
             
-            {/* Protected Admin Routes */}
+            {/* Isolated Unlisted Internal Admin Security Gateway */}
             <Route 
-              path="/admin-login" 
+              path="/internal-portal-login" 
               element={
                 <AdminLoginPage 
                   onLoginSuccess={handleAdminLogin} 
                 />
               } 
             />
+            <Route path="/admin-login" element={<Navigate to="/internal-portal-login" replace />} />
 
             <Route 
-              path="/admin" 
+              path="/internal-admin-dashboard" 
               element={
                 isAdminAuth ? (
                   <AdminPage 
@@ -191,10 +198,11 @@ export default function App() {
                     onLogout={handleAdminLogout} 
                   />
                 ) : (
-                  <Navigate to="/admin-login" replace />
+                  <Navigate to="/internal-portal-login" replace />
                 )
               } 
             />
+            <Route path="/admin" element={<Navigate to="/internal-admin-dashboard" replace />} />
           </Routes>
         </main>
 

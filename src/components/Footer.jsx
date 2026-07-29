@@ -156,10 +156,9 @@ export default function Footer() {
           </div>
 
           <div>
-            <Link to="/admin-login" style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.3rem 0.65rem', borderRadius: 6, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', fontWeight: 700 }}>
-              <Lock style={{ width: 12, height: 12, color: '#0047AB' }} />
-              <span>Corporate Officer Login</span>
-            </Link>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600 }}>
+              Official Empanelment Portal • Hindustan Projects
+            </span>
           </div>
         </div>
 
