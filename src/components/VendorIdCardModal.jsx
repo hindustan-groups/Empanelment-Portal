@@ -295,9 +295,21 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               </ul>
 
               {/* Authorized Signatory Section with Official CEO Cursive Signature */}
-              <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
-                <img src="/ceo-signature.jpg" alt="CEO Signature" style={{ height: 42, width: 'auto', objectFit: 'contain', margin: '0 auto -6px auto', display: 'block' }} />
-                <div style={{ width: 160, height: 1.5, backgroundColor: '#0B1B3D', margin: '0 auto 3px auto' }} />
+              <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: -10 }}>
+                  <img
+                    src="/ceo-signature.jpg"
+                    alt="Yogesh Kharol CEO Signature"
+                    style={{
+                      height: 56,
+                      width: 'auto',
+                      objectFit: 'contain',
+                      mixBlendMode: 'multiply',
+                      filter: 'contrast(120%)'
+                    }}
+                  />
+                </div>
+                <div style={{ width: 170, height: 1.5, backgroundColor: '#0B1B3D', margin: '0 auto 3px auto' }} />
                 <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0B1B3D' }}>
                   Authorized Signatory
                 </div>
