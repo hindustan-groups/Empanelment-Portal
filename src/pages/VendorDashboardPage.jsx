@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Award, FileText, Download, DollarSign, Clock, CheckCircle2, Building2, Briefcase, Lock, UserCheck, Printer, LogOut, Search, ExternalLink, FileCheck2, FolderCheck, ArrowRight, X, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Award, FileText, Download, DollarSign, Clock, CheckCircle2, Building2, Briefcase, Lock, UserCheck, Printer, LogOut, Search, ExternalLink, FileCheck2, FolderCheck, ArrowRight, X, AlertCircle, HelpCircle, MessageSquarePlus, Send, Activity, ShieldAlert } from 'lucide-react';
 import SuccessModal from '../components/SuccessModal';
 import Logo from '../components/Logo';
 
 export default function VendorDashboardPage() {
   const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'tenders' | 'payouts' | 'documents'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'tenders' | 'payouts' | 'documents' | 'support'
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [biddingTender, setBiddingTender] = useState(null);
   const [bidSubmitted, setBidSubmitted] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [invoiceSubmitted, setInvoiceSubmitted] = useState(false);
+  const [showTicketModal, setShowTicketModal] = useState(false);
+  const [ticketSubmitted, setTicketSubmitted] = useState(false);
 
   useEffect(() => {
     const session = localStorage.getItem('hipro_vendor_session');
@@ -61,23 +65,23 @@ export default function VendorDashboardPage() {
           </div>
 
           {/* Navigation Tabs */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div className="vendor-dashboard-tabs" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
             {[
-              { id: 'overview', label: '📊 Overview & Certificate', icon: Award },
+              { id: 'overview', label: '📊 Overview & Health', icon: Award },
               { id: 'tenders', label: '🏗️ Active Tenders Radar', icon: Briefcase },
               { id: 'payouts', label: '💰 Payouts & Invoices', icon: DollarSign },
               { id: 'documents', label: '📂 Document Vault', icon: FolderCheck },
+              { id: 'support', label: '💬 Technical Support', icon: HelpCircle },
             ].map(tab => {
-              const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   style={{
-                    padding: '0.55rem 0.95rem',
+                    padding: '0.5rem 0.85rem',
                     borderRadius: 10,
-                    fontSize: '0.825rem',
+                    fontSize: '0.8rem',
                     fontWeight: isActive ? 900 : 700,
                     cursor: 'pointer',
                     border: isActive ? '1.5px solid #0047AB' : '1px solid var(--border-color)',
@@ -85,7 +89,7 @@ export default function VendorDashboardPage() {
                     color: isActive ? '#FFFFFF' : 'var(--text-primary)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.4rem',
+                    gap: '0.35rem',
                     transition: 'all 0.15s ease'
                   }}
                 >
@@ -104,8 +108,8 @@ export default function VendorDashboardPage() {
             <button
               onClick={handleLogout}
               style={{
-                padding: '0.5rem 0.85rem',
-                borderRadius: 10,
+                padding: '0.45rem 0.8rem',
+                borderRadius: 9,
                 fontSize: '0.78rem',
                 fontWeight: 800,
                 color: '#ED1C24',
@@ -129,7 +133,7 @@ export default function VendorDashboardPage() {
       <main style={{ maxWidth: 1240, margin: '2rem auto 4rem auto', padding: '0 1.25rem' }}>
         
         {/* Executive Welcome Banner */}
-        <div style={{
+        <div className="vendor-welcome-banner" style={{
           padding: '1.75rem 2rem',
           borderRadius: 20,
           background: 'linear-gradient(135deg, #0F172A 0%, #002B66 60%, #0047AB 100%)',
@@ -150,7 +154,7 @@ export default function VendorDashboardPage() {
               <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 HINDUSTAN PROJECTS • EMPANELLED VENDOR PORTAL
               </div>
-              <h1 style={{ fontSize: '1.65rem', fontWeight: 900, marginTop: 2, marginBottom: 2 }}>
+              <h1 className="vendor-welcome-title" style={{ fontSize: '1.65rem', fontWeight: 900, marginTop: 2, marginBottom: 2 }}>
                 {vendor.company_name}
               </h1>
               <div style={{ fontSize: '0.825rem', color: '#CBD5E1', display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: 4 }}>
@@ -212,6 +216,31 @@ export default function VendorDashboardPage() {
                 </div>
                 <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A' }}>7-DAY RTGS</div>
                 <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', marginTop: 2 }}>Direct Bank Account Release</div>
+              </div>
+            </div>
+
+            {/* Vendor Performance & Compliance Health Score Card */}
+            <div style={{ padding: '1.5rem 1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', marginBottom: '2rem', boxShadow: 'var(--shadow-sm)' }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Activity style={{ width: 18, height: 18 }} />
+                <span>Vendor Performance & Quality Audit Scorecard (FY 2026-27):</span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Overall Compliance Rating</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#047857', marginTop: 2 }}>98 / 100 (A+ GRADE)</div>
+                </div>
+
+                <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>On-Time Milestone Delivery</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0047AB', marginTop: 2 }}>96.4% ACCURACY</div>
+                </div>
+
+                <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>NBC 2016 Safety Standard</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#047857', marginTop: 2 }}>100% COMPLIANT</div>
+                </div>
               </div>
             </div>
 
@@ -301,14 +330,25 @@ export default function VendorDashboardPage() {
         {/* ════════════════ TAB 3: MILESTONE PAYOUTS & INVOICES ════════════════ */}
         {activeTab === 'payouts' && (
           <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
-            <div style={{ marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <DollarSign style={{ width: 20, height: 20, color: '#10B981' }} />
-                <span>Milestone Payment Release & Invoices:</span>
-              </h3>
-              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                All vendor payouts are processed directly via RTGS / NEFT to your verified HDFC Bank account (`{vendor.gstin}`).
-              </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <DollarSign style={{ width: 20, height: 20, color: '#10B981' }} />
+                  <span>Milestone Payment Release & Tax Invoices:</span>
+                </h3>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  All vendor payouts are processed directly via RTGS / NEFT to your verified HDFC Bank account (`{vendor.gstin}`).
+                </p>
+              </div>
+
+              <button
+                onClick={() => { setShowInvoiceModal(true); setInvoiceSubmitted(false); }}
+                className="btn-accent"
+                style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10 }}
+              >
+                <FileCheck2 style={{ width: 15, height: 15 }} />
+                <span>Submit RA Bill / GST Invoice</span>
+              </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
@@ -363,6 +403,55 @@ export default function VendorDashboardPage() {
                   </div>
                   <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A' }}>{d.title}</div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{d.type} • {d.date}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ TAB 5: TECHNICAL SUPPORT & HELPDESK ════════════════ */}
+        {activeTab === 'support' && (
+          <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <HelpCircle style={{ width: 20, height: 20, color: '#0047AB' }} />
+                  <span>Vendor Technical Helpdesk & Ticket System:</span>
+                </h3>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Direct communication channel with Hindustan Projects corporate procurement committee.
+                </p>
+              </div>
+
+              <button
+                onClick={() => { setShowTicketModal(true); setTicketSubmitted(false); }}
+                className="btn-accent"
+                style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10 }}
+              >
+                <MessageSquarePlus style={{ width: 15, height: 15 }} />
+                <span>Raise New Support Ticket</span>
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              {[
+                { ticket: 'TCK-99201', subject: 'Construction Site Entry Gate Pass Request (Jaipur Tower)', status: 'RESOLVED', date: '27 Jul 2026' },
+                { ticket: 'TCK-99145', subject: 'GFC Structural Drawing Revision R1 Clarification Request', status: 'IN PROGRESS', date: '28 Jul 2026' },
+              ].map((t, idx) => (
+                <div key={idx} style={{ padding: '1.1rem 1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 2 }}>
+                      <span style={{ fontSize: '0.725rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6, fontFamily: 'monospace' }}>
+                        {t.ticket}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Created: <strong>{t.date}</strong></span>
+                    </div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0F172A' }}>{t.subject}</div>
+                  </div>
+
+                  <span style={{ fontSize: '0.75rem', fontWeight: 900, padding: '0.2rem 0.65rem', borderRadius: 6, backgroundColor: t.status === 'RESOLVED' ? 'rgba(16,185,129,0.15)' : 'rgba(0,71,171,0.15)', color: t.status === 'RESOLVED' ? '#047857' : '#0047AB' }}>
+                    {t.status}
+                  </span>
                 </div>
               ))}
             </div>
@@ -428,6 +517,134 @@ export default function VendorDashboardPage() {
                   </button>
                   <button onClick={() => setBidSubmitted(true)} className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
                     Confirm & Submit Bid
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════ INVOICE SUBMISSION MODAL ════════════════ */}
+      {showInvoiceModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem'
+        }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Submit Milestone Invoice / RA Bill</h3>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Upload GST Invoice for 7-day RTGS payout release</div>
+              </div>
+              <button onClick={() => setShowInvoiceModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+            </div>
+
+            {invoiceSubmitted ? (
+              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
+                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Invoice Submitted Successfully!</h4>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                  Your GST tax invoice has been routed to finance department for RTGS payout release.
+                </p>
+                <button onClick={() => setShowInvoiceModal(false)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
+                  Close Window
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">GST Tax Invoice Number</label>
+                  <input type="text" className="form-input" placeholder="e.g. INV-2026-8812" />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Invoice Amount (in ₹)</label>
+                  <input type="text" className="form-input" placeholder="e.g. 725000" />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label className="form-label">Attach Signed PDF Invoice Copy</label>
+                  <input type="file" className="form-input" accept=".pdf" />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button onClick={() => setShowInvoiceModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
+                    Cancel
+                  </button>
+                  <button onClick={() => setInvoiceSubmitted(true)} className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
+                    Submit Invoice
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════ SUPPORT TICKET MODAL ════════════════ */}
+      {showTicketModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem'
+        }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Raise Technical Support Ticket</h3>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Direct ticket channel to corporate procurement team</div>
+              </div>
+              <button onClick={() => setShowTicketModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+            </div>
+
+            {ticketSubmitted ? (
+              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
+                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Ticket Created Successfully!</h4>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                  Ticket reference code <strong>TCK-99240</strong> assigned. Assigned procurement officer will respond within 24 hours.
+                </p>
+                <button onClick={() => setShowTicketModal(false)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
+                  Close Window
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Support Category</label>
+                  <select className="form-input">
+                    <option>Construction Site Gate Pass Request</option>
+                    <option>GFC Structural Drawing Clarification</option>
+                    <option>RTGS Payment Payout Status Inquiry</option>
+                    <option>GST Certificate Renewal Request</option>
+                  </select>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label className="form-label">Describe your query / issue</label>
+                  <textarea className="form-input" rows={3} placeholder="Provide complete details..." />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button onClick={() => setShowTicketModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
+                    Cancel
+                  </button>
+                  <button onClick={() => setTicketSubmitted(true)} className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
+                    Submit Ticket
                   </button>
                 </div>
               </div>
