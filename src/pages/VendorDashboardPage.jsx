@@ -49,23 +49,68 @@ export default function VendorDashboardPage() {
         zIndex: 100,
         boxShadow: 'var(--shadow-sm)'
       }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link to="/vendor-dashboard" style={{ textDecoration: 'none' }}>
-              <Logo height={36} />
-            </Link>
-            <div style={{ padding: '0.3rem 0.75rem', borderRadius: 99, background: 'rgba(16,185,129,0.12)', color: '#047857', fontSize: '0.75rem', fontWeight: 900, border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <ShieldCheck style={{ width: 14, height: 14, color: '#10B981' }} />
-              <span>OFFICIAL VENDOR PORTAL</span>
+          {/* Top Row: Branding, Badges & Logout */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            
+            {/* Left Branding Group */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+              <Link to="/vendor-dashboard" style={{ textDecoration: 'none' }}>
+                <Logo height={38} />
+              </Link>
+              
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.01em' }}>
+                  HINDUSTAN PROJECTS
+                </div>
+                <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Corporate Procurement Portal
+                </div>
+              </div>
+
+              <div style={{ padding: '0.25rem 0.65rem', borderRadius: 99, background: 'rgba(16,185,129,0.12)', color: '#047857', fontSize: '0.725rem', fontWeight: 900, border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <ShieldCheck style={{ width: 13, height: 13, color: '#10B981' }} />
+                <span>OFFICIAL VENDOR PORTAL</span>
+              </div>
+
+              <Link to="/" style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', textDecoration: 'none', padding: '0.25rem 0.6rem', borderRadius: 8, backgroundColor: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                <span>← Main Site</span>
+              </Link>
             </div>
-            <Link to="/" style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0047AB', textDecoration: 'none', padding: '0.3rem 0.65rem', borderRadius: 8, backgroundColor: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-              <span>← Main Site</span>
-            </Link>
+
+            {/* Right User Status & Logout */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0F172A' }}>{vendor.company_name}</div>
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Code: <strong>{vendor.tracking_id}</strong></div>
+              </div>
+
+              <button
+                onClick={handleLogout}
+                style={{
+                  padding: '0.45rem 0.8rem',
+                  borderRadius: 9,
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  color: '#ED1C24',
+                  background: 'rgba(237,28,36,0.08)',
+                  border: '1px solid rgba(237,28,36,0.2)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem'
+                }}
+              >
+                <LogOut style={{ width: 14, height: 14 }} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="vendor-dashboard-tabs" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+          {/* Bottom Row: Centered Desktop Navigation Tabs */}
+          <div className="vendor-dashboard-tabs" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', borderTop: '1px solid var(--border-color)', paddingTop: '0.65rem' }}>
             {[
               { id: 'overview', label: '📊 Overview & Health', icon: Award },
               { id: 'tenders', label: '🏗️ Active Tenders Radar', icon: Briefcase },
@@ -79,7 +124,7 @@ export default function VendorDashboardPage() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   style={{
-                    padding: '0.5rem 0.85rem',
+                    padding: '0.45rem 0.95rem',
                     borderRadius: 10,
                     fontSize: '0.8rem',
                     fontWeight: isActive ? 900 : 700,
@@ -90,6 +135,7 @@ export default function VendorDashboardPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.35rem',
+                    boxShadow: isActive ? '0 4px 12px rgba(0,71,171,0.2)' : 'none',
                     transition: 'all 0.15s ease'
                   }}
                 >
@@ -97,33 +143,6 @@ export default function VendorDashboardPage() {
                 </button>
               );
             })}
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ textAlign: 'right', display: 'none', smDisplay: 'block' }}>
-              <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0F172A' }}>{vendor.company_name}</div>
-              <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Code: {vendor.tracking_id}</div>
-            </div>
-
-            <button
-              onClick={handleLogout}
-              style={{
-                padding: '0.45rem 0.8rem',
-                borderRadius: 9,
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                color: '#ED1C24',
-                background: 'rgba(237,28,36,0.08)',
-                border: '1px solid rgba(237,28,36,0.2)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem'
-              }}
-            >
-              <LogOut style={{ width: 14, height: 14 }} />
-              <span>Sign Out</span>
-            </button>
           </div>
 
         </div>
