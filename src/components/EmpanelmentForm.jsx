@@ -1183,6 +1183,28 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </FieldGroup>
               </div>
 
+              {/* Corporate Contract Agreement & Past Work Order Reference */}
+              <div style={{ padding: '1rem 1.25rem', borderRadius: 14, background: 'rgba(0,71,171,0.04)', border: '1.5px solid rgba(0,71,171,0.2)', marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.88rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.65rem' }}>
+                  📜 Corporate Contract Agreement & Past Work Order Reference:
+                </div>
+                <div className="form-grid-2">
+                  <FieldGroup label="Contract Agreement Category" optional error={errors.contractType}>
+                    <Select name="contractType" value={formData.contractType || ''} onChange={handleChange}>
+                      <option value="">-- Select Formal Contract Category --</option>
+                      <option value="epc_turnkey">🏢 EPC Turnkey Construction Contract</option>
+                      <option value="item_rate">🏗️ Item-Rate Civil & Structural Contract</option>
+                      <option value="consultancy">📐 Technical / Architectural Consultancy</option>
+                      <option value="supply">🚚 Heavy Equipment & Material Supply</option>
+                    </Select>
+                  </FieldGroup>
+
+                  <FieldGroup label="Past Work Order Reference No" optional hint="e.g. WO-2025/HP-JPR-102">
+                    <Input name="workOrderRef" value={formData.workOrderRef || ''} onChange={handleChange} placeholder="e.g. WO-2025/HP-JPR-102" />
+                  </FieldGroup>
+                </div>
+              </div>
+
               {/* Declarations */}
               <div style={{ padding: '1.1rem 1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem', marginTop: '1rem' }}>
                 {[

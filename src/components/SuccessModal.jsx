@@ -183,7 +183,7 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
 
           {/* SECTION 3: FINANCIAL TURNOVERS & QUOTED RATE CARD */}
           <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0047AB', marginTop: '1.5rem', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            3. FINANCIAL TURNOVERS & QUOTED RATE CARD
+            3. FINANCIAL TURNOVERS & WORK ORDER EXPERIENCE
           </div>
           <table className="print-dossier-table">
             <tbody>
@@ -196,14 +196,14 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
               <tr>
                 <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>FY 2025-26 Turnover</td>
                 <td>{formatVal(formData?.turnover2025, '₹ ', ' Lakhs')}</td>
-                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Largest Order Value</td>
-                <td>{formatVal(formData?.largestOrder, '₹ ', ' Lakhs')}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Largest Work Order Executed</td>
+                <td>{formatVal(formData?.largestOrder || formData?.workOrderValue, '₹ ', ' Lakhs')}</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>BUA Quoted Rate</td>
-                <td>{formatVal(formData?.buaRate || formData?.buaArea, '₹ ', ' / sq ft')}</td>
-                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>CPA Quoted Rate</td>
-                <td>{formatVal(formData?.cpaRate || formData?.cpaArea, '₹ ', ' / sq ft')}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Work Order Reference No</td>
+                <td>{formatVal(formData?.workOrderRef)}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Contract Category</td>
+                <td>{formatVal(formData?.contractType ? formData.contractType.toUpperCase().replace('_', ' ') : null)}</td>
               </tr>
             </tbody>
           </table>
@@ -240,17 +240,17 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
           {/* PAGE 4: PROCUREMENT POLICY & DIGITAL SIGNATURE UNDERTAKING */}
           <div style={{ marginTop: '1.5rem', padding: '1.15rem', borderRadius: 14, border: '1.5px solid #0047AB', background: '#F8FAFC' }}>
             <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
-              5. CORPORATE PROCUREMENT GUIDELINES & CVC INTEGRITY UNDERTAKING
+              5. FORMAL CONTRACT AGREEMENT, WORK ORDER DECLARATION & CVC INTEGRITY STAMP
             </div>
             <ul style={{ fontSize: '0.78rem', color: '#334155', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', margin: '0 0 1rem 0' }}>
-              <li><strong>Milestone Payment Terms:</strong> Payments are released via RTGS / NEFT in 3 tranches: 30% Concept Approval, 50% GFC Drawings Release, 20% Final Site Quality Clearance.</li>
+              <li><strong>Formal Contract Terms:</strong> All scope deliverables, quality benchmarks (NBC 2016), milestone billing guidelines, and safety protocols shall be strictly governed by Hindustan Projects procurement manual.</li>
               <li><strong>CVC Anti-Corruption Policy:</strong> Hindustan Projects adheres to Central Vigilance Commission (CVC) zero-tolerance standards for ethical procurement.</li>
-              <li><strong>Document Verification TAT:</strong> Audit verification will be completed within 48 to 72 working hours.</li>
+              <li><strong>Milestone Payment Payouts:</strong> Payments released via RTGS / NEFT in 3 tranches: 30% Concept Approval, 50% GFC Drawings Release, 20% Final Site Quality Clearance.</li>
             </ul>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: '1rem', borderTop: '1px dashed #CBD5E1' }}>
               <div>
-                <div style={{ fontWeight: 900, color: '#047857', fontSize: '0.85rem' }}>✓ DIGITAL LEGAL UNDERTAKING VERIFIED</div>
+                <div style={{ fontWeight: 900, color: '#047857', fontSize: '0.85rem' }}>✓ FORMAL CONTRACT UNDERTAKING SIGNED & VERIFIED</div>
                 <div style={{ fontSize: '0.78rem', color: '#1E293B', fontWeight: 700, marginTop: 2 }}>
                   Authorized Signatory: <strong>{formData?.signatoryName || formData?.contactName || 'Authorized Officer'}</strong>
                 </div>
