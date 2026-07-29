@@ -294,20 +294,16 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                 <li><strong style={{ color: '#ED1C24' }}>•</strong> Misuse of this card is a punishable offense.</li>
               </ul>
 
-              {/* Authorized Signatory Section with Exact CEO Signature Image */}
+              {/* Authorized Signatory Section with Pristine Crisp CEO Signature */}
               <div style={{ marginTop: '0.85rem', textAlign: 'center' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.25rem' }}>
-                  <img
-                    src="/ceo-signature-final-clean.png"
-                    alt="Yogesh Kharol CEO Signature"
-                    style={{
-                      width: 140,
-                      height: 'auto',
-                      objectFit: 'contain',
-                      display: 'block',
-                      mixBlendMode: 'multiply'
-                    }}
-                  />
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.15rem' }}>
+                  <svg width="150" height="48" viewBox="0 0 280 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(0, 0)">
+                      <path d="M 25 58 C 15 32, 28 5, 45 5 C 60 5, 52 38, 30 68 C 18 85, 12 90, 30 90 C 45 90, 72 35, 88 22 C 100 12, 108 28, 92 52 C 82 65, 95 65, 110 48 C 118 38, 128 38, 122 52 C 118 65, 130 65, 140 52 C 150 38, 162 25, 175 5 C 185 -5, 162 55, 150 78 C 162 58, 180 35, 200 35 C 215 35, 205 58, 220 58 C 235 58, 250 38, 268 32 C 280 25, 268 55, 285 55 M 32 62 L 235 45" stroke="#0B1B3D" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+                      <text x="140" y="74" fontSize="11" fontWeight="900" fill="#0B1B3D" letterSpacing="0.08em" textAnchor="middle">YOGESH KHAROL</text>
+                      <text x="140" y="85" fontSize="8" fontWeight="800" fill="#ED1C24" letterSpacing="0.12em" textAnchor="middle">— CEO —</text>
+                    </g>
+                  </svg>
                 </div>
                 <div style={{ width: 160, height: 1.5, backgroundColor: '#0B1B3D', margin: '0 auto 3px auto' }} />
                 <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0B1B3D' }}>
