@@ -1218,6 +1218,196 @@ body {
   table.print-dossier-table td, table.print-dossier-table th {
     border: 1px solid #1E293B !important;
     padding: 5px 8px !important;
+.dark [style*="color: #475569"],
+.dark [style*="color: #000000"],
+.dark [style*="color: #000"],
+.dark [style*="color: black"] {
+  color: #F8FAFC !important;
+}
+
+.dark [style*="color: #64748B"],
+.dark [style*="color: #64748b"] {
+  color: #94A3B8 !important;
+}
+
+.dark [style*="color: #0047AB"],
+.dark [style*="color: #0047ab"] {
+  color: #60A5FA !important;
+}
+
+/* Hardcoded light background container overrides for dark mode */
+.dark .form-card,
+.dark .modal-content,
+.dark .category-card,
+.dark .trust-card,
+.dark .upload-card,
+.dark .step-header,
+.dark .form-group,
+.dark [style*="background: #fff"],
+.dark [style*="background: #FFF"],
+.dark [style*="background: #ffffff"],
+.dark [style*="background: #FFFFFF"],
+.dark [style*="background: white"],
+.dark [style*="background-color: #fff"],
+.dark [style*="background-color: #FFF"],
+.dark [style*="background-color: #ffffff"],
+.dark [style*="background-color: #FFFFFF"],
+.dark [style*="background-color: white"],
+.dark [style*="backgroundColor: #fff"],
+.dark [style*="backgroundColor: #FFF"],
+.dark [style*="backgroundColor: #ffffff"],
+.dark [style*="backgroundColor: #FFFFFF"],
+.dark [style*="backgroundColor: white"] {
+  background-color: #1C2541 !important;
+  color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark [style*="background: #F8FAFC"],
+.dark [style*="background: #f8fafc"],
+.dark [style*="background-color: #F8FAFC"],
+.dark [style*="background-color: #f8fafc"],
+.dark [style*="background: #F1F5F9"],
+.dark [style*="background: #f1f5f9"],
+.dark [style*="background-color: #F1F5F9"],
+.dark [style*="background-color: #f1f5f9"],
+.dark [style*="background: #FAFAFA"],
+.dark [style*="background-color: #FAFAFA"] {
+  background-color: #0B132B !important;
+  color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Light blue/amber alert box overrides in dark mode */
+.dark [style*="background: rgba(0, 71, 171, 0.05)"],
+.dark [style*="background: rgba(0, 71, 171, 0.04)"],
+.dark [style*="background: rgba(0,71,171,0.05)"] {
+  background-color: rgba(96, 165, 250, 0.1) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+/* Inputs, Selects & Textareas in Dark Mode */
+.dark input.form-input,
+.dark select.form-input,
+.dark textarea.form-input,
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="number"],
+.dark input[type="tel"],
+.dark select {
+  background-color: #0B132B !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+.dark option {
+  background-color: #1C2541 !important;
+  color: #F8FAFC !important;
+}
+
+/* Table borders & header cells in Dark Mode */
+.dark table {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark table th {
+  background-color: #0B132B !important;
+  color: #60A5FA !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark table td {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #F8FAFC !important;
+}
+
+/* Navbar & Header in Dark Mode */
+.dark .header-navbar {
+  background-color: #1C2541 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .mobile-drawer-overlay {
+  background-color: #1C2541 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Footer in Dark Mode */
+.dark .footer {
+  background-color: #0B132B !important;
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .footer-banner {
+  background: linear-gradient(135deg, #1C2541 0%, #0B132B 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ════════════════ PRINT DOSSIER CSS MEDIA RULES ════════════════ */
+@media print {
+  html, body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Hide non-printable elements */
+  .header-navbar, .footer, .support-widget, .no-print, button, .progress-nav, .hero-section {
+    display: none !important;
+  }
+
+  /* Reset modal containers for A4 page flow */
+  .modal-backdrop {
+    position: static !important;
+    background: #FFFFFF !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+  }
+
+  .modal-content, .printable-area {
+    position: static !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .printable-section {
+    page-break-inside: avoid !important;
+    margin-bottom: 0.85rem !important;
+  }
+
+  /* Universal tabular layout for printed dossiers */
+  table.print-dossier-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 0.85rem !important;
+    font-size: 9.5pt !important;
+    page-break-inside: avoid !important;
+  }
+
+  table.print-dossier-table td, table.print-dossier-table th {
+    border: 1px solid #1E293B !important;
+    padding: 5px 8px !important;
     text-align: left !important;
     vertical-align: middle !important;
     color: #0F172A !important;
@@ -1235,9 +1425,9 @@ body {
   }
 }
 
-/* ALL-DEVICE MOBILE RESPONSIVE GUIDELINES & CARD MATRIX STYLES */
+/* ════════════════ GUIDELINES PAGE RESPONSIVE STYLES ════════════════ */
 .guidelines-page-wrapper {
-  max-width: 1050px;
+  max-width: 1180px;
   margin: 2.5rem auto 4rem auto;
   padding: 0 1.5rem;
 }
@@ -1249,9 +1439,31 @@ body {
 .guidelines-header-banner {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 1.75rem;
   padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.guidelines-module-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.responsive-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .guidelines-module-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 640px) {
@@ -1284,18 +1496,7 @@ body {
 }
 
 
-/* ENHANCED A4 PRINT MEDIA RULES */
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 10mm 12mm 10mm 12mm;
-  }
-  html, body {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    background: #FFFFFF !important;
-  }
-}
+
 
 
 /* ALL-DEVICE MOBILE RESPONSIVE STYLES FOR VENDOR DASHBOARD & LOGIN */
