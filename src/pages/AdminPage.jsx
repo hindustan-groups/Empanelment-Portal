@@ -954,6 +954,94 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             </div>
           </div>
         )}
+        {/* ════════════════ ADD NEW TENDER MODAL ════════════════ */}
+        {showAddTenderModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(5px)',
+            zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem'
+          }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Publish New Project Tender</h3>
+                <button onClick={() => setShowAddTenderModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+              </div>
+
+              <form onSubmit={handleAddTender} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Tender Package Title *</label>
+                  <input type="text" required className="form-input" placeholder="e.g. Turnkey Civil Construction Package" value={newTender.title} onChange={e => setNewTender({ ...newTender, title: e.target.value })} />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Category</label>
+                  <select className="form-input" value={newTender.category} onChange={e => setNewTender({ ...newTender, category: e.target.value })}>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+                  </select>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Site Location *</label>
+                    <input type="text" required className="form-input" placeholder="e.g. Jaipur, Rajasthan" value={newTender.location} onChange={e => setNewTender({ ...newTender, location: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Estimated Value</label>
+                    <input type="text" className="form-input" placeholder="e.g. ₹ 14.50 Crores" value={newTender.estimatedCost} onChange={e => setNewTender({ ...newTender, estimatedCost: e.target.value })} />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Bidding Deadline Date</label>
+                  <input type="date" className="form-input" value={newTender.deadline} onChange={e => setNewTender({ ...newTender, deadline: e.target.value })} />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                  <button type="button" onClick={() => setShowAddTenderModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Cancel</button>
+                  <button type="submit" className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>Publish Tender Live</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ ADD NEW CATEGORY MODAL ════════════════ */}
+        {showAddCatModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(5px)',
+            zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem'
+          }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 500, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Add New Empanelment Category</h3>
+                <button onClick={() => setShowAddCatModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+              </div>
+
+              <form onSubmit={handleSaveCat} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Category Title Label *</label>
+                  <input type="text" required className="form-input" placeholder="e.g. Geotechnical & Drilling Services" value={newCat.label} onChange={e => setNewCat({ ...newCat, label: e.target.value })} />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Category Unique System ID (Optional)</label>
+                  <input type="text" className="form-input" placeholder="e.g. geo_drilling" value={newCat.id} onChange={e => setNewCat({ ...newCat, id: e.target.value })} />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Scope Description</label>
+                  <textarea className="form-input" rows={3} placeholder="Brief summary of required capabilities..." value={newCat.description} onChange={e => setNewCat({ ...newCat, description: e.target.value })} />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                  <button type="button" onClick={() => setShowAddCatModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Cancel</button>
+                  <button type="submit" className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>Add Category</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
