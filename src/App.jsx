@@ -27,12 +27,16 @@ function ScrollToTop() {
   return null;
 }
 
-export default function App() {
+function MainAppLayout() {
+  const location = useLocation();
   const [isDark, setIsDark] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('civil');
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
   const [lastSubmittedData, setLastSubmittedData] = useState(null);
+
+  // Standalone Software Portal check
+  const isStandalonePortal = location.pathname === '/vendor-dashboard' || location.pathname === '/internal-admin-dashboard';
 
   // Admin Auth State & Security Session Expiry
   const [isAdminAuth, setIsAdminAuth] = useState(() => {
@@ -138,91 +142,99 @@ export default function App() {
   };
 
   return (
-    <Router>
-      <ScrollToTop />
-      <div className="app-container">
-        
-        {/* Top Public Navbar */}
+    <div className="app-container">
+      
+      {/* Show Public Header ONLY when not in standalone software portal */}
+      {!isStandalonePortal && (
         <Header 
           isDark={isDark} 
           toggleTheme={toggleTheme}
         />
+      )}
 
-        {/* Main Route Content */}
-        <main className="main-content">
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <Home 
-                  selectedCategory={selectedCategory}
-                  setSelectedCategory={setSelectedCategory}
-                />
-              } 
-            />
-
-            <Route 
-              path="/apply" 
-              element={
-                <ApplyPage 
-                  selectedCategory={selectedCategory}
-                  onFormSubmit={handleFormSubmit}
-                />
-              } 
-            />
-
-            <Route path="/track" element={<TrackPage />} />
-            <Route path="/guidelines" element={<GuidelinesPage />} />
-
-            {/* Vendor Auth & Portal Dashboard */}
-            <Route path="/vendor-login" element={<VendorLoginPage />} />
-            <Route path="/vendor-dashboard" element={<VendorDashboardPage />} />
-            
-            {/* Isolated Unlisted Internal Admin Security Gateway */}
-            <Route 
-              path="/internal-portal-login" 
-              element={
-                <AdminLoginPage 
-                  onLoginSuccess={handleAdminLogin} 
-                />
-              } 
-            />
-            <Route path="/admin-login" element={<Navigate to="/internal-portal-login" replace />} />
-
-            <Route 
-              path="/internal-admin-dashboard" 
-              element={
-                isAdminAuth ? (
-                  <AdminPage 
-                    isAuthenticated={isAdminAuth} 
-                    onLogout={handleAdminLogout} 
-                  />
-                ) : (
-                  <Navigate to="/internal-portal-login" replace />
-                )
-              } 
-            />
-            <Route path="/admin" element={<Navigate to="/internal-admin-dashboard" replace />} />
-          </Routes>
-        </main>
-
-        {/* Floating Support Widget for Vendor Assistance */}
-        <SupportWidget />
-
-        {/* Footer */}
-        <Footer />
-
-        {/* Success Modal Confirmation */}
-        {isSuccessOpen && (
-          <SuccessModal 
-            isOpen={isSuccessOpen}
-            trackingId={submittedId}
-            formData={lastSubmittedData}
-            onClose={() => setIsSuccessOpen(false)}
+      {/* Main Route Content */}
+      <main className="main-content">
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <Home 
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+              />
+            } 
           />
-        )}
 
-      </div>
+          <Route 
+            path="/apply" 
+            element={
+              <ApplyPage 
+                selectedCategory={selectedCategory}
+                onFormSubmit={handleFormSubmit}
+              />
+            } 
+          />
+
+          <Route path="/track" element={<TrackPage />} />
+          <Route path="/guidelines" element={<GuidelinesPage />} />
+
+          {/* Vendor Auth & Portal Dashboard */}
+          <Route path="/vendor-login" element={<VendorLoginPage />} />
+          <Route path="/vendor-dashboard" element={<VendorDashboardPage />} />
+          
+          {/* Isolated Unlisted Internal Admin Security Gateway */}
+          <Route 
+            path="/internal-portal-login" 
+            element={
+              <AdminLoginPage 
+                onLoginSuccess={handleAdminLogin} 
+              />
+            } 
+          />
+          <Route path="/admin-login" element={<Navigate to="/internal-portal-login" replace />} />
+
+          <Route 
+            path="/internal-admin-dashboard" 
+            element={
+              isAdminAuth ? (
+                <AdminPage 
+                  isAuthenticated={isAdminAuth} 
+                  onLogout={handleAdminLogout} 
+                />
+              ) : (
+                <Navigate to="/internal-portal-login" replace />
+              )
+            } 
+          />
+          <Route path="/admin" element={<Navigate to="/internal-admin-dashboard" replace />} />
+        </Routes>
+      </main>
+
+      {/* Floating Support Widget ONLY on public site */}
+      {!isStandalonePortal && <SupportWidget />}
+
+      {/* Footer ONLY on public site */}
+      {!isStandalonePortal && <Footer />}
+
+      {/* Success Modal Confirmation */}
+      {isSuccessOpen && (
+        <SuccessModal 
+          isOpen={isSuccessOpen}
+          trackingId={submittedId}
+          formData={lastSubmittedData}
+          onClose={() => setIsSuccessOpen(false)}
+        />
+      )}
+
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <ScrollToTop />
+      <MainAppLayout />
     </Router>
   );
 }
