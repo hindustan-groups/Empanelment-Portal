@@ -1313,3 +1313,27 @@ body {
   }
 }
 
+
+/* ALL-DEVICE MOBILE RESPONSIVE STYLES FOR VENDOR DASHBOARD & LOGIN */
+@media (max-width: 640px) {
+  .vendor-dashboard-nav {
+    padding: 0.65rem 0.85rem !important;
+  }
+
+  .vendor-welcome-banner {
+    padding: 1.15rem 1rem !important;
+    border-radius: 16px !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .vendor-login-card {
+    padding: 1.25rem 1rem !important;
+    border-radius: 16px !important;
+  }
+
+  .modal-content.printable-area {
+    padding: 1rem 0.75rem !important;
+    border-radius: 14px !important;
+  }
+}
+
