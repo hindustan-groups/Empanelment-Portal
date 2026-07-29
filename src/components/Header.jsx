@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import Logo from './Logo';
-import { Sun, Moon, Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink, Home } from 'lucide-react';
+import { Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink, Home } from 'lucide-react';
 
 const DEFAULT_SITE_CONFIG = {
   companyTitle: 'Hindustan Projects',
@@ -10,7 +10,7 @@ const DEFAULT_SITE_CONFIG = {
   corporateEmail: 'empanelment@hindustanprojects.in'
 };
 
-export default function Header({ isDark, toggleTheme }) {
+export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [siteConfig, setSiteConfig] = useState(DEFAULT_SITE_CONFIG);
 
@@ -80,18 +80,10 @@ export default function Header({ isDark, toggleTheme }) {
             <ShieldCheck style={{ width: 16, height: 16, color: '#10B981' }} />
             <span>Vendor Login</span>
           </NavLink>
-
-          <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme">
-            {isDark ? <Sun style={{ width: 18, height: 18, color: '#F59E0B' }} /> : <Moon style={{ width: 18, height: 18, color: '#475569' }} />}
-          </button>
         </div>
 
         {/* Mobile Hamburger Toggle Button */}
         <div className="mobile-toggle-wrapper">
-          <button onClick={toggleTheme} className="theme-toggle-btn" aria-label="Toggle Theme" style={{ marginRight: '0.5rem' }}>
-            {isDark ? <Sun style={{ width: 16, height: 16, color: '#F59E0B' }} /> : <Moon style={{ width: 16, height: 16, color: '#475569' }} />}
-          </button>
-
           <button 
             onClick={() => setMobileMenuOpen(prev => !prev)}
             className="mobile-menu-btn"
