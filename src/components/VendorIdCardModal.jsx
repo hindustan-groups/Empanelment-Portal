@@ -298,7 +298,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               <div style={{ marginTop: '0.85rem', textAlign: 'center' }}>
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.25rem' }}>
                   <img
-                    src="/ceo-signature-exact.jpg"
+                    src="/ceo-signature-exact.jpg?v=9"
                     alt="Yogesh Kharol CEO Signature"
                     style={{
                       width: 120,
