@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
 import SecurityCaptcha from '../components/SecurityCaptcha';
 import ContractManager from '../components/ContractManager';
+import SuccessModal from '../components/SuccessModal';
 import {
   Database, RefreshCw, LogOut, ShieldCheck, Search,
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3,
@@ -120,6 +121,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [adminRemark, setAdminRemark] = useState('');
+  const [showAdminCertModal, setShowAdminCertModal] = useState(false);
 
   /* Categories */
   const [categories, setCategories] = useState(() => {
@@ -937,22 +939,69 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 ]} />
               </SectionCard>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+              <SectionCard title="4. Procurement Committee Audit Remarks & Internal Notes" icon={Edit3}>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Enter internal committee audit notes (e.g. Site physical inspection verified by Chief Engineer)..."
+                    value={adminRemark}
+                    onChange={(e) => setAdminRemark(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveRemark}
+                    className="btn-primary"
+                    style={{ padding: '0.55rem 1rem', fontSize: '0.8rem', borderRadius: 8, whiteSpace: 'nowrap' }}
+                  >
+                    <Save style={{ width: 14, height: 14 }} />
+                    <span>Save Note</span>
+                  </button>
+                </div>
+              </SectionCard>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '0.75rem' }}>
                 <button
                   onClick={() => handleDeleteVendor(selectedVendor.tracking_id)}
-                  style={{ padding: '0.5rem 1rem', borderRadius: 8, fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24', background: 'rgba(237,28,36,0.1)', border: '1px solid rgba(237,28,36,0.3)', cursor: 'pointer' }}
+                  style={{ padding: '0.5rem 1rem', borderRadius: 8, fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24', background: 'rgba(237,28,36,0.1)', border: '1px solid rgba(237,28,36,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                 >
                   <Trash2 style={{ width: 14, height: 14 }} />
                   <span>Delete Application</span>
                 </button>
 
-                <button onClick={() => setSelectedVendor(null)} className="btn-secondary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
-                  Close Window
-                </button>
+                <div style={{ display: 'flex', gap: '0.65rem' }}>
+                  <button
+                    onClick={() => setShowAdminCertModal(true)}
+                    className="btn-accent"
+                    style={{ padding: '0.5rem 1.15rem', fontSize: '0.825rem', borderRadius: 8 }}
+                  >
+                    <Printer style={{ width: 15, height: 15 }} />
+                    <span>Print A4 Dossier & Certificate (PDF)</span>
+                  </button>
+
+                  <button onClick={() => setSelectedVendor(null)} className="btn-secondary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
+                    Close Window
+                  </button>
+                </div>
               </div>
 
             </div>
           </div>
+        )}
+
+        {/* ════════════════ CERTIFICATE A4 PRINT MODAL FOR ADMIN ════════════════ */}
+        {showAdminCertModal && selectedVendor && (
+          <SuccessModal
+            isOpen={showAdminCertModal}
+            onClose={() => setShowAdminCertModal(false)}
+            trackingId={selectedVendor.tracking_id}
+            formData={{
+              companyName: selectedVendor.company_name,
+              gstin: selectedVendor.gstin,
+              category: selectedVendor.category,
+              submitted_at: selectedVendor.submitted_at || new Date().toISOString()
+            }}
+          />
         )}
         {/* ════════════════ ADD NEW TENDER MODAL ════════════════ */}
         {showAddTenderModal && (
