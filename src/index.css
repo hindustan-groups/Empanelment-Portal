@@ -1315,15 +1315,42 @@ body {
 
 
 /* ALL-DEVICE MOBILE RESPONSIVE STYLES FOR VENDOR DASHBOARD & LOGIN */
-@media (max-width: 640px) {
-  .vendor-dashboard-nav {
-    padding: 0.65rem 0.85rem !important;
+@media (max-width: 768px) {
+  .vendor-dashboard-header {
+    padding: 0.75rem 0.85rem !important;
+  }
+
+  .vendor-dashboard-tabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    justify-content: flex-start !important;
+    padding-bottom: 6px !important;
+    gap: 0.35rem !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding-top: 0.5rem !important;
+  }
+
+  .vendor-dashboard-tabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .vendor-dashboard-tabs button {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.75rem !important;
   }
 
   .vendor-welcome-banner {
     padding: 1.15rem 1rem !important;
     border-radius: 16px !important;
     margin-bottom: 1.25rem !important;
+  }
+
+  .vendor-welcome-title {
+    font-size: 1.25rem !important;
   }
 
   .vendor-login-card {

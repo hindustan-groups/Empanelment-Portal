@@ -40,7 +40,7 @@ export default function VendorDashboardPage() {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       
       {/* ════════════════ STANDALONE PORTAL TOP NAVBAR ════════════════ */}
-      <header style={{
+      <header className="vendor-dashboard-header" style={{
         backgroundColor: 'var(--bg-card)',
         borderBottom: '1px solid var(--border-color)',
         padding: '0.85rem 1.75rem',
