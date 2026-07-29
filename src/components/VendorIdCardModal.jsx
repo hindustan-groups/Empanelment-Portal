@@ -168,14 +168,14 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               <div style={{ position: 'absolute', top: 18, right: 0, width: 95, height: 4, backgroundColor: '#ED1C24' }} />
             </div>
 
-            {/* Header Content on White Background */}
-            <div style={{ textAlign: 'center', padding: '10px 1rem 4px 1rem', position: 'relative' }}>
+            {/* Header Content on White Background (Identical Symmetrical Top Header) */}
+            <div style={{ textAlign: 'center', padding: '14px 1rem 4px 1rem', position: 'relative' }}>
               {/* Left Navy & Right Red Polygon Background Accents */}
-              <div style={{ position: 'absolute', top: 10, left: -25, width: 70, height: 55, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 100% 50%, 0 100%)', opacity: 0.95 }} />
-              <div style={{ position: 'absolute', top: 15, right: -25, width: 70, height: 55, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', opacity: 0.95 }} />
+              <div style={{ position: 'absolute', top: 12, left: -25, width: 70, height: 55, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 100% 50%, 0 100%)', opacity: 0.95 }} />
+              <div style={{ position: 'absolute', top: 17, right: -25, width: 70, height: 55, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', opacity: 0.95 }} />
 
-              {/* Logo Image */}
-              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 38, width: 'auto', objectFit: 'contain', margin: '0 auto 2px auto', display: 'block', position: 'relative', zIndex: 2 }} />
+              {/* Logo Image - Shifted Down Slightly for Breathing Room */}
+              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 38, width: 'auto', objectFit: 'contain', margin: '4px auto 4px auto', display: 'block', position: 'relative', zIndex: 2 }} />
 
               <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase', position: 'relative', zIndex: 2 }}>
                 HINDUSTAN PROJECTS
@@ -266,14 +266,14 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               <div style={{ position: 'absolute', top: 18, right: 0, width: 95, height: 4, backgroundColor: '#ED1C24' }} />
             </div>
 
-            {/* Header Content on White Background (Matching Front Side Exactly) */}
-            <div style={{ textAlign: 'center', padding: '10px 1rem 4px 1rem', position: 'relative' }}>
+            {/* Header Content on White Background (Identical Symmetrical Top Header) */}
+            <div style={{ textAlign: 'center', padding: '14px 1rem 4px 1rem', position: 'relative' }}>
               {/* Left Navy & Right Red Polygon Background Accents */}
-              <div style={{ position: 'absolute', top: 10, left: -25, width: 70, height: 55, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 100% 50%, 0 100%)', opacity: 0.95 }} />
-              <div style={{ position: 'absolute', top: 15, right: -25, width: 70, height: 55, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', opacity: 0.95 }} />
+              <div style={{ position: 'absolute', top: 12, left: -25, width: 70, height: 55, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 100% 50%, 0 100%)', opacity: 0.95 }} />
+              <div style={{ position: 'absolute', top: 17, right: -25, width: 70, height: 55, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', opacity: 0.95 }} />
 
-              {/* Logo Image */}
-              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 38, width: 'auto', objectFit: 'contain', margin: '0 auto 2px auto', display: 'block', position: 'relative', zIndex: 2 }} />
+              {/* Logo Image - Shifted Down Slightly for Breathing Room */}
+              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 38, width: 'auto', objectFit: 'contain', margin: '4px auto 4px auto', display: 'block', position: 'relative', zIndex: 2 }} />
 
               <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase', position: 'relative', zIndex: 2 }}>
                 HINDUSTAN PROJECTS
