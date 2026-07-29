@@ -294,20 +294,14 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                 <li><strong style={{ color: '#ED1C24' }}>•</strong> Misuse of this card is a punishable offense.</li>
               </ul>
 
-              {/* Authorized Signatory Section with Clean CEO Cursive Signature */}
+              {/* Authorized Signatory Section with Clean Vector CEO Signature */}
               <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.25rem' }}>
-                  <img
-                    src="/ceo-signature-clean.png?v=3"
-                    alt="Yogesh Kharol Cursive Signature"
-                    style={{
-                      width: 145,
-                      height: 'auto',
-                      objectFit: 'contain',
-                      display: 'block',
-                      mixBlendMode: 'multiply'
-                    }}
-                  />
+                <div style={{ height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: -4 }}>
+                  <svg width="150" height="44" viewBox="0 0 240 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 15 45 C 10 25, 20 5, 32 5 C 45 5, 38 32, 22 55 C 12 68, 8 72, 22 72 C 35 72, 55 28, 68 18 C 78 10, 85 22, 72 42 C 65 52, 75 52, 88 38 C 95 30, 102 30, 98 42 C 94 52, 105 52, 112 42 C 120 30, 128 22, 138 8 C 145 0, 128 45, 118 62 C 128 48, 142 30, 158 30 C 168 30, 160 48, 172 48 C 182 48, 192 35, 202 30 C 210 26, 202 45, 215 45 M 28 50 L 180 38" stroke="#0B1B3D" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <text x="120" y="60" fontSize="10" fontWeight="900" fill="#0B1B3D" letterSpacing="0.08em" textAnchor="middle">YOGESH KHAROL</text>
+                    <text x="120" y="68" fontSize="7" fontWeight="800" fill="#ED1C24" letterSpacing="0.1em" textAnchor="middle">— CEO —</text>
+                  </svg>
                 </div>
                 <div style={{ width: 160, height: 1.5, backgroundColor: '#0B1B3D', margin: '0 auto 3px auto' }} />
                 <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0B1B3D' }}>
