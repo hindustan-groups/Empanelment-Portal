@@ -4,11 +4,14 @@ import { X, Printer, ShieldCheck, Edit3 } from 'lucide-react';
 export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
   if (!isOpen || !vendorData) return null;
 
-  // Local state for ID Card fields (populated from vendorData)
-  const [cardData, setCardData] = useState({
+  // Determine if vendor empanelment status is APPROVED
+  const isApproved = vendorData.status === 'APPROVED' || vendorData.isApproved !== false;
+
+  // Auto-populated ID Card fields directly from verified empanelment data (System Locked)
+  const cardData = {
     name: vendorData.contactName || vendorData.contact_name || vendorData.name || 'MOHMMAD DILSHAN',
-    designation: vendorData.designation || 'Developer',
-    vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-IT-003',
+    designation: vendorData.designation || vendorData.primary_role_label || 'Empanelled Vendor',
+    vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
     department: vendorData.department || vendorData.category_label || vendorData.primary_role || 'Software Engineering',
     bloodGroup: vendorData.bloodGroup || vendorData.blood_group || 'B+',
     photoUrl: vendorData.passportPhoto || vendorData.photo_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
@@ -16,42 +19,14 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
     phone: vendorData.helplinePhone || vendorData.phone || '+91 7597000601',
     email: vendorData.corporateEmail || vendorData.email || 'info@hindustanprojects.in',
     website: 'hindustanprojects.in'
-  });
-
-  const [isEditing, setIsEditing] = useState(false);
-
-  useEffect(() => {
-    if (vendorData) {
-      setCardData(prev => ({
-        ...prev,
-        name: vendorData.contactName || vendorData.contact_name || vendorData.name || prev.name,
-        designation: vendorData.designation || prev.designation,
-        vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || prev.vendorId,
-        department: vendorData.department || vendorData.category_label || vendorData.primary_role || prev.department,
-        bloodGroup: vendorData.bloodGroup || vendorData.blood_group || prev.bloodGroup,
-        photoUrl: vendorData.passportPhoto || vendorData.photo_url || prev.photoUrl,
-        address: vendorData.corporateAddress || vendorData.address || prev.address,
-        phone: vendorData.helplinePhone || vendorData.phone || prev.phone,
-        email: vendorData.corporateEmail || vendorData.email || prev.email
-      }));
-    }
-  }, [vendorData]);
+  };
 
   // QR Code URL for instant verification on scan
   const qrVerificationUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://empanelment.hindustanprojects.in/track?id=${cardData.vendorId}`)}`;
 
   const handlePrint = () => {
-    window.print();
-  };
-
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCardData(prev => ({ ...prev, photoUrl: reader.result }));
-      };
-      reader.readAsDataURL(file);
+    if (isApproved) {
+      window.print();
     }
   };
 
@@ -72,9 +47,9 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
         {/* Modal Top Control Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid #CBD5E1', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.2rem 0.65rem', borderRadius: 99, background: 'rgba(0,71,171,0.1)', color: '#0047AB', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.2rem 0.65rem', borderRadius: 99, background: isApproved ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: isApproved ? '#047857' : '#B45309', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
               <ShieldCheck style={{ width: 14, height: 14 }} />
-              <span>Official CR80 PVC Smart Identity Badge</span>
+              <span>{isApproved ? 'Official Verified System Identity' : '⚠️ Pending Admin Approval'}</span>
             </div>
             <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', marginTop: 4 }}>
               Empanelled Vendor Smart Identity Card
@@ -83,68 +58,28 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
 
           <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="btn-secondary"
-              style={{ padding: '0.55rem 1rem', fontSize: '0.825rem', borderRadius: 10, display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: isEditing ? '#0047AB' : undefined, color: isEditing ? '#FFF' : undefined }}
-            >
-              <Edit3 style={{ width: 15, height: 15 }} />
-              <span>{isEditing ? '✓ Done Editing' : '✏️ Edit Card Info'}</span>
-            </button>
-
-            <button
               onClick={handlePrint}
+              disabled={!isApproved}
               className="btn-accent"
-              style={{ padding: '0.55rem 1.25rem', fontSize: '0.85rem', borderRadius: 10, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              style={{
+                padding: '0.55rem 1.25rem', fontSize: '0.85rem', borderRadius: 10, display: 'flex', alignItems: 'center', gap: '0.4rem',
+                opacity: isApproved ? 1 : 0.5, cursor: isApproved ? 'pointer' : 'not-allowed'
+              }}
+              title={isApproved ? 'Print Official Smart ID Card' : 'Card download unlocks upon Admin Approval'}
             >
               <Printer style={{ width: 16, height: 16 }} />
-              <span>Print PVC Card (PDF)</span>
+              <span>{isApproved ? 'Print PVC Card (PDF)' : 'Locked (Pending Approval)'}</span>
             </button>
 
             <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#64748B', padding: '0.2rem' }}>✕</button>
           </div>
         </div>
 
-        {/* ✏️ LIVE CARD EDITING FORM PANEL (Shown when isEditing = true) */}
-        {isEditing && (
-          <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: '#FFFFFF', border: '1.5px solid #0047AB', marginBottom: '1.5rem', boxShadow: '0 4px 14px rgba(0,71,171,0.1)' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.85rem', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Edit3 style={{ width: 16, height: 16 }} />
-              <span>Customize Vendor Identity Card Details Live:</span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', display: 'block', marginBottom: 2 }}>Full Name *</label>
-                <input type="text" className="form-input" value={cardData.name} onChange={e => setCardData({ ...cardData, name: e.target.value })} placeholder="e.g. MOHMMAD DILSHAN" />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', display: 'block', marginBottom: 2 }}>Designation *</label>
-                <input type="text" className="form-input" value={cardData.designation} onChange={e => setCardData({ ...cardData, designation: e.target.value })} placeholder="e.g. Developer / Director" />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', display: 'block', marginBottom: 2 }}>Employee / Vendor ID *</label>
-                <input type="text" className="form-input" value={cardData.vendorId} onChange={e => setCardData({ ...cardData, vendorId: e.target.value })} placeholder="e.g. HP-IT-003" />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', display: 'block', marginBottom: 2 }}>Department *</label>
-                <input type="text" className="form-input" value={cardData.department} onChange={e => setCardData({ ...cardData, department: e.target.value })} placeholder="e.g. Software Engineering" />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', display: 'block', marginBottom: 2 }}>Blood Group</label>
-                <select className="form-input" value={cardData.bloodGroup} onChange={e => setCardData({ ...cardData, bloodGroup: e.target.value })}>
-                  {['B+', 'A+', 'O+', 'AB+', 'B-', 'A-', 'O-', 'AB-'].map(bg => <option key={bg} value={bg}>{bg}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', display: 'block', marginBottom: 2 }}>Profile Photo Upload</label>
-                <input type="file" accept="image/*" onChange={handlePhotoUpload} className="form-input" style={{ padding: '0.35rem' }} />
-              </div>
-            </div>
+        {/* 🔒 SECURITY NOTICE BANNER */}
+        {!isApproved && (
+          <div style={{ padding: '0.85rem 1.25rem', backgroundColor: '#FFFBEB', border: '1.5px solid #F59E0B', borderRadius: 14, marginBottom: '1.25rem', color: '#B45309', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <span style={{ fontSize: '1.1rem' }}>🔒</span>
+            <span>Security Lockdown: Official Smart ID Card printing is currently locked. Once Admin approves your empanelment application, official printing will unlock automatically.</span>
           </div>
         )}
 
