@@ -31,7 +31,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
   };
 
   return (
-    <div style={{
+    <div className="id-card-modal-overlay" style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       backgroundColor: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(8px)',
       zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem',
@@ -39,13 +39,13 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
     }}>
       
       {/* Modal Container */}
-      <div style={{
+      <div className="id-card-modal-container" style={{
         backgroundColor: '#F8FAFC', borderRadius: 24, maxWidth: 960, width: '100%',
         padding: '2rem', border: '1px solid #CBD5E1', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)'
       }}>
 
         {/* Modal Top Control Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid #CBD5E1', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div className="id-card-modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid #CBD5E1', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.2rem 0.65rem', borderRadius: 99, background: isApproved ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: isApproved ? '#047857' : '#B45309', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
               <ShieldCheck style={{ width: 14, height: 14 }} />
@@ -77,7 +77,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
 
         {/* 🔒 SECURITY NOTICE BANNER */}
         {!isApproved && (
-          <div style={{ padding: '0.85rem 1.25rem', backgroundColor: '#FFFBEB', border: '1.5px solid #F59E0B', borderRadius: 14, marginBottom: '1.25rem', color: '#B45309', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div className="id-card-security-banner" style={{ padding: '0.85rem 1.25rem', backgroundColor: '#FFFBEB', border: '1.5px solid #F59E0B', borderRadius: 14, marginBottom: '1.25rem', color: '#B45309', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <span style={{ fontSize: '1.1rem' }}>🔒</span>
             <span>Security Lockdown: Official Smart ID Card printing is currently locked. Once Admin approves your empanelment application, official printing will unlock automatically.</span>
           </div>

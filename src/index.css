@@ -1551,33 +1551,59 @@ body {
 
 /* ════════════════ 🖨️ PERFECT OFFICIAL CR80 SMART ID CARD PRINT STYLES ════════════════ */
 @media print {
-  /* 1. Hide all background portal UI, navbar, modal backdrops & controls */
-  body * {
-    visibility: hidden !important;
+  /* 1. Hide navigation, portal layout & modal controls */
+  header,
+  footer,
+  nav,
+  .vendor-dashboard-header,
+  .id-card-modal-header,
+  .id-card-security-banner {
+    display: none !important;
   }
 
-  /* 2. Make ONLY the printable ID Card wrapper and its children visible */
-  .printable-id-card-wrapper,
-  .printable-id-card-wrapper * {
-    visibility: visible !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* 3. Position the Front & Back CR80 Cards side-by-side cleanly on A4 / PVC Canvas */
-  .printable-id-card-wrapper {
+  /* 2. Convert modal overlay to clean white page document flow */
+  .id-card-modal-overlay {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
+    height: auto !important;
+    background: #FFFFFF !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 999999 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .id-card-modal-container {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* 3. Render Front & Back CR80 Cards side-by-side cleanly in full color */
+  .printable-id-card-wrapper {
     display: flex !important;
     flex-direction: row !important;
     justify-content: center !important;
     align-items: flex-start !important;
     gap: 2rem !important;
-    margin: 0 !important;
-    padding: 15mm 0 !important;
+    margin: 15mm auto !important;
+    padding: 0 !important;
     background: #FFFFFF !important;
+    visibility: visible !important;
+  }
+
+  .printable-id-card-wrapper * {
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 
