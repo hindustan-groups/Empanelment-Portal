@@ -283,14 +283,14 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             </div>
 
             {/* Terms & Conditions Body */}
-            <div style={{ padding: '0.4rem 1.25rem 0.2rem 1.25rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div style={{ padding: '0.85rem 1.4rem 0.5rem 1.4rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
               <div>
-                <h3 style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0B1B3D', textAlign: 'center', letterSpacing: '0.05em', margin: '0 0 2px 0' }}>
+                <h3 style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0B1B3D', textAlign: 'center', letterSpacing: '0.05em', margin: '0 0 2px 0' }}>
                   TERMS & CONDITIONS
                 </h3>
-                <div style={{ width: 30, height: 2, backgroundColor: '#ED1C24', margin: '0 auto 0.35rem auto' }} />
+                <div style={{ width: 30, height: 2, backgroundColor: '#ED1C24', margin: '0 auto 0.75rem auto' }} />
 
-                <ul style={{ paddingLeft: '0.85rem', margin: 0, fontSize: '0.68rem', color: '#1E293B', display: 'flex', flexDirection: 'column', gap: '0.25rem', lineHeight: 1.3 }}>
+                <ul style={{ paddingLeft: '0.85rem', margin: 0, fontSize: '0.72rem', color: '#1E293B', display: 'flex', flexDirection: 'column', gap: '0.6rem', lineHeight: 1.45 }}>
                   <li><strong style={{ color: '#ED1C24' }}>•</strong> This card is the property of Hindustan Projects.</li>
                   <li><strong style={{ color: '#ED1C24' }}>•</strong> This card must be worn at all times.</li>
                   <li><strong style={{ color: '#ED1C24' }}>•</strong> If found, please return to Human Resources Department.</li>
@@ -299,13 +299,13 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               </div>
 
               {/* Authorized Signatory Section with Exact Uploaded CEO Signature Image */}
-              <div style={{ marginTop: '0.2rem', textAlign: 'center' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.1rem' }}>
+              <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.2rem' }}>
                   <img
                     src="/ceo-signature-exact-final.png"
                     alt="Yogesh Kharol CEO Signature"
                     style={{
-                      width: 120,
+                      width: 140,
                       height: 'auto',
                       objectFit: 'contain',
                       display: 'block',
@@ -313,8 +313,8 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                     }}
                   />
                 </div>
-                <div style={{ width: 140, height: 1.5, backgroundColor: '#0B1B3D', margin: '0 auto 2px auto' }} />
-                <div style={{ fontSize: '0.64rem', fontWeight: 800, color: '#0B1B3D' }}>
+                <div style={{ width: 160, height: 1.5, backgroundColor: '#0B1B3D', margin: '0 auto 3px auto' }} />
+                <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0B1B3D' }}>
                   Authorized Signatory
                 </div>
               </div>
