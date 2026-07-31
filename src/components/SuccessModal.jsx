@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { CheckCircle2, Copy, Download, ExternalLink, ShieldCheck, Home } from 'lucide-react';
 import Logo from './Logo';
+import { printCard } from '../utils/printCard';
 
 export default function SuccessModal({ isOpen, trackingId, formData, onClose }) {
   useEffect(() => {
@@ -23,15 +24,32 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
   };
 
   const handlePrint = () => {
-    window.print();
+    printCard('success-card-element', `Hindustan Projects Empanelment Card - ${trackingId}`);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-8 shadow-2xl relative text-center overflow-hidden">
+      
+      {/* The Printable Card (Prints 1:1 identical to screen design) */}
+      <div id="success-card-element" className="printable-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-8 shadow-2xl relative text-center overflow-hidden">
         
         {/* Top Decorative Bar */}
         <div className="h-3 bg-gradient-to-r from-[#ED1C24] via-[#0047AB] to-[#ED1C24] absolute top-0 left-0 right-0"></div>
+
+        {/* Brand Header for Official Print Verification */}
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 mt-1">
+          <div className="flex items-center gap-2 text-left">
+            <div className="w-8 h-8 rounded-lg bg-[#ED1C24] text-white flex items-center justify-center font-black text-xs">HP</div>
+            <div>
+              <span className="text-xs font-black tracking-tight text-[#0047AB] block">HINDUSTAN PROJECTS (HiPRO)</span>
+              <span className="text-[10px] text-slate-500 block">empanel.hindustanprojects.in</span>
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Empanelment Card</span>
+            <span className="text-xs font-mono font-bold text-[#ED1C24]">{trackingId}</span>
+          </div>
+        </div>
 
         <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4 ring-8 ring-emerald-50 dark:ring-emerald-900/30">
           <CheckCircle2 className="w-10 h-10" />
@@ -54,7 +72,7 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
             <button
               onClick={copyTrackingId}
               title="Copy Reference Code"
-              className="p-1.5 rounded-lg bg-white dark:bg-slate-700 hover:bg-slate-100 text-slate-600 dark:text-slate-200 shadow-sm border border-slate-200 dark:border-slate-600 transition-colors"
+              className="no-print p-1.5 rounded-lg bg-white dark:bg-slate-700 hover:bg-slate-100 text-slate-600 dark:text-slate-200 shadow-sm border border-slate-200 dark:border-slate-600 transition-colors"
             >
               <Copy className="w-4 h-4" />
             </button>
@@ -65,22 +83,31 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
         <div className="text-left p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 text-xs sm:text-sm space-y-2 mb-6 border border-slate-200 dark:border-slate-700">
           <div className="flex justify-between">
             <span className="text-slate-500">Applicant Organization:</span>
-            <span className="font-bold text-slate-900 dark:text-white">{formData?.companyName}</span>
+            <span className="font-bold text-slate-900 dark:text-white uppercase">{formData?.companyName}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-500">GSTIN:</span>
             <span className="font-bold text-slate-900 dark:text-white uppercase">{formData?.gstin}</span>
           </div>
           <div className="flex justify-between">
+            <span className="text-slate-500">Empanelment Category:</span>
+            <span className="font-bold text-slate-900 dark:text-white capitalize">{formData?.category || 'Civil & Structural'}</span>
+          </div>
+          <div className="flex justify-between">
             <span className="text-slate-500">Target Domain:</span>
             <span className="font-bold text-blue-600 dark:text-blue-400">empanel.hindustanprojects.in</span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-slate-500">Filing Date:</span>
+            <span className="font-bold text-slate-900 dark:text-white">{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        {/* Buttons (Hidden during print via .no-print) */}
+        <div className="no-print flex flex-col sm:flex-row items-center justify-center gap-3">
           <button onClick={handlePrint} className="btn-secondary w-full sm:w-auto">
             <Download className="w-4 h-4" />
-            <span>Download PDF Copy</span>
+            <span>Print / Save Card PDF</span>
           </button>
           
           <button onClick={onClose} className="btn-primary w-full sm:w-auto">

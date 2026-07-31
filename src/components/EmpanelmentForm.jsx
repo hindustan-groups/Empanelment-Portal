@@ -57,21 +57,56 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     }
   }, [category]);
 
+  const sanitizeInput = (str) => {
+    if (typeof str !== 'string') return str;
+    return str.replace(/<[^>]*>?/gm, '').trim();
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    // Auto-uppercase specific financial fields
+    let processedValue = value;
+    if (['gstin', 'pan', 'ifsc'].includes(name)) {
+      processedValue = value.toUpperCase().trim();
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : processedValue
     }));
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
     }
   };
 
   const handleFileUpload = (fieldName, file) => {
+    if (!file) {
+      setFormData(prev => ({ ...prev, [fieldName]: null }));
+      return;
+    }
+
+    // 1. File Size Validation (Max 5MB)
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE_BYTES) {
+      setErrors(prev => ({ ...prev, [fieldName]: 'File size exceeds 5MB limit.' }));
+      return;
+    }
+
+    // 2. File Type / Extension Validation (.pdf, .jpg, .jpeg, .png)
+    const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    if (!allowedExtensions.includes(fileExt)) {
+      setErrors(prev => ({ ...prev, [fieldName]: 'Only PDF, JPG, or PNG files are permitted.' }));
+      return;
+    }
+
+    // Clear previous error and set file name
+    setErrors(prev => ({ ...prev, [fieldName]: null }));
     setFormData(prev => ({
       ...prev,
-      [fieldName]: file ? file.name : null
+      [fieldName]: file.name
     }));
   };
 
@@ -79,7 +114,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     const newErrors = {};
 
     if (step === 1) {
-      if (!formData.companyName.trim()) newErrors.companyName = 'Company Name is required';
+      if (!formData.companyName.trim()) newErrors.companyName = 'Registered Company Name is required';
       if (!formData.contactName.trim()) newErrors.contactName = 'Contact Person Name is required';
       if (!formData.email.trim() || !formData.email.includes('@')) newErrors.email = 'Valid Email Address is required';
       if (!formData.phone.trim() || formData.phone.length < 10) newErrors.phone = 'Valid 10-digit Phone Number is required';
@@ -88,14 +123,33 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     }
 
     if (step === 2) {
-      if (!formData.gstin.trim() || formData.gstin.length < 15) newErrors.gstin = 'Valid 15-character GSTIN is required';
-      if (!formData.pan.trim() || formData.pan.length < 10) newErrors.pan = 'Valid 10-character PAN is required';
+      const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+
+      if (!formData.gstin.trim()) {
+        newErrors.gstin = 'GSTIN is required';
+      } else if (!gstinRegex.test(formData.gstin.trim())) {
+        newErrors.gstin = 'Invalid GSTIN format (e.g. 07AAAAA0000A1Z5)';
+      }
+
+      if (!formData.pan.trim()) {
+        newErrors.pan = 'PAN Number is required';
+      } else if (!panRegex.test(formData.pan.trim())) {
+        newErrors.pan = 'Invalid PAN format (e.g. ABCDE1234F)';
+      }
+
       if (!formData.bankAccount.trim()) newErrors.bankAccount = 'Bank Account Number is required';
-      if (!formData.ifsc.trim()) newErrors.ifsc = 'Bank IFSC Code is required';
+      
+      if (!formData.ifsc.trim()) {
+        newErrors.ifsc = 'IFSC Code is required';
+      } else if (!ifscRegex.test(formData.ifsc.trim())) {
+        newErrors.ifsc = 'Invalid Bank IFSC Code format (e.g. SBIN0001234)';
+      }
     }
 
     if (step === 3) {
-      if (!formData.turnover2025.trim()) newErrors.turnover2025 = 'Turnover for FY 2025-26 is required';
+      if (!formData.turnover2025.trim()) newErrors.turnover2025 = 'Audited Turnover for recent FY is required';
     }
 
     if (step === 5) {

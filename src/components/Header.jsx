@@ -2,7 +2,7 @@ import React from 'react';
 import Logo from './Logo';
 import { Sun, Moon, Search, ShieldCheck, ExternalLink, HelpCircle } from 'lucide-react';
 
-export default function Header({ isDark, toggleTheme, onOpenStatusModal, onOpenGuideModal }) {
+export default function Header({ isDark, toggleTheme, onOpenStatusModal, onOpenGuideModal, onOpenCategoryModal }) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -21,6 +21,13 @@ export default function Header({ isDark, toggleTheme, onOpenStatusModal, onOpenG
         {/* Center/Right Nav Options */}
         <div className="flex items-center gap-2 sm:gap-3">
           
+          <button
+            onClick={onOpenCategoryModal}
+            className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+          >
+            <span>Grading Matrix</span>
+          </button>
+
           <button
             onClick={onOpenStatusModal}
             className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 transition-all border border-slate-200 dark:border-slate-700"

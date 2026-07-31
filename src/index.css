@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
 :root {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -44,8 +45,6 @@
 
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 body {
@@ -125,7 +124,7 @@ h1, h2, h3, h4, h5, h6 {
   border: none;
   cursor: pointer;
   display: inline-flex;
-  items-center: center;
+  align-items: center;
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -191,11 +190,6 @@ h1, h2, h3, h4, h5, h6 {
   animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Pulse Glow */
-.pulse-glow-blue {
-  box-shadow: 0 0 20px rgba(0, 71, 171, 0.25);
-}
-
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -210,3 +204,73 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+/* ==========================================================================
+   Print Styles for 1:1 Card Visual PDF Generation
+   ========================================================================== */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0F172A !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide background elements, page headers, footers, and non-printable buttons */
+  header,
+  footer,
+  main,
+  .no-print,
+  .backdrop-blur-md,
+  .backdrop-blur-sm {
+    display: none !important;
+  }
+
+  /* Container setup for print centering */
+  body #root,
+  #root > *,
+  .fixed.inset-0 {
+    display: flex !important;
+    position: static !important;
+    background: transparent !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Force the card to render 1:1 identical to screen design */
+  .printable-card {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
+    box-shadow: none !important;
+    border: 2px solid #0047AB !important;
+    border-radius: 24px !important;
+    margin: 20px auto !important;
+    max-width: 580px !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    padding: 24px !important;
+  }
+
+  /* Top decorative gradient bar */
+  .printable-card .bg-gradient-to-r {
+    background: linear-gradient(to right, #ED1C24, #0047AB, #ED1C24) !important;
+    height: 12px !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+}
+

@@ -2,7 +2,7 @@ import React from 'react';
 import Logo from './Logo';
 import { Mail, Phone, MapPin, ExternalLink, ShieldCheck } from 'lucide-react';
 
-export default function Footer() {
+export default function Footer({ onOpenPrivacyModal, onOpenTermsModal, onOpenCategoryModal }) {
   return (
     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 pt-12 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,6 +26,7 @@ export default function Footer() {
             <h4 className="font-bold text-white text-sm mb-4 uppercase tracking-wider">Empanelment Links</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-slate-400">
               <li><a href="#empanelment-form-container" className="hover:text-white transition-colors">Submit Application</a></li>
+              <li><button onClick={onOpenCategoryModal} className="hover:text-white transition-colors text-left">Contractor Grading Matrix</button></li>
               <li><a href="https://hindustanprojects.in" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1"><span>Hindustan Projects Main Site</span> <ExternalLink className="w-3 h-3"/></a></li>
               <li><a href="https://github.com/hindustan-groups/Empanelment-Portal" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1"><span>Official Git Repository</span> <ExternalLink className="w-3 h-3"/></a></li>
             </ul>
@@ -57,9 +58,9 @@ export default function Footer() {
             © {new Date().getFullYear()} <strong>Hindustan Projects</strong>. All Rights Reserved.
           </div>
           <div className="flex gap-4">
-            <a href="#" className="hover:underline">Privacy Policy</a>
-            <a href="#" className="hover:underline">Terms of Empanelment</a>
-            <a href="#" className="hover:underline">GST Verification Disclaimer</a>
+            <button onClick={onOpenPrivacyModal} className="hover:underline hover:text-white">Privacy Policy</button>
+            <button onClick={onOpenTermsModal} className="hover:underline hover:text-white">Terms of Empanelment</button>
+            <button onClick={onOpenCategoryModal} className="hover:underline hover:text-white">Grading Criteria</button>
           </div>
         </div>
 

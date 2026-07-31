@@ -1,0 +1,16 @@
+# User-agent directives for Hindustan Projects Empanelment Portal
+User-agent: *
+Allow: /
+Disallow: /api/private/
+
+# AI Search Engines (AEO Bots)
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://empanel.hindustanprojects.in/sitemap.xml

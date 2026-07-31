@@ -5,6 +5,9 @@ import EmpanelmentForm from './components/EmpanelmentForm';
 import StatusModal from './components/StatusModal';
 import GuideModal from './components/GuideModal';
 import SuccessModal from './components/SuccessModal';
+import PrivacyPolicyModal from './components/PrivacyPolicyModal';
+import TermsModal from './components/TermsModal';
+import CategoryMatrixModal from './components/CategoryMatrixModal';
 import Footer from './components/Footer';
 
 export default function App() {
@@ -15,6 +18,10 @@ export default function App() {
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
   const [submittedId, setSubmittedId] = useState('');
   const [lastSubmittedData, setLastSubmittedData] = useState(null);
 
@@ -57,6 +64,7 @@ export default function App() {
         toggleTheme={toggleTheme}
         onOpenStatusModal={() => setIsStatusOpen(true)}
         onOpenGuideModal={() => setIsGuideOpen(true)}
+        onOpenCategoryModal={() => setIsCategoryOpen(true)}
       />
 
       {/* Main Hero & Category Filter */}
@@ -75,7 +83,11 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer 
+        onOpenPrivacyModal={() => setIsPrivacyOpen(true)}
+        onOpenTermsModal={() => setIsTermsOpen(true)}
+        onOpenCategoryModal={() => setIsCategoryOpen(true)}
+      />
 
       {/* Interactive Modals */}
       <StatusModal 
@@ -93,6 +105,21 @@ export default function App() {
         trackingId={submittedId}
         formData={lastSubmittedData}
         onClose={() => setIsSuccessOpen(false)}
+      />
+
+      <PrivacyPolicyModal
+        isOpen={isPrivacyOpen}
+        onClose={() => setIsPrivacyOpen(false)}
+      />
+
+      <TermsModal
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+      />
+
+      <CategoryMatrixModal
+        isOpen={isCategoryOpen}
+        onClose={() => setIsCategoryOpen(false)}
       />
 
     </div>
