@@ -271,6 +271,96 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
 
         </div>
 
+        {/* 🎗️ OFFICIAL BRANDED BLUE LANYARD STRAP VISUAL MOCKUP & SPECIFICATION */}
+        <div className="no-print" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px dashed #CBD5E1' }}>
+          
+          {/* Lanyard Ribbon Preview Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.85rem' }}>
+            <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <span style={{ fontSize: '1.25rem' }}>🎗️</span>
+              <span>Official Branded Lanyard Strap (Neck Ribbon) & Badge Specification</span>
+            </h4>
+            <span style={{ padding: '0.2rem 0.6rem', borderRadius: 6, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', fontSize: '0.725rem', fontWeight: 800 }}>
+              Royal Navy Blue Brand Color (#0047AB)
+            </span>
+          </div>
+
+          {/* 🎗️ REALISTIC LANYARD RIBBON STRAP PREVIEW */}
+          <div style={{
+            background: 'linear-gradient(90deg, #0B1B3D 0%, #0047AB 50%, #0B1B3D 100%)',
+            borderRadius: 14,
+            padding: '0.9rem 1.25rem',
+            color: '#FFFFFF',
+            boxShadow: '0 8px 20px rgba(0,71,171,0.25)',
+            border: '1.5px solid #0047AB',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            marginBottom: '1.25rem',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Lanyard Strap Stitching Lines */}
+            <div style={{ position: 'absolute', top: 3, left: 0, right: 0, height: 1.5, borderTop: '1px dashed rgba(255,255,255,0.3)' }} />
+            <div style={{ position: 'absolute', bottom: 3, left: 0, right: 0, height: 1.5, borderTop: '1px dashed rgba(255,255,255,0.3)' }} />
+
+            {/* Left Lanyard Text */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', zIndex: 2 }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 900, backgroundColor: '#ED1C24', color: 'white', padding: '0.15rem 0.5rem', borderRadius: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                LANYARD RIBBON (20MM)
+              </span>
+              <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                HINDUSTAN PROJECTS <span style={{ color: '#ED1C24' }}>•</span> EMPANELED VENDOR <span style={{ color: '#ED1C24' }}>•</span> HINDUSTAN PROJECTS <span style={{ color: '#ED1C24' }}>•</span> ENGINEERING & CONSTRUCTION
+              </div>
+            </div>
+
+            {/* Right Metal Hook Badge Spec */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: 'rgba(255,255,255,0.15)', padding: '0.3rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, zIndex: 2 }}>
+              <span>📎 Metal Swivel Dog Hook + Clear Acrylic Pouch</span>
+            </div>
+          </div>
+
+          {/* 📋 VENDOR CARD & LANYARD MANUFACTURING INSTRUCTIONS GUIDE */}
+          <div style={{ backgroundColor: '#FFFFFF', padding: '1.25rem 1.5rem', borderRadius: 16, border: '1px solid #CBD5E1', boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
+            <h5 style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0047AB', marginTop: 0, marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              📌 Card Printing & Physical Lanyard Fabrication Guide (Local Shop Print Guide):
+            </h5>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', fontSize: '0.78rem', color: '#1E293B', lineHeight: 1.5 }}>
+              
+              <div style={{ padding: '0.75rem', borderRadius: 10, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <div style={{ fontWeight: 900, color: '#0F172A', marginBottom: 2 }}>1. PVC Card Stock Specification</div>
+                <div>Standard CR80 Size (85.60mm × 53.98mm), 30-mil (0.76mm) Thickness, Waterproof High-Gloss PVC.</div>
+              </div>
+
+              <div style={{ padding: '0.75rem', borderRadius: 10, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <div style={{ fontWeight: 900, color: '#0047AB', marginBottom: 2 }}>2. Lanyard Ribbon Specification</div>
+                <div>20mm Width Premium Satin/Polyester Ribbon in <strong>Royal Navy Blue (`#0047AB`)</strong> with White Sublimation Text.</div>
+              </div>
+
+              <div style={{ padding: '0.75rem', borderRadius: 10, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <div style={{ fontWeight: 900, color: '#0F172A', marginBottom: 2 }}>3. Lanyard Printed Text String</div>
+                <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0047AB' }}>"HINDUSTAN PROJECTS • EMPANELED VENDOR"</div>
+              </div>
+
+              <div style={{ padding: '0.75rem', borderRadius: 10, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <div style={{ fontWeight: 900, color: '#047857', marginBottom: 2 }}>4. Assembly Accessories</div>
+                <div>Chrome Metal Swivel Hook, Safety Breakaway Clasp, and Heavy-Duty Transparent PVC ID Badge Holder Pouch.</div>
+              </div>
+
+            </div>
+
+            <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #F1F5F9', fontSize: '0.75rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+              <span style={{ color: '#0047AB' }}>💡 Tip for Printer:</span>
+              <span>You can download/print this A4 PDF directly and hand it to any local digital printing or PVC ID card shop. They will print both Front & Back PVC cards and prepare the matching Blue Branded Lanyard Strap.</span>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
     </div>
   );
