@@ -1,0 +1,15 @@
+{
+  "name": "Hindustan Projects Empanelment Portal",
+  "short_name": "HiPRO Empanel",
+  "icons": [
+    {
+      "src": "/hipro-logo.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#0047AB",
+  "background_color": "#F8FAFC",
+  "display": "standalone"
+}

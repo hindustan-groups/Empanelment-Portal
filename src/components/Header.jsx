@@ -1,74 +1,172 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import Logo from './Logo';
-import { Sun, Moon, Search, ShieldCheck, ExternalLink, HelpCircle } from 'lucide-react';
+import { Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink, Home } from 'lucide-react';
 
-export default function Header({ isDark, toggleTheme, onOpenStatusModal, onOpenGuideModal, onOpenCategoryModal }) {
+const DEFAULT_SITE_CONFIG = {
+  companyTitle: 'Hindustan Projects',
+  subdomainPill: 'empanel.hindustanprojects.in',
+  helplinePhone: '+91 (011) 4500 8899 / 900',
+  corporateEmail: 'empanelment@hindustanprojects.in'
+};
+
+export default function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [siteConfig, setSiteConfig] = useState(DEFAULT_SITE_CONFIG);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('hipro_site_config');
+    if (saved) {
+      try {
+        setSiteConfig(JSON.parse(saved));
+      } catch (err) {
+        console.warn('Failed to parse site config:', err);
+      }
+    }
+  }, []);
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <header className="header-navbar">
+      <div className="header-inner">
         
-        {/* Left: Logo & Subdomain Badge */}
-        <div className="flex items-center gap-4">
-          <a href="#" className="hover:opacity-95 transition-opacity">
-            <Logo height={48} />
-          </a>
-          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>empanel.hindustanprojects.in</span>
+        {/* Left: Logo & Dynamic Subdomain Badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link to="/" onClick={closeMobileMenu} style={{ textDecoration: 'none' }}>
+            <Logo height={38} />
+          </Link>
+          <div className="subdomain-pill desktop-only">
+            <span className="status-dot"></span>
+            <span>{siteConfig.subdomainPill || 'empanel.hindustanprojects.in'}</span>
           </div>
         </div>
 
-        {/* Center/Right Nav Options */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          
-          <button
-            onClick={onOpenCategoryModal}
-            className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+        {/* Right Desktop Nav Options */}
+        <div className="nav-actions desktop-only">
+          <a
+            href={siteConfig.mainWebsiteUrl || "https://hindustanprojects.in"}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-icon-text"
+            style={{ backgroundColor: 'rgba(237, 28, 36, 0.08)', color: '#ED1C24', borderColor: 'rgba(237, 28, 36, 0.2)' }}
           >
-            <span>Grading Matrix</span>
-          </button>
+            <span>Main Site</span>
+            <ExternalLink style={{ width: 14, height: 14 }} />
+          </a>
 
-          <button
-            onClick={onOpenStatusModal}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 transition-all border border-slate-200 dark:border-slate-700"
+          <NavLink 
+            to="/apply" 
+            className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}
+            style={{ backgroundColor: '#0047AB', color: 'white', border: 'none' }}
           >
-            <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span className="hidden sm:inline">Track Application</span>
-            <span className="sm:hidden">Status</span>
-          </button>
+            <PlusCircle style={{ width: 16, height: 16 }} />
+            <span>Empanelment Form</span>
+          </NavLink>
 
-          <button
-            onClick={onOpenGuideModal}
-            className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+          <NavLink to="/track" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
+            <Search style={{ width: 16, height: 16, color: '#0047AB' }} />
+            <span>Track Status</span>
+          </NavLink>
+
+          <NavLink to="/guidelines" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
+            <HelpCircle style={{ width: 16, height: 16, color: '#64748B' }} />
+            <span>Guidelines</span>
+          </NavLink>
+
+          <NavLink to="/vendor-login" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`} style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#047857', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+            <ShieldCheck style={{ width: 16, height: 16, color: '#10B981' }} />
+            <span>Vendor Login</span>
+          </NavLink>
+        </div>
+
+        {/* Mobile Hamburger Toggle Button */}
+        <div className="mobile-toggle-wrapper">
+          <button 
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            className="mobile-menu-btn"
+            aria-label="Toggle Mobile Menu"
           >
-            <HelpCircle className="w-4 h-4 text-slate-400" />
-            <span>Guidelines & Checklist</span>
+            {mobileMenuOpen ? <X style={{ width: 22, height: 22 }} /> : <Menu style={{ width: 22, height: 22 }} />}
           </button>
-
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            aria-label="Toggle Dark Mode"
-            className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
-          >
-            {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
-          </button>
-
-          <div className="hidden sm:block pl-2 border-l border-slate-200 dark:border-slate-800">
-            <a
-              href="https://hindustanprojects.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
-            >
-              <span>Main Site</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-
         </div>
 
       </div>
+
+      {/* Mobile Slide-down Overlay Drawer Menu */}
+      {mobileMenuOpen && (
+        <div className="mobile-drawer-overlay">
+          <div className="mobile-drawer-content">
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.85rem', borderRadius: 9999, backgroundColor: 'var(--bg-surface)', fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', width: 'fit-content' }}>
+              <ShieldCheck style={{ width: 14, height: 14, color: '#10B981' }} />
+              <span>{siteConfig.subdomainPill || 'empanel.hindustanprojects.in'}</span>
+            </div>
+
+            <NavLink 
+              to="/" 
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+            >
+              <Home style={{ width: 18, height: 18, color: '#0047AB' }} />
+              <span>Home Page</span>
+            </NavLink>
+
+            <NavLink 
+              to="/apply" 
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+              style={{ backgroundColor: '#0047AB', color: 'white' }}
+            >
+              <PlusCircle style={{ width: 18, height: 18 }} />
+              <span>Empanelment Form</span>
+            </NavLink>
+
+            <NavLink 
+              to="/vendor-login" 
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+              style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', color: '#047857', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+            >
+              <ShieldCheck style={{ width: 18, height: 18, color: '#10B981' }} />
+              <span>Empanelled Vendor Login</span>
+            </NavLink>
+
+            <NavLink 
+              to="/track" 
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+            >
+              <Search style={{ width: 18, height: 18, color: '#0047AB' }} />
+              <span>Track Application Status</span>
+            </NavLink>
+
+            <NavLink 
+              to="/guidelines" 
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+            >
+              <HelpCircle style={{ width: 18, height: 18, color: '#64748B' }} />
+              <span>Empanelment Guidelines</span>
+            </NavLink>
+
+            <a
+              href={siteConfig.mainWebsiteUrl || "https://hindustanprojects.in"}
+              target="_blank"
+              rel="noreferrer"
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+              style={{ backgroundColor: 'rgba(237, 28, 36, 0.08)', color: '#ED1C24', marginTop: '0.5rem' }}
+            >
+              <ExternalLink style={{ width: 18, height: 18 }} />
+              <span>Visit Main Corporate Website</span>
+            </a>
+
+          </div>
+        </div>
+      )}
     </header>
   );
 }

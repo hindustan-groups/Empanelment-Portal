@@ -1,74 +1,74 @@
 import React from 'react';
-import { X, CheckCircle, FileText, AlertTriangle, ShieldCheck, Download } from 'lucide-react';
+import { X, CheckCircle, FileText, AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export default function GuideModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[85vh] overflow-y-auto">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-content" style={{ maxWidth: 640, maxHeight: '85vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
         
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+          style={{ position: 'absolute', top: 16, right: 16, border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
         >
-          <X className="w-5 h-5" />
+          <X style={{ width: 20, height: 20 }} />
         </button>
 
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950 text-[#ED1C24]">
-            <ShieldCheck className="w-6 h-6" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          <div style={{ padding: '0.6rem', borderRadius: 10, backgroundColor: 'rgba(237, 28, 36, 0.1)', color: '#ED1C24' }}>
+            <ShieldCheck style={{ width: 24, height: 24 }} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Empanelment Guidelines & Checklist</h3>
-            <p className="text-xs text-slate-500">Hindustan Projects Vendor Onboarding Criteria</p>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Empanelment Guidelines & Checklist</h3>
+            <p style={{ fontSize: '0.775rem', color: 'var(--text-muted)' }}>Hindustan Projects Vendor Onboarding Criteria</p>
           </div>
         </div>
 
-        <div className="space-y-6 text-sm text-slate-700 dark:text-slate-300">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', fontSize: '0.85rem' }}>
           
-          <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800">
-            <h4 className="font-bold text-blue-900 dark:text-blue-200 mb-2 flex items-center gap-2">
-              <FileText className="w-4 h-4" />
+          <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'rgba(0, 71, 171, 0.05)', border: '1px solid rgba(0, 71, 171, 0.2)' }}>
+            <h4 style={{ color: '#0047AB', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <FileText style={{ width: 16, height: 16 }} />
               <span>Mandatory Checklist Before Filing:</span>
             </h4>
-            <ul className="space-y-2 text-xs sm:text-sm">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CheckCircle style={{ width: 16, height: 16, color: '#10B981', flexShrink: 0 }} />
                 <span>Active 15-Digit GSTIN & PAN Card matching company title.</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Minimum 3 Years Audited Profit & Loss Statements.</span>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CheckCircle style={{ width: 16, height: 16, color: '#10B981', flexShrink: 0 }} />
+                <span>Minimum 3 Years Audited Financial Statements.</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Work Orders or Completion Certificates of executed projects.</span>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CheckCircle style={{ width: 16, height: 16, color: '#10B981', flexShrink: 0 }} />
+                <span>Work Orders / Completion Certificates of executed projects.</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CheckCircle style={{ width: 16, height: 16, color: '#10B981', flexShrink: 0 }} />
                 <span>Valid Bank Account Details with Cancelled Cheque / Solvency.</span>
               </li>
             </ul>
           </div>
 
-          <div className="space-y-3">
-            <h4 className="font-bold text-slate-900 dark:text-white">Evaluation Timeline & Classification:</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <div className="font-bold text-blue-600 dark:text-blue-400 mb-1">Class A (Contractors & EPC)</div>
-                <p className="text-slate-500">Turnover &gt; ₹ 5.0 Crores per annum with proven PSU/Corporate execution.</p>
+          <div>
+            <h4 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Evaluation Timeline & Classification:</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div style={{ padding: '0.75rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ color: '#0047AB', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.2rem' }}>Class A (Contractors & EPC)</div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Turnover &gt; ₹ 5.0 Crores per annum with proven execution track record.</p>
               </div>
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <div className="font-bold text-blue-600 dark:text-blue-400 mb-1">Class B (Suppliers & Consultants)</div>
-                <p className="text-slate-500">Turnover ₹ 50 Lakhs - ₹ 5 Crores with quality compliance certification.</p>
+              <div style={{ padding: '0.75rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                <div style={{ color: '#0047AB', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.2rem' }}>Class B (Suppliers & Consultants)</div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Turnover ₹ 50 Lakhs - ₹ 5 Crores with quality compliance certification.</p>
               </div>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-600" />
-            <span>Note: Empanelment is subject to physical document verification and site audit by the Hindustan Projects Vendor Assessment Committee.</span>
+          <div style={{ padding: '0.85rem', borderRadius: 10, backgroundColor: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#B45309', fontSize: '0.775rem', display: 'flex', gap: '0.5rem' }}>
+            <AlertTriangle style={{ width: 18, height: 18, flexShrink: 0 }} />
+            <span>Note: Empanelment is subject to physical document verification and site audit by the Hindustan Projects Procurement Committee.</span>
           </div>
 
         </div>

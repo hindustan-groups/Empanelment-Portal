@@ -1,10 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { CheckCircle2, Copy, Download, ExternalLink, ShieldCheck, Home } from 'lucide-react';
+import { CheckCircle2, Copy, Search, ShieldCheck, Printer, Check, Building2, CreditCard, DollarSign, FileCheck2, User, Lock, Award, MapPin, Calendar, FileText, Scale } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
-import { printCard } from '../utils/printCard';
 
 export default function SuccessModal({ isOpen, trackingId, formData, onClose }) {
+  const navigate = useNavigate();
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       confetti({
@@ -20,99 +23,262 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
 
   const copyTrackingId = () => {
     navigator.clipboard.writeText(trackingId);
-    alert(`Tracking ID ${trackingId} copied to clipboard!`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   const handlePrint = () => {
-    printCard('success-card-element', `Hindustan Projects Empanelment Card - ${trackingId}`);
+    window.print();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-      
-      {/* The Printable Card (Prints 1:1 identical to screen design) */}
-      <div id="success-card-element" className="printable-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-8 shadow-2xl relative text-center overflow-hidden">
-        
-        {/* Top Decorative Bar */}
-        <div className="h-3 bg-gradient-to-r from-[#ED1C24] via-[#0047AB] to-[#ED1C24] absolute top-0 left-0 right-0"></div>
+  const handleTrackDirect = () => {
+    onClose();
+    navigate('/track');
+  };
 
-        {/* Brand Header for Official Print Verification */}
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 mt-1">
-          <div className="flex items-center gap-2 text-left">
-            <div className="w-8 h-8 rounded-lg bg-[#ED1C24] text-white flex items-center justify-center font-black text-xs">HP</div>
-            <div>
-              <span className="text-xs font-black tracking-tight text-[#0047AB] block">HINDUSTAN PROJECTS (HiPRO)</span>
-              <span className="text-[10px] text-slate-500 block">empanel.hindustanprojects.in</span>
+  // Helper to format clean date: e.g. "28 July 2026"
+  const getFormattedDate = (dateVal) => {
+    try {
+      const d = dateVal ? new Date(dateVal) : new Date();
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    } catch {
+      return '28 July 2026';
+    }
+  };
+
+  // Helper to format values: returns "NIL" if empty
+  const formatVal = (val, prefix = '', suffix = '') => {
+    if (!val || val === 'N/A' || val === '0' || String(val).trim() === '') {
+      return <span style={{ color: '#64748B', fontWeight: 600 }}>NIL</span>;
+    }
+    return <strong style={{ color: '#0F172A', fontWeight: 800 }}>{prefix}{val}{suffix}</strong>;
+  };
+
+  const formattedFilingDate = getFormattedDate(formData?.submitted_at);
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-content printable-area" style={{ maxWidth: 880, maxHeight: '92vh', overflowY: 'auto', padding: '2.5rem', borderRadius: 24, background: '#FFFFFF' }} onClick={(e) => e.stopPropagation()}>
+        
+        {/* PAGE 1: OFFICIAL LETTERHEAD & APPLICATION DOSSIER COVER */}
+        <div className="printable-section">
+          {/* Header Bar */}
+          <div style={{ borderBottom: '3px double #0047AB', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <Logo height={52} />
+                <div>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    HINDUSTAN PROJECTS • VENDOR EMPANELMENT APPLICATION DOSSIER
+                  </div>
+                  <h2 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0F172A', marginTop: 2, marginBottom: 2 }}>
+                    {formData?.companyName || formData?.contactName || 'Empanelment Applicant'}
+                  </h2>
+                  <div style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 700 }}>
+                    Filing Date: <strong>{formattedFilingDate}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="no-print" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button onClick={handlePrint} className="btn-primary" style={{ padding: '0.55rem 1.25rem', fontSize: '0.85rem', background: '#0047AB', borderRadius: 10 }}>
+                  <Printer style={{ width: 16, height: 16 }} />
+                  <span>Print Official Dossier (A4)</span>
+                </button>
+                <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.4rem', fontWeight: 800, color: '#64748B', marginLeft: 6 }}>✕</button>
+              </div>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Empanelment Card</span>
-            <span className="text-xs font-mono font-bold text-[#ED1C24]">{trackingId}</span>
+
+          {/* Reference Tracking Banner */}
+          <div style={{ padding: '1.15rem 1.5rem', borderRadius: 14, background: '#0F172A', color: 'white', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Empanelment Reference Tracking Code
+              </div>
+              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#FFFFFF', fontFamily: 'monospace', letterSpacing: '2px', marginTop: 2 }}>
+                {trackingId}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="no-print">
+                <button onClick={copyTrackingId} className="btn-secondary" style={{ padding: '0.45rem 0.9rem', fontSize: '0.78rem', background: copied ? '#10B981' : 'white', color: copied ? 'white' : '#0F172A', border: 'none' }}>
+                  {copied ? <Check style={{ width: 14, height: 14 }} /> : <Copy style={{ width: 14, height: 14 }} />}
+                  <span>{copied ? 'Copied!' : 'Copy Code'}</span>
+                </button>
+              </div>
+              <div style={{ padding: '0.4rem 0.85rem', borderRadius: 99, background: 'rgba(16,185,129,0.2)', color: '#34D399', fontSize: '0.75rem', fontWeight: 900, border: '1px solid rgba(52,211,153,0.4)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <ShieldCheck style={{ width: 14, height: 14 }} />
+                <span>UNDER VERIFICATION</span>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 1: ORGANIZATION & SCOPE TABLE */}
+          <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            1. ORGANIZATION PROFILE & DISCIPLINE SCOPE
+          </div>
+          <table className="print-dossier-table">
+            <tbody>
+              <tr>
+                <td style={{ width: '22%', fontWeight: 800, backgroundColor: '#F8FAFC' }}>Entity Classification</td>
+                <td style={{ width: '28%' }}><strong>{(formData?.entityType || 'sole_proprietor').toUpperCase().replace('_', ' ')}</strong></td>
+                <td style={{ width: '22%', fontWeight: 800, backgroundColor: '#F8FAFC' }}>Main Category Scope</td>
+                <td style={{ width: '28%' }}>{formatVal(formData?.primaryRole)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>NBC Sub-Category Code</td>
+                <td>{formatVal(formData?.nbcSubCategory)}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Empanelment Category</td>
+                <td>{formatVal(formData?.category)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Authorized Contact Person</td>
+                <td>{formatVal(formData?.contactName)} {formData?.designation ? `(${formData.designation})` : ''}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Corporate Email</td>
+                <td>{formatVal(formData?.email)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Mobile Number</td>
+                <td>{formatVal(formData?.phone)}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>City & State</td>
+                <td><strong>{formData?.city || 'NIL'}, {formData?.state || 'NIL'} ({formData?.pincode || 'NIL'})</strong></td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Workplace Address</td>
+                <td colSpan={3}>{formatVal(formData?.address)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* PAGE 2: STATUTORY TAX & BANKING CREDENTIALS */}
+        <div className="printable-section" style={{ pageBreakBefore: 'always', paddingTop: '1rem' }}>
+          <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            2. STATUTORY TAX IDENTITY & PAYOUT BANKING CREDENTIALS
+          </div>
+          <table className="print-dossier-table">
+            <tbody>
+              <tr>
+                <td style={{ width: '22%', fontWeight: 800, backgroundColor: '#F8FAFC' }}>15-Digit GSTIN</td>
+                <td style={{ width: '28%' }}>{formatVal(formData?.gstin, '', formData?.gstExempt ? ' (EXEMPT)' : '')}</td>
+                <td style={{ width: '22%', fontWeight: 800, backgroundColor: '#F8FAFC' }}>10-Digit Company PAN</td>
+                <td style={{ width: '28%' }}>{formatVal(formData?.pan)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>MSME Udyam Registration</td>
+                <td>{formatVal(formData?.msmeNo)}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Bank Account Number</td>
+                <td>{formatVal(formData?.bankAccount)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Bank IFSC Code</td>
+                <td>{formatVal(formData?.ifsc)}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Bank Name & Branch</td>
+                <td>{formatVal(formData?.bankName)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* SECTION 3: FINANCIAL TURNOVERS & QUOTED RATE CARD */}
+          <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0047AB', marginTop: '1.5rem', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            3. FINANCIAL TURNOVERS & WORK ORDER EXPERIENCE
+          </div>
+          <table className="print-dossier-table">
+            <tbody>
+              <tr>
+                <td style={{ width: '22%', fontWeight: 800, backgroundColor: '#F8FAFC' }}>FY 2023-24 Turnover</td>
+                <td style={{ width: '28%' }}>{formatVal(formData?.turnover2023, '₹ ', ' Lakhs')}</td>
+                <td style={{ width: '22%', fontWeight: 800, backgroundColor: '#F8FAFC' }}>FY 2024-25 Turnover</td>
+                <td style={{ width: '28%' }}>{formatVal(formData?.turnover2024, '₹ ', ' Lakhs')}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>FY 2025-26 Turnover</td>
+                <td>{formatVal(formData?.turnover2025, '₹ ', ' Lakhs')}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Largest Work Order Executed</td>
+                <td>{formatVal(formData?.largestOrder || formData?.workOrderValue, '₹ ', ' Lakhs')}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Work Order Reference No</td>
+                <td>{formatVal(formData?.workOrderRef)}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Contract Category</td>
+                <td>{formatVal(formData?.contractType ? formData.contractType.toUpperCase().replace('_', ' ') : null)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* PAGE 3: STATUTORY DOCUMENT AUDIT ROSTER */}
+        <div className="printable-section" style={{ pageBreakBefore: 'always', paddingTop: '1rem' }}>
+          <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.45rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            4. STATUTORY IDENTITY & DOCUMENT AUDIT ROSTER
+          </div>
+          <table className="print-dossier-table">
+            <tbody>
+              <tr>
+                <td style={{ width: '25%', fontWeight: 800, backgroundColor: '#F8FAFC' }}>PAN Card Copy</td>
+                <td style={{ width: '25%' }}>{formData?.panDoc ? <span style={{ color: '#047857', fontWeight: 900 }}>✓ ATTACHED & VERIFIED</span> : formatVal(null)}</td>
+                <td style={{ width: '25%', fontWeight: 800, backgroundColor: '#F8FAFC' }}>Aadhaar Card (Front)</td>
+                <td style={{ width: '25%' }}>{formData?.aadharFrontDoc ? <span style={{ color: '#047857', fontWeight: 900 }}>✓ ATTACHED & VERIFIED</span> : formatVal(null)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Aadhaar Card (Back)</td>
+                <td>{formData?.aadharBackDoc ? <span style={{ color: '#047857', fontWeight: 900 }}>✓ ATTACHED & VERIFIED</span> : formatVal(null)}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Cancelled Cheque / Passbook</td>
+                <td>{formData?.bankDoc ? <span style={{ color: '#047857', fontWeight: 900 }}>✓ ATTACHED & VERIFIED</span> : formatVal(null)}</td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>GST REG-06 Certificate</td>
+                <td>{formData?.gstDoc ? <span style={{ color: '#047857', fontWeight: 900 }}>✓ ATTACHED</span> : formatVal(null)}</td>
+                <td style={{ fontWeight: 800, backgroundColor: '#F8FAFC' }}>Work Portfolio / CAD Renders</td>
+                <td>{formData?.expDoc ? <span style={{ color: '#047857', fontWeight: 900 }}>✓ ATTACHED</span> : formatVal(null)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* PAGE 4: PROCUREMENT POLICY & DIGITAL SIGNATURE UNDERTAKING */}
+          <div style={{ marginTop: '1.5rem', padding: '1.15rem', borderRadius: 14, border: '1.5px solid #0047AB', background: '#F8FAFC' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
+              5. FORMAL CONTRACT AGREEMENT, WORK ORDER DECLARATION & CVC INTEGRITY STAMP
+            </div>
+            <ul style={{ fontSize: '0.78rem', color: '#334155', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', margin: '0 0 1rem 0' }}>
+              <li><strong>Formal Contract Terms:</strong> All scope deliverables, quality benchmarks (NBC 2016), milestone billing guidelines, and safety protocols shall be strictly governed by Hindustan Projects procurement manual.</li>
+              <li><strong>CVC Anti-Corruption Policy:</strong> Hindustan Projects adheres to Central Vigilance Commission (CVC) zero-tolerance standards for ethical procurement.</li>
+              <li><strong>Milestone Payment Payouts:</strong> Payments released via RTGS / NEFT in 3 tranches: 30% Concept Approval, 50% GFC Drawings Release, 20% Final Site Quality Clearance.</li>
+            </ul>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: '1rem', borderTop: '1px dashed #CBD5E1' }}>
+              <div>
+                <div style={{ fontWeight: 900, color: '#047857', fontSize: '0.85rem' }}>✓ FORMAL CONTRACT UNDERTAKING SIGNED & VERIFIED</div>
+                <div style={{ fontSize: '0.78rem', color: '#1E293B', fontWeight: 700, marginTop: 2 }}>
+                  Authorized Signatory: <strong>{formData?.signatoryName || formData?.contactName || 'Authorized Officer'}</strong>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#475569' }}>
+                  Place of Signing: <strong>{formData?.signatoryPlace || 'New Delhi'}</strong> • Date: <strong>{formattedFilingDate}</strong>
+                </div>
+              </div>
+
+              {formData?.signature && (
+                <div style={{ padding: '0.4rem 0.6rem', background: '#FFFFFF', borderRadius: 8, border: '1px solid #CBD5E1', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', marginBottom: 2 }}>Digital Seal Stamp</div>
+                  <img src={formData.signature} alt="Digital Signature" style={{ height: 44, maxWidth: 140, objectFit: 'contain' }} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4 ring-8 ring-emerald-50 dark:ring-emerald-900/30">
-          <CheckCircle2 className="w-10 h-10" />
-        </div>
-
-        <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2">
-          Empanelment Filed Successfully!
-        </h3>
-        <p className="text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto mb-6">
-          Your vendor application has been logged into the <strong>Hindustan Projects</strong> procurement database.
-        </p>
-
-        {/* Tracking ID Badge */}
-        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 max-w-sm mx-auto mb-6">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Empanelment Reference Code</div>
-          <div className="flex items-center justify-center gap-3">
-            <span className="text-xl sm:text-2xl font-black text-[#0047AB] dark:text-blue-400 tracking-wider font-mono">
-              {trackingId}
-            </span>
-            <button
-              onClick={copyTrackingId}
-              title="Copy Reference Code"
-              className="no-print p-1.5 rounded-lg bg-white dark:bg-slate-700 hover:bg-slate-100 text-slate-600 dark:text-slate-200 shadow-sm border border-slate-200 dark:border-slate-600 transition-colors"
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Details Summary */}
-        <div className="text-left p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 text-xs sm:text-sm space-y-2 mb-6 border border-slate-200 dark:border-slate-700">
-          <div className="flex justify-between">
-            <span className="text-slate-500">Applicant Organization:</span>
-            <span className="font-bold text-slate-900 dark:text-white uppercase">{formData?.companyName}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500">GSTIN:</span>
-            <span className="font-bold text-slate-900 dark:text-white uppercase">{formData?.gstin}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500">Empanelment Category:</span>
-            <span className="font-bold text-slate-900 dark:text-white capitalize">{formData?.category || 'Civil & Structural'}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500">Target Domain:</span>
-            <span className="font-bold text-blue-600 dark:text-blue-400">empanel.hindustanprojects.in</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500">Filing Date:</span>
-            <span className="font-bold text-slate-900 dark:text-white">{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-          </div>
-        </div>
-
-        {/* Buttons (Hidden during print via .no-print) */}
-        <div className="no-print flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button onClick={handlePrint} className="btn-secondary w-full sm:w-auto">
-            <Download className="w-4 h-4" />
-            <span>Print / Save Card PDF</span>
+        {/* Action Buttons */}
+        <div className="no-print" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
+          <button onClick={handlePrint} className="btn-secondary" style={{ flex: 1, justifyContent: 'center', padding: '0.75rem 1rem' }}>
+            <Printer style={{ width: 16, height: 16 }} />
+            <span>Print Official Application Dossier (A4)</span>
           </button>
           
-          <button onClick={onClose} className="btn-primary w-full sm:w-auto">
-            <Home className="w-4 h-4" />
-            <span>Return to Portal</span>
+          <button onClick={handleTrackDirect} className="btn-primary" style={{ flex: 1, justifyContent: 'center', padding: '0.75rem 1rem' }}>
+            <Search style={{ width: 16, height: 16 }} />
+            <span>Track Application Status</span>
           </button>
         </div>
 
