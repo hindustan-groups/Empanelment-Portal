@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Printer, ShieldCheck, Edit3 } from 'lucide-react';
+import { printCard } from '../utils/printCard';
 
 export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
   if (!isOpen || !vendorData) return null;
@@ -26,7 +27,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
 
   const handlePrint = () => {
     if (isApproved) {
-      window.print();
+      printCard('printable-id-card-element', `Smart PVC ID Card - ${cardData.vendorId}`);
     }
   };
 
@@ -84,7 +85,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
         )}
 
         {/* ════════════════ PRINTABLE DUAL ID CARD CANVAS ════════════════ */}
-        <div className="printable-id-card-wrapper" style={{ display: 'flex', gap: '2.5rem', justifyContent: 'center', flexWrap: 'wrap', margin: '1rem 0' }}>
+        <div id="printable-id-card-element" className="printable-id-card-wrapper" style={{ display: 'flex', gap: '2.5rem', justifyContent: 'center', flexWrap: 'wrap', margin: '1rem 0' }}>
 
           {/* 🎴 FRONT SIDE CARD (CR80 Standard Vertical format: 320px x 530px) */}
           <div style={{
