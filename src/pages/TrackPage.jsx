@@ -1,21 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ShieldCheck, CheckCircle2, Clock, FileText, AlertCircle, PhoneCall, FilePlus, ArrowLeft, Printer, HelpCircle, Lock, Building2, MapPin, Mail } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
 
 export default function TrackPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
+  const [qrScanned, setQrScanned] = useState(false);
+
+  // ── Auto-search when QR code is scanned (URL has ?id=HP-EMP-XXX) ──
+  useEffect(() => {
+    const idFromUrl = searchParams.get('id') || searchParams.get('track') || searchParams.get('ref');
+    if (idFromUrl && idFromUrl.trim()) {
+      setSearchInput(idFromUrl.trim());
+      setQrScanned(true);
+      // Trigger search automatically after setting state
+      setTimeout(() => {
+        document.getElementById('track-search-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }, 300);
+    }
+  }, [searchParams]);
 
   const handleSearch = async (e) => {
-    e.preventDefault();
-    const query = searchInput.trim();
+    if (e) e.preventDefault();
+    const query = (searchInput || '').trim();
     if (!query) return;
 
     setLoading(true);
@@ -119,7 +134,18 @@ export default function TrackPage() {
         </div>
 
         {/* Multi-Method Search Form */}
-        <form onSubmit={handleSearch} style={{ marginBottom: '1.75rem' }}>
+        {/* QR Scan detected banner */}
+        {qrScanned && (
+          <div style={{ marginBottom: '1rem', padding: '0.65rem 1rem', borderRadius: 10, background: 'linear-gradient(90deg,#0047AB,#0B1B3D)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '1.3rem' }}>📱</span>
+            <div>
+              <div style={{ fontWeight: 900, color: '#FFFFFF', fontSize: '0.85rem' }}>QR Code Scan Detected — Auto Searching...</div>
+              <div style={{ color: '#93C5FD', fontSize: '0.73rem' }}>Vendor ID Card verified. Fetching official empanelment record from Hindustan Projects registry.</div>
+            </div>
+          </div>
+        )}
+
+        <form id="track-search-form" onSubmit={handleSearch} style={{ marginBottom: '1.75rem' }}>
           <div className="form-group">
             <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 800 }}>
               Enter Tracking Reference Code, 15-Digit GSTIN, Email, or Mobile Number:

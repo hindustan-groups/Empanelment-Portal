@@ -22,8 +22,9 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
     website: 'hindustanprojects.in'
   };
 
-  // QR Code URL for instant verification on scan
-  const qrVerificationUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://empanelment.hindustanprojects.in/track?id=${cardData.vendorId}`)}`;
+  // QR Code URL — scans open live /track page with vendor ID auto-searched
+  const liveBaseUrl = 'https://www.empanelment.hindustanprojects.in';
+  const qrVerificationUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${liveBaseUrl}/track?id=${cardData.vendorId}`)}`;
 
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'assembly_demo'
 

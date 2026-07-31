@@ -5,7 +5,7 @@ import { Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink, Hom
 
 const DEFAULT_SITE_CONFIG = {
   companyTitle: 'Hindustan Projects',
-  subdomainPill: 'empanel.hindustanprojects.in',
+  subdomainPill: 'www.empanelment.hindustanprojects.in',
   helplinePhone: '+91 (011) 4500 8899 / 900',
   corporateEmail: 'empanelment@hindustanprojects.in'
 };

@@ -5,13 +5,13 @@ import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, Lock, Award, Clock, Arr
 
 const DEFAULT_SITE_CONFIG = {
   companyTitle:           'Hindustan Projects',
-  subdomainPill:          'empanel.hindustanprojects.in',
+  subdomainPill:          'www.empanelment.hindustanprojects.in',
   helplinePhone:          '+91 (011) 4500 8899 / 900',
   corporateEmail:         'empanelment@hindustanprojects.in',
   corporateAddress:       'Hindustan Projects Corporate Tower, Barakhamba Road, New Delhi - 110001',
   footerCopyright:        '© 2026 Hindustan Projects. All Rights Reserved.',
   footerAboutText:        'Official Vendor & Contractor Empanelment Portal of Hindustan Projects. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.',
-  mainWebsiteUrl:         'https://hindustanprojects.in',
+  mainWebsiteUrl:         'https://www.hindustanprojects.in',
   isoBadgeText:           'ISO 9001:2015 Verified',
   cvcBadgeText:           'CVC Procurement Valid',
   supportHours:           'Mon – Sat: 09:00 AM – 06:00 PM IST',

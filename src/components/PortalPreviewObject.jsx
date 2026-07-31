@@ -34,7 +34,7 @@ export default function PortalPreviewObject({ onStartForm }) {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1rem', borderRadius: 12, backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', fontSize: '0.8rem', fontWeight: 700 }}>
             <Server style={{ width: 16, height: 16, color: '#60A5FA' }} />
-            <span>Host: empanel.hindustanprojects.in</span>
+            <span>Host: www.empanelment.hindustanprojects.in</span>
           </div>
         </div>
 
