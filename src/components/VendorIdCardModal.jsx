@@ -248,7 +248,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                     <div style={{ position: 'absolute', top: 15, right: -25, width: 70, height: 55, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', opacity: 0.95, zIndex: 1 }} />
 
                     {/* Logo Image */}
-                    <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 52, width: 'auto', objectFit: 'contain', margin: '2px auto 6px auto', display: 'block', position: 'relative', zIndex: 10, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }} />
+                    <img src="/hipro-logo.png?v=trans-v1" alt="HiPRO Logo" style={{ height: 52, width: 'auto', objectFit: 'contain', margin: '2px auto 6px auto', display: 'block', position: 'relative', zIndex: 10, mixBlendMode: 'multiply', backgroundColor: 'transparent' }} />
 
                     <div style={{ fontSize: '1.3rem', fontWeight: 900, letterSpacing: '0.02em', textTransform: 'uppercase', position: 'relative', zIndex: 2, lineHeight: 1.05 }}>
                       <span style={{ color: '#ED1C24' }}>HINDUSTAN</span> <span style={{ color: '#0047AB' }}>PROJECTS</span>
@@ -407,7 +407,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               <div style={{ position: 'absolute', top: 15, right: -25, width: 70, height: 55, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', opacity: 0.95, zIndex: 1 }} />
 
               {/* Logo Image - Shifted Down Slightly for Breathing Room */}
-              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 52, width: 'auto', objectFit: 'contain', margin: '2px auto 6px auto', display: 'block', position: 'relative', zIndex: 10, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }} />
+              <img src="/hipro-logo.png?v=trans-v1" alt="HiPRO Logo" style={{ height: 52, width: 'auto', objectFit: 'contain', margin: '2px auto 6px auto', display: 'block', position: 'relative', zIndex: 10, mixBlendMode: 'multiply', backgroundColor: 'transparent' }} />
 
               <div style={{ fontSize: '1.3rem', fontWeight: 900, letterSpacing: '0.02em', textTransform: 'uppercase', position: 'relative', zIndex: 2, lineHeight: 1.05 }}>
                 <span style={{ color: '#ED1C24' }}>HINDUSTAN</span> <span style={{ color: '#0047AB' }}>PROJECTS</span>
@@ -541,7 +541,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             {/* Header Content on White Background (Clean without side triangles for Back Card) */}
             <div style={{ textAlign: 'center', padding: '6px 1rem 2px 1rem', position: 'relative' }}>
               {/* Logo Image */}
-              <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 48, width: 'auto', objectFit: 'contain', margin: '2px auto 6px auto', display: 'block', position: 'relative', zIndex: 10, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }} />
+              <img src="/hipro-logo.png?v=trans-v1" alt="HiPRO Logo" style={{ height: 48, width: 'auto', objectFit: 'contain', margin: '2px auto 6px auto', display: 'block', position: 'relative', zIndex: 10, mixBlendMode: 'multiply', backgroundColor: 'transparent' }} />
 
               <div style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.02em', textTransform: 'uppercase', position: 'relative', zIndex: 2, lineHeight: 1.05 }}>
                 <span style={{ color: '#ED1C24' }}>HINDUSTAN</span> <span style={{ color: '#0047AB' }}>PROJECTS</span>

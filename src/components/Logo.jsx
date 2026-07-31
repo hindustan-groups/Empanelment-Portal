@@ -4,9 +4,9 @@ export default function Logo({ className = '', height = 44, showText = true }) {
   return (
     <div className={`flex items-center gap-3 select-none ${className}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}>
       <img
-        src="/hipro-logo.jpg"
+        src="/hipro-logo.png"
         alt="HiPRO Hindustan Projects Logo"
-        style={{ height: height, width: 'auto', objectFit: 'contain', borderRadius: 4 }}
+        style={{ height: height, width: 'auto', objectFit: 'contain', mixBlendMode: 'multiply', backgroundColor: 'transparent' }}
       />
       {showText && (
         <div style={{ display: 'flex', flexDirection: 'column', borderLeft: '1.5px solid #CBD5E1', paddingLeft: '0.65rem' }}>
