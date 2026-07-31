@@ -29,7 +29,14 @@ export default function VendorLoginPage() {
 
     setTimeout(() => {
       // Find vendor in localStorage or create demo session
-      const storedApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      // Safe parse — crash-proof if localStorage is corrupted
+      let storedApps = [];
+      try {
+        storedApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+        if (!Array.isArray(storedApps)) storedApps = [];
+      } catch {
+        storedApps = [];
+      }
       const match = storedApps.find(app => 
         (app.tracking_id && app.tracking_id.toLowerCase() === cleanIdentity.toLowerCase()) ||
         (app.gstin && app.gstin.toLowerCase() === cleanIdentity.toLowerCase()) ||
