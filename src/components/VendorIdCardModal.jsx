@@ -195,45 +195,122 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               }}>
                 <div style={{ position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)', width: 40, height: 8, backgroundColor: 'rgba(15,23,42,0.15)', borderRadius: 99, border: '1px solid rgba(255,255,255,0.8)' }} />
 
-                {/* FRONT PVC CARD INSIDE SLEEVE */}
+                {/* FRONT PVC CARD INSIDE SLEEVE (100% IDENTICAL TO MAIN FRONT CARD) */}
                 <div style={{
-                  width: 310, height: 515, backgroundColor: '#FFFFFF', borderRadius: 18,
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: '1px solid #CBD5E1',
+                  width: 320, height: 530, backgroundColor: '#FFFFFF', borderRadius: 20,
+                  boxShadow: '0 12px 30px rgba(0,0,0,0.15)', border: '1px solid #CBD5E1',
                   position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column',
                   fontFamily: 'Arial, sans-serif'
                 }}>
-                  <div style={{ height: 40, minHeight: 40, background: '#0B1B3D', position: 'relative', width: '100%', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', width: 48, height: 10, backgroundColor: '#FFFFFF', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
-                    <div style={{ position: 'absolute', top: 0, right: 0, width: 80, height: 40, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)', zIndex: 5 }} />
+                  {/* Top Navy Blue Geometric Header Bar */}
+                  <div style={{ height: 42, minHeight: 42, background: '#0B1B3D', position: 'relative', width: '100%', overflow: 'hidden' }}>
+                    {/* Punch Hole Slot */}
+                    <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', width: 50, height: 12, backgroundColor: '#FFFFFF', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
+                    {/* Red Right Diagonal Cut */}
+                    <div style={{ position: 'absolute', top: 0, right: 0, width: 85, height: 42, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)', zIndex: 5 }} />
+                    <div style={{ position: 'absolute', top: 18, right: 0, width: 95, height: 4, backgroundColor: '#ED1C24', zIndex: 6 }} />
                   </div>
-                  <div style={{ textAlign: 'center', padding: '10px 1rem 2px 1rem' }}>
-                    <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 34, width: 'auto', objectFit: 'contain', margin: '2px auto', display: 'block' }} />
-                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase' }}>HINDUSTAN PROJECTS</div>
-                    <div style={{ fontSize: '0.45rem', fontWeight: 700, color: '#0F172A', marginTop: 1 }}>Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Infrastructure</div>
+
+                  {/* Header Content on White Background */}
+                  <div style={{ textAlign: 'center', padding: '14px 1rem 4px 1rem', position: 'relative' }}>
+                    {/* Left Navy & Right Red Polygon Background Accents */}
+                    <div style={{ position: 'absolute', top: 12, left: -25, width: 70, height: 55, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 100% 50%, 0 100%)', opacity: 0.95 }} />
+                    <div style={{ position: 'absolute', top: 17, right: -25, width: 70, height: 55, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', opacity: 0.95 }} />
+
+                    {/* Logo Image */}
+                    <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 38, width: 'auto', objectFit: 'contain', margin: '4px auto 4px auto', display: 'block', position: 'relative', zIndex: 2 }} />
+
+                    <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase', position: 'relative', zIndex: 2 }}>
+                      HINDUSTAN PROJECTS
+                    </div>
+                    <div style={{ fontSize: '0.48rem', fontWeight: 700, color: '#0F172A', marginTop: 1, position: 'relative', zIndex: 2 }}>
+                      Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Infrastructure
+                    </div>
+                    <div style={{ fontSize: '0.48rem', fontWeight: 800, color: '#0B1B3D', marginTop: 1, position: 'relative', zIndex: 2 }}>
+                      <span style={{ color: '#ED1C24' }}>•</span> Digital solution With Marketing <span style={{ color: '#ED1C24' }}>•</span>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-                    <div style={{ width: 90, height: 105, borderRadius: 10, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9' }}>
+
+                  {/* Middle Profile Photo Frame */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4, zIndex: 5 }}>
+                    <div style={{ width: 95, height: 112, borderRadius: 12, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
                       <img src={cardData.photoUrl} alt={cardData.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   </div>
-                  <div style={{ textAlign: 'center', padding: '0.4rem 1rem 0.1rem 1rem' }}>
-                    <h2 style={{ fontSize: '1rem', fontWeight: 900, color: '#0B1B3D', margin: 0, textTransform: 'uppercase' }}>{cardData.name}</h2>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24', marginTop: 1 }}>{cardData.designation}</div>
+
+                  {/* Vendor Name & Designation */}
+                  <div style={{ textAlign: 'center', padding: '0.55rem 1rem 0.2rem 1rem' }}>
+                    {editMode ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                        <input
+                          value={cardData.name}
+                          onChange={e => handleFieldChange('name', e.target.value)}
+                          style={{ textAlign: 'center', fontSize: '0.95rem', fontWeight: 900, color: '#0B1B3D', border: '1.5px solid #F59E0B', borderRadius: 6, padding: '2px 8px', width: '90%', textTransform: 'uppercase', background: '#FFFBEB' }}
+                          placeholder="Full Name"
+                        />
+                        <input
+                          value={cardData.designation}
+                          onChange={e => handleFieldChange('designation', e.target.value)}
+                          style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24', border: '1.5px solid #F59E0B', borderRadius: 6, padding: '2px 8px', width: '90%', background: '#FFFBEB' }}
+                          placeholder="Designation"
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <h2 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.04em', margin: 0, textTransform: 'uppercase' }}>{cardData.name}</h2>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ED1C24', marginTop: 2 }}>{cardData.designation}</div>
+                      </>
+                    )}
                   </div>
-                  <div style={{ padding: '0.3rem 1.2rem', flex: 1 }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem', color: '#0B1B3D' }}>
+
+                  {/* Vendor Details Table */}
+                  <div style={{ padding: '0.4rem 1.4rem', flex: 1 }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', color: '#0B1B3D' }}>
                       <tbody>
-                        <tr><td style={{ padding: '2px 0', fontWeight: 800 }}>Employee ID</td><td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.vendorId}</td></tr>
-                        <tr><td style={{ padding: '2px 0', fontWeight: 800 }}>Department</td><td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.department}</td></tr>
-                        <tr><td style={{ padding: '2px 0', fontWeight: 800 }}>Blood Group</td><td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.bloodGroup}</td></tr>
+                        <tr>
+                          <td style={{ padding: '3px 0', fontWeight: 800, width: '42%' }}>Employee ID</td>
+                          <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                            {editMode ? <input value={cardData.vendorId} onChange={e => handleFieldChange('vendorId', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 100, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.vendorId}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '3px 0', fontWeight: 800 }}>Department</td>
+                          <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                            {editMode ? <input value={cardData.department} onChange={e => handleFieldChange('department', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 120, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.department}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '3px 0', fontWeight: 800 }}>Designation</td>
+                          <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                            {editMode ? <input value={cardData.designation} onChange={e => handleFieldChange('designation', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 110, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.designation}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '3px 0', fontWeight: 800 }}>Blood Group</td>
+                          <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                            {editMode ? <input value={cardData.bloodGroup} onChange={e => handleFieldChange('bloodGroup', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 50, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.bloodGroup}
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
-                  <div style={{ padding: '0.3rem 1rem 0.6rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem' }}>
-                    <div style={{ padding: 2, backgroundColor: '#FFFFFF', borderRadius: 4, border: '1.5px solid #0B1B3D' }}>
-                      <img src={qrVerificationUrl} alt="QR Scan" style={{ width: 38, height: 38, display: 'block' }} />
+
+                  {/* Bottom Verification QR Code & Corner Geometry */}
+                  <div style={{ padding: '0.4rem 1.25rem 0.85rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', position: 'relative' }}>
+                    <div style={{ padding: 3, backgroundColor: '#FFFFFF', borderRadius: 6, border: '2px solid #0B1B3D' }}>
+                      <img src={qrVerificationUrl} alt="QR Scan" style={{ width: 44, height: 44, display: 'block' }} />
                     </div>
-                    <div style={{ textAlign: 'left', fontSize: '0.68rem', fontWeight: 900, color: '#0B1B3D', lineHeight: 1.2 }}>Scan for<br />Verification</div>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#0B1B3D', lineHeight: 1.2 }}>Scan for</div>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#0B1B3D', lineHeight: 1.2 }}>Verification</div>
+                    </div>
+
+                    {/* Bottom Diagonal Angle Cuts (Left & Right) */}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: 45, height: 45, backgroundColor: '#0B1B3D', clipPath: 'polygon(0 0, 0 100%, 100% 100%)' }} />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: 32, height: 32, backgroundColor: '#ED1C24', clipPath: 'polygon(0 0, 0 100%, 100% 100%)' }} />
+
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: 45, height: 45, backgroundColor: '#0B1B3D', clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }} />
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: 32, height: 32, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }} />
                   </div>
                 </div>
 
