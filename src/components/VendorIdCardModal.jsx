@@ -145,137 +145,96 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                 How Your Physical Vendor ID Card & Branded Blue Lanyard Will Look
               </h4>
               <p style={{ fontSize: '0.825rem', color: '#64748B', margin: 0 }}>
-                This is a 1:1 real demonstration of the final manufactured PVC card hanging from the official Hindustan Projects Royal Blue Lanyard Strap.
+                Official Hindustan Projects 20MM Navy Blue Branded Lanyard with Silver Carabiner Hook
               </p>
             </div>
 
             {/* 3D ASSEMBLY CANVAS */}
-            <div style={{ position: 'relative', width: 380, display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
-              
-              {/* 1. LANYARD STRAP (TWO RIBBONS COMING FROM TOP) */}
-              <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', height: 90, position: 'relative', width: '100%', overflow: 'hidden' }}>
-                
-                {/* Left Strap Ribbon */}
-                <div style={{
-                  width: 32, height: 110, background: 'linear-gradient(180deg, #0B1B3D 0%, #0047AB 100%)',
-                  transform: 'rotate(-8deg)', transformOrigin: 'top center', borderRadius: 4,
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.2)', borderLeft: '1.5px dashed rgba(255,255,255,0.4)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                  <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'white', fontSize: '0.62rem', fontWeight: 900, letterSpacing: '0.1em' }}>
-                    HINDUSTAN PROJECTS • EMPANELED VENDOR
-                  </div>
-                </div>
+            <div style={{ position: 'relative', width: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
 
-                {/* Right Strap Ribbon */}
+              {/* ══ OFFICIAL LANYARD RIBBON PRODUCT PHOTO ══ */}
+              <div style={{ width: '100%', textAlign: 'center', marginBottom: 0 }}>
+                <img
+                  src="/lanyard-official.jpg"
+                  alt="Official Hindustan Projects 20mm Branded Blue Lanyard Ribbon"
+                  style={{
+                    width: '100%',
+                    maxWidth: 460,
+                    borderRadius: 14,
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.18)',
+                    border: '1.5px solid #CBD5E1',
+                    objectFit: 'contain',
+                    display: 'block',
+                    margin: '0 auto'
+                  }}
+                />
                 <div style={{
-                  width: 32, height: 110, background: 'linear-gradient(180deg, #0B1B3D 0%, #0047AB 100%)',
-                  transform: 'rotate(8deg)', transformOrigin: 'top center', borderRadius: 4,
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.2)', borderRight: '1.5px dashed rgba(255,255,255,0.4)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  marginTop: 8, padding: '0.25rem 0.85rem',
+                  background: 'rgba(0,71,171,0.08)', borderRadius: 99,
+                  fontSize: '0.72rem', fontWeight: 800, color: '#0047AB', letterSpacing: '0.04em', textTransform: 'uppercase'
                 }}>
-                  <div style={{ writingMode: 'vertical-rl', color: 'white', fontSize: '0.62rem', fontWeight: 900, letterSpacing: '0.1em' }}>
-                    HINDUSTAN PROJECTS • EMPANELED VENDOR
-                  </div>
-                </div>
-
-                {/* Safety Breakaway Clasp Ring */}
-                <div style={{ position: 'absolute', top: 8, width: 44, height: 12, backgroundColor: '#0B1B3D', borderRadius: 4, border: '1px solid #60A5FA', color: '#FFFFFF', fontSize: '0.55rem', fontWeight: 900, textAlign: 'center', lineHeight: '12px' }}>
-                  HIPRO
+                  🎗️ Official HiPRO 20MM Navy Blue Branded Neck Lanyard · Silver Carabiner Hook
                 </div>
               </div>
 
-              {/* 2. CHROME METAL SWIVEL DOG HOOK CLIP */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10, marginTop: -10 }}>
-                {/* Ribbon Ring Loop */}
-                <div style={{ width: 22, height: 14, border: '3px solid #64748B', borderRadius: 4, background: 'linear-gradient(135deg, #CBD5E1, #94A3B8)' }} />
-                {/* Dog Hook Spring Body */}
-                <div style={{ width: 14, height: 18, background: 'linear-gradient(135deg, #E2E8F0 0%, #94A3B8 50%, #475569 100%)', borderRadius: 3, boxShadow: '0 2px 6px rgba(0,0,0,0.3)', marginTop: -2 }} />
-                {/* Metal Clip Hook Pin into Punch Slot */}
-                <div style={{ width: 8, height: 10, backgroundColor: '#475569', borderRadius: '0 0 4px 4px', marginTop: -1 }} />
+              {/* Connector: lanyard bottom → card */}
+              <div style={{ width: 3, height: 30, background: 'linear-gradient(180deg, #64748B 0%, #0B1B3D 100%)', borderRadius: 2, margin: '6px 0 2px 0' }} />
+
+              {/* Chrome Carabiner Hook */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 6 }}>
+                <div style={{ width: 26, height: 18, border: '3px solid #94A3B8', borderRadius: 6, background: 'linear-gradient(135deg, #E2E8F0, #94A3B8)', boxShadow: '0 2px 6px rgba(0,0,0,0.25)' }} />
+                <div style={{ width: 16, height: 22, background: 'linear-gradient(180deg, #E2E8F0 0%, #94A3B8 50%, #475569 100%)', borderRadius: '0 0 7px 7px', boxShadow: '0 3px 8px rgba(0,0,0,0.3)', marginTop: -2 }} />
               </div>
 
-              {/* 3. TRANSPARENT ACRYLIC BADGE HOLDER POUCH SLEEVE */}
+              {/* TRANSPARENT ACRYLIC BADGE HOLDER */}
               <div style={{
-                marginTop: -4, padding: '12px 10px 10px 10px', backgroundColor: 'rgba(255,255,255,0.7)',
+                padding: '12px 10px 10px 10px', backgroundColor: 'rgba(255,255,255,0.7)',
                 borderRadius: 24, border: '2.5px solid rgba(0, 71, 171, 0.3)', backdropFilter: 'blur(6px)',
                 boxShadow: '0 20px 40px rgba(0, 71, 171, 0.18)', position: 'relative'
               }}>
-                
-                {/* Transparent Sleeve Punch Hole Slot Alignment */}
                 <div style={{ position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)', width: 40, height: 8, backgroundColor: 'rgba(15,23,42,0.15)', borderRadius: 99, border: '1px solid rgba(255,255,255,0.8)' }} />
 
-                {/* THE ACTUAL FRONT PVC CARD INSIDE THE CLEAR HOLDER SLEEVE */}
+                {/* FRONT PVC CARD INSIDE SLEEVE */}
                 <div style={{
                   width: 310, height: 515, backgroundColor: '#FFFFFF', borderRadius: 18,
                   boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: '1px solid #CBD5E1',
                   position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column',
                   fontFamily: 'Arial, sans-serif'
                 }}>
-                  {/* Top Navy Bar */}
                   <div style={{ height: 40, minHeight: 40, background: '#0B1B3D', position: 'relative', width: '100%', overflow: 'hidden' }}>
                     <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', width: 48, height: 10, backgroundColor: '#FFFFFF', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
                     <div style={{ position: 'absolute', top: 0, right: 0, width: 80, height: 40, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)', zIndex: 5 }} />
                   </div>
-
-                  {/* Header Logo */}
                   <div style={{ textAlign: 'center', padding: '10px 1rem 2px 1rem' }}>
-                    <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 34, width: 'auto', objectFit: 'contain', margin: '2px auto 2px auto', display: 'block' }} />
-                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                      HINDUSTAN PROJECTS
-                    </div>
-                    <div style={{ fontSize: '0.45rem', fontWeight: 700, color: '#0F172A', marginTop: 1 }}>
-                      Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Infrastructure
-                    </div>
+                    <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 34, width: 'auto', objectFit: 'contain', margin: '2px auto', display: 'block' }} />
+                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase' }}>HINDUSTAN PROJECTS</div>
+                    <div style={{ fontSize: '0.45rem', fontWeight: 700, color: '#0F172A', marginTop: 1 }}>Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Infrastructure</div>
                   </div>
-
-                  {/* Photo Frame */}
                   <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
                     <div style={{ width: 90, height: 105, borderRadius: 10, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9' }}>
                       <img src={cardData.photoUrl} alt={cardData.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   </div>
-
-                  {/* Vendor Name */}
                   <div style={{ textAlign: 'center', padding: '0.4rem 1rem 0.1rem 1rem' }}>
-                    <h2 style={{ fontSize: '1rem', fontWeight: 900, color: '#0B1B3D', margin: 0, textTransform: 'uppercase' }}>
-                      {cardData.name}
-                    </h2>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24', marginTop: 1 }}>
-                      {cardData.designation}
-                    </div>
+                    <h2 style={{ fontSize: '1rem', fontWeight: 900, color: '#0B1B3D', margin: 0, textTransform: 'uppercase' }}>{cardData.name}</h2>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24', marginTop: 1 }}>{cardData.designation}</div>
                   </div>
-
-                  {/* Details Table */}
                   <div style={{ padding: '0.3rem 1.2rem', flex: 1 }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem', color: '#0B1B3D' }}>
                       <tbody>
-                        <tr>
-                          <td style={{ padding: '2px 0', fontWeight: 800 }}>Employee ID</td>
-                          <td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.vendorId}</td>
-                        </tr>
-                        <tr>
-                          <td style={{ padding: '2px 0', fontWeight: 800 }}>Department</td>
-                          <td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.department}</td>
-                        </tr>
-                        <tr>
-                          <td style={{ padding: '2px 0', fontWeight: 800 }}>Blood Group</td>
-                          <td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.bloodGroup}</td>
-                        </tr>
+                        <tr><td style={{ padding: '2px 0', fontWeight: 800 }}>Employee ID</td><td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.vendorId}</td></tr>
+                        <tr><td style={{ padding: '2px 0', fontWeight: 800 }}>Department</td><td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.department}</td></tr>
+                        <tr><td style={{ padding: '2px 0', fontWeight: 800 }}>Blood Group</td><td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.bloodGroup}</td></tr>
                       </tbody>
                     </table>
                   </div>
-
-                  {/* Bottom Verification QR Code */}
                   <div style={{ padding: '0.3rem 1rem 0.6rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem' }}>
                     <div style={{ padding: 2, backgroundColor: '#FFFFFF', borderRadius: 4, border: '1.5px solid #0B1B3D' }}>
                       <img src={qrVerificationUrl} alt="QR Scan" style={{ width: 38, height: 38, display: 'block' }} />
                     </div>
-                    <div style={{ textAlign: 'left', fontSize: '0.68rem', fontWeight: 900, color: '#0B1B3D', lineHeight: 1.2 }}>
-                      Scan for<br />Verification
-                    </div>
+                    <div style={{ textAlign: 'left', fontSize: '0.68rem', fontWeight: 900, color: '#0B1B3D', lineHeight: 1.2 }}>Scan for<br />Verification</div>
                   </div>
-
                 </div>
 
               </div>
