@@ -602,7 +602,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               backgroundColor: '#0F172A'
             }}>
               <img
-                src="/lanyard-ribbon-official.jpg"
+                src="/lanyard-ribbon-official.jpg?v=20mm-v2"
                 alt="Official Royal Navy Blue Lanyard Ribbon Strap"
                 style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0.95 }}
               />
