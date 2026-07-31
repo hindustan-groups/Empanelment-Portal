@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Printer, ShieldCheck, Edit3 } from 'lucide-react';
+import { X, Printer, ShieldCheck, Edit3, Lock, Check } from 'lucide-react';
 import { printCard } from '../utils/printCard';
 
 export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
@@ -8,8 +8,8 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
   // Determine if vendor empanelment status is APPROVED
   const isApproved = vendorData.status === 'APPROVED' || vendorData.isApproved !== false;
 
-  // Auto-populated ID Card fields directly from verified empanelment data (System Locked)
-  const cardData = {
+  // Auto-populated ID Card fields directly from verified empanelment data
+  const defaultCardData = {
     name: vendorData.contactName || vendorData.contact_name || vendorData.name || 'MOHMMAD DILSHAN',
     designation: vendorData.designation || vendorData.primary_role_label || 'Empanelled Vendor',
     vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
@@ -22,6 +22,13 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
     website: 'hindustanprojects.in'
   };
 
+  const [editMode, setEditMode] = useState(false);
+  const [cardData, setCardData] = useState(defaultCardData);
+
+  const handleFieldChange = (field, value) => {
+    setCardData(prev => ({ ...prev, [field]: value }));
+  };
+
   // QR Code URL — scans open live /track page with vendor ID auto-searched
   const liveBaseUrl = 'https://www.empanelment.hindustanprojects.in';
   const qrVerificationUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${liveBaseUrl}/track?id=${cardData.vendorId}`)}`;
@@ -29,9 +36,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'assembly_demo'
 
   const handlePrint = () => {
-    if (isApproved) {
-      printCard('printable-id-card-element', `Smart PVC ID Card - ${cardData.vendorId}`);
-    }
+    printCard('printable-id-card-element', `Smart PVC ID Card - ${cardData.vendorId}`);
   };
 
   return (
@@ -87,29 +92,43 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               </button>
             </div>
 
+            {/* ✏️ EDIT MODE TOGGLE */}
+            <button
+              onClick={() => setEditMode(prev => !prev)}
+              className="no-print"
+              style={{
+                padding: '0.5rem 1rem', fontSize: '0.82rem', fontWeight: 800, borderRadius: 10,
+                border: editMode ? '2px solid #F59E0B' : '2px solid #CBD5E1',
+                background: editMode ? '#FFFBEB' : '#F8FAFC',
+                color: editMode ? '#B45309' : '#475569',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
+                transition: 'all 0.2s'
+              }}
+              title={editMode ? 'Click to lock fields back' : 'Click to edit card details manually'}
+            >
+              {editMode ? <Check style={{ width: 15, height: 15 }} /> : <Edit3 style={{ width: 15, height: 15 }} />}
+              <span>{editMode ? 'Done Editing' : '✏️ Edit Details'}</span>
+            </button>
+
             <button
               onClick={handlePrint}
-              disabled={!isApproved}
               className="btn-accent"
-              style={{
-                padding: '0.55rem 1.25rem', fontSize: '0.85rem', borderRadius: 10, display: 'flex', alignItems: 'center', gap: '0.4rem',
-                opacity: isApproved ? 1 : 0.5, cursor: isApproved ? 'pointer' : 'not-allowed'
-              }}
-              title={isApproved ? 'Print Official Smart ID Card' : 'Card download unlocks upon Admin Approval'}
+              style={{ padding: '0.55rem 1.25rem', fontSize: '0.85rem', borderRadius: 10, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              title="Print Official Smart ID Card"
             >
               <Printer style={{ width: 16, height: 16 }} />
-              <span>{isApproved ? 'Print PVC Card (PDF)' : 'Locked (Pending Approval)'}</span>
+              <span>Print PVC Card (PDF)</span>
             </button>
 
             <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#64748B', padding: '0.2rem' }}>✕</button>
           </div>
         </div>
 
-        {/* 🔒 SECURITY NOTICE BANNER */}
-        {!isApproved && (
-          <div className="id-card-security-banner" style={{ padding: '0.85rem 1.25rem', backgroundColor: '#FFFBEB', border: '1.5px solid #F59E0B', borderRadius: 14, marginBottom: '1.25rem', color: '#B45309', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <span style={{ fontSize: '1.1rem' }}>🔒</span>
-            <span>Security Lockdown: Official Smart ID Card printing is currently locked. Once Admin approves your empanelment application, official printing will unlock automatically.</span>
+        {/* ✏️ EDIT MODE BANNER */}
+        {editMode && (
+          <div className="no-print" style={{ padding: '0.75rem 1.1rem', backgroundColor: '#FFFBEB', border: '1.5px solid #F59E0B', borderRadius: 12, marginBottom: '1rem', color: '#92400E', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <span style={{ fontSize: '1.1rem' }}>✏️</span>
+            <span>Edit Mode ON — Sare fields ab editable hain. Details sahi karke <strong>"Print PVC Card"</strong> press karo. Done hone ke baad <strong>"Done Editing"</strong> click karo.</span>
           </div>
         )}
 
@@ -327,12 +346,27 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
 
             {/* Vendor Name & Designation */}
             <div style={{ textAlign: 'center', padding: '0.55rem 1rem 0.2rem 1rem' }}>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.04em', margin: 0, textTransform: 'uppercase' }}>
-                {cardData.name}
-              </h2>
-              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ED1C24', marginTop: 2 }}>
-                {cardData.designation}
-              </div>
+              {editMode ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+                  <input
+                    value={cardData.name}
+                    onChange={e => handleFieldChange('name', e.target.value)}
+                    style={{ textAlign: 'center', fontSize: '0.95rem', fontWeight: 900, color: '#0B1B3D', border: '1.5px solid #F59E0B', borderRadius: 6, padding: '2px 8px', width: '90%', textTransform: 'uppercase', background: '#FFFBEB' }}
+                    placeholder="Full Name"
+                  />
+                  <input
+                    value={cardData.designation}
+                    onChange={e => handleFieldChange('designation', e.target.value)}
+                    style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24', border: '1.5px solid #F59E0B', borderRadius: 6, padding: '2px 8px', width: '90%', background: '#FFFBEB' }}
+                    placeholder="Designation"
+                  />
+                </div>
+              ) : (
+                <>
+                  <h2 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.04em', margin: 0, textTransform: 'uppercase' }}>{cardData.name}</h2>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ED1C24', marginTop: 2 }}>{cardData.designation}</div>
+                </>
+              )}
             </div>
 
             {/* Vendor Details Table */}
@@ -341,19 +375,27 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                 <tbody>
                   <tr>
                     <td style={{ padding: '3px 0', fontWeight: 800, width: '42%' }}>Employee ID</td>
-                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;{cardData.vendorId}</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                      {editMode ? <input value={cardData.vendorId} onChange={e => handleFieldChange('vendorId', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 100, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.vendorId}
+                    </td>
                   </tr>
                   <tr>
                     <td style={{ padding: '3px 0', fontWeight: 800 }}>Department</td>
-                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;{cardData.department}</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                      {editMode ? <input value={cardData.department} onChange={e => handleFieldChange('department', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 120, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.department}
+                    </td>
                   </tr>
                   <tr>
                     <td style={{ padding: '3px 0', fontWeight: 800 }}>Designation</td>
-                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;{cardData.designation}</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                      {editMode ? <input value={cardData.designation} onChange={e => handleFieldChange('designation', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 110, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.designation}
+                    </td>
                   </tr>
                   <tr>
                     <td style={{ padding: '3px 0', fontWeight: 800 }}>Blood Group</td>
-                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;{cardData.bloodGroup}</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                      {editMode ? <input value={cardData.bloodGroup} onChange={e => handleFieldChange('bloodGroup', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 50, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.bloodGroup}
+                    </td>
                   </tr>
                 </tbody>
               </table>
