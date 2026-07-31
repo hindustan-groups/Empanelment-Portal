@@ -250,7 +250,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                     {/* Logo Image */}
                     <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 48, width: 'auto', objectFit: 'contain', margin: '2px auto 2px auto', display: 'block', position: 'relative', zIndex: 2 }} />
 
-                    <div style={{ fontSize: '1rem', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', position: 'relative', zIndex: 2 }}>
+                    <div style={{ fontSize: '1.18rem', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', position: 'relative', zIndex: 2, lineHeight: 1.1 }}>
                       <span style={{ color: '#ED1C24' }}>HINDUSTAN</span> <span style={{ color: '#0047AB' }}>PROJECTS</span>
                     </div>
                     <div style={{ fontSize: '0.48rem', fontWeight: 700, color: '#0F172A', marginTop: 1, position: 'relative', zIndex: 2 }}>
@@ -405,7 +405,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               {/* Logo Image - Shifted Down Slightly for Breathing Room */}
               <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 48, width: 'auto', objectFit: 'contain', margin: '2px auto 2px auto', display: 'block', position: 'relative', zIndex: 2 }} />
 
-              <div style={{ fontSize: '1rem', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', position: 'relative', zIndex: 2 }}>
+              <div style={{ fontSize: '1.18rem', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', position: 'relative', zIndex: 2, lineHeight: 1.1 }}>
                 <span style={{ color: '#ED1C24' }}>HINDUSTAN</span> <span style={{ color: '#0047AB' }}>PROJECTS</span>
               </div>
               <div style={{ fontSize: '0.48rem', fontWeight: 700, color: '#0F172A', marginTop: 1, position: 'relative', zIndex: 2 }}>
@@ -535,7 +535,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               {/* Logo Image */}
               <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 44, width: 'auto', objectFit: 'contain', margin: '2px auto 2px auto', display: 'block', position: 'relative', zIndex: 2 }} />
 
-              <div style={{ fontSize: '0.95rem', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', position: 'relative', zIndex: 2 }}>
+              <div style={{ fontSize: '1.12rem', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', position: 'relative', zIndex: 2, lineHeight: 1.1 }}>
                 <span style={{ color: '#ED1C24' }}>HINDUSTAN</span> <span style={{ color: '#0047AB' }}>PROJECTS</span>
               </div>
               <div style={{ fontSize: '0.46rem', fontWeight: 700, color: '#0F172A', marginTop: 1, position: 'relative', zIndex: 2 }}>
