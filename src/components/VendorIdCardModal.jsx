@@ -478,40 +478,72 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             </span>
           </div>
 
-          {/* 🎗️ REALISTIC LANYARD RIBBON STRAP PREVIEW */}
-          <div style={{
-            background: 'linear-gradient(90deg, #0B1B3D 0%, #0047AB 50%, #0B1B3D 100%)',
-            borderRadius: 14,
-            padding: '0.9rem 1.25rem',
-            color: '#FFFFFF',
-            boxShadow: '0 8px 20px rgba(0,71,171,0.25)',
-            border: '1.5px solid #0047AB',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            marginBottom: '1.25rem',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            {/* Lanyard Strap Stitching Lines */}
-            <div style={{ position: 'absolute', top: 3, left: 0, right: 0, height: 1.5, borderTop: '1px dashed rgba(255,255,255,0.3)' }} />
-            <div style={{ position: 'absolute', bottom: 3, left: 0, right: 0, height: 1.5, borderTop: '1px dashed rgba(255,255,255,0.3)' }} />
+          {/* 🎗️ REALISTIC LANYARD RIBBON STRAP PREVIEW & OFFICIAL PRODUCT PHOTO */}
+          <div style={{ marginBottom: '1.25rem' }}>
+            <div style={{
+              background: 'linear-gradient(90deg, #0B1B3D 0%, #0047AB 50%, #0B1B3D 100%)',
+              borderRadius: 14,
+              padding: '0.9rem 1.25rem',
+              color: '#FFFFFF',
+              boxShadow: '0 8px 20px rgba(0,71,171,0.25)',
+              border: '1.5px solid #0047AB',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              flexWrap: 'wrap',
+              marginBottom: '0.85rem',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              {/* Lanyard Strap Stitching Lines */}
+              <div style={{ position: 'absolute', top: 3, left: 0, right: 0, height: 1.5, borderTop: '1px dashed rgba(255,255,255,0.3)' }} />
+              <div style={{ position: 'absolute', bottom: 3, left: 0, right: 0, height: 1.5, borderTop: '1px dashed rgba(255,255,255,0.3)' }} />
 
-            {/* Left Lanyard Text */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', zIndex: 2 }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 900, backgroundColor: '#ED1C24', color: 'white', padding: '0.15rem 0.5rem', borderRadius: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                LANYARD RIBBON (20MM)
-              </span>
-              <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                HINDUSTAN PROJECTS <span style={{ color: '#ED1C24' }}>•</span> EMPANELED VENDOR <span style={{ color: '#ED1C24' }}>•</span> HINDUSTAN PROJECTS <span style={{ color: '#ED1C24' }}>•</span> ENGINEERING & CONSTRUCTION
+              {/* Left Lanyard Text */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', zIndex: 2 }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 900, backgroundColor: '#ED1C24', color: 'white', padding: '0.15rem 0.5rem', borderRadius: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  LANYARD RIBBON (20MM)
+                </span>
+                <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  HINDUSTAN PROJECTS <span style={{ color: '#ED1C24' }}>•</span> EMPANELED VENDOR <span style={{ color: '#ED1C24' }}>•</span> HINDUSTAN PROJECTS <span style={{ color: '#ED1C24' }}>•</span> ENGINEERING & CONSTRUCTION
+                </div>
+              </div>
+
+              {/* Right Metal Hook Badge Spec */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: 'rgba(255,255,255,0.15)', padding: '0.3rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, zIndex: 2 }}>
+                <span>📎 Metal Swivel Dog Hook + Clear Acrylic Pouch</span>
               </div>
             </div>
 
-            {/* Right Metal Hook Badge Spec */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: 'rgba(255,255,255,0.15)', padding: '0.3rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, zIndex: 2 }}>
-              <span>📎 Metal Swivel Dog Hook + Clear Acrylic Pouch</span>
+            {/* Official Product Photo Card Banner */}
+            <div style={{
+              borderRadius: 16, overflow: 'hidden', border: '1.5px solid #CBD5E1',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.08)', position: 'relative', height: 140,
+              backgroundColor: '#0F172A'
+            }}>
+              <img
+                src="/lanyard-ribbon-official.jpg"
+                alt="Official Royal Navy Blue Lanyard Ribbon Strap"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0.95 }}
+              />
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                background: 'linear-gradient(0deg, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0) 100%)',
+                padding: '0.85rem 1.25rem', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.725rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    📷 Official Manufactured Product Sample Photo
+                  </div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#FFFFFF' }}>
+                    Royal Navy Blue Polyester Lanyard Ribbon with White Screen Print & Chrome Swivel Clip
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.725rem', padding: '0.2rem 0.55rem', borderRadius: 6, backgroundColor: 'rgba(16,185,129,0.2)', color: '#34D399', fontWeight: 800, border: '1px solid rgba(52,211,153,0.3)' }}>
+                  ✓ Approved Brand Spec
+                </span>
+              </div>
             </div>
           </div>
 
