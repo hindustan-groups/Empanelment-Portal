@@ -125,8 +125,8 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             </div>
 
             {/* Middle Profile Photo Frame */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6, zIndex: 5 }}>
-              <div style={{ width: 112, height: 132, borderRadius: 12, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4, zIndex: 5 }}>
+              <div style={{ width: 95, height: 112, borderRadius: 12, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
                 <img src={cardData.photoUrl} alt={cardData.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             </div>
