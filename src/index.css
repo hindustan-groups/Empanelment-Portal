@@ -262,10 +262,62 @@ h1, h2, h3, h4, h5, h6 {
     padding: 24px !important;
   }
 
+  /* Force dark contrast text on all printable card elements during print */
+  .printable-card,
+  .printable-card * {
+    color: #0F172A !important;
+  }
+
+  /* Brand Colors */
+  .printable-card .text-\[\#0047AB\],
+  .printable-card .text-blue-600,
+  .printable-card .text-blue-400 {
+    color: #0047AB !important;
+  }
+
+  .printable-card .text-\[\#ED1C24\],
+  .printable-card .text-red-500 {
+    color: #ED1C24 !important;
+  }
+
+  .printable-card .text-slate-400,
+  .printable-card .text-slate-500 {
+    color: #475569 !important;
+  }
+
+  /* Badges & boxes */
+  .printable-card .bg-emerald-100,
+  .printable-card .dark\:bg-emerald-950 {
+    background-color: #D1FAE5 !important;
+    color: #059669 !important;
+  }
+
+  .printable-card .bg-slate-50,
+  .printable-card .dark\:bg-slate-800\/80 {
+    background-color: #F8FAFC !important;
+    border-color: #CBD5E1 !important;
+  }
+
+  .printable-card .bg-slate-100,
+  .printable-card .dark\:bg-slate-800\/50 {
+    background-color: #F1F5F9 !important;
+    border-color: #E2E8F0 !important;
+  }
+
+  .printable-card .bg-amber-100,
+  .printable-card .dark\:bg-amber-950 {
+    background-color: #FEF3C7 !important;
+    color: #92400E !important;
+  }
+
   /* Top decorative gradient bar */
   .printable-card .bg-gradient-to-r {
     background: linear-gradient(to right, #ED1C24, #0047AB, #ED1C24) !important;
     height: 12px !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
   }
 
   @page {
@@ -273,4 +325,5 @@ h1, h2, h3, h4, h5, h6 {
     margin: 10mm;
   }
 }
+
 
