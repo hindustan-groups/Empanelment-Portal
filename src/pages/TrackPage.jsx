@@ -1,8 +1,102 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldCheck, CheckCircle2, Clock, FileText, AlertCircle, PhoneCall, FilePlus, ArrowLeft, Printer, HelpCircle, Lock, Building2, MapPin, Mail } from 'lucide-react';
+import { Search, ShieldCheck, CheckCircle2, Clock, FileText, AlertCircle, PhoneCall, FilePlus, ArrowLeft, Printer, HelpCircle, Lock, Building2, MapPin, Mail, XCircle, Ban, PauseCircle, Shield } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
+
+// ── QR Verification Status Engine ──────────────────────────────────────────
+function getVerificationStatus(status) {
+  const s = (status || '').toLowerCase();
+  if (s.includes('approved class-a') || s.includes('approved class-b') || s.includes('approved class-c') || s.includes('approved') || s.includes('empanelled') || s.includes('active')) {
+    return {
+      type: 'ACTIVE',
+      headline: '✅ EMPANELMENT ACTIVE & VERIFIED',
+      subline: 'This vendor is an officially empanelled member of Hindustan Projects and is authorized to participate in active tenders.',
+      bgGradient: 'linear-gradient(135deg,#064E3B,#047857)',
+      borderColor: '#6EE7B7',
+      badgeBg: 'rgba(16,185,129,0.2)',
+      badgeColor: '#6EE7B7',
+      icon: 'VERIFIED',
+      scannerMsg: 'You may proceed. This ID card is genuine and the vendor\'s empanelment is currently active.',
+      scannerColor: '#ECFDF5',
+      scannerBorder: '#A7F3D0',
+    };
+  }
+  if (s.includes('suspended')) {
+    return {
+      type: 'SUSPENDED',
+      headline: '⚠️ MEMBERSHIP SUSPENDED',
+      subline: 'This vendor\'s empanelment has been temporarily suspended by Hindustan Projects procurement authority.',
+      bgGradient: 'linear-gradient(135deg,#78350F,#D97706)',
+      borderColor: '#FDE68A',
+      badgeBg: 'rgba(245,158,11,0.2)',
+      badgeColor: '#FCD34D',
+      icon: 'SUSPENDED',
+      scannerMsg: 'CAUTION: Do not enter into any contract or financial transaction with this vendor without prior approval from Hindustan Projects procurement office.',
+      scannerColor: '#FFFBEB',
+      scannerBorder: '#FDE68A',
+    };
+  }
+  if (s.includes('blacklist') || s.includes('terminated') || s.includes('deregistered') || s.includes('debarred')) {
+    return {
+      type: 'TERMINATED',
+      headline: '🚫 EMPANELMENT TERMINATED',
+      subline: 'This vendor has been removed from the Hindustan Projects approved vendor registry. This ID card is no longer valid.',
+      bgGradient: 'linear-gradient(135deg,#7F1D1D,#DC2626)',
+      borderColor: '#FCA5A5',
+      badgeBg: 'rgba(220,38,38,0.25)',
+      badgeColor: '#FCA5A5',
+      icon: 'TERMINATED',
+      scannerMsg: 'WARNING: This vendor is NOT authorized to work with Hindustan Projects. If someone is presenting this card, please report to procurement@hindustanprojects.in immediately.',
+      scannerColor: '#FEF2F2',
+      scannerBorder: '#FECACA',
+    };
+  }
+  if (s.includes('rejected')) {
+    return {
+      type: 'REJECTED',
+      headline: '❌ APPLICATION REJECTED',
+      subline: 'This vendor\'s empanelment application was reviewed and rejected by the Procurement Technical Committee.',
+      bgGradient: 'linear-gradient(135deg,#450A0A,#991B1B)',
+      borderColor: '#FCA5A5',
+      badgeBg: 'rgba(153,27,27,0.25)',
+      badgeColor: '#FCA5A5',
+      icon: 'REJECTED',
+      scannerMsg: 'This vendor is NOT empanelled with Hindustan Projects. This ID card may be fraudulent. Do not authorize any work or payment.',
+      scannerColor: '#FEF2F2',
+      scannerBorder: '#FECACA',
+    };
+  }
+  if (s.includes('clarification')) {
+    return {
+      type: 'CLARIFICATION',
+      headline: '📋 CLARIFICATION REQUIRED',
+      subline: 'The Procurement Committee has raised queries on this application. Vendor\'s empanelment is on hold pending response.',
+      bgGradient: 'linear-gradient(135deg,#2E1065,#7C3AED)',
+      borderColor: '#C4B5FD',
+      badgeBg: 'rgba(124,58,237,0.2)',
+      badgeColor: '#C4B5FD',
+      icon: 'PENDING',
+      scannerMsg: 'This vendor\'s empanelment is currently on hold. Verify with Hindustan Projects procurement office before engaging.',
+      scannerColor: '#F5F3FF',
+      scannerBorder: '#DDD6FE',
+    };
+  }
+  // Default — under verification
+  return {
+    type: 'PENDING',
+    headline: '🔍 UNDER VERIFICATION',
+    subline: 'This vendor\'s application is currently being audited by the Hindustan Projects Financial & Technical Committee.',
+    bgGradient: 'linear-gradient(135deg,#0B1B3D,#0047AB)',
+    borderColor: '#93C5FD',
+    badgeBg: 'rgba(0,71,171,0.2)',
+    badgeColor: '#93C5FD',
+    icon: 'PENDING',
+    scannerMsg: 'This vendor is registered but NOT YET APPROVED. Empanelment verification is still in progress. Do not engage until approval is confirmed.',
+    scannerColor: '#EFF6FF',
+    scannerBorder: '#BFDBFE',
+  };
+}
 
 export default function TrackPage() {
   const navigate = useNavigate();
@@ -255,97 +349,113 @@ export default function TrackPage() {
         )}
 
         {/* VALID REAL SEARCH RESULTS DISPLAY */}
-        {result && (
-          <div style={{ padding: '1.75rem', borderRadius: 18, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
-            
-            {/* Header info bar */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0, 71, 171, 0.1)', padding: '0.2rem 0.75rem', borderRadius: 9999, fontFamily: 'monospace' }}>
-                    {result.id}
-                  </span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Filing Date: <strong>{result.submittedDate}</strong></span>
+        {result && (() => {
+          const vs = getVerificationStatus(result.status);
+          return (
+            <div>
+
+              {/* ══ BIG QR VERIFICATION STATUS HERO CARD ══ */}
+              <div style={{ borderRadius: 20, overflow: 'hidden', marginBottom: '1.25rem', boxShadow: '0 20px 50px rgba(0,0,0,0.2)', border: `2px solid ${vs.borderColor}` }}>
+                
+                {/* Status Banner */}
+                <div style={{ background: vs.bgGradient, padding: '1.75rem 2rem', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                  {/* Big status icon */}
+                  <div style={{ width: 72, height: 72, borderRadius: '50%', background: vs.badgeBg, border: `3px solid ${vs.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {vs.icon === 'VERIFIED' && <ShieldCheck style={{ width: 36, height: 36, color: vs.borderColor }} />}
+                    {vs.icon === 'SUSPENDED' && <PauseCircle style={{ width: 36, height: 36, color: vs.borderColor }} />}
+                    {vs.icon === 'TERMINATED' && <Ban style={{ width: 36, height: 36, color: vs.borderColor }} />}
+                    {vs.icon === 'REJECTED' && <XCircle style={{ width: 36, height: 36, color: vs.borderColor }} />}
+                    {vs.icon === 'PENDING' && <Clock style={{ width: 36, height: 36, color: vs.borderColor }} />}
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                      {vs.headline}
+                    </div>
+                    <div style={{ fontSize: '0.83rem', color: vs.badgeColor, marginTop: '0.4rem', lineHeight: 1.5, maxWidth: 560 }}>
+                      {vs.subline}
+                    </div>
+                  </div>
+
+                  {/* Vendor ID pill */}
+                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: 12, padding: '0.65rem 1.1rem', border: `1px solid ${vs.borderColor}` }}>
+                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: vs.badgeColor, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Vendor ID</div>
+                    <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#FFFFFF', fontSize: '1rem', marginTop: 2 }}>{result.id}</div>
+                  </div>
                 </div>
-                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0F172A', marginTop: 4 }}>{result.company}</h3>
-                <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                  GSTIN: <strong style={{ fontFamily: 'monospace', textTransform: 'uppercase' }}>{result.gstin}</strong> • Category: <strong>{result.category}</strong>
+
+                {/* Vendor Details Row */}
+                <div style={{ background: '#FFFFFF', padding: '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', borderBottom: `1px solid ${vs.borderColor}` }}>
+                  <div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>{result.company}</div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: 2 }}>
+                      GSTIN: <strong style={{ fontFamily: 'monospace' }}>{result.gstin}</strong> &nbsp;•&nbsp; Category: <strong>{result.category}</strong> &nbsp;•&nbsp; Filed: <strong>{result.submittedDate}</strong>
+                    </div>
+                  </div>
+                  {/* Action Buttons — only for valid records */}
+                  {result.fullData && (
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <button onClick={() => setShowReceiptModal(true)} className="btn-secondary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}>
+                        <Printer style={{ width: 14, height: 14 }} />
+                        <span>Print Dossier</span>
+                      </button>
+                      <button onClick={() => setShowIdCardModal(true)} className="btn-accent" style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}>
+                        <span>🪪 Smart ID Card</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Scanner Advisory Box */}
+                <div style={{ background: vs.scannerColor, padding: '1rem 2rem', borderTop: `1.5px solid ${vs.scannerBorder}`, display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                  <Shield style={{ width: 18, height: 18, color: '#374151', flexShrink: 0, marginTop: 2 }} />
+                  <div>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>📱 Scanner Advisory — Hindustan Projects Verification System</div>
+                    <div style={{ fontSize: '0.83rem', fontWeight: 700, color: '#1F2937', lineHeight: 1.5 }}>{vs.scannerMsg}</div>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                <div style={{ padding: '0.5rem 1.1rem', borderRadius: 9999, fontSize: '0.85rem', fontWeight: 900, backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#B45309', border: '1px solid rgba(245, 158, 11, 0.3)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Clock style={{ width: 16, height: 16 }} />
-                  <span>{result.status}</span>
+              {/* SHA-256 Hash + Timeline — below the hero */}
+              <div style={{ padding: '1.5rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+
+                {/* Cryptographic SHA-256 Hash Ribbon */}
+                <div style={{ padding: '0.65rem 1rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <span>🔒 SHA-256 Hash Signature: <strong>{result.hashSignature}</strong></span>
+                  <span style={{ color: '#047857', fontWeight: 800 }}>✓ Verified Audit Trail</span>
                 </div>
 
-                {result.fullData && (
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                    <button
-                      onClick={() => setShowReceiptModal(true)}
-                      className="btn-secondary"
-                      style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}
-                    >
-                      <Printer style={{ width: 14, height: 14 }} />
-                      <span>Print A4 Dossier</span>
-                    </button>
+                {/* 5-Stage Visual Progress Timeline */}
+                <h4 style={{ fontSize: '1.05rem', fontWeight: 900, marginBottom: '1.25rem', color: '#0047AB' }}>
+                  5-Stage Vendor Audit & Classification Pipeline:
+                </h4>
 
-                    <button
-                      onClick={() => setShowIdCardModal(true)}
-                      className="btn-accent"
-                      style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}
-                    >
-                      <span>🪪 Print Vendor Smart ID Card</span>
-                    </button>
-                  </div>
-                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem' }}>
+                  {result.steps.map((st, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                      <div style={{
+                        width: 34, height: 34, borderRadius: '50%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '0.85rem', fontWeight: 900,
+                        backgroundColor: st.done ? '#10B981' : st.active ? '#0047AB' : 'var(--border-color)',
+                        color: 'white',
+                        boxShadow: st.active ? '0 0 14px rgba(0,71,171,0.45)' : 'none',
+                        flexShrink: 0
+                      }}>
+                        {st.done ? '✓' : idx + 1}
+                      </div>
+                      <div style={{ flex: 1, paddingTop: 3 }}>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 900, color: st.active ? '#0047AB' : st.done ? '#047857' : 'var(--text-primary)' }}>{st.label}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>{st.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
               </div>
             </div>
-
-            {/* Cryptographic SHA-256 Hash Ribbon */}
-            <div style={{ padding: '0.65rem 1rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '1.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <span>🔒 SHA-256 Hash Signature: <strong>{result.hashSignature}</strong></span>
-              <span style={{ color: '#047857', fontWeight: 800 }}>✓ Verified Audit Trail</span>
-            </div>
-
-            {/* 5-Stage Visual Progress Timeline */}
-            <h4 style={{ fontSize: '1.05rem', fontWeight: 900, marginBottom: '1.25rem', color: '#0047AB' }}>
-              5-Stage Vendor Audit & Classification Pipeline:
-            </h4>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem' }}>
-              {result.steps.map((st, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{
-                    width: 34, 
-                    height: 34, 
-                    borderRadius: '50%', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    fontSize: '0.85rem', 
-                    fontWeight: 900,
-                    backgroundColor: st.done ? '#10B981' : st.active ? '#0047AB' : 'var(--border-color)',
-                    color: 'white',
-                    boxShadow: st.active ? '0 0 14px rgba(0, 71, 171, 0.45)' : 'none',
-                    flexShrink: 0
-                  }}>
-                    {st.done ? '✓' : idx + 1}
-                  </div>
-                  <div style={{ flex: 1, paddingTop: 3 }}>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 900, color: st.active ? '#0047AB' : st.done ? '#047857' : 'var(--text-primary)' }}>
-                      {st.label}
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                      {st.desc}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-          </div>
-        )}
+          );
+        })()}
 
         {/* Corporate Support Card at Bottom */}
         <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', fontSize: '0.825rem' }}>
