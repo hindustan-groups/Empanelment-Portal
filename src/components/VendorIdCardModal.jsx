@@ -307,31 +307,35 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                   </div>
 
                   {/* Vendor Details Table */}
-                  <div style={{ padding: '0.4rem 1.4rem', flex: 1 }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', color: '#0B1B3D' }}>
+                  <div style={{ padding: '0.35rem 1.4rem', flex: 1 }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.81rem', color: '#0F172A' }}>
                       <tbody>
                         <tr>
-                          <td style={{ padding: '3px 0', fontWeight: 800, width: '42%' }}>Employee ID</td>
-                          <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
-                            {editMode ? <input value={cardData.vendorId} onChange={e => handleFieldChange('vendorId', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 100, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.vendorId}
+                          <td style={{ padding: '3.5px 0', fontWeight: 800, color: '#334155', width: '38%' }}>Employee ID</td>
+                          <td style={{ padding: '3.5px 0', fontWeight: 900, color: '#ED1C24', width: '6%', textAlign: 'center' }}>:</td>
+                          <td style={{ padding: '3.5px 0', fontWeight: 900, color: '#0047AB', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                            {editMode ? <input value={cardData.vendorId} onChange={e => handleFieldChange('vendorId', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 110, background: '#FFFBEB', fontSize: '0.78rem' }} /> : cardData.vendorId}
                           </td>
                         </tr>
                         <tr>
-                          <td style={{ padding: '3px 0', fontWeight: 800 }}>Department</td>
-                          <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
-                            {editMode ? <input value={cardData.department} onChange={e => handleFieldChange('department', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 120, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.department}
+                          <td style={{ padding: '3.5px 0', fontWeight: 800, color: '#334155' }}>Department</td>
+                          <td style={{ padding: '3.5px 0', fontWeight: 900, color: '#ED1C24', textAlign: 'center' }}>:</td>
+                          <td style={{ padding: '3.5px 0', fontWeight: 800, color: '#0F172A' }}>
+                            {editMode ? <input value={cardData.department} onChange={e => handleFieldChange('department', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 130, background: '#FFFBEB', fontSize: '0.78rem' }} /> : cardData.department}
                           </td>
                         </tr>
                         <tr>
-                          <td style={{ padding: '3px 0', fontWeight: 800 }}>Designation</td>
-                          <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
-                            {editMode ? <input value={cardData.designation} onChange={e => handleFieldChange('designation', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 110, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.designation}
+                          <td style={{ padding: '3.5px 0', fontWeight: 800, color: '#334155' }}>Designation</td>
+                          <td style={{ padding: '3.5px 0', fontWeight: 900, color: '#ED1C24', textAlign: 'center' }}>:</td>
+                          <td style={{ padding: '3.5px 0', fontWeight: 800, color: '#0F172A' }}>
+                            {editMode ? <input value={cardData.designation} onChange={e => handleFieldChange('designation', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 120, background: '#FFFBEB', fontSize: '0.78rem' }} /> : cardData.designation}
                           </td>
                         </tr>
                         <tr>
-                          <td style={{ padding: '3px 0', fontWeight: 800 }}>Blood Group</td>
-                          <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
-                            {editMode ? <input value={cardData.bloodGroup} onChange={e => handleFieldChange('bloodGroup', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 50, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.bloodGroup}
+                          <td style={{ padding: '3.5px 0', fontWeight: 800, color: '#334155' }}>Blood Group</td>
+                          <td style={{ padding: '3.5px 0', fontWeight: 900, color: '#ED1C24', textAlign: 'center' }}>:</td>
+                          <td style={{ padding: '3.5px 0', fontWeight: 900, color: '#ED1C24' }}>
+                            {editMode ? <input value={cardData.bloodGroup} onChange={e => handleFieldChange('bloodGroup', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 50, background: '#FFFBEB', fontSize: '0.78rem' }} /> : cardData.bloodGroup}
                           </td>
                         </tr>
                       </tbody>
@@ -467,25 +471,29 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                 <tbody>
                   <tr>
                     <td style={{ padding: '3px 0', fontWeight: 800, width: '42%' }}>Employee ID</td>
-                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                    <td style={{ padding: '3px 0', fontWeight: 900, color: '#ED1C24', textAlign: 'center' }}>:</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900, color: '#0047AB', fontFamily: 'monospace' }}>
                       {editMode ? <input value={cardData.vendorId} onChange={e => handleFieldChange('vendorId', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 100, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.vendorId}
                     </td>
                   </tr>
                   <tr>
                     <td style={{ padding: '3px 0', fontWeight: 800 }}>Department</td>
-                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                    <td style={{ padding: '3px 0', fontWeight: 900, color: '#ED1C24', textAlign: 'center' }}>:</td>
+                    <td style={{ padding: '3px 0', fontWeight: 800 }}>
                       {editMode ? <input value={cardData.department} onChange={e => handleFieldChange('department', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 120, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.department}
                     </td>
                   </tr>
                   <tr>
                     <td style={{ padding: '3px 0', fontWeight: 800 }}>Designation</td>
-                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                    <td style={{ padding: '3px 0', fontWeight: 900, color: '#ED1C24', textAlign: 'center' }}>:</td>
+                    <td style={{ padding: '3px 0', fontWeight: 800 }}>
                       {editMode ? <input value={cardData.designation} onChange={e => handleFieldChange('designation', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 110, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.designation}
                     </td>
                   </tr>
                   <tr>
                     <td style={{ padding: '3px 0', fontWeight: 800 }}>Blood Group</td>
-                    <td style={{ padding: '3px 0', fontWeight: 900 }}>:&nbsp;&nbsp;&nbsp;
+                    <td style={{ padding: '3px 0', fontWeight: 900, color: '#ED1C24', textAlign: 'center' }}>:</td>
+                    <td style={{ padding: '3px 0', fontWeight: 900, color: '#ED1C24' }}>
                       {editMode ? <input value={cardData.bloodGroup} onChange={e => handleFieldChange('bloodGroup', e.target.value)} style={{ fontWeight: 900, border: '1.5px solid #F59E0B', borderRadius: 4, padding: '1px 4px', width: 50, background: '#FFFBEB', fontSize: '0.75rem' }} /> : cardData.bloodGroup}
                     </td>
                   </tr>
