@@ -1059,31 +1059,138 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </p>
               </div>
 
-              {/* Financial Turnovers & Quoted Rate Card Header */}
-              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.85rem', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <DollarSign style={{ width: 16, height: 16 }} />
-                <span>Financial Turnovers & Quoted Rate Card (Optional — Enter NIL if new entity):</span>
+              {/* ── FINANCIAL TURNOVERS SECTION ── */}
+              <div style={{ marginBottom: '1.75rem', borderRadius: 16, border: '1.5px solid #DBEAFE', overflow: 'hidden', background: '#FFFFFF' }}>
+                {/* Section Title Bar */}
+                <div style={{ background: 'linear-gradient(90deg,#0047AB,#0B1B3D)', padding: '0.9rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <DollarSign style={{ width: 18, height: 18, color: '#93C5FD' }} />
+                  <div>
+                    <div style={{ fontWeight: 900, color: '#FFFFFF', fontSize: '0.92rem' }}>Annual Business Turnover (Last 3 Financial Years)</div>
+                    <div style={{ fontSize: '0.72rem', color: '#93C5FD', marginTop: 2 }}>
+                      New business? Enter <strong style={{color:'#FCD34D'}}>0</strong> for each year. This helps determine your empanelment tier (Class A / B / C).
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ padding: '1.1rem 1.25rem' }}>
+                  {/* Tier info banner */}
+                  <div style={{ padding: '0.65rem 1rem', borderRadius: 10, background: '#EFF6FF', border: '1px solid #BFDBFE', marginBottom: '1rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', fontSize: '0.75rem', fontWeight: 700, color: '#1E40AF' }}>
+                    <span>🏅 <strong>Class C:</strong> Turnover &lt; ₹50 Lakhs/yr</span>
+                    <span>🥈 <strong>Class B:</strong> ₹50–₹500 Lakhs/yr</span>
+                    <span>🥇 <strong>Class A:</strong> &gt; ₹500 Lakhs/yr</span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem' }}>
+                    {[
+                      { name: 'turnover2023', label: 'FY 2023–24', icon: '📊', hint: 'April 2023 – March 2024' },
+                      { name: 'turnover2024', label: 'FY 2024–25', icon: '📈', hint: 'April 2024 – March 2025' },
+                      { name: 'turnover2025', label: 'FY 2025–26', icon: '🚀', hint: 'April 2025 – March 2026 (Projected)' },
+                      { name: 'largestOrder', label: 'Largest Single Work Order', icon: '💼', hint: 'Highest value project completed in one contract (helps for Class-A rating)' },
+                    ].map(f => (
+                      <div key={f.name} style={{ padding: '0.85rem', borderRadius: 12, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
+                          {f.icon} {f.label}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #CBD5E1', borderRadius: 8, overflow: 'hidden', background: 'white' }}>
+                          <span style={{ padding: '0.5rem 0.6rem', background: '#EFF6FF', color: '#0047AB', fontWeight: 900, fontSize: '0.85rem', borderRight: '1px solid #BFDBFE', flexShrink: 0 }}>₹</span>
+                          <input
+                            type="number"
+                            name={f.name}
+                            value={formData[f.name]}
+                            onChange={handleChange}
+                            placeholder="0"
+                            min="0"
+                            style={{ border: 'none', outline: 'none', padding: '0.5rem 0.6rem', fontSize: '0.9rem', fontWeight: 700, color: '#0F172A', width: '100%', background: 'transparent' }}
+                          />
+                          <span style={{ padding: '0.5rem 0.6rem', background: '#F1F5F9', color: '#64748B', fontWeight: 700, fontSize: '0.72rem', borderLeft: '1px solid #E2E8F0', flexShrink: 0 }}>Lakhs</span>
+                        </div>
+                        <div style={{ fontSize: '0.68rem', color: '#94A3B8', marginTop: 4, lineHeight: 1.4 }}>{f.hint}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              <div className="form-grid-3" style={{ marginBottom: '1.75rem' }}>
-                <FieldGroup label="FY 2023-24 Turnover (₹ Lakhs)" optional hint="Enter turnover in ₹ Lakhs or 0 for NIL">
-                  <Input name="turnover2023" type="number" value={formData.turnover2023} onChange={handleChange} placeholder="e.g. 250" />
-                </FieldGroup>
-                <FieldGroup label="FY 2024-25 Turnover (₹ Lakhs)" optional hint="Enter turnover in ₹ Lakhs or 0 for NIL">
-                  <Input name="turnover2024" type="number" value={formData.turnover2024} onChange={handleChange} placeholder="e.g. 320" />
-                </FieldGroup>
-                <FieldGroup label="FY 2025-26 Turnover (₹ Lakhs)" optional hint="Enter turnover in ₹ Lakhs or 0 for NIL">
-                  <Input name="turnover2025" type="number" value={formData.turnover2025} onChange={handleChange} placeholder="e.g. 410" />
-                </FieldGroup>
-                <FieldGroup label="Largest Single Order (₹ Lakhs)" optional hint="Highest single work order value received">
-                  <Input name="largestOrder" type="number" value={formData.largestOrder} onChange={handleChange} placeholder="e.g. 180" />
-                </FieldGroup>
-                <FieldGroup label="BUA Rate Quoted (₹/sq ft)" optional hint="Built-Up Area execution rate">
-                  <Input name="buaRate" value={formData.buaRate} onChange={handleChange} placeholder="e.g. 1800" />
-                </FieldGroup>
-                <FieldGroup label="CPA Rate Quoted (₹/sq ft)" optional hint="Covered/Plot Area execution rate">
-                  <Input name="cpaRate" value={formData.cpaRate} onChange={handleChange} placeholder="e.g. 1200" />
-                </FieldGroup>
+              {/* ── QUOTED RATE CARD SECTION ── */}
+              <div style={{ marginBottom: '1.75rem', borderRadius: 16, border: '1.5px solid #D1FAE5', overflow: 'hidden', background: '#FFFFFF' }}>
+                {/* Section Title Bar */}
+                <div style={{ background: 'linear-gradient(90deg,#047857,#065F46)', padding: '0.9rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <span style={{ fontSize: '1.1rem' }}>📐</span>
+                  <div>
+                    <div style={{ fontWeight: 900, color: '#FFFFFF', fontSize: '0.92rem' }}>Your Quoted Execution Rate Card (Per Sq. Ft.)</div>
+                    <div style={{ fontSize: '0.72rem', color: '#6EE7B7', marginTop: 2 }}>
+                      Ye aapka kaam ka rate hai — Hindustan Projects is rate par aapse kaam karwane ka nirnay karta hai. Optional hai, lekin fill karne se fast approval milta hai.
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ padding: '1.1rem 1.25rem' }}>
+                  {/* What is BUA / CPA explanation */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+                    <div style={{ padding: '0.85rem', borderRadius: 12, background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
+                      <div style={{ fontWeight: 900, fontSize: '0.8rem', color: '#065F46', marginBottom: 4 }}>🏢 BUA — Built-Up Area Rate (₹/sq ft)</div>
+                      <div style={{ fontSize: '0.73rem', color: '#047857', lineHeight: 1.5 }}>
+                        <strong>BUA matlab:</strong> Floor ka total covered area — jisme walls, columns, lobby sab aata hai. Residential buildings, offices, hotels ke liye use hota hai.
+                        <br/><strong>Example:</strong> Ek 1000 sq ft flat banane ka aapka rate ₹1800/sq ft hai → BUA Rate = <strong>1800</strong>
+                      </div>
+                    </div>
+                    <div style={{ padding: '0.85rem', borderRadius: 12, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                      <div style={{ fontWeight: 900, fontSize: '0.8rem', color: '#065F46', marginBottom: 4 }}>🏗️ CPA — Carpet / Plot Area Rate (₹/sq ft)</div>
+                      <div style={{ fontSize: '0.73rem', color: '#047857', lineHeight: 1.5 }}>
+                        <strong>CPA matlab:</strong> Sirf usable floor area (bina walls ke). Alag buildings me alag hota hai. Industrial sheds, godowns, open plot ke liye.
+                        <br/><strong>Example:</strong> Plot area 1000 sq ft ka rate ₹1200/sq ft → CPA Rate = <strong>1200</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+                    {[
+                      {
+                        name: 'buaRate',
+                        label: 'BUA Rate — Built-Up Area',
+                        icon: '🏢',
+                        unit: '₹ / sq ft',
+                        placeholder: 'e.g. 1800',
+                        hint: 'Aapka construction execution rate per sq ft (total covered area). Residential, commercial, offices ke liye.',
+                        color: '#047857'
+                      },
+                      {
+                        name: 'cpaRate',
+                        label: 'CPA Rate — Carpet / Plot Area',
+                        icon: '🏗️',
+                        unit: '₹ / sq ft',
+                        placeholder: 'e.g. 1200',
+                        hint: 'Usable floor / carpet area ka rate. Sirf actual usable space count hota hai. Industrial, warehouses ke liye.',
+                        color: '#065F46'
+                      },
+                    ].map(f => (
+                      <div key={f.name} style={{ padding: '0.85rem', borderRadius: 12, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 900, color: f.color, marginBottom: 6 }}>
+                          {f.icon} {f.label}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #86EFAC', borderRadius: 8, overflow: 'hidden', background: 'white' }}>
+                          <span style={{ padding: '0.5rem 0.6rem', background: '#DCFCE7', color: f.color, fontWeight: 900, fontSize: '0.85rem', borderRight: '1px solid #86EFAC', flexShrink: 0 }}>₹</span>
+                          <input
+                            type="number"
+                            name={f.name}
+                            value={formData[f.name]}
+                            onChange={handleChange}
+                            placeholder={f.placeholder}
+                            min="0"
+                            style={{ border: 'none', outline: 'none', padding: '0.5rem 0.6rem', fontSize: '0.9rem', fontWeight: 700, color: '#0F172A', width: '100%', background: 'transparent' }}
+                          />
+                          <span style={{ padding: '0.5rem 0.6rem', background: '#F0FDF4', color: '#64748B', fontWeight: 700, fontSize: '0.7rem', borderLeft: '1px solid #BBF7D0', flexShrink: 0 }}>/ sq ft</span>
+                        </div>
+                        <div style={{ fontSize: '0.68rem', color: '#6B7280', marginTop: 5, lineHeight: 1.4 }}>{f.hint}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ marginTop: '0.75rem', padding: '0.6rem 0.9rem', borderRadius: 8, background: '#FEF9C3', border: '1px solid #FDE68A', fontSize: '0.73rem', fontWeight: 700, color: '#92400E', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span>💡</span>
+                    <span>Agar aap sirf consultancy ya supply ka kaam karte hain (construction nahi) to ye dono fields blank chhod sakte hain.</span>
+                  </div>
+                </div>
               </div>
 
               {/* Equipment Checklist — corporate only */}
