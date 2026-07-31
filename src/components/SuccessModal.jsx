@@ -58,7 +58,7 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content printable-area" style={{ maxWidth: 880, maxHeight: '92vh', overflowY: 'auto', padding: '2.5rem', borderRadius: 24, background: '#FFFFFF' }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content printable-area" style={{ maxWidth: 880, margin: 'auto', padding: '2.5rem', borderRadius: 24, background: '#FFFFFF' }} onClick={(e) => e.stopPropagation()}>
         
         {/* PAGE 1: OFFICIAL LETTERHEAD & APPLICATION DOSSIER COVER */}
         <div className="printable-section">

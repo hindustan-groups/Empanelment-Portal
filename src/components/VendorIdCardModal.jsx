@@ -37,14 +37,14 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
     <div className="id-card-modal-overlay" style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       backgroundColor: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(8px)',
-      zIndex: 99999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '2rem 1.5rem',
+      zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '2rem 1rem',
       overflowY: 'auto'
     }}>
       
       {/* Modal Container */}
       <div className="id-card-modal-container" style={{
         backgroundColor: '#F8FAFC', borderRadius: 24, maxWidth: 980, width: '100%',
-        margin: '0 auto',
+        marginTop: 'auto', marginBottom: 'auto',
         padding: '2rem', border: '1px solid #CBD5E1', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)'
       }}>
 
@@ -240,7 +240,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                         </tr>
                         <tr>
                           <td style={{ padding: '2px 0', fontWeight: 800 }}>Blood Group</td>
-                          <td style={{ padding: '2px 0', fontWeight 900 }}>:&nbsp;{cardData.bloodGroup}</td>
+                          <td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.bloodGroup}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -461,8 +461,8 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             </div>
 
           </div>
-
         </div>
+      )}
 
         {/* 🎗️ OFFICIAL BRANDED BLUE LANYARD STRAP VISUAL MOCKUP & SPECIFICATION */}
         <div className="no-print" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px dashed #CBD5E1' }}>
