@@ -29,6 +29,17 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
     setCardData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        setCardData(prev => ({ ...prev, photoUrl: evt.target.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // QR Code URL — scans open live /track page with vendor ID auto-searched
   const liveBaseUrl = 'https://www.empanelment.hindustanprojects.in';
   const qrVerificationUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${liveBaseUrl}/track?id=${cardData.vendorId}`)}`;
@@ -126,9 +137,28 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
 
         {/* ✏️ EDIT MODE BANNER */}
         {editMode && (
-          <div className="no-print" style={{ padding: '0.75rem 1.1rem', backgroundColor: '#FFFBEB', border: '1.5px solid #F59E0B', borderRadius: 12, marginBottom: '1rem', color: '#92400E', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <span style={{ fontSize: '1.1rem' }}>✏️</span>
-            <span>Edit Mode ON — Sare fields ab editable hain. Details sahi karke <strong>"Print PVC Card"</strong> press karo. Done hone ke baad <strong>"Done Editing"</strong> click karo.</span>
+          <div className="no-print" style={{ padding: '0.85rem 1.25rem', backgroundColor: '#FFFBEB', border: '1.5px solid #F59E0B', borderRadius: 14, marginBottom: '1.25rem', color: '#92400E', fontSize: '0.82rem', fontWeight: 700, display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <span style={{ fontSize: '1.2rem' }}>✏️</span>
+              <span><strong>Edit Mode Active:</strong> You can edit Name, ID, Department, Designation, Blood Group below, or change Passport Photo directly!</span>
+            </div>
+            
+            {/* Direct Photo Change Control Bar */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', paddingTop: '0.4rem', borderTop: '1px dashed #FCD34D' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 900, color: '#78350F', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', padding: '0.35rem 0.85rem', background: '#FFFFFF', borderRadius: 8, border: '1.5px solid #F59E0B', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                📷 <span>Upload New Photo (Device File)</span>
+                <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+              </label>
+              
+              <span style={{ fontSize: '0.72rem', color: '#B45309' }}>OR Photo URL:</span>
+              <input
+                type="text"
+                value={cardData.photoUrl}
+                onChange={e => handleFieldChange('photoUrl', e.target.value)}
+                placeholder="Paste Image URL..."
+                style={{ flex: 1, minWidth: 200, padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: 6, border: '1px solid #FCD34D', background: '#FFFFFF' }}
+              />
+            </div>
           </div>
         )}
 
@@ -233,8 +263,21 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
 
                   {/* Middle Profile Photo Frame */}
                   <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4, zIndex: 5 }}>
-                    <div style={{ width: 95, height: 112, borderRadius: 12, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+                    <div style={{ position: 'relative', width: 95, height: 112, borderRadius: 12, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
                       <img src={cardData.photoUrl} alt={cardData.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      
+                      {/* Overlay Photo Upload Trigger in Edit Mode */}
+                      {editMode && (
+                        <label style={{
+                          position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.75)', color: '#FFFFFF',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                          cursor: 'pointer', fontSize: '0.68rem', fontWeight: 800, textAlign: 'center', padding: 4
+                        }}>
+                          <span style={{ fontSize: '1.2rem', marginBottom: 2 }}>📷</span>
+                          <span>Change Photo</span>
+                          <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+                        </label>
+                      )}
                     </div>
                   </div>
 
@@ -375,8 +418,21 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
 
             {/* Middle Profile Photo Frame */}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4, zIndex: 5 }}>
-              <div style={{ width: 95, height: 112, borderRadius: 12, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+              <div style={{ position: 'relative', width: 95, height: 112, borderRadius: 12, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
                 <img src={cardData.photoUrl} alt={cardData.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                
+                {/* Overlay Photo Upload Trigger in Edit Mode */}
+                {editMode && (
+                  <label style={{
+                    position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.75)', color: '#FFFFFF',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', fontSize: '0.68rem', fontWeight: 800, textAlign: 'center', padding: 4
+                  }}>
+                    <span style={{ fontSize: '1.2rem', marginBottom: 2 }}>📷</span>
+                    <span>Change Photo</span>
+                    <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+                  </label>
+                )}
               </div>
             </div>
 
