@@ -1226,13 +1226,13 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
                 <div className="form-grid-2">
                   <FieldGroup label="Contract Agreement Category" optional error={errors.contractType}>
-                    <Select name="contractType" value={formData.contractType || ''} onChange={handleChange}>
+                    <select name="contractType" value={formData.contractType || ''} onChange={handleChange} className="form-input">
                       <option value="">-- Select Formal Contract Category --</option>
                       <option value="epc_turnkey">🏢 EPC Turnkey Construction Contract</option>
                       <option value="item_rate">🏗️ Item-Rate Civil & Structural Contract</option>
                       <option value="consultancy">📐 Technical / Architectural Consultancy</option>
                       <option value="supply">🚚 Heavy Equipment & Material Supply</option>
-                    </Select>
+                    </select>
                   </FieldGroup>
 
                   <FieldGroup label="Past Work Order Reference No" optional hint="e.g. WO-2025/HP-JPR-102">
