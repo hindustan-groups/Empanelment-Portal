@@ -155,7 +155,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               {/* ══ OFFICIAL LANYARD RIBBON PRODUCT PHOTO ══ */}
               <div style={{ width: '100%', textAlign: 'center', marginBottom: 0 }}>
                 <img
-                  src="/lanyard-official.jpg"
+                  src="/lanyard-official.jpg?v=20mm-v2"
                   alt="Official Hindustan Projects 20mm Branded Blue Lanyard Ribbon"
                   style={{
                     width: '100%',
