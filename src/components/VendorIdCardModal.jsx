@@ -25,6 +25,8 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
   // QR Code URL for instant verification on scan
   const qrVerificationUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://empanelment.hindustanprojects.in/track?id=${cardData.vendorId}`)}`;
 
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'assembly_demo'
+
   const handlePrint = () => {
     if (isApproved) {
       printCard('printable-id-card-element', `Smart PVC ID Card - ${cardData.vendorId}`);
@@ -35,13 +37,14 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
     <div className="id-card-modal-overlay" style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       backgroundColor: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(8px)',
-      zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem',
+      zIndex: 99999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '2rem 1.5rem',
       overflowY: 'auto'
     }}>
       
       {/* Modal Container */}
       <div className="id-card-modal-container" style={{
-        backgroundColor: '#F8FAFC', borderRadius: 24, maxWidth: 960, width: '100%',
+        backgroundColor: '#F8FAFC', borderRadius: 24, maxWidth: 980, width: '100%',
+        margin: '0 auto',
         padding: '2rem', border: '1px solid #CBD5E1', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)'
       }}>
 
@@ -57,7 +60,32 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
             </h3>
           </div>
 
+          {/* View Mode Switcher Tabs & Print Control */}
           <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className="no-print" style={{ display: 'flex', backgroundColor: '#E2E8F0', padding: 3, borderRadius: 10 }}>
+              <button
+                onClick={() => setViewMode('cards')}
+                style={{
+                  padding: '0.4rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, border: 'none', cursor: 'pointer',
+                  backgroundColor: viewMode === 'cards' ? '#0047AB' : 'transparent',
+                  color: viewMode === 'cards' ? '#FFFFFF' : '#475569'
+                }}
+              >
+                🎴 Dual CR80 Cards
+              </button>
+
+              <button
+                onClick={() => setViewMode('assembly_demo')}
+                style={{
+                  padding: '0.4rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, border: 'none', cursor: 'pointer',
+                  backgroundColor: viewMode === 'assembly_demo' ? '#0047AB' : 'transparent',
+                  color: viewMode === 'assembly_demo' ? '#FFFFFF' : '#475569'
+                }}
+              >
+                🎗️ 3D Neck Lanyard Demo
+              </button>
+            </div>
+
             <button
               onClick={handlePrint}
               disabled={!isApproved}
@@ -84,8 +112,173 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
           </div>
         )}
 
+        {/* ════════════════ 3D PHYSICAL NECK LANYARD ASSEMBLY DEMO VIEW ════════════════ */}
+        {viewMode === 'assembly_demo' && (
+          <div className="no-print" style={{ margin: '1.5rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            
+            {/* Demo Header */}
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+              <span style={{ padding: '0.25rem 0.75rem', borderRadius: 99, background: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', fontSize: '0.78rem', fontWeight: 900, textTransform: 'uppercase' }}>
+                🎗️ Physical Assembly Mockup & Wear Demo
+              </span>
+              <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', marginTop: 4, marginBottom: 2 }}>
+                How Your Physical Vendor ID Card & Branded Blue Lanyard Will Look
+              </h4>
+              <p style={{ fontSize: '0.825rem', color: '#64748B', margin: 0 }}>
+                This is a 1:1 real demonstration of the final manufactured PVC card hanging from the official Hindustan Projects Royal Blue Lanyard Strap.
+              </p>
+            </div>
+
+            {/* 3D ASSEMBLY CANVAS */}
+            <div style={{ position: 'relative', width: 380, display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
+              
+              {/* 1. LANYARD STRAP (TWO RIBBONS COMING FROM TOP) */}
+              <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', height: 90, position: 'relative', width: '100%', overflow: 'hidden' }}>
+                
+                {/* Left Strap Ribbon */}
+                <div style={{
+                  width: 32, height: 110, background: 'linear-gradient(180deg, #0B1B3D 0%, #0047AB 100%)',
+                  transform: 'rotate(-8deg)', transformOrigin: 'top center', borderRadius: 4,
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.2)', borderLeft: '1.5px dashed rgba(255,255,255,0.4)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'white', fontSize: '0.62rem', fontWeight: 900, letterSpacing: '0.1em' }}>
+                    HINDUSTAN PROJECTS • EMPANELED VENDOR
+                  </div>
+                </div>
+
+                {/* Right Strap Ribbon */}
+                <div style={{
+                  width: 32, height: 110, background: 'linear-gradient(180deg, #0B1B3D 0%, #0047AB 100%)',
+                  transform: 'rotate(8deg)', transformOrigin: 'top center', borderRadius: 4,
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.2)', borderRight: '1.5px dashed rgba(255,255,255,0.4)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <div style={{ writingMode: 'vertical-rl', color: 'white', fontSize: '0.62rem', fontWeight: 900, letterSpacing: '0.1em' }}>
+                    HINDUSTAN PROJECTS • EMPANELED VENDOR
+                  </div>
+                </div>
+
+                {/* Safety Breakaway Clasp Ring */}
+                <div style={{ position: 'absolute', top: 8, width: 44, height: 12, backgroundColor: '#0B1B3D', borderRadius: 4, border: '1px solid #60A5FA', color: '#FFFFFF', fontSize: '0.55rem', fontWeight: 900, textAlign: 'center', lineHeight: '12px' }}>
+                  HIPRO
+                </div>
+              </div>
+
+              {/* 2. CHROME METAL SWIVEL DOG HOOK CLIP */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10, marginTop: -10 }}>
+                {/* Ribbon Ring Loop */}
+                <div style={{ width: 22, height: 14, border: '3px solid #64748B', borderRadius: 4, background: 'linear-gradient(135deg, #CBD5E1, #94A3B8)' }} />
+                {/* Dog Hook Spring Body */}
+                <div style={{ width: 14, height: 18, background: 'linear-gradient(135deg, #E2E8F0 0%, #94A3B8 50%, #475569 100%)', borderRadius: 3, boxShadow: '0 2px 6px rgba(0,0,0,0.3)', marginTop: -2 }} />
+                {/* Metal Clip Hook Pin into Punch Slot */}
+                <div style={{ width: 8, height: 10, backgroundColor: '#475569', borderRadius: '0 0 4px 4px', marginTop: -1 }} />
+              </div>
+
+              {/* 3. TRANSPARENT ACRYLIC BADGE HOLDER POUCH SLEEVE */}
+              <div style={{
+                marginTop: -4, padding: '12px 10px 10px 10px', backgroundColor: 'rgba(255,255,255,0.7)',
+                borderRadius: 24, border: '2.5px solid rgba(0, 71, 171, 0.3)', backdropFilter: 'blur(6px)',
+                boxShadow: '0 20px 40px rgba(0, 71, 171, 0.18)', position: 'relative'
+              }}>
+                
+                {/* Transparent Sleeve Punch Hole Slot Alignment */}
+                <div style={{ position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)', width: 40, height: 8, backgroundColor: 'rgba(15,23,42,0.15)', borderRadius: 99, border: '1px solid rgba(255,255,255,0.8)' }} />
+
+                {/* THE ACTUAL FRONT PVC CARD INSIDE THE CLEAR HOLDER SLEEVE */}
+                <div style={{
+                  width: 310, height: 515, backgroundColor: '#FFFFFF', borderRadius: 18,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: '1px solid #CBD5E1',
+                  position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+                  fontFamily: 'Arial, sans-serif'
+                }}>
+                  {/* Top Navy Bar */}
+                  <div style={{ height: 40, minHeight: 40, background: '#0B1B3D', position: 'relative', width: '100%', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', width: 48, height: 10, backgroundColor: '#FFFFFF', borderRadius: 99, border: '1px solid #CBD5E1', zIndex: 10 }} />
+                    <div style={{ position: 'absolute', top: 0, right: 0, width: 80, height: 40, backgroundColor: '#ED1C24', clipPath: 'polygon(100% 0, 0 0, 100% 100%)', zIndex: 5 }} />
+                  </div>
+
+                  {/* Header Logo */}
+                  <div style={{ textAlign: 'center', padding: '10px 1rem 2px 1rem' }}>
+                    <img src="/hipro-logo.jpg" alt="HiPRO Logo" style={{ height: 34, width: 'auto', objectFit: 'contain', margin: '2px auto 2px auto', display: 'block' }} />
+                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#0B1B3D', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                      HINDUSTAN PROJECTS
+                    </div>
+                    <div style={{ fontSize: '0.45rem', fontWeight: 700, color: '#0F172A', marginTop: 1 }}>
+                      Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Infrastructure
+                    </div>
+                  </div>
+
+                  {/* Photo Frame */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
+                    <div style={{ width: 90, height: 105, borderRadius: 10, overflow: 'hidden', border: '2px solid #0B1B3D', backgroundColor: '#F1F5F9' }}>
+                      <img src={cardData.photoUrl} alt={cardData.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  </div>
+
+                  {/* Vendor Name */}
+                  <div style={{ textAlign: 'center', padding: '0.4rem 1rem 0.1rem 1rem' }}>
+                    <h2 style={{ fontSize: '1rem', fontWeight: 900, color: '#0B1B3D', margin: 0, textTransform: 'uppercase' }}>
+                      {cardData.name}
+                    </h2>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24', marginTop: 1 }}>
+                      {cardData.designation}
+                    </div>
+                  </div>
+
+                  {/* Details Table */}
+                  <div style={{ padding: '0.3rem 1.2rem', flex: 1 }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem', color: '#0B1B3D' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ padding: '2px 0', fontWeight: 800 }}>Employee ID</td>
+                          <td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.vendorId}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '2px 0', fontWeight: 800 }}>Department</td>
+                          <td style={{ padding: '2px 0', fontWeight: 900 }}>:&nbsp;{cardData.department}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '2px 0', fontWeight: 800 }}>Blood Group</td>
+                          <td style={{ padding: '2px 0', fontWeight 900 }}>:&nbsp;{cardData.bloodGroup}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Bottom Verification QR Code */}
+                  <div style={{ padding: '0.3rem 1rem 0.6rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem' }}>
+                    <div style={{ padding: 2, backgroundColor: '#FFFFFF', borderRadius: 4, border: '1.5px solid #0B1B3D' }}>
+                      <img src={qrVerificationUrl} alt="QR Scan" style={{ width: 38, height: 38, display: 'block' }} />
+                    </div>
+                    <div style={{ textAlign: 'left', fontSize: '0.68rem', fontWeight: 900, color: '#0B1B3D', lineHeight: 1.2 }}>
+                      Scan for<br />Verification
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* Print / Download Button Callout inside Demo */}
+            <div style={{ marginTop: '1.75rem', textAlign: 'center' }}>
+              <button
+                onClick={() => setViewMode('cards')}
+                className="btn-primary"
+                style={{ padding: '0.65rem 1.4rem', fontSize: '0.875rem', borderRadius: 12, background: '#0047AB' }}
+              >
+                <span>🎴 Switch to Full Printable Dual Cards View</span>
+              </button>
+            </div>
+
+          </div>
+        )}
+
         {/* ════════════════ PRINTABLE DUAL ID CARD CANVAS ════════════════ */}
-        <div id="printable-id-card-element" className="printable-id-card-wrapper" style={{ display: 'flex', gap: '2.5rem', justifyContent: 'center', flexWrap: 'wrap', margin: '1rem 0' }}>
+        {viewMode === 'cards' && (
+          <div id="printable-id-card-element" className="printable-id-card-wrapper" style={{ display: 'flex', gap: '2.5rem', justifyContent: 'center', flexWrap: 'wrap', margin: '1rem 0' }}>
 
           {/* 🎴 FRONT SIDE CARD (CR80 Standard Vertical format: 320px x 530px) */}
           <div style={{
