@@ -254,7 +254,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                       <span style={{ color: '#ED1C24' }}>HINDUSTAN</span> <span style={{ color: '#0047AB' }}>PROJECTS</span>
                     </div>
                     <div style={{ fontSize: '0.48rem', fontWeight: 700, color: '#0F172A', marginTop: 1, position: 'relative', zIndex: 2 }}>
-                      Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Architecture
+                      Architecture <span style={{ color: '#ED1C24' }}>•</span> Engineering <span style={{ color: '#ED1C24' }}>•</span> Infrastructure
                     </div>
                     <div style={{ fontSize: '0.44rem', fontWeight: 600, color: '#64748B', marginTop: 1, position: 'relative', zIndex: 2, opacity: 0.85 }}>
                       Digital solution With Marketing
@@ -409,7 +409,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                 <span style={{ color: '#ED1C24' }}>HINDUSTAN</span> <span style={{ color: '#0047AB' }}>PROJECTS</span>
               </div>
               <div style={{ fontSize: '0.48rem', fontWeight: 700, color: '#0F172A', marginTop: 1, position: 'relative', zIndex: 2 }}>
-                Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Architecture
+                Architecture <span style={{ color: '#ED1C24' }}>•</span> Engineering <span style={{ color: '#ED1C24' }}>•</span> Infrastructure
               </div>
               <div style={{ fontSize: '0.44rem', fontWeight: 600, color: '#64748B', marginTop: 1, position: 'relative', zIndex: 2, opacity: 0.85 }}>
                 Digital solution With Marketing
@@ -539,7 +539,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
                 <span style={{ color: '#ED1C24' }}>HINDUSTAN</span> <span style={{ color: '#0047AB' }}>PROJECTS</span>
               </div>
               <div style={{ fontSize: '0.46rem', fontWeight: 700, color: '#0F172A', marginTop: 1, position: 'relative', zIndex: 2 }}>
-                Engineering <span style={{ color: '#ED1C24' }}>•</span> Construction <span style={{ color: '#ED1C24' }}>•</span> Architecture
+                Architecture <span style={{ color: '#ED1C24' }}>•</span> Engineering <span style={{ color: '#ED1C24' }}>•</span> Infrastructure
               </div>
               <div style={{ fontSize: '0.44rem', fontWeight: 600, color: '#64748B', marginTop: 1, position: 'relative', zIndex: 2, opacity: 0.85 }}>
                 Digital solution With Marketing
