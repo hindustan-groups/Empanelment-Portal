@@ -26,7 +26,7 @@ export default function GatePassModal({ isOpen, onClose, vendorData }) {
       siteLocation,
       date: todayStr,
       validTill: `${expiryStr} 23:59 IST`,
-      qrData: `https://hindustanprojects.in/verify-pass?code=${passCode}&vendor=${vendorData?.tracking_id}`
+      qrData: `${window.location.origin.includes('localhost') ? 'https://empanelment.hindustanprojects.in' : window.location.origin}/verify-pass?code=${passCode}&vendor=${vendorData?.tracking_id}`
     });
   };
 
