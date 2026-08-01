@@ -650,12 +650,14 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
           {errors.otherEntityType && <span className="error-text">{errors.otherEntityType}</span>}
 
           {isSoleProp ? (
-            <div style={{ marginTop: '0.65rem', fontSize: '0.8rem', fontWeight: 700, color: '#047857', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              ✅ Great! We've simplified this form for you — only essential fields are shown.
+            <div style={{ marginTop: '0.85rem', padding: '0.65rem 1rem', borderRadius: 10, background: '#ECFDF5', border: '1.5px solid #10B981', fontSize: '0.82rem', fontWeight: 800, color: '#047857', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span>⚡ Dynamic Mode Activated:</span>
+              <span>Form is auto-simplified for Individual Freelancers & Consultants. Non-essential company registration fields are automatically hidden for faster filing!</span>
             </div>
           ) : formData.entityType ? (
-            <div style={{ marginTop: '0.65rem', fontSize: '0.8rem', fontWeight: 700, color: '#0047AB', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              🏢 Full corporate empanelment form with all company credential fields will be shown.
+            <div style={{ marginTop: '0.85rem', padding: '0.65rem 1rem', borderRadius: 10, background: '#EFF6FF', border: '1.5px solid #3B82F6', fontSize: '0.82rem', fontWeight: 800, color: '#1E40AF', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span>🏢 Corporate Entity Mode Activated:</span>
+              <span>Full corporate credential fields enabled (Firm Name, CIN/COA No, Owner/Director details, and Technical Manpower Count).</span>
             </div>
           ) : null}
         </div>
