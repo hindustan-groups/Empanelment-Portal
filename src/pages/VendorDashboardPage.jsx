@@ -7,16 +7,43 @@ import Logo from '../components/Logo';
 
 export default function VendorDashboardPage() {
   const navigate = useNavigate();
-  const [vendor, setVendor] = useState(null);
+  const [vendor, setVendor] = use  /* Active Tab & Dynamic Modals State */
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'tenders' | 'payouts' | 'documents' | 'support'
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
+  
+  /* Dynamic Bidding & Payouts State */
   const [biddingTender, setBiddingTender] = useState(null);
+  const [bidAmount, setBidAmount] = useState('');
+  const [bidRemarks, setBidRemarks] = useState('');
   const [bidSubmitted, setBidSubmitted] = useState(false);
+  const [submittedBids, setSubmittedBids] = useState(() => {
+    return JSON.parse(localStorage.getItem('hipro_vendor_submitted_bids') || '[]');
+  });
+
+  /* Invoices & Payouts State */
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [invoiceForm, setInvoiceForm] = useState({ invoiceNo: '', milestone: 'Milestone 1: Progress Claim', amt: '', file: null });
   const [invoiceSubmitted, setInvoiceSubmitted] = useState(false);
+  const [vendorInvoices, setVendorInvoices] = useState(() => {
+    const saved = localStorage.getItem('hipro_vendor_invoices');
+    return saved ? JSON.parse(saved) : [
+      { id: 'INV-2026-881', milestone: 'Milestone 1: Concept & Initial Setup Sign-Off', tranche: '30% Tranche', amt: '₹ 4,35,000', status: 'RELEASED via RTGS', ref: 'RTGS-HDFC280726-99120', date: '28 Jul 2026' },
+      { id: 'INV-2026-894', milestone: 'Milestone 2: GFC Drawings & Material Inspection', tranche: '50% Tranche', amt: '₹ 7,25,000', status: 'IN AUDIT VERIFICATION', ref: 'AUDIT-PENDING-STAGE2', date: '05 Aug 2026' }
+    ];
+  });
+
+  /* Technical Tickets State */
   const [showTicketModal, setShowTicketModal] = useState(false);
+  const [ticketForm, setTicketForm] = useState({ category: 'Construction Site Gate Pass Request', query: '' });
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
+  const [vendorTickets, setVendorTickets] = useState(() => {
+    const saved = localStorage.getItem('hipro_vendor_tickets');
+    return saved ? JSON.parse(saved) : [
+      { ticket: 'TCK-99201', subject: 'Construction Site Entry Gate Pass Request (Jaipur Tower)', status: 'RESOLVED', date: '27 Jul 2026' },
+      { ticket: 'TCK-99145', subject: 'GFC Structural Drawing Revision R1 Clarification Request', status: 'IN PROGRESS', date: '28 Jul 2026' }
+    ];
+  });
 
   useEffect(() => {
     const session = localStorage.getItem('hipro_vendor_session');
@@ -25,15 +52,80 @@ export default function VendorDashboardPage() {
       return;
     }
     try {
-      setVendor(JSON.parse(session));
+      const parsed = JSON.parse(session);
+      // Fetch latest data from stored applications if available
+      const allApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      const match = allApps.find(app => app.tracking_id === parsed.tracking_id || app.gstin === parsed.gstin);
+      if (match) {
+        setVendor({ ...parsed, ...match });
+      } else {
+        setVendor(parsed);
+      }
     } catch {
       navigate('/vendor-login');
     }
   }, [navigate]);
 
+  /* Persist local state changes */
+  useEffect(() => {
+    localStorage.setItem('hipro_vendor_submitted_bids', JSON.stringify(submittedBids));
+  }, [submittedBids]);
+
+  useEffect(() => {
+    localStorage.setItem('hipro_vendor_invoices', JSON.stringify(vendorInvoices));
+  }, [vendorInvoices]);
+
+  useEffect(() => {
+    localStorage.setItem('hipro_vendor_tickets', JSON.stringify(vendorTickets));
+  }, [vendorTickets]);
+
   const handleLogout = () => {
     localStorage.removeItem('hipro_vendor_session');
     navigate('/vendor-login');
+  };
+
+  const handleCreateBid = (e) => {
+    e.preventDefault();
+    if (!bidAmount) return;
+    const newBid = {
+      ref: biddingTender.ref,
+      title: biddingTender.title,
+      amount: bidAmount,
+      remarks: bidRemarks || 'Commercial bid submitted with 100% EMD waiver.',
+      date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      status: 'UNDER COMMITTEE AUDIT ⏳'
+    };
+    setSubmittedBids(prev => [newBid, ...prev]);
+    setBidSubmitted(true);
+  };
+
+  const handleCreateInvoice = (e) => {
+    e.preventDefault();
+    if (!invoiceForm.invoiceNo || !invoiceForm.amt) return;
+    const newInv = {
+      id: invoiceForm.invoiceNo,
+      milestone: invoiceForm.milestone,
+      tranche: 'Progress Claim',
+      amt: `₹ ${Number(invoiceForm.amt).toLocaleString('en-IN')}`,
+      status: 'IN FINANCE AUDIT ⏳',
+      ref: `REF-${Math.floor(100000 + Math.random() * 900000)}`,
+      date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    };
+    setVendorInvoices(prev => [newInv, ...prev]);
+    setInvoiceSubmitted(true);
+  };
+
+  const handleCreateTicket = (e) => {
+    e.preventDefault();
+    if (!ticketForm.query) return;
+    const newTck = {
+      ticket: `TCK-${Math.floor(10000 + Math.random() * 90000)}`,
+      subject: `${ticketForm.category}: ${ticketForm.query.substring(0, 45)}...`,
+      status: 'OPEN & ASSIGNED ⏳',
+      date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    };
+    setVendorTickets(prev => [newTck, ...prev]);
+    setTicketSubmitted(true);
   };
 
   if (!vendor) return null;
@@ -114,11 +206,11 @@ export default function VendorDashboardPage() {
           {/* Bottom Row: Centered Desktop Navigation Tabs */}
           <div className="vendor-dashboard-tabs" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', borderTop: '1px solid var(--border-color)', paddingTop: '0.65rem' }}>
             {[
-              { id: 'overview', label: '📊 Overview & Health', icon: Award },
+              { id: 'overview', label: '📊 Overview & Profile', icon: Award },
               { id: 'tenders', label: '🏗️ Active Tenders Radar', icon: Briefcase },
               { id: 'payouts', label: '💰 Payouts & Invoices', icon: DollarSign },
               { id: 'documents', label: '📂 Document Vault', icon: FolderCheck },
-              { id: 'support', label: '💬 Technical Support', icon: HelpCircle },
+              { id: 'support', label: '💬 Technical Support Desk', icon: HelpCircle },
             ].map(tab => {
               const isActive = activeTab === tab.id;
               return (
@@ -179,9 +271,11 @@ export default function VendorDashboardPage() {
                 {vendor.company_name}
               </h1>
               <div style={{ fontSize: '0.825rem', color: '#CBD5E1', display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: 4 }}>
-                <span>Tracking Reference: <strong style={{ fontFamily: 'monospace', color: 'white' }}>{vendor.tracking_id}</strong></span>
+                <span>Tracking Ref: <strong style={{ fontFamily: 'monospace', color: 'white' }}>{vendor.tracking_id}</strong></span>
                 <span>•</span>
-                <span>GSTIN: <strong style={{ fontFamily: 'monospace', color: 'white' }}>{vendor.gstin}</strong></span>
+                <span>GSTIN: <strong style={{ fontFamily: 'monospace', color: 'white' }}>{vendor.gstin || 'N/A'}</strong></span>
+                <span>•</span>
+                <span>Category: <strong style={{ textTransform: 'uppercase', color: '#93C5FD' }}>{vendor.category || 'Civil & Structural'}</strong></span>
               </div>
             </div>
           </div>
@@ -207,7 +301,7 @@ export default function VendorDashboardPage() {
           </div>
         </div>
 
-        {/* ════════════════ TAB 1: OVERVIEW & CERTIFICATE ════════════════ */}
+        {/* ════════════════ TAB 1: OVERVIEW & PROFILE ════════════════ */}
         {activeTab === 'overview' && (
           <div>
             {/* 4 Metric Cards */}
@@ -226,7 +320,7 @@ export default function VendorDashboardPage() {
                   <Award style={{ width: 16, height: 16, color: '#0047AB' }} />
                   <span>Capability Rating</span>
                 </div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A' }}>CLASS-A (TIER 1)</div>
+                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A' }}>{vendor.status?.toUpperCase() || 'CLASS-A (TIER 1)'}</div>
                 <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', marginTop: 2 }}>Eligible for Pan-India Tenders</div>
               </div>
 
@@ -249,27 +343,56 @@ export default function VendorDashboardPage() {
               </div>
             </div>
 
-            {/* Vendor Performance & Compliance Health Score Card */}
+            {/* Detailed Verified Corporate Entity Profile */}
             <div style={{ padding: '1.5rem 1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', marginBottom: '2rem', boxShadow: 'var(--shadow-sm)' }}>
-              <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Activity style={{ width: 18, height: 18 }} />
-                <span>Vendor Performance & Quality Audit Scorecard (FY 2026-27):</span>
+              <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Building2 style={{ width: 20, height: 20 }} />
+                <span>Verified Vendor Profile & Contact Information:</span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
                 <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Overall Compliance Rating</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#047857', marginTop: 2 }}>98 / 100 (A+ GRADE)</div>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Key Contact Person</div>
+                  <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{vendor.contact_name || vendor.signatory_name || 'N/A'}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{vendor.designation || 'Proprietor / Authorized Officer'}</div>
                 </div>
 
                 <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>On-Time Milestone Delivery</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0047AB', marginTop: 2 }}>96.4% ACCURACY</div>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Registered Email & Phone</div>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{vendor.email || 'N/A'}</div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0047AB' }}>{vendor.phone || 'N/A'}</div>
                 </div>
 
                 <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>NBC 2016 Safety Standard</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#047857', marginTop: 2 }}>100% COMPLIANT</div>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Entity Type & Establishment</div>
+                  <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', marginTop: 2, textTransform: 'capitalize' }}>{(vendor.entity_type || 'Sole Proprietor').replace('_', ' ')}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Est. Year: {vendor.est_year || '2018'}</div>
+                </div>
+
+                <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Primary Location / Address</div>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{vendor.city || 'Bhilwara'}, {vendor.state || 'Rajasthan'}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{vendor.address || 'Industrial Area'} - {vendor.pincode || '311001'}</div>
+                </div>
+              </div>
+
+              {/* Financial & Banking Strip */}
+              <div style={{ marginTop: '1.25rem', padding: '1rem 1.25rem', borderRadius: 14, backgroundColor: 'rgba(0,71,171,0.04)', border: '1px solid rgba(0,71,171,0.15)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+                <div>
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>PAN Number: </span>
+                  <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: '#0F172A' }}>{vendor.pan || 'N/A'}</strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>MSME Udyam: </span>
+                  <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: '#0F172A' }}>{vendor.msme_no || 'UDYAM-VERIFIED'}</strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Bank Account: </span>
+                  <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: '#047857' }}>{vendor.bank_account ? `•••• ${vendor.bank_account.slice(-4)}` : 'Verified Bank'}</strong> ({vendor.ifsc || 'HDFC Bank'})
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Declared 2025 Turnover: </span>
+                  <strong style={{ fontSize: '0.9rem', color: '#0047AB' }}>₹ {vendor.turnover_2025 || '350'} Lakhs</strong>
                 </div>
               </div>
             </div>
@@ -313,6 +436,28 @@ export default function VendorDashboardPage() {
               </p>
             </div>
 
+            {/* Submitted Bids History if any */}
+            {submittedBids.length > 0 && (
+              <div style={{ marginBottom: '1.5rem', padding: '1.15rem', borderRadius: 14, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#047857', marginBottom: '0.5rem' }}>
+                  📋 Your Submitted Tender Proposals ({submittedBids.length}):
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {submittedBids.map((b, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0.85rem', background: '#fff', borderRadius: 8, fontSize: '0.8rem', border: '1px solid var(--border-color)' }}>
+                      <div>
+                        <strong style={{ color: '#0047AB' }}>{b.ref}</strong> — {b.title}
+                        <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Quoted: <strong>₹ {b.amount} Cr</strong> • Submitted on {b.date}</div>
+                      </div>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: 6, background: 'rgba(245,158,11,0.15)', color: '#B45309' }}>
+                        {b.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {[
                 { ref: 'HP-TND-2026-101', title: 'Jaipur Commercial Tower — Turnkey Civil & Structural Package', val: '₹ 14.50 Crores', location: 'Jaipur, Rajasthan', end: '08 Aug 2026', scope: 'Complete RCC superstructure, basement waterproofing, and structural steel fabrication.' },
@@ -333,7 +478,7 @@ export default function VendorDashboardPage() {
 
                     <button
                       className="btn-primary"
-                      onClick={() => { setBiddingTender(tnd); setBidSubmitted(false); }}
+                      onClick={() => { setBiddingTender(tnd); setBidAmount(tnd.val.replace('₹ ', '').replace(' Crores', '')); setBidSubmitted(false); }}
                       style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10, background: '#0047AB' }}
                     >
                       <span>Submit Tender Bid</span>
@@ -367,7 +512,7 @@ export default function VendorDashboardPage() {
                   <span>Milestone Payment Release & Tax Invoices:</span>
                 </h3>
                 <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                  All vendor payouts are processed directly via RTGS / NEFT to your verified HDFC Bank account (`{vendor.gstin}`).
+                  All vendor payouts are processed directly via RTGS / NEFT to your verified bank account (`{vendor.bank_account || vendor.gstin}`).
                 </p>
               </div>
 
@@ -382,16 +527,12 @@ export default function VendorDashboardPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              {[
-                { milestone: 'Milestone 1: Concept & Floor Plans Sign-Off', tranche: '30% Tranche', amt: '₹ 4,35,000', status: 'RELEASED via RTGS', ref: 'RTGS-HDFC280726-99120', date: '28 Jul 2026' },
-                { milestone: 'Milestone 2: GFC Structural & MEP Drawings Release', tranche: '50% Tranche', amt: '₹ 7,25,000', status: 'IN AUDIT VERIFICATION', ref: 'AUDIT-PENDING-STAGE2', date: 'Expected 05 Aug 2026' },
-                { milestone: 'Milestone 3: Site Quality Audit & Final Completion', tranche: '20% Tranche', amt: '₹ 2,90,000', status: 'UPCOMING MILESTONE', ref: 'STAGE3-SCHEDULED', date: 'Expected 20 Aug 2026' },
-              ].map((p, idx) => (
+              {vendorInvoices.map((p, idx) => (
                 <div key={idx} style={{ padding: '1.1rem 1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                   <div>
                     <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0F172A' }}>{p.milestone}</div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                      Tranche: <strong>{p.tranche}</strong> • Bank Ref: <strong style={{ fontFamily: 'monospace' }}>{p.ref}</strong> • Date: <strong>{p.date}</strong>
+                      Tranche: <strong>{p.tranche}</strong> • Ref: <strong style={{ fontFamily: 'monospace' }}>{p.ref || p.id}</strong> • Date: <strong>{p.date}</strong>
                     </div>
                   </div>
 
@@ -422,10 +563,10 @@ export default function VendorDashboardPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
               {[
-                { title: 'GST REG-06 Certificate', type: 'CBIC Tax Identity', status: 'VERIFIED & ACTIVE', date: 'Valid till 31 Mar 2027' },
-                { title: 'Income Tax PAN Card Copy', type: 'Govt Tax ID', status: 'VERIFIED', date: 'Permanent Residency ID' },
-                { title: 'Cancelled Bank Cheque', type: 'Payout Verification', status: 'VERIFIED', date: 'HDFC Bank Ltd' },
-                { title: 'Aadhaar Card Scans', type: 'Signatory National ID', status: 'VERIFIED', date: 'UIDAI Authenticated' },
+                { title: 'GST REG-06 Certificate', type: 'CBIC Tax Identity', status: 'VERIFIED & ACTIVE', file: vendor.gst_doc || 'gst_certificate.pdf', date: 'Valid till 31 Mar 2027' },
+                { title: 'Income Tax PAN Card Copy', type: 'Govt Tax ID', status: 'VERIFIED', file: vendor.pan_doc || 'pan_card.pdf', date: 'Permanent Residency ID' },
+                { title: 'Cancelled Bank Cheque', type: 'Payout Verification', status: 'VERIFIED', file: vendor.bank_doc || 'bank_cheque.pdf', date: vendor.bank_name || 'HDFC Bank Ltd' },
+                { title: 'Experience / Completion Certificates', type: 'Past Work Proof', status: 'VERIFIED', file: vendor.exp_doc || 'experience_docs.pdf', date: 'Audited by Technical Comm.' },
               ].map((d, idx) => (
                 <div key={idx} style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: '0.725rem', fontWeight: 900, color: '#047857', backgroundColor: 'rgba(16,185,129,0.12)', padding: '0.15rem 0.5rem', borderRadius: 6, width: 'fit-content', marginBottom: 4 }}>
@@ -433,6 +574,9 @@ export default function VendorDashboardPage() {
                   </div>
                   <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A' }}>{d.title}</div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{d.type} • {d.date}</div>
+                  <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#0047AB', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <FileText style={{ width: 14, height: 14 }} /> {d.file}
+                  </div>
                 </div>
               ))}
             </div>
@@ -464,10 +608,7 @@ export default function VendorDashboardPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              {[
-                { ticket: 'TCK-99201', subject: 'Construction Site Entry Gate Pass Request (Jaipur Tower)', status: 'RESOLVED', date: '27 Jul 2026' },
-                { ticket: 'TCK-99145', subject: 'GFC Structural Drawing Revision R1 Clarification Request', status: 'IN PROGRESS', date: '28 Jul 2026' },
-              ].map((t, idx) => (
+              {vendorTickets.map((t, idx) => (
                 <div key={idx} style={{ padding: '1.1rem 1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 2 }}>
@@ -479,7 +620,7 @@ export default function VendorDashboardPage() {
                     <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0F172A' }}>{t.subject}</div>
                   </div>
 
-                  <span style={{ fontSize: '0.75rem', fontWeight: 900, padding: '0.2rem 0.65rem', borderRadius: 6, backgroundColor: t.status === 'RESOLVED' ? 'rgba(16,185,129,0.15)' : 'rgba(0,71,171,0.15)', color: t.status === 'RESOLVED' ? '#047857' : '#0047AB' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 900, padding: '0.2rem 0.65rem', borderRadius: 6, backgroundColor: t.status.includes('RESOLVED') ? 'rgba(16,185,129,0.15)' : 'rgba(0,71,171,0.15)', color: t.status.includes('RESOLVED') ? '#047857' : '#0047AB' }}>
                     {t.status}
                   </span>
                 </div>
@@ -489,6 +630,253 @@ export default function VendorDashboardPage() {
         )}
 
       </main>
+
+      {/* ════════════════ BID SUBMISSION MODAL ════════════════ */}
+      {biddingTender && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem'
+        }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 550, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.2rem 0.65rem', borderRadius: 6 }}>
+                  {biddingTender.ref}
+                </span>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, marginTop: 4, color: '#0F172A' }}>Submit Tender Proposal</h3>
+              </div>
+              <button onClick={() => setBiddingTender(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+            </div>
+
+            {bidSubmitted ? (
+              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
+                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Bid Proposal Submitted Successfully!</h4>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                  Your commercial bid for <strong>{biddingTender.ref}</strong> has been recorded and submitted to the Procurement Committee.
+                </p>
+                <button onClick={() => setBiddingTender(null)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
+                  Close Window
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleCreateBid}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+                  Submitting tender proposal as <strong>{vendor.company_name}</strong> (EMD Waived).
+                </p>
+
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Quoted Commercial Lump-Sum Bid (in ₹ Crores) *</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-input"
+                    value={bidAmount}
+                    onChange={e => setBidAmount(e.target.value)}
+                    placeholder="e.g. 13.80"
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label className="form-label">Technical Capability & Execution Remarks</label>
+                  <textarea
+                    className="form-input"
+                    rows={3}
+                    value={bidRemarks}
+                    onChange={e => setBidRemarks(e.target.value)}
+                    placeholder="We commit to execute as per GFC drawings & NBC 2016 building code specifications..."
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button type="button" onClick={() => setBiddingTender(null)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
+                    Confirm & Submit Bid
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════ INVOICE SUBMISSION MODAL ════════════════ */}
+      {showInvoiceModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem'
+        }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Submit Milestone Invoice / RA Bill</h3>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Upload GST Invoice for 7-day RTGS payout release</div>
+              </div>
+              <button onClick={() => setShowInvoiceModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+            </div>
+
+            {invoiceSubmitted ? (
+              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
+                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Invoice Submitted Successfully!</h4>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                  Your GST tax invoice has been routed to finance department for RTGS payout release.
+                </p>
+                <button onClick={() => setShowInvoiceModal(false)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
+                  Close Window
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleCreateInvoice}>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">GST Tax Invoice Number *</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-input"
+                    placeholder="e.g. INV-2026-8812"
+                    value={invoiceForm.invoiceNo}
+                    onChange={e => setInvoiceForm({ ...invoiceForm, invoiceNo: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Invoice Amount (in ₹) *</label>
+                  <input
+                    type="number"
+                    required
+                    className="form-input"
+                    placeholder="e.g. 725000"
+                    value={invoiceForm.amt}
+                    onChange={e => setInvoiceForm({ ...invoiceForm, amt: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label className="form-label">Attach Signed PDF Invoice Copy</label>
+                  <input type="file" className="form-input" accept=".pdf" />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button type="button" onClick={() => setShowInvoiceModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
+                    Submit Invoice
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════ SUPPORT TICKET MODAL ════════════════ */}
+      {showTicketModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem'
+        }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Raise Technical Support Ticket</h3>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Direct ticket channel to corporate procurement team</div>
+              </div>
+              <button onClick={() => setShowTicketModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+            </div>
+
+            {ticketSubmitted ? (
+              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
+                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Ticket Created Successfully!</h4>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                  Your support inquiry has been logged. Assigned procurement officer will respond within 24 hours.
+                </p>
+                <button onClick={() => setShowTicketModal(false)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
+                  Close Window
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleCreateTicket}>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Support Category</label>
+                  <select
+                    className="form-input"
+                    value={ticketForm.category}
+                    onChange={e => setTicketForm({ ...ticketForm, category: e.target.value })}
+                  >
+                    <option>Construction Site Gate Pass Request</option>
+                    <option>GFC Structural Drawing Clarification</option>
+                    <option>RTGS Payment Payout Status Inquiry</option>
+                    <option>GST Certificate Renewal Request</option>
+                  </select>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label className="form-label">Describe your query / issue *</label>
+                  <textarea
+                    required
+                    className="form-input"
+                    rows={3}
+                    placeholder="Provide complete details..."
+                    value={ticketForm.query}
+                    onChange={e => setTicketForm({ ...ticketForm, query: e.target.value })}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button type="button" onClick={() => setShowTicketModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
+                    Submit Ticket
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════ CERTIFICATE A4 DOSSIER MODAL ════════════════ */}
+      {showCertificateModal && (
+        <SuccessModal
+          isOpen={showCertificateModal}
+          onClose={() => setShowCertificateModal(false)}
+          trackingId={vendor.tracking_id}
+          formData={{
+            companyName: vendor.company_name,
+            gstin: vendor.gstin,
+            category: vendor.category,
+            status: vendor.status || 'Approved Class-A',
+            submitted_at: vendor.submitted_at || new Date().toISOString()
+          }}
+        />
+      )}
 
       {/* ════════════════ BID SUBMISSION MODAL ════════════════ */}
       {biddingTender && (
