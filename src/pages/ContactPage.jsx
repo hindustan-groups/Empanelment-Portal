@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', company: '', department: 'Empanelment Helpdesk', message: ''
+    name: '', email: '', phone: '', company: '', department: 'Empanelment Helpdesk', customDepartment: '', message: ''
   });
 
   const handleSubmit = (e) => {
@@ -193,7 +193,22 @@ export default function ContactPage() {
                   <option value="ID Card & QR Code">Smart ID Card & Verification Issue</option>
                   <option value="Active Tenders">Active Tender Bidding Query</option>
                   <option value="Billing & Accounts">Billing & Accounts Inquiry</option>
+                  <option value="Other">✏️ Other – Specify Custom Department</option>
                 </select>
+
+                {formData.department === 'Other' && (
+                  <div style={{ marginTop: '0.65rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#ED1C24', marginBottom: 4 }}>Specify Custom Subject / Department *</label>
+                    <input
+                      required
+                      type="text"
+                      value={formData.customDepartment || ''}
+                      onChange={e => setFormData({ ...formData, customDepartment: e.target.value })}
+                      placeholder="e.g. Site Safety Audit, Material Quality, Legal Query..."
+                      style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #F59E0B', outline: 'none', backgroundColor: '#FFFBEB' }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
