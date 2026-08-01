@@ -51,10 +51,14 @@ const DUMMY_TENDERS = [
 
 export default function TendersPage() {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [tenders] = useState(() => {
+    const saved = localStorage.getItem('hipro_tenders');
+    return saved ? JSON.parse(saved) : DUMMY_TENDERS;
+  });
 
   const filteredTenders = selectedCategory === 'ALL'
-    ? DUMMY_TENDERS
-    : DUMMY_TENDERS.filter(t => t.category.includes(selectedCategory));
+    ? tenders
+    : tenders.filter(t => (t.category || '').toLowerCase().includes(selectedCategory.toLowerCase()));
 
   return (
     <div className="tenders-page" style={{ padding: '2.5rem 1.5rem', maxWidth: 1240, margin: '0 auto' }}>
