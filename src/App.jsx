@@ -20,6 +20,7 @@ import ContactPage from './pages/ContactPage';
 import TendersPage from './pages/TendersPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
+import VerifyPassPage from './pages/VerifyPassPage';
 
 // Auto Scroll To Top Component on Route Navigation
 function ScrollToTop() {
@@ -188,6 +189,7 @@ function MainAppLayout() {
           <Route path="/tenders" element={<TendersPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/verify-pass" element={<VerifyPassPage />} />
 
           {/* Vendor Auth & Portal Dashboard */}
           <Route path="/vendor-login" element={<VendorLoginPage />} />
