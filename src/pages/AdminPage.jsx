@@ -531,14 +531,25 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 2 }}>{v.current_stage}</div>
                         </td>
                         <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
-                          <button
-                            onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); }}
-                            className="btn-primary"
-                            style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: 8, background: '#0047AB' }}
-                          >
-                            <Eye style={{ width: 13, height: 13 }} />
-                            <span>Audit Dossier</span>
-                          </button>
+                          <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                            <button
+                              onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); }}
+                              className="btn-primary"
+                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: 8, background: '#0047AB' }}
+                            >
+                              <Eye style={{ width: 13, height: 13 }} />
+                              <span>Audit</span>
+                            </button>
+                            <button
+                              onClick={() => { setSelectedVendor(v); setShowAdminIdCardModal(true); }}
+                              className="btn-accent"
+                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: 8 }}
+                              title="Admin: Generate & Print Official Smart PVC ID Card"
+                            >
+                              <UserCheck style={{ width: 13, height: 13 }} />
+                              <span>🪪 ID Card</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -1050,6 +1061,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             isOpen={showAdminIdCardModal}
             onClose={() => setShowAdminIdCardModal(false)}
             vendorData={selectedVendor}
+            isAdmin={true}
           />
         )}
         {/* ════════════════ ADD NEW TENDER MODAL ════════════════ */}

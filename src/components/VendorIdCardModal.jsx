@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { X, Printer, ShieldCheck, Edit3, Lock, Check } from 'lucide-react';
 import { printCard } from '../utils/printCard';
 
-export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
+export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin = false }) {
   if (!isOpen || !vendorData) return null;
 
   // Determine if vendor empanelment status is APPROVED
-  const isApproved = vendorData.status === 'APPROVED' || vendorData.isApproved !== false;
+  const isApproved = vendorData.status === 'APPROVED' || vendorData.isApproved !== false || String(vendorData.status).includes('Approved');
 
   // Auto-populated ID Card fields directly from verified empanelment data
   const defaultCardData = {
-    name: vendorData.contactName || vendorData.contact_name || vendorData.name || 'MOHMMAD DILSHAN',
-    designation: vendorData.designation || vendorData.primary_role_label || 'Empanelled Vendor',
+    name: vendorData.contactName || vendorData.contact_name || vendorData.company_name || vendorData.name || 'MOHMMAD DILSHAN',
+    designation: vendorData.designation || vendorData.primary_role || vendorData.category || 'Empanelled Vendor',
     vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
-    department: vendorData.department || vendorData.category_label || vendorData.primary_role || 'Software Engineering',
+    department: vendorData.department || vendorData.category || vendorData.primary_role || 'Procurement & Engineering',
     bloodGroup: vendorData.bloodGroup || vendorData.blood_group || 'B+',
     photoUrl: vendorData.passportPhoto || vendorData.photo_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
     address: vendorData.corporateAddress || vendorData.address || 'Bhilwara - 311001, Rajasthan, India',
@@ -24,6 +24,21 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
 
   const [editMode, setEditMode] = useState(false);
   const [cardData, setCardData] = useState(defaultCardData);
+
+  useEffect(() => {
+    setCardData({
+      name: vendorData.contactName || vendorData.contact_name || vendorData.company_name || vendorData.name || 'MOHMMAD DILSHAN',
+      designation: vendorData.designation || vendorData.primary_role || vendorData.category || 'Empanelled Vendor',
+      vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
+      department: vendorData.department || vendorData.category || vendorData.primary_role || 'Procurement & Engineering',
+      bloodGroup: vendorData.bloodGroup || vendorData.blood_group || 'B+',
+      photoUrl: vendorData.passportPhoto || vendorData.photo_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+      address: vendorData.corporateAddress || vendorData.address || 'Bhilwara - 311001, Rajasthan, India',
+      phone: vendorData.helplinePhone || vendorData.phone || '+91 7597000601',
+      email: vendorData.corporateEmail || vendorData.email || 'info@hindustanprojects.in',
+      website: 'hindustanprojects.in'
+    });
+  }, [vendorData]);
 
   const handleFieldChange = (field, value) => {
     setCardData(prev => ({ ...prev, [field]: value }));
@@ -73,7 +88,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               <span>{isApproved ? 'Official Verified System Identity' : '⚠️ Pending Admin Approval'}</span>
             </div>
             <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', marginTop: 4 }}>
-              Empanelled Vendor Smart Identity Card
+              Empanelled Vendor Smart Identity Card {isAdmin && <span style={{ fontSize: '0.85rem', color: '#0047AB', background: '#EFF6FF', padding: '0.2rem 0.6rem', borderRadius: 6, border: '1px solid #60A5FA' }}>Admin Generation Mode</span>}
             </h3>
           </div>
 
@@ -103,23 +118,25 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData }) {
               </button>
             </div>
 
-            {/* ✏️ EDIT MODE TOGGLE */}
-            <button
-              onClick={() => setEditMode(prev => !prev)}
-              className="no-print"
-              style={{
-                padding: '0.5rem 1rem', fontSize: '0.82rem', fontWeight: 800, borderRadius: 10,
-                border: editMode ? '2px solid #F59E0B' : '2px solid #CBD5E1',
-                background: editMode ? '#FFFBEB' : '#F8FAFC',
-                color: editMode ? '#B45309' : '#475569',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
-                transition: 'all 0.2s'
-              }}
-              title={editMode ? 'Click to lock fields back' : 'Click to edit card details manually'}
-            >
-              {editMode ? <Check style={{ width: 15, height: 15 }} /> : <Edit3 style={{ width: 15, height: 15 }} />}
-              <span>{editMode ? 'Done Editing' : '✏️ Edit Details'}</span>
-            </button>
+            {/* ✏️ EDIT MODE TOGGLE — ONLY VISIBLE FOR ADMIN */}
+            {isAdmin && (
+              <button
+                onClick={() => setEditMode(prev => !prev)}
+                className="no-print"
+                style={{
+                  padding: '0.5rem 1rem', fontSize: '0.82rem', fontWeight: 800, borderRadius: 10,
+                  border: editMode ? '2px solid #F59E0B' : '2px solid #CBD5E1',
+                  background: editMode ? '#FFFBEB' : '#F8FAFC',
+                  color: editMode ? '#B45309' : '#475569',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  transition: 'all 0.2s'
+                }}
+                title={editMode ? 'Click to lock fields back' : 'Admin: Click to customize card details or upload photo'}
+              >
+                {editMode ? <Check style={{ width: 15, height: 15 }} /> : <Edit3 style={{ width: 15, height: 15 }} />}
+                <span>{editMode ? 'Done Editing' : '✏️ Admin Edit'}</span>
+              </button>
+            )}
 
             <button
               onClick={handlePrint}
