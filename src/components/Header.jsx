@@ -33,15 +33,11 @@ export default function Header() {
     <header className="header-navbar">
       <div className="header-inner">
         
-        {/* Left: Logo & Dynamic Subdomain Badge */}
+        {/* Left: Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link to="/" onClick={closeMobileMenu} style={{ textDecoration: 'none' }}>
             <Logo height={38} />
           </Link>
-          <div className="subdomain-pill desktop-only">
-            <span className="status-dot"></span>
-            <span>{siteConfig.subdomainPill || 'empanel.hindustanprojects.in'}</span>
-          </div>
         </div>
 
         {/* Right Desktop Nav Options */}
@@ -111,11 +107,6 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="mobile-drawer-overlay">
           <div className="mobile-drawer-content">
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.85rem', borderRadius: 9999, backgroundColor: 'var(--bg-surface)', fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', marginBottom: '1rem', width: 'fit-content' }}>
-              <ShieldCheck style={{ width: 14, height: 14, color: '#10B981' }} />
-              <span>{siteConfig.subdomainPill || 'empanel.hindustanprojects.in'}</span>
-            </div>
 
             <NavLink 
               to="/" 
@@ -134,6 +125,33 @@ export default function Header() {
             >
               <PlusCircle style={{ width: 18, height: 18 }} />
               <span>Empanelment Form</span>
+            </NavLink>
+
+            <NavLink 
+              to="/tenders" 
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+            >
+              <FileText style={{ width: 18, height: 18, color: '#ED1C24' }} />
+              <span>Active Tenders & Bids</span>
+            </NavLink>
+
+            <NavLink 
+              to="/about" 
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+            >
+              <Building2 style={{ width: 18, height: 18, color: '#0047AB' }} />
+              <span>About Hindustan Projects</span>
+            </NavLink>
+
+            <NavLink 
+              to="/contact" 
+              onClick={closeMobileMenu}
+              className="mobile-nav-link"
+            >
+              <HelpCircle style={{ width: 18, height: 18, color: '#047857' }} />
+              <span>Contact Headquarters</span>
             </NavLink>
 
             <NavLink 
