@@ -339,12 +339,29 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   /* ── Invoice Payout Handlers ── */
   const handleApproveInvoice = (id) => {
     const ref = `RTGS-HDFC${Math.floor(100000 + Math.random() * 900000)}`;
-    setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, status: 'RELEASED via RTGS', rtgsRef: ref } : inv));
+    setInvoices(prev => {
+      const updated = prev.map(inv => inv.id === id ? { ...inv, status: 'RELEASED via RTGS', rtgsRef: ref } : inv);
+      // Sync to vendor invoices in localStorage if available
+      try {
+        const savedInvs = JSON.parse(localStorage.getItem('hipro_vendor_invoices') || '[]');
+        const updatedSaved = savedInvs.map(inv => (inv.id === id || inv.ref === id) ? { ...inv, status: 'RELEASED via RTGS', ref } : inv);
+        localStorage.setItem('hipro_vendor_invoices', JSON.stringify(updatedSaved));
+      } catch {}
+      return updated;
+    });
   };
 
   /* ── Ticket Handlers ── */
   const handleResolveTicket = (id) => {
-    setTickets(prev => prev.map(t => t.id === id ? { ...t, status: 'RESOLVED' } : t));
+    setTickets(prev => {
+      const updated = prev.map(t => t.id === id ? { ...t, status: 'RESOLVED' } : t);
+      try {
+        const savedTcks = JSON.parse(localStorage.getItem('hipro_vendor_tickets') || '[]');
+        const updatedSaved = savedTcks.map(t => t.ticket === id ? { ...t, status: 'RESOLVED' } : t);
+        localStorage.setItem('hipro_vendor_tickets', JSON.stringify(updatedSaved));
+      } catch {}
+      return updated;
+    });
   };
 
   /* ── Category CRUD ── */
