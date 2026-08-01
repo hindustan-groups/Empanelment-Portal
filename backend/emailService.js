@@ -23,8 +23,13 @@ const createTransporter = () => {
 };
 
 // ─── BASE MAIL OPTIONS ───────────────────────────────────────────
+// Uses alias email (empanelment@hindustanprojects.in) as the FROM address
+// so recipients see the professional company email, not the raw Gmail.
+// ALIAS_EMAIL = empanelment@hindustanprojects.in (must be verified in Gmail → Settings → Send mail as)
+// EMAIL_USER  = your actual Gmail that has the alias set up
+const SENDER_ADDRESS = process.env.ALIAS_EMAIL || process.env.EMAIL_USER;
 const baseMailOptions = {
-  from: `"Hindustan Projects — Empanelment Cell" <${process.env.EMAIL_USER}>`,
+  from: `"Hindustan Projects — Empanelment Cell" <${SENDER_ADDRESS}>`,
 };
 
 // ─── SEND EMAIL HELPER ───────────────────────────────────────────
