@@ -7,7 +7,8 @@ import Logo from '../components/Logo';
 
 export default function VendorDashboardPage() {
   const navigate = useNavigate();
-  const [vendor, setVendor] = use  /* Active Tab & Dynamic Modals State */
+  const [vendor, setVendor] = useState(null);
+  /* Active Tab & Dynamic Modals State */
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'tenders' | 'payouts' | 'documents' | 'support'
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
