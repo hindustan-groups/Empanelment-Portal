@@ -214,32 +214,56 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   };
 
   const handleUpdateStatus = async (trackingId, newStatus, stage, remark) => {
+    const isApproved = newStatus.startsWith('Approved');
+    const ceoSigned = isApproved;
+    const ceoDate = isApproved ? new Date().toLocaleDateString('en-IN') : null;
+
     const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
     try {
       await fetch(`${backendUrl}/api/empanelment/admin/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trackingId, status: newStatus, currentStage: stage }),
+        body: JSON.stringify({ trackingId, status: newStatus, currentStage: stage, ceoSigned, ceoDate }),
       });
     } catch { /* local fallback */ }
 
     setVendors(prev => {
       const updated = prev.map(v => v.tracking_id === trackingId
-        ? { ...v, status: newStatus, current_stage: stage, admin_remarks: remark !== undefined ? remark : v.admin_remarks }
+        ? { ...v, status: newStatus, current_stage: stage, admin_remarks: remark !== undefined ? remark : v.admin_remarks, ceo_signed: ceoSigned, ceo_signed_date: ceoDate }
         : v
       );
       // Persist to local storage as well
       const userApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
       const updatedUserApps = userApps.map(v => v.tracking_id === trackingId
-        ? { ...v, status: newStatus, current_stage: stage, admin_remarks: remark !== undefined ? remark : v.admin_remarks }
+        ? { ...v, status: newStatus, current_stage: stage, admin_remarks: remark !== undefined ? remark : v.admin_remarks, ceo_signed: ceoSigned, ceo_signed_date: ceoDate }
         : v
       );
       localStorage.setItem('hipro_vps_applications', JSON.stringify(updatedUserApps));
+
+      // Also update session if active vendor is viewing
+      const activeSession = JSON.parse(localStorage.getItem('hipro_vendor_session') || '{}');
+      if (activeSession.tracking_id === trackingId) {
+        localStorage.setItem('hipro_vendor_session', JSON.stringify({
+          ...activeSession,
+          status: newStatus,
+          current_stage: stage,
+          ceo_signed: ceoSigned,
+          ceo_signed_date: ceoDate
+        }));
+      }
+
       return updated;
     });
 
     if (selectedVendor?.tracking_id === trackingId) {
-      setSelectedVendor(prev => ({ ...prev, status: newStatus, current_stage: stage, admin_remarks: remark !== undefined ? remark : prev.admin_remarks }));
+      setSelectedVendor(prev => ({
+        ...prev,
+        status: newStatus,
+        current_stage: stage,
+        admin_remarks: remark !== undefined ? remark : prev.admin_remarks,
+        ceo_signed: ceoSigned,
+        ceo_signed_date: ceoDate
+      }));
     }
   };
 

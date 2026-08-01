@@ -187,25 +187,45 @@ export default function VendorDashboardPage() {
           </div>
 
           <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => setShowCertificateModal(true)}
-              className="btn-secondary"
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
-            >
-              <Printer style={{ width: 16, height: 16 }} />
-              <span>Print Official A4 Certificate</span>
-            </button>
+            {vendor.status && vendor.status.startsWith('Approved') ? (
+              <>
+                <button
+                  onClick={() => setShowCertificateModal(true)}
+                  className="btn-secondary"
+                  style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer' }}
+                >
+                  <Printer style={{ width: 16, height: 16 }} />
+                  <span>Print Official A4 Certificate</span>
+                </button>
 
-            <button
-              onClick={() => setShowIdCardModal(true)}
-              className="btn-accent"
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12 }}
-            >
-              <UserCheck style={{ width: 16, height: 16 }} />
-              <span>🪪 Print Official Vendor Smart ID Card</span>
-            </button>
+                <button
+                  onClick={() => setShowIdCardModal(true)}
+                  className="btn-accent"
+                  style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, cursor: 'pointer' }}
+                >
+                  <UserCheck style={{ width: 16, height: 16 }} />
+                  <span>🪪 Print Official Vendor Smart ID Card</span>
+                </button>
+              </>
+            ) : (
+              <div style={{ padding: '0.6rem 1rem', borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)', color: '#FCA5A5', fontSize: '0.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Lock style={{ width: 16, height: 16, flexShrink: 0 }} />
+                <span>Printing Locked (Pending Admin & CEO Approval)</span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Audit Status Banner (If Pending Approval) */}
+        {(!vendor.status || !vendor.status.startsWith('Approved')) && (
+          <div style={{ padding: '1rem 1.25rem', borderRadius: 14, backgroundColor: '#FEF3C7', border: '1.5px solid #F59E0B', color: '#92400E', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+            <Clock style={{ width: 22, height: 22, flexShrink: 0, color: '#D97706' }} />
+            <div>
+              <strong style={{ color: '#78350F', display: 'block', fontSize: '0.9rem' }}>⏳ Application Status: Pending Procurement Committee & CEO Approval</strong>
+              Your submitted documents and statutory details are currently under verification. Once approved by the CEO Office, your Official A4 Certificate & PVC ID Card print access will automatically unlock.
+            </div>
+          </div>
+        )}
 
         {/* ════════════════ TAB 1: OVERVIEW & CERTIFICATE ════════════════ */}
         {activeTab === 'overview' && (
