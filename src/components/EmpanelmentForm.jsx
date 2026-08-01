@@ -19,17 +19,19 @@ const ENTITY_TYPES = [
 ];
 
 const DISCIPLINE_ROLES = [
-  { code: 'civil',       label: '🏗️ Civil & Structural Engineering Contractor (Class A/B/C)' },
-  { code: 'mep',         label: '⚡ MEP, HVAC & Electrical System Contractor' },
-  { code: 'arch',        label: '📐 Architect & Architectural Design Consultant' },
-  { code: 'digital',     label: '💻 Digital Solutions, IT Infrastructure & Marketing Agency' },
-  { code: 'suppliers',   label: '🚚 Material & Construction Goods Supplier / Heavy Rentals' },
-  { code: 'structural',  label: '🏢 Structural Engineering & Audit Consultant' },
-  { code: 'interior',    label: '🎨 Interior Designer & Turnkey Fit-out Contractor' },
-  { code: 'fire',        label: '🛡️ Fire Protection & Safety Systems Engineer' },
-  { code: 'soil',        label: '🧪 Geotechnical & NABL Soil Testing Laboratory' },
-  { code: 'solar',       label: '☀️ Solar & Renewable Energy EPC Contractor' },
-  { code: 'other',       label: '✏️ Other – Specify Custom Role Below' },
+  { code: 'vendor',                  label: '🏢 Vendor' },
+  { code: 'architect',               label: '📐 Architect' },
+  { code: 'civil_engineer',          label: '🏗️ Civil Engineer' },
+  { code: 'freelancer',              label: '👤 Freelancer' },
+  { code: 'surveyor',                label: '📐 Surveyor' },
+  { code: 'material_supplier',       label: '🚚 Material Supplier' },
+  { code: 'contractor',              label: '👷 Contractor' },
+  { code: 'property_dealer',         label: '🏠 Property Dealer' },
+  { code: 'business_associate',      label: '🤝 Business Associate' },
+  { code: 'financer',                label: '💼 Financer' },
+  { code: 'machine_rental_provider', label: '🚜 Machine Rental Provider' },
+  { code: 'transporter',             label: '🚛 Transporter' },
+  { code: 'fruits_vegetables',       label: '🍎 Fruits & Vegetables' },
 ];
 
 const DEFAULT_CATEGORIES = [
@@ -204,8 +206,15 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     /* Entity & Discipline Classification */
     entityType: 'sole_proprietor',
     otherEntityType: '',
-    primaryRole: 'arch',
+    primaryRole: 'vendor',
     otherPrimaryRole: '',
+    specialization: '',       // Text Input replacing NBC Sub-Category dropdown
+    teamSize: '1-5 Members',  // Team size
+    basicRates: '',           // Basic Rates (Optional)
+    ownerName: '',            // Company Owner Name
+    ownerContact: '',         // Company Owner Contact Detail
+    skillsDetails: '',        // Skills / Specifications / Details
+    portfolioDoc: null,       // Catalogue / Portfolio PDF Upload
     category: category || 'civil',
     otherCategory: '',
     nbcSubCategory: '',
@@ -820,67 +829,71 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   </div>
                 </FieldGroup>
 
-                {/* ── Main Category: Professional Discipline / Scope ── */}
+                {/* ── Main Category: Empanel Entity (Manager's 13 Categories) ── */}
                 <FieldGroup
-                  label="Main Category — Professional Discipline / Scope of Work"
+                  label="Empanel Entity (Main Category)"
                   required
                   error={errors.primaryRole}
-                  hint="Select your primary engineering, architectural, contracting, or supply domain"
-                  style={{ gridColumn: '1 / -1' }}
-                >
-                  <SelectWithOther
-                    name="primaryRole"
-                    value={formData.primaryRole}
-                    onChange={handleChange}
-                    options={DISCIPLINE_ROLES}
-                    otherName="otherPrimaryRole"
-                    otherValue={formData.otherPrimaryRole}
-                    otherPlaceholder="e.g. Acoustic Engineer, Facade Specialist, Drone Survey Expert..."
-                    error={errors.primaryRole}
-                    otherError={errors.otherPrimaryRole}
-                  />
-                </FieldGroup>
-
-                {/* ── Sub-Category: NBC Building Classification (Groups A through J) ── */}
-                <FieldGroup
-                  label="Sub-Category — NBC Building Classification (National Building Code of India)"
-                  required
-                  error={errors.nbcSubCategory}
-                  hint="Select building group code (Group A: Residential to Group J: Hazardous)"
+                  hint="Select your primary empanelment entity classification"
                   style={{ gridColumn: '1 / -1' }}
                 >
                   <select
-                    name="nbcSubCategory"
-                    value={formData.nbcSubCategory}
+                    name="primaryRole"
+                    value={formData.primaryRole}
                     onChange={handleChange}
-                    className={`form-input${errors.nbcSubCategory ? ' error' : ''}`}
+                    className={`form-input${errors.primaryRole ? ' error' : ''}`}
                   >
-                    <option value="">– Select NBC Building Classification / Sub-Category –</option>
-                    {NBC_BUILDING_GROUPS.map((grp) => (
-                      <optgroup key={grp.group} label={grp.group}>
-                        {grp.items.map((item) => (
-                          <option key={item.value} value={item.value}>{item.label}</option>
-                        ))}
-                      </optgroup>
+                    {DISCIPLINE_ROLES.map(role => (
+                      <option key={role.code} value={role.code}>{role.label}</option>
                     ))}
-                    <option value="other">✏️ Other Custom Building / Infrastructure Sub-Category</option>
                   </select>
-                  {errors.nbcSubCategory && <span className="error-text">{errors.nbcSubCategory}</span>}
+                  {errors.primaryRole && <span className="error-text">{errors.primaryRole}</span>}
+                </FieldGroup>
 
-                  {formData.nbcSubCategory === 'other' && (
-                    <div style={{ marginTop: '0.5rem' }}>
-                      <input
-                        type="text"
-                        name="otherNbcSubCategory"
-                        value={formData.otherNbcSubCategory}
-                        onChange={handleChange}
-                        placeholder="Describe your custom NBC Building Classification or Sub-Category..."
-                        className={`form-input${errors.otherNbcSubCategory ? ' error' : ''}`}
-                        style={{ borderColor: '#0047AB44' }}
-                      />
-                      {errors.otherNbcSubCategory && <span className="error-text">{errors.otherNbcSubCategory}</span>}
-                    </div>
-                  )}
+                {/* ── Specialization (Text Input replacing Sub-Category dropdown) ── */}
+                <FieldGroup
+                  label="Specialization"
+                  required
+                  error={errors.specialization}
+                  hint="Type your specific core specialization or domain expertise"
+                  style={{ gridColumn: '1 / -1' }}
+                >
+                  <Input
+                    name="specialization"
+                    value={formData.specialization}
+                    onChange={handleChange}
+                    placeholder="e.g. Structural Audit, Ready Mix Concrete, Heavy Crane Operator, Organic Farm Produce..."
+                    error={errors.specialization}
+                  />
+                </FieldGroup>
+
+                {/* ── Team Size ── */}
+                <FieldGroup label="Team Size" optional>
+                  <select name="teamSize" value={formData.teamSize || '1-5 Members'} onChange={handleChange} className="form-input">
+                    {['1-5 Members', '5-20 Members', '20-50 Members', '50-100 Members', '100+ Workforce'].map(ts => (
+                      <option key={ts} value={ts}>{ts}</option>
+                    ))}
+                  </select>
+                </FieldGroup>
+
+                {/* ── Company Owner / Promoter Name ── */}
+                <FieldGroup label="Company Owner / Promoter Name" optional>
+                  <Input
+                    name="ownerName"
+                    value={formData.ownerName}
+                    onChange={handleChange}
+                    placeholder="e.g. Mr. Ramesh Gupta (Promoter / Founder)"
+                  />
+                </FieldGroup>
+
+                {/* ── Company Owner Contact Detail ── */}
+                <FieldGroup label="Company Owner Contact Detail" optional>
+                  <Input
+                    name="ownerContact"
+                    value={formData.ownerContact}
+                    onChange={handleChange}
+                    placeholder="e.g. +91 9876543210 / owner@company.com"
+                  />
                 </FieldGroup>
 
                 {/* ── Empanelment Business Category ── */}
@@ -1210,9 +1223,34 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
               )}
 
+              {/* ── Basic Rates (Optional) & Skills / Specifications Section ── */}
+              <div style={{ marginBottom: '1.75rem', padding: '1.1rem 1.25rem', borderRadius: 16, background: '#F8FAFC', border: '1.5px solid #CBD5E1' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span>💼 Basic Rates & Skills / Specifications</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <FieldGroup label="Basic Rates (Optional)" optional hint="Enter your standard rate quotes (e.g. ₹ 150 / Sq. Ft., ₹ 2,500 / Day, ₹ 50 / Trip, ₹ 80 / Kg)">
+                    <Input name="basicRates" value={formData.basicRates} onChange={handleChange} placeholder="e.g. ₹ 150 / Sq. Ft., ₹ 2,500 / Day, ₹ 50 / Trip, As per BOQ..." />
+                  </FieldGroup>
+
+                  <FieldGroup label="Skills / Specifications / Details" optional hint="Describe your core technical skills, machinery specifications, material grade, or business capacity details">
+                    <textarea
+                      name="skillsDetails"
+                      value={formData.skillsDetails}
+                      onChange={handleChange}
+                      rows={4}
+                      placeholder="Enter core technical skills, equipment specifications, supply capacity, or specialized service details..."
+                      className="form-input"
+                      style={{ width: '100%', resize: 'vertical' }}
+                    />
+                  </FieldGroup>
+                </div>
+              </div>
+
               {/* Document Uploads Header */}
-              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.85rem', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyBetween: 'space-between' }}>
-                <span>Identity & Statutory Document Uploads:</span>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.85rem', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>Identity, Statutory & Portfolio Document Uploads:</span>
               </div>
 
               <div className="form-grid-2">
@@ -1221,8 +1259,9 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   ['aadharFrontDoc', 'Aadhaar Card — Front Side',        '.pdf,.jpg,.png,.jpeg', true,  'UIDAI Govt National ID (Front). Required for authorized signatory identity verification. Upload photo showing Aadhaar number & photo.'],
                   ['aadharBackDoc',  'Aadhaar Card — Back Side',         '.pdf,.jpg,.png,.jpeg', true,  'UIDAI Govt National ID (Back). Required for registered workplace/residential address verification. Upload photo showing complete address & PIN.'],
                   ['bankDoc',        'Cancelled Bank Cheque / Passbook', '.pdf,.jpg,.png,.jpeg', true,  'Printed Cheque leaf with "CANCELLED" written or Passbook 1st page. Required to verify Bank Account No & IFSC for RTGS payouts.'],
+                  ['portfolioDoc',   'Catalogue / Portfolio (PDF Upload)', '.pdf',                false, 'Official Company Profile, Product Catalogue, Service Brochure, or Work Portfolio PDF document.'],
                   ['gstDoc',         'GST REG-06 Certificate',           '.pdf,.jpg,.png,.jpeg', false, 'Official 3-page GST Registration Certificate issued by CBIC. Required to verify active GST tax status.'],
-                  ['expDoc',         isSoleProp ? 'Work Portfolio / COA Certificate' : 'CAD Portfolio / Work Orders', '.pdf,.jpg,.png,.jpeg', false, 'Past Work Completion Certificates, Purchase Orders or CAD Portfolio. Helps fast-track Class-A tier rating.'],
+                  ['expDoc',         isSoleProp ? 'Work Experience Certificate' : 'CAD Portfolio / Work Orders', '.pdf,.jpg,.png,.jpeg', false, 'Past Work Completion Certificates, Purchase Orders or CAD Portfolio. Helps fast-track Class-A tier rating.'],
                 ].map(([field, label, accept, isRequired, helpText]) => {
                   const doc = formData[field];
                   const hasErr = Boolean(errors[field]);
