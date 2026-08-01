@@ -37,6 +37,7 @@ export default function VendorLoginPage() {
       } catch {
         storedApps = [];
       }
+      // Check matching vendor application in stored applications
       const match = storedApps.find(app => 
         (app.tracking_id && app.tracking_id.toLowerCase() === cleanIdentity.toLowerCase()) ||
         (app.gstin && app.gstin.toLowerCase() === cleanIdentity.toLowerCase()) ||
@@ -44,22 +45,50 @@ export default function VendorLoginPage() {
         (app.company_name && app.company_name.toLowerCase().includes(cleanIdentity.toLowerCase()))
       );
 
+      // 🛑 Approval Gate Check: Lock login if application is Pending, Clarification, or Rejected
+      if (match) {
+        const status = match.status || 'PENDING';
+        if (status === 'Pending' || status === 'PENDING' || status === 'PENDING COMMITTEE AUDIT') {
+          setIsSubmitting(false);
+          setError(`⏳ Application Under Committee Review: Application ${match.tracking_id} is currently under audit by the Procurement Committee & CEO Office. Vendor Dashboard access will unlock upon CEO Approval.`);
+          return;
+        }
+        if (status === 'Clarification Required' || status === 'CLARIFICATION_REQUIRED') {
+          setIsSubmitting(false);
+          setError(`⚠️ Clarification Required: Procurement Admin requested additional details for ${match.tracking_id}. Remark: "${match.admin_remarks || 'Please check email'}". Please visit /track to update details.`);
+          return;
+        }
+        if (status === 'Rejected' || status === 'REJECTED') {
+          setIsSubmitting(false);
+          setError(`✕ Application Rejected: Application ${match.tracking_id} was rejected by the Procurement Committee. Remark: "${match.admin_remarks || 'Incomplete criteria'}".`);
+          return;
+        }
+      }
+
       const sessionVendor = match ? {
         tracking_id: match.tracking_id || 'HP-EMP-025',
         company_name: match.company_name || 'Apex Infrastructure Pvt Ltd',
         gstin: match.gstin || '08AAAAA0000A1Z5',
         category: match.category || 'Civil & Structural Contractors',
-        status: match.status || 'Empanelled',
-        tier: 'CLASS-A (TIER 1 PRIME)',
-        email: match.email || 'vendor@apexinfra.com'
+        status: match.status || 'Approved Class-A',
+        tier: match.status || 'CLASS-A (TIER 1 PRIME)',
+        email: match.email || 'vendor@apexinfra.com',
+        primary_role: match.primary_role || match.primaryRole || 'Contractor',
+        specialization: match.specialization || 'RCC Frame Construction',
+        team_size: match.team_size || match.teamSize || '50-100 Members',
+        owner_name: match.owner_name || match.ownerName || 'Anil Verma'
       } : {
         tracking_id: cleanIdentity.startsWith('HP-') ? cleanIdentity : 'HP-EMP-025',
-        company_name: 'Empanelled Vendor Enterprise',
+        company_name: 'Apex Infrastructure Pvt Ltd (Demo Approved Vendor)',
         gstin: '08AAAAA0000A1Z5',
         category: 'Civil & Structural Engineering',
-        status: 'Empanelled',
+        status: 'Approved Class-A',
         tier: 'CLASS-A (TIER 1 PRIME)',
-        email: cleanIdentity
+        email: cleanIdentity,
+        primary_role: 'Contractor',
+        specialization: 'Turnkey Civil Construction',
+        team_size: '50-100 Members',
+        owner_name: 'Anil Verma'
       };
 
       localStorage.setItem('hipro_vendor_session', JSON.stringify(sessionVendor));
