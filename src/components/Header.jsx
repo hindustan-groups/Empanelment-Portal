@@ -88,10 +88,6 @@ export default function Header() {
             <ShieldCheck style={{ width: 16, height: 16, color: '#10B981' }} />
             <span>Vendor Login</span>
           </NavLink>
-
-          <NavLink to="/internal-portal-login" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`} style={{ backgroundColor: 'rgba(0, 71, 171, 0.08)', color: '#0047AB', border: '1px solid rgba(0, 71, 171, 0.2)' }}>
-            <span>🔒 Admin Desk</span>
-          </NavLink>
         </div>
 
         {/* Mobile Hamburger Toggle Button */}
@@ -166,15 +162,6 @@ export default function Header() {
             >
               <ShieldCheck style={{ width: 18, height: 18, color: '#10B981' }} />
               <span>Empanelled Vendor Login</span>
-            </NavLink>
-
-            <NavLink 
-              to="/internal-portal-login" 
-              onClick={closeMobileMenu}
-              className="mobile-nav-link"
-              style={{ backgroundColor: 'rgba(0, 71, 171, 0.08)', color: '#0047AB', border: '1px solid rgba(0, 71, 171, 0.2)' }}
-            >
-              <span>🔒 Procurement Admin Gateway</span>
             </NavLink>
 
             <NavLink 
