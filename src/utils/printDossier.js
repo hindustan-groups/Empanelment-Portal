@@ -567,16 +567,22 @@ function buildDossierHTML({ trackingId, formData }) {
     </div>
 
     <!-- SECTION 5: OFFICIAL RULES & GUIDELINES -->
-    <div class="section-heading">§ 5 — EMPANELMENT RULES &amp; VENDOR CODE OF CONDUCT</div>
+    <div class="section-heading">§ 5 — OFFICIAL EMPANELMENT RULES &amp; VENDOR CODE OF CONDUCT</div>
     <div class="rules-box">
-      <div class="rules-title">📋 HINDUSTAN PROJECTS — VENDOR RULES &amp; POLICY TERMS</div>
+      <div class="rules-title">📋 HINDUSTAN PROJECTS — COMPREHENSIVE VENDOR CODE OF CONDUCT</div>
       <div class="rules-grid">
-        <div class="rule-item"><div class="rule-num">1</div><div><strong>Audit Timeline:</strong> 48-72 Hours committee review by Corporate Procurement Team.</div></div>
-        <div class="rule-item"><div class="rule-num">2</div><div><strong>Smart PVC Card:</strong> Approved vendors carry PVC Smart Card for site QR gate access.</div></div>
-        <div class="rule-item"><div class="rule-num">3</div><div><strong>Zero Corruption:</strong> Zero tolerance for kickbacks or fraudulent submissions.</div></div>
-        <div class="rule-item"><div class="rule-num">4</div><div><strong>Site Safety:</strong> Mandatory IS safety PPE gear for all site contractors and operators.</div></div>
-        <div class="rule-item"><div class="rule-num">5</div><div><strong>Work Orders:</strong> No work commences without a written signed Work Order.</div></div>
-        <div class="rule-item"><div class="rule-num">6</div><div><strong>Dispute Jurisdiction:</strong> Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.</div></div>
+        <div class="rule-item"><div class="rule-num">1</div><div><strong>Audit &amp; Verification:</strong> 48–72 hours document audit by Procurement Committee &amp; CEO Office.</div></div>
+        <div class="rule-item"><div class="rule-num">2</div><div><strong>Smart PVC Access:</strong> Approved vendors carry PVC Smart Card for site QR gate access.</div></div>
+        <div class="rule-item"><div class="rule-num">3</div><div><strong>Zero Corruption:</strong> CVC compliance — Zero tolerance for kickbacks, gifts, or fraud.</div></div>
+        <div class="rule-item"><div class="rule-num">4</div><div><strong>Site Safety:</strong> Mandatory IS safety PPE gear (hard hat, vest, boots) on all project sites.</div></div>
+        <div class="rule-item"><div class="rule-num">5</div><div><strong>Work Orders:</strong> No work commences without a duly signed written Work Order.</div></div>
+        <div class="rule-item"><div class="rule-num">6</div><div><strong>Material Quality:</strong> ISI/BIS certified materials mandatory. Substitutions require written sign-off.</div></div>
+        <div class="rule-item"><div class="rule-num">7</div><div><strong>Billing &amp; Tax:</strong> GST E-Invoice mandatory for bills &gt; ₹5L. RA bills by 25th of month.</div></div>
+        <div class="rule-item"><div class="rule-num">8</div><div><strong>Defect Liability:</strong> 5% retention per bill. 12-month DLP from completion certificate date.</div></div>
+        <div class="rule-item"><div class="rule-num">9</div><div><strong>Sub-Contracting:</strong> Sub-contracting without prior written approval strictly prohibited.</div></div>
+        <div class="rule-item"><div class="rule-num">10</div><div><strong>Confidentiality:</strong> Drawings &amp; site data strictly confidential under PDPB &amp; IT Act.</div></div>
+        <div class="rule-item"><div class="rule-num">11</div><div><strong>Performance Score:</strong> Quarterly vendor rating (&lt;60% triggers automatic de-listing).</div></div>
+        <div class="rule-item"><div class="rule-num">12</div><div><strong>Dispute Jurisdiction:</strong> Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.</div></div>
       </div>
     </div>
 
