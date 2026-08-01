@@ -1380,6 +1380,45 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
               </div>
 
+              {/* Official Guidelines & Operational Rules Card */}
+              <div style={{ padding: '1.25rem', borderRadius: 16, background: '#F8FAFC', border: '1.5px solid #CBD5E1', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.75rem' }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(0,71,171,0.1)', color: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>
+                    📜
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: '#0F172A' }}>
+                      Hindustan Projects Official Empanelment Rules & Guidelines
+                    </h4>
+                    <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>
+                      Important operational guidelines for all registered vendors, contractors, & consultants
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', fontSize: '0.78rem', color: '#334155' }}>
+                  <div style={{ padding: '0.75rem', borderRadius: 10, background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                    <strong style={{ color: '#0047AB', display: 'block', marginBottom: 3 }}>1. Audit & Verification (48-72 Hours)</strong>
+                    All submitted documents (GSTIN, PAN, Bank Details, Portfolio) are audited by the Corporate Procurement Committee. Approval status will be notified via SMS/Email.
+                  </div>
+
+                  <div style={{ padding: '0.75rem', borderRadius: 10, background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                    <strong style={{ color: '#047857', display: 'block', marginBottom: 3 }}>2. Smart PVC ID Card & QR Verification</strong>
+                    Approved vendors get an official PVC ID Card with a dynamic QR Code. Security guards scan this QR Code at site gates to allow physical access.
+                  </div>
+
+                  <div style={{ padding: '0.75rem', borderRadius: 10, background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                    <strong style={{ color: '#B45309', display: 'block', marginBottom: 3 }}>3. Zero Corruption & Anti-Bribery Policy</strong>
+                    Hindustan Projects maintains a strict zero-tolerance policy against corrupt practices, kickbacks, or fraudulent documentation. Violations result in permanent blacklist.
+                  </div>
+
+                  <div style={{ padding: '0.75rem', borderRadius: 10, background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                    <strong style={{ color: '#ED1C24', display: 'block', marginBottom: 3 }}>4. Site Safety & Quality Compliance</strong>
+                    Contractors & machine operators must adhere to IS standards, site PPE safety gear, and complete work as per GFC drawings and BOQ terms.
+                  </div>
+                </div>
+              </div>
+
               {/* Declarations */}
               <div style={{ padding: '1.1rem 1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem', marginTop: '1rem' }}>
                 {[

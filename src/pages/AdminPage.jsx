@@ -909,14 +909,19 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
               <SectionCard title="1. Basic Entity & Contact Details" icon={Building2}>
                 <InfoGrid items={[
                   { label: 'Company Name', value: selectedVendor.company_name, full: true },
-                  { label: 'Primary Role / Scope', value: selectedVendor.primary_role },
-                  { label: 'Entity Type', value: selectedVendor.entity_type },
-                  { label: 'Established Year', value: selectedVendor.est_year },
+                  { label: 'Empanel Entity (Main Category)', value: selectedVendor.primary_role || selectedVendor.primaryRole },
+                  { label: 'Specialization', value: selectedVendor.specialization },
+                  { label: 'Team Size', value: selectedVendor.team_size || selectedVendor.teamSize || '1-5 Members' },
+                  { label: 'Basic Rates (Optional)', value: selectedVendor.basic_rates || selectedVendor.basicRates || 'N/A' },
+                  { label: 'Company Owner Name', value: selectedVendor.owner_name || selectedVendor.ownerName || 'N/A' },
+                  { label: 'Company Owner Contact', value: selectedVendor.owner_contact || selectedVendor.ownerContact || 'N/A' },
+                  { label: 'Established Year', value: selectedVendor.est_year || selectedVendor.estYear },
                   { label: 'Contact Person', value: selectedVendor.contact_name },
                   { label: 'Designation', value: selectedVendor.designation },
                   { label: 'Email Address', value: selectedVendor.email },
                   { label: 'Phone Number', value: selectedVendor.phone },
-                  { label: 'Corporate Address', value: `${selectedVendor.address}, ${selectedVendor.city}, ${selectedVendor.state} - ${selectedVendor.pincode}`, full: true }
+                  { label: 'Corporate Address', value: `${selectedVendor.address}, ${selectedVendor.city}, ${selectedVendor.state} - ${selectedVendor.pincode}`, full: true },
+                  { label: 'Skills & Technical Specifications', value: selectedVendor.skills_details || selectedVendor.skillsDetails || 'N/A', full: true }
                 ]} />
               </SectionCard>
 
