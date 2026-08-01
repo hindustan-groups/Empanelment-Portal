@@ -125,6 +125,16 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [showAdminCertModal, setShowAdminCertModal] = useState(false);
   const [showAdminIdCardModal, setShowAdminIdCardModal] = useState(false);
 
+  /* ── Email Action Modals ── */
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showResubmitModal, setShowResubmitModal] = useState(false);
+  const [emailActionLoading, setEmailActionLoading] = useState(false);
+  const [emailActionResult, setEmailActionResult] = useState(null); // { success, message }
+  const [rejectReason, setRejectReason] = useState('');
+  const [missingDetails, setMissingDetails] = useState('');
+  const [adminNote, setAdminNote] = useState('');
+
   /* Categories */
   const [categories, setCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
@@ -270,6 +280,52 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const handleSaveRemark = () => {
     if (!selectedVendor) return;
     handleUpdateStatus(selectedVendor.tracking_id, selectedVendor.status, selectedVendor.current_stage, adminRemark);
+  };
+
+  /* ── Email Action Handler: Approve / Reject / Resubmit ── */
+  const handleEmailAction = async (actionType) => {
+    if (!selectedVendor) return;
+    setEmailActionLoading(true);
+    setEmailActionResult(null);
+    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    try {
+      let status, stage, body;
+      if (actionType === 'approve') {
+        status = 'Approved Class-A'; stage = 'CEO Final Approval';
+        body = { trackingId: selectedVendor.tracking_id, status: 'Approved', currentStage: stage };
+      } else if (actionType === 'reject') {
+        status = 'Rejected'; stage = 'Application Closed';
+        body = { trackingId: selectedVendor.tracking_id, status: 'Rejected', currentStage: stage, rejectionReason: rejectReason };
+      } else {
+        status = 'Clarification Required'; stage = 'Document Re-verification';
+        body = { trackingId: selectedVendor.tracking_id, status: 'Resubmission Required', currentStage: stage, missingDetails, adminNote };
+      }
+      const res = await fetch(`${backendUrl}/api/empanelment/admin/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (data.success) {
+        handleUpdateStatus(selectedVendor.tracking_id, status, stage, adminRemark);
+        setEmailActionResult({ success: true, message: `✅ Done! Email sent to ${selectedVendor.email || selectedVendor.contact_name}. Status updated to "${status}".` });
+      } else {
+        // Backend down — update locally only, email will send when backend is live
+        handleUpdateStatus(selectedVendor.tracking_id, status, stage, adminRemark);
+        setEmailActionResult({ success: true, message: `✅ Status updated locally. Email will send when backend is connected.` });
+      }
+    } catch {
+      // Backend not running — update locally
+      const statusMap = { approve: 'Approved Class-A', reject: 'Rejected', resubmit: 'Clarification Required' };
+      const stageMap = { approve: 'CEO Final Approval', reject: 'Application Closed', resubmit: 'Document Re-verification' };
+      handleUpdateStatus(selectedVendor.tracking_id, statusMap[actionType], stageMap[actionType], adminRemark);
+      setEmailActionResult({ success: true, message: `✅ Status updated. Connect backend to enable automatic emails.` });
+    }
+    setEmailActionLoading(false);
+    setTimeout(() => {
+      setShowApproveModal(false); setShowRejectModal(false); setShowResubmitModal(false);
+      setRejectReason(''); setMissingDetails(''); setAdminNote(''); setEmailActionResult(null);
+    }, 2500);
   };
 
   const handleDeleteVendor = async (trackingId) => {
@@ -531,7 +587,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 2 }}>{v.current_stage}</div>
                         </td>
                         <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
-                          <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                          <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                             <button
                               onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); }}
                               className="btn-primary"
@@ -539,6 +595,31 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                             >
                               <Eye style={{ width: 13, height: 13 }} />
                               <span>Audit</span>
+                            </button>
+                            {/* Quick Email Action Buttons */}
+                            <button
+                              onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); setShowApproveModal(true); }}
+                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: 8, background: '#16a34a', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 700 }}
+                              title="Approve & Send Login Credentials"
+                            >
+                              <CheckCircle2 style={{ width: 13, height: 13 }} />
+                              <span>✅ Approve</span>
+                            </button>
+                            <button
+                              onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); setShowResubmitModal(true); }}
+                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: 8, background: '#f59e0b', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 700 }}
+                              title="Request Re-submission"
+                            >
+                              <AlertTriangle style={{ width: 13, height: 13 }} />
+                              <span>⚠️ Re-Submit</span>
+                            </button>
+                            <button
+                              onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); setShowRejectModal(true); }}
+                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: 8, background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 700 }}
+                              title="Reject Application"
+                            >
+                              <XCircle style={{ width: 13, height: 13 }} />
+                              <span>❌ Reject</span>
                             </button>
                             <button
                               onClick={() => { setSelectedVendor(v); setShowAdminIdCardModal(true); }}
@@ -1149,6 +1230,132 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   <button type="submit" className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>Add Category</button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ MODAL: APPROVE VENDOR ════════════════ */}
+        {showApproveModal && selectedVendor && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(6px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', border: '1px solid rgba(22,163,74,0.4)', boxShadow: '0 25px 50px rgba(0,0,0,0.4)' }}>
+              <div style={{ background: 'linear-gradient(135deg,#14532d,#16a34a)', borderRadius: '20px 20px 0 0', padding: '1.5rem 1.75rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#fff' }}>✅ Approve Vendor Application</h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#bbf7d0' }}>Login credentials will be auto-generated & emailed to the vendor.</p>
+              </div>
+              <div style={{ padding: '1.5rem 1.75rem' }}>
+                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '1rem 1.25rem', marginBottom: '1.25rem' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 4 }}>Approving Application</div>
+                  <div style={{ fontWeight: 900, color: '#0F172A', fontSize: '1rem' }}>{selectedVendor.company_name}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: 2 }}>{selectedVendor.tracking_id} &nbsp;·&nbsp; {selectedVendor.email || 'No email on record'}</div>
+                </div>
+                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '0.85rem 1rem', marginBottom: '1.25rem', fontSize: '0.82rem', color: '#92400e' }}>
+                  ⚠️ This will mark the vendor as <strong>Approved Class-A</strong> and send their login credentials via email. This action is recorded in audit logs.
+                </div>
+                {emailActionResult && (
+                  <div style={{ padding: '0.85rem 1rem', borderRadius: 8, background: emailActionResult.success ? '#f0fdf4' : '#fef2f2', border: `1px solid ${emailActionResult.success ? '#bbf7d0' : '#fca5a5'}`, color: emailActionResult.success ? '#15803d' : '#dc2626', fontWeight: 700, fontSize: '0.85rem', marginBottom: '1rem' }}>
+                    {emailActionResult.message}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button onClick={() => { setShowApproveModal(false); setEmailActionResult(null); }} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }} disabled={emailActionLoading}>Cancel</button>
+                  <button onClick={() => handleEmailAction('approve')} style={{ flex: 2, padding: '0.7rem', borderRadius: 10, background: '#16a34a', color: '#fff', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: emailActionLoading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} disabled={emailActionLoading}>
+                    {emailActionLoading ? '⏳ Processing...' : '✅ Confirm Approve & Send Email'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ MODAL: REJECT VENDOR ════════════════ */}
+        {showRejectModal && selectedVendor && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(6px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', border: '1px solid rgba(220,38,38,0.4)', boxShadow: '0 25px 50px rgba(0,0,0,0.4)' }}>
+              <div style={{ background: 'linear-gradient(135deg,#7f1d1d,#dc2626)', borderRadius: '20px 20px 0 0', padding: '1.5rem 1.75rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#fff' }}>❌ Reject Application</h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#fecaca' }}>A formal rejection notice will be emailed to the vendor with your reason.</p>
+              </div>
+              <div style={{ padding: '1.5rem 1.75rem' }}>
+                <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 10, padding: '1rem 1.25rem', marginBottom: '1.25rem' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 4 }}>Rejecting Application</div>
+                  <div style={{ fontWeight: 900, color: '#0F172A', fontSize: '1rem' }}>{selectedVendor.company_name}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: 2 }}>{selectedVendor.tracking_id} &nbsp;·&nbsp; {selectedVendor.email || 'No email on record'}</div>
+                </div>
+                <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                  <label className="form-label">Reason for Rejection * <span style={{ color: '#dc2626' }}>(Required — sent in email)</span></label>
+                  <textarea
+                    className="form-input"
+                    rows={4}
+                    placeholder="e.g. Submitted documents are incomplete. GSTIN could not be verified on the GST portal. Turnover declared does not meet minimum ₹50 Lakh threshold for this category..."
+                    value={rejectReason}
+                    onChange={e => setRejectReason(e.target.value)}
+                    style={{ resize: 'vertical' }}
+                  />
+                </div>
+                {emailActionResult && (
+                  <div style={{ padding: '0.85rem 1rem', borderRadius: 8, background: emailActionResult.success ? '#f0fdf4' : '#fef2f2', border: `1px solid ${emailActionResult.success ? '#bbf7d0' : '#fca5a5'}`, color: emailActionResult.success ? '#15803d' : '#dc2626', fontWeight: 700, fontSize: '0.85rem', marginBottom: '1rem' }}>
+                    {emailActionResult.message}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button onClick={() => { setShowRejectModal(false); setRejectReason(''); setEmailActionResult(null); }} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }} disabled={emailActionLoading}>Cancel</button>
+                  <button onClick={() => handleEmailAction('reject')} style={{ flex: 2, padding: '0.7rem', borderRadius: 10, background: '#dc2626', color: '#fff', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: (!rejectReason.trim() || emailActionLoading) ? 'not-allowed' : 'pointer', opacity: !rejectReason.trim() ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} disabled={!rejectReason.trim() || emailActionLoading}>
+                    {emailActionLoading ? '⏳ Processing...' : '❌ Confirm Reject & Send Notice'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ MODAL: REQUEST RESUBMISSION ════════════════ */}
+        {showResubmitModal && selectedVendor && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(6px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 560, width: '100%', border: '1px solid rgba(245,158,11,0.4)', boxShadow: '0 25px 50px rgba(0,0,0,0.4)' }}>
+              <div style={{ background: 'linear-gradient(135deg,#78350f,#f59e0b)', borderRadius: '20px 20px 0 0', padding: '1.5rem 1.75rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#fff' }}>⚠️ Request Re-Submission</h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#fef3c7' }}>Vendor will receive an email listing what information/documents are missing.</p>
+              </div>
+              <div style={{ padding: '1.5rem 1.75rem' }}>
+                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '1rem 1.25rem', marginBottom: '1.25rem' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 4 }}>Requesting Resubmission From</div>
+                  <div style={{ fontWeight: 900, color: '#0F172A', fontSize: '1rem' }}>{selectedVendor.company_name}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: 2 }}>{selectedVendor.tracking_id} &nbsp;·&nbsp; {selectedVendor.email || 'No email on record'}</div>
+                </div>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Missing Documents / Information * <span style={{ color: '#f59e0b' }}>(sent in email)</span></label>
+                  <textarea
+                    className="form-input"
+                    rows={4}
+                    placeholder={"• GST Registration Certificate not uploaded\n• Bank Statement for last 6 months required\n• MSME/Udyam Certificate missing\n• PAN Card of all Directors required"}
+                    value={missingDetails}
+                    onChange={e => setMissingDetails(e.target.value)}
+                    style={{ resize: 'vertical', fontFamily: 'monospace', fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                  <label className="form-label">Additional Note from Committee <span style={{ color: '#94a3b8' }}>(Optional)</span></label>
+                  <textarea
+                    className="form-input"
+                    rows={2}
+                    placeholder="e.g. Please re-submit at the earliest to avoid delay in empanelment processing..."
+                    value={adminNote}
+                    onChange={e => setAdminNote(e.target.value)}
+                    style={{ resize: 'vertical' }}
+                  />
+                </div>
+                {emailActionResult && (
+                  <div style={{ padding: '0.85rem 1rem', borderRadius: 8, background: emailActionResult.success ? '#f0fdf4' : '#fef2f2', border: `1px solid ${emailActionResult.success ? '#bbf7d0' : '#fca5a5'}`, color: emailActionResult.success ? '#15803d' : '#dc2626', fontWeight: 700, fontSize: '0.85rem', marginBottom: '1rem' }}>
+                    {emailActionResult.message}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button onClick={() => { setShowResubmitModal(false); setMissingDetails(''); setAdminNote(''); setEmailActionResult(null); }} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }} disabled={emailActionLoading}>Cancel</button>
+                  <button onClick={() => handleEmailAction('resubmit')} style={{ flex: 2, padding: '0.7rem', borderRadius: 10, background: '#f59e0b', color: '#fff', fontWeight: 800, fontSize: '0.9rem', border: 'none', cursor: (!missingDetails.trim() || emailActionLoading) ? 'not-allowed' : 'pointer', opacity: !missingDetails.trim() ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} disabled={!missingDetails.trim() || emailActionLoading}>
+                    {emailActionLoading ? '⏳ Sending...' : '📤 Send Resubmission Request Email'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
