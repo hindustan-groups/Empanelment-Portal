@@ -480,6 +480,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <a href="https://www.hindustanprojects.in" target="_blank" rel="noreferrer" className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.45rem 0.85rem', color: '#0047AB' }}>
+              <ExternalLink style={{ width: 14, height: 14 }} /><span>Main Corporate Site</span>
+            </a>
             <button onClick={handleExportCSV} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.45rem 0.85rem' }}>
               <Download style={{ width: 14, height: 14, color: '#10B981' }} /><span>Export CSV</span>
             </button>

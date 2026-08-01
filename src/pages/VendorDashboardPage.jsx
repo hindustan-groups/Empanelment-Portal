@@ -175,9 +175,10 @@ export default function VendorDashboardPage() {
                 <span>OFFICIAL VENDOR PORTAL</span>
               </div>
 
-              <Link to="/" style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', textDecoration: 'none', padding: '0.25rem 0.6rem', borderRadius: 8, backgroundColor: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                <span>← Main Site</span>
-              </Link>
+              <a href="https://www.hindustanprojects.in" target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', textDecoration: 'none', padding: '0.25rem 0.6rem', borderRadius: 8, backgroundColor: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                <span>🌐 Main Site</span>
+                <ExternalLink style={{ width: 12, height: 12 }} />
+              </a>
             </div>
 
             {/* Right User Status & Logout */}
