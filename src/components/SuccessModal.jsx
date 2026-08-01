@@ -139,10 +139,17 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
               {copied ? <Check style={{ width: 14, height: 14 }} /> : <Copy style={{ width: 14, height: 14 }} />}
               <span>{copied ? 'Copied!' : 'Copy Code'}</span>
             </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.35rem 0.8rem', borderRadius: 99, background: 'rgba(16,185,129,0.18)', color: '#34D399', fontSize: '0.72rem', fontWeight: 900, border: '1px solid rgba(52,211,153,0.35)' }}>
-              <ShieldCheck style={{ width: 13, height: 13 }} />
-              <span>UNDER VERIFICATION</span>
-            </div>
+            {formData?.status && String(formData.status).startsWith('Approved') ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.35rem 0.8rem', borderRadius: 99, background: 'rgba(16,185,129,0.2)', color: '#34D399', fontSize: '0.72rem', fontWeight: 900, border: '1px solid rgba(52,211,153,0.4)' }}>
+                <ShieldCheck style={{ width: 13, height: 13 }} />
+                <span>EMPANELLED & APPROVED 🟢</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.35rem 0.8rem', borderRadius: 99, background: 'rgba(245,158,11,0.2)', color: '#FCD34D', fontSize: '0.72rem', fontWeight: 900, border: '1px solid rgba(252,211,77,0.4)' }}>
+                <ShieldCheck style={{ width: 13, height: 13 }} />
+                <span>PENDING COMMITTEE AUDIT ⏳</span>
+              </div>
+            )}
           </div>
         </div>
 
