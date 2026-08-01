@@ -349,16 +349,25 @@ function renderCorporateFooterBar(pageNum, totalPages) {
 // Helper to render attachment pages for uploaded documents
 function renderDocumentAttachmentsHTML(formData, trackingId) {
   const docs = [
-    { title: 'PAN Card Certificate Attachment', key: 'panDoc', docType: 'Mandatory Income Tax Identity' },
-    { title: 'Aadhaar Card (Front) Attachment', key: 'aadharFrontDoc', docType: 'National ID & Address Proof' },
-    { title: 'Aadhaar Card (Back) Attachment', key: 'aadharBackDoc', docType: 'National ID & Address Proof' },
-    { title: 'Cancelled Bank Cheque Attachment', key: 'bankDoc', docType: 'Verified RTGS Bank Account Proof' },
-    { title: 'GST REG-06 Certificate Attachment', key: 'gstDoc', docType: 'CBIC GST Compliance Registration' },
-    { title: 'Work Portfolio & Experience Roster', key: 'portfolioDoc', docType: 'Technical Credentials & Catalog' },
-    { title: 'Experience & Completion Certificates', key: 'expDoc', docType: 'Past Execution Proof' }
+    { title: 'PAN Card Certificate Attachment', keys: ['panDoc', 'pan_doc'], docType: 'Mandatory Income Tax Identity' },
+    { title: 'Aadhaar Card (Front) Attachment', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront'], docType: 'National ID & Address Proof' },
+    { title: 'Aadhaar Card (Back) Attachment', keys: ['aadharBackDoc', 'aadhar_back_doc', 'aadharBack'], docType: 'National ID & Address Proof' },
+    { title: 'Cancelled Bank Cheque Attachment', keys: ['bankDoc', 'bank_doc'], docType: 'Verified RTGS Bank Account Proof' },
+    { title: 'GST REG-06 Certificate Attachment', keys: ['gstDoc', 'gst_doc'], docType: 'CBIC GST Compliance Registration' },
+    { title: 'Work Portfolio & Experience Roster', keys: ['portfolioDoc', 'portfolio_doc'], docType: 'Technical Credentials & Catalog' },
+    { title: 'Experience & Completion Certificates', keys: ['expDoc', 'exp_doc'], docType: 'Past Execution Proof' }
   ];
 
-  const validDocs = docs.filter(d => formData && formData[d.key]);
+  const validDocs = docs.map(d => {
+    let fileVal = null;
+    if (formData) {
+      for (const k of d.keys) {
+        if (formData[k]) { fileVal = formData[k]; break; }
+      }
+    }
+    return fileVal ? { ...d, fileVal } : null;
+  }).filter(Boolean);
+
   const totalPages = 3 + (validDocs.length > 0 ? validDocs.length : 1);
 
   let htmlStr = '';
@@ -411,7 +420,7 @@ function renderDocumentAttachmentsHTML(formData, trackingId) {
   } else {
     validDocs.forEach((doc, idx) => {
       const pageNum = 4 + idx;
-      const fileData = formData[doc.key];
+      const fileData = doc.fileVal;
       const isImgUrl = typeof fileData === 'string' && (fileData.startsWith('data:image') || fileData.startsWith('blob:') || fileData.startsWith('http'));
 
       htmlStr += `
