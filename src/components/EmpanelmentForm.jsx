@@ -19,23 +19,17 @@ const ENTITY_TYPES = [
 ];
 
 const DISCIPLINE_ROLES = [
-  { code: 'arch',        label: 'Architect & Architectural Designer' },
-  { code: 'civil',       label: 'Civil Engineer / Structural Contractor' },
-  { code: 'structural',  label: 'Structural Design Consultant' },
-  { code: 'electrical',  label: 'Electrical Engineering Consultant' },
-  { code: 'plumbing',    label: 'Plumbing & Sanitation Specialist' },
-  { code: 'fire',        label: 'Fire Protection & Safety Engineer' },
-  { code: 'hvac',        label: 'HVAC & Air Conditioning Specialist' },
-  { code: 'environment', label: 'Environment & Green Building Specialist' },
-  { code: 'planner',     label: 'Town Planner & Master Layout Designer' },
-  { code: 'urban',       label: 'Urban Designer' },
-  { code: 'landscape',   label: 'Landscape Architect' },
-  { code: 'security',    label: 'Security System Specialist' },
-  { code: 'interior',    label: 'Interior Designer & Turnkey Decor' },
-  { code: 'qs',          label: 'Quantity Surveyor & Cost Estimator' },
-  { code: 'pmc',         label: 'Project / Construction Manager (PMC)' },
-  { code: 'hospitality', label: 'Hospitality & Subject Specialist' },
-  { code: 'other',       label: '✏️ Other – Specify Below' },
+  { code: 'civil',       label: '🏗️ Civil & Structural Engineering Contractor (Class A/B/C)' },
+  { code: 'mep',         label: '⚡ MEP, HVAC & Electrical System Contractor' },
+  { code: 'arch',        label: '📐 Architect & Architectural Design Consultant' },
+  { code: 'digital',     label: '💻 Digital Solutions, IT Infrastructure & Marketing Agency' },
+  { code: 'suppliers',   label: '🚚 Material & Construction Goods Supplier / Heavy Rentals' },
+  { code: 'structural',  label: '🏢 Structural Engineering & Audit Consultant' },
+  { code: 'interior',    label: '🎨 Interior Designer & Turnkey Fit-out Contractor' },
+  { code: 'fire',        label: '🛡️ Fire Protection & Safety Systems Engineer' },
+  { code: 'soil',        label: '🧪 Geotechnical & NABL Soil Testing Laboratory' },
+  { code: 'solar',       label: '☀️ Solar & Renewable Energy EPC Contractor' },
+  { code: 'other',       label: '✏️ Other – Specify Custom Role Below' },
 ];
 
 const DEFAULT_CATEGORIES = [
