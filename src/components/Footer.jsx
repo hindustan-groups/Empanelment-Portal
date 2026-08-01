@@ -25,7 +25,15 @@ export default function Footer() {
     const saved = localStorage.getItem('hipro_site_config');
     if (saved) {
       try {
-        setSiteConfig({ ...DEFAULT_SITE_CONFIG, ...JSON.parse(saved) });
+        const parsed = JSON.parse(saved);
+        // Sanitize if old stale data exists in local storage
+        if (parsed.corporateAddress && parsed.corporateAddress.includes('Barakhamba')) {
+          delete parsed.corporateAddress;
+        }
+        if (parsed.helplinePhone && parsed.helplinePhone.includes('4500')) {
+          delete parsed.helplinePhone;
+        }
+        setSiteConfig({ ...DEFAULT_SITE_CONFIG, ...parsed });
       } catch (err) {
         console.warn('Failed to parse site config:', err);
       }

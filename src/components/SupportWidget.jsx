@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export default function SupportWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [siteConfig, setSiteConfig] = useState({
-    helplinePhone: '+91 (011) 4500 8899 / 900',
+    helplinePhone: '+91 7597000601',
     corporateEmail: 'empanelment@hindustanprojects.in',
   });
 
@@ -85,7 +85,7 @@ export default function SupportWidget() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Helpline Phone</div>
-                <div>{siteConfig.helplinePhone || '+91 (011) 4500 8899'}</div>
+                <div>{siteConfig.helplinePhone || '+91 7597000601'}</div>
               </div>
             </a>
 

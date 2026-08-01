@@ -322,8 +322,7 @@ function buildDossierHTML({ trackingId, formData }) {
       <div class="lh-company-name">Hindustan Projects</div>
       <div class="lh-company-tag">Engineering &amp; Construction | Infrastructure | Empanelment Portal</div>
       <div class="lh-company-addr">
-        Reg. Office: New Delhi, India &nbsp;|&nbsp; CIN: U45400DL2010PTC000001
-        &nbsp;|&nbsp; empanelment@hindustanprojects.in
+        Corporate Office: Bhopal Ganj, Bhilwara - 311001, Rajasthan, India &nbsp;|&nbsp; empanelment@hindustanprojects.in &nbsp;|&nbsp; +91 7597000601
       </div>
     </div>
   </div>
@@ -670,7 +669,7 @@ function buildDossierHTML({ trackingId, formData }) {
     <div class="rule-item"><div class="rule-num">8</div><div><strong>Invoice Format:</strong> GST-compliant E-Invoice (IRN) mandatory for all bills above ₹ 5 Lakhs. Pre-GST invoices rejected.</div></div>
     <div class="rule-item"><div class="rule-num">9</div><div><strong>Defect Liability:</strong> 12-month DLP from last completion certificate. Rectification within 7 days of snag notice.</div></div>
     <div class="rule-item"><div class="rule-num">10</div><div><strong>Bank Guarantee:</strong> 2.5% SD as Bank Guarantee from a scheduled commercial bank valid 6 months beyond DLP.</div></div>
-    <div class="rule-item"><div class="rule-num">11</div><div><strong>Dispute Resolution:</strong> All disputes subject to arbitration under Arbitration &amp; Conciliation Act 1996. Jurisdiction: New Delhi.</div></div>
+    <div class="rule-item"><div class="rule-num">11</div><div><strong>Dispute Resolution:</strong> All disputes subject to arbitration under Arbitration &amp; Conciliation Act 1996. Jurisdiction: Bhilwara, Rajasthan.</div></div>
     <div class="rule-item"><div class="rule-num">12</div><div><strong>Anti-Bribery:</strong> Any form of gift, kickback, or corrupt practice to HPro personnel shall lead to immediate blacklisting &amp; FIR.</div></div>
     <div class="rule-item"><div class="rule-num">13</div><div><strong>Confidentiality:</strong> All project drawings, documents, and data are strictly confidential. NDA violations attract civil &amp; criminal liability.</div></div>
     <div class="rule-item"><div class="rule-num">14</div><div><strong>Performance Score:</strong> Each vendor rated quarterly (Quality 40% | Delivery 30% | Safety 20% | Admin 10%). &lt;60% triggers de-listing.</div></div>
