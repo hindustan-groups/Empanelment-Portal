@@ -42,6 +42,7 @@ const DEFAULT_CATEGORIES = [
   { id: 'consultants',   label: 'Architects & BIM Engineering Consultants' },
   { id: 'civil',         label: 'Civil & Structural Engineering Contractors' },
   { id: 'mep',           label: 'MEP, HVAC & Electrical System Services' },
+  { id: 'digital',       label: 'Digital Solutions, IT Infrastructure & Marketing' },
   { id: 'suppliers',     label: 'Material & Construction Goods Suppliers' },
   { id: 'equipment',     label: 'Heavy Machinery & Crane Rentals' },
   { id: 'site_services', label: 'Facility & PMC Site Services' },

@@ -6,7 +6,7 @@ import { Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink, Hom
 const DEFAULT_SITE_CONFIG = {
   companyTitle: 'Hindustan Projects',
   subdomainPill: 'www.empanelment.hindustanprojects.in',
-  helplinePhone: '+91 (011) 4500 8899 / 900',
+  helplinePhone: '+91 7597000601',
   corporateEmail: 'empanelment@hindustanprojects.in'
 };
 
@@ -64,6 +64,18 @@ export default function Header() {
           >
             <PlusCircle style={{ width: 16, height: 16 }} />
             <span>Empanelment Form</span>
+          </NavLink>
+
+          <NavLink to="/tenders" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
+            <span>Tenders</span>
+          </NavLink>
+
+          <NavLink to="/about" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
+            <span>About Us</span>
+          </NavLink>
+
+          <NavLink to="/contact" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>
+            <span>Contact</span>
           </NavLink>
 
           <NavLink to="/track" className={({ isActive }) => `btn-icon-text ${isActive ? 'active' : ''}`}>

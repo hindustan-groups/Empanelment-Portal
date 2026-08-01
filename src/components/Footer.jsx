@@ -6,9 +6,9 @@ import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, Lock, Award, Clock, Arr
 const DEFAULT_SITE_CONFIG = {
   companyTitle:           'Hindustan Projects',
   subdomainPill:          'www.empanelment.hindustanprojects.in',
-  helplinePhone:          '+91 (011) 4500 8899 / 900',
+  helplinePhone:          '+91 7597000601',
   corporateEmail:         'empanelment@hindustanprojects.in',
-  corporateAddress:       'Hindustan Projects Corporate Tower, Barakhamba Road, New Delhi - 110001',
+  corporateAddress:       'Bhopal Ganj, Bhilwara - 311001, Rajasthan, India',
   footerCopyright:        '© 2026 Hindustan Projects. All Rights Reserved.',
   footerAboutText:        'Official Vendor & Contractor Empanelment Portal of Hindustan Projects. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.',
   mainWebsiteUrl:         'https://www.hindustanprojects.in',
@@ -114,8 +114,13 @@ export default function Footer() {
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.55rem', fontSize: '0.825rem', padding: 0, margin: 0 }}>
               <li><Link to="/apply" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>Submit Registration Form</Link></li>
+              <li><Link to="/tenders" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>Active Tenders & Bids</Link></li>
+              <li><Link to="/about" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>About Hindustan Projects</Link></li>
+              <li><Link to="/contact" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>Contact Headquarters</Link></li>
               <li><Link to="/track" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>Track Empanelment Status</Link></li>
               <li><Link to="/guidelines" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>Empanelment Guidelines</Link></li>
+              <li><Link to="/terms" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>Terms & Conditions</Link></li>
+              <li><Link to="/privacy" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>Privacy Policy</Link></li>
               <li><a href={siteConfig.mainWebsiteUrl || "https://hindustanprojects.in"} target="_blank" rel="noreferrer" style={{ color: '#ED1C24', textDecoration: 'none', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><span>Main Corporate Site</span> <ExternalLink style={{ width: 12, height: 12 }} /></a></li>
             </ul>
           </div>

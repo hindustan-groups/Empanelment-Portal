@@ -15,6 +15,11 @@ import AdminPage from './pages/AdminPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import VendorLoginPage from './pages/VendorLoginPage';
 import VendorDashboardPage from './pages/VendorDashboardPage';
+import AboutUs from './pages/AboutUs';
+import ContactPage from './pages/ContactPage';
+import TendersPage from './pages/TendersPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
 
 // Auto Scroll To Top Component on Route Navigation
 function ScrollToTop() {
@@ -178,6 +183,11 @@ function MainAppLayout() {
 
           <Route path="/track" element={<TrackPage />} />
           <Route path="/guidelines" element={<GuidelinesPage />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/tenders" element={<TendersPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
 
           {/* Vendor Auth & Portal Dashboard */}
           <Route path="/vendor-login" element={<VendorLoginPage />} />

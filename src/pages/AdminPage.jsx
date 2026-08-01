@@ -31,9 +31,9 @@ const DEFAULT_CATEGORIES = [
 const DEFAULT_SITE_CONFIG = {
   companyTitle:           'Hindustan Projects',
   subdomainPill:          'www.empanelment.hindustanprojects.in',
-  helplinePhone:          '+91 (011) 4500 8899 / 900',
+  helplinePhone:          '+91 7597000601',
   corporateEmail:         'empanelment@hindustanprojects.in',
-  corporateAddress:       'Hindustan Projects Corporate Tower, Barakhamba Road, New Delhi - 110001',
+  corporateAddress:       'Bhopal Ganj, Bhilwara - 311001, Rajasthan, India',
   heroBadge:              'Official Vendor & Contractor Registration FY 2026-27',
   heroTitleBlue:          'Hindustan',
   heroTitleRed:           'Projects',
