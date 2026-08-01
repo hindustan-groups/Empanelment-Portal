@@ -263,17 +263,17 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
 
         {/* § 5 — GUIDELINES PREVIEW (condensed) */}
         <div style={{ fontSize: '0.78rem', fontWeight: 900, color: BLUE, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#EFF6FF', borderLeft: `4px solid ${BLUE}`, borderRadius: '0 6px 6px 0' }}>
-          § 5 — Key Rules & Guidelines (16 rules in full print)
+          § 5 — Key Rules & Guidelines (14-Point Corporate Matrix in full print)
         </div>
         <div style={{ padding: '0.75rem 1rem', borderRadius: 10, border: '1.5px solid #DBEAFE', background: '#F8FAFF', marginBottom: '1rem', display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '0.3rem 1rem' }}>
           {[
             'Empanelment valid 2 years from approval date',
-            'No work without signed Work Order',
-            'All site personnel require valid Smart ID Card',
-            'Only ISI/BIS marked materials permitted on site',
+            'No work commences without signed Work Order',
+            '7-Day RTGS Payout SLA on approved RA Bills',
+            'Mandatory IS/BIS marked materials & NABL reports',
             'Sub-contracting requires prior written approval',
-            'RA bills submitted by 25th of every month',
-            '2.5% Security Deposit (Bank Guarantee) mandatory',
+            'GFC Drawings & BIM site data strictly confidential',
+            '5% Retention & 12-Month Defect Liability Period',
             'CVC Anti-Bribery: Zero tolerance — blacklisting + FIR',
           ].map((rule, i) => (
             <div key={i} style={{ display: 'flex', gap: '0.45rem', alignItems: 'flex-start', fontSize: '0.75rem', color: '#1E293B' }}>
@@ -282,7 +282,7 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
             </div>
           ))}
           <div style={{ gridColumn: '1/-1', fontSize: '0.72rem', color: '#64748B', fontStyle: 'italic', marginTop: 4 }}>
-            📋 See full 16-point rules, compliance standards & vendor code of conduct in the printed dossier (Page 4).
+            📋 See full 14-point rules, compliance standards & vendor code of conduct in the printed dossier (Page 3).
           </div>
         </div>
 
