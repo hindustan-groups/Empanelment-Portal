@@ -301,10 +301,10 @@ export default function VendorDashboardPage() {
                   ✓ Official Corporate Document
                 </div>
                 <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', marginBottom: '0.35rem' }}>
-                  Class-A Vendor Empanelment Certificate & A4 Dossier
+                  Official Empanelment Certificate & Verified A4 Dossier
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  Your empanelment dossier contains 4 pages of verified tax identity, banking credentials, contract declarations, and SHA-256 digital seal stamp.
+                  Your official empanelment certificate and 3-page verified corporate dossier are approved by the Procurement Committee & CEO Office. Click below to view and print.
                 </p>
               </div>
 

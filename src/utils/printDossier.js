@@ -1,7 +1,7 @@
 /**
  * ═══════════════════════════════════════════════════════════════════
  * HINDUSTAN PROJECTS — OFFICIAL VENDOR EMPANELMENT DOSSIER PRINTER
- * Generates a pixel-perfect, professional A4 letterhead print document
+ * Generates a pixel-perfect, zero-cut A4 letterhead print document
  * in an isolated iframe with page-break protection and corporate footer.
  * ═══════════════════════════════════════════════════════════════════
  */
@@ -39,9 +39,17 @@ const PRINT_CSS = `
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    width: 210mm;
+    margin: 0 auto;
+    padding: 0;
     font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-    font-size: 9pt;
+    font-size: 8.5pt;
     color: ${HP_TEXT};
     background: #FFFFFF;
     -webkit-print-color-adjust: exact !important;
@@ -49,23 +57,22 @@ const PRINT_CSS = `
     color-adjust: exact !important;
   }
 
-  /* ── Page Setup ── */
-  @page {
-    size: A4 portrait;
-    margin: 10mm 12mm 12mm 12mm;
-  }
-
   .dossier-page {
-    width: 100%;
-    min-height: 265mm;
+    width: 210mm;
+    height: 297mm;
+    max-height: 297mm;
+    padding: 10mm 15mm 12mm 15mm;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-sizing: border-box;
     page-break-after: always;
     break-after: always;
+    page-break-inside: avoid;
+    break-inside: avoid;
     position: relative;
-    padding-bottom: 5px;
+    overflow: hidden;
+    background: #FFFFFF;
   }
 
   .dossier-page:last-child {
@@ -74,9 +81,18 @@ const PRINT_CSS = `
   }
 
   @media print {
-    body { margin: 0; background: white; }
+    html, body {
+      width: 210mm;
+      margin: 0;
+      padding: 0;
+    }
     .dossier-page {
-      min-height: 260mm;
+      width: 210mm;
+      height: 297mm;
+      max-height: 297mm;
+      page-break-after: always;
+      break-after: always;
+      overflow: hidden;
     }
   }
 
@@ -86,8 +102,8 @@ const PRINT_CSS = `
     top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 260px;
-    height: 260px;
+    width: 250px;
+    height: 250px;
     opacity: 0.04;
     pointer-events: none;
     z-index: 0;
@@ -108,7 +124,7 @@ const PRINT_CSS = `
   }
   .lh-left { display: flex; align-items: center; gap: 12px; }
   .lh-logo {
-    width: 48px; height: 48px; object-fit: contain;
+    width: 46px; height: 46px; object-fit: contain;
     border-radius: 8px; border: 1.5px solid ${HP_BLUE};
     padding: 2px; background: white;
   }
@@ -163,7 +179,7 @@ const PRINT_CSS = `
   /* ── Data Table ── */
   table.dt {
     width: 100%; border-collapse: collapse;
-    margin-bottom: 8px; font-size: 8.5pt;
+    margin-bottom: 8px; font-size: 8.2pt;
     position: relative; z-index: 1;
   }
   table.dt td {
@@ -174,7 +190,7 @@ const PRINT_CSS = `
   }
   table.dt td.label {
     font-weight: 700; color: ${HP_DARK};
-    background: ${HP_GRAY}; width: 22%;
+    background: ${HP_GRAY}; width: 23%;
     font-size: 7.8pt;
   }
   table.dt td.val { color: ${HP_TEXT}; }
@@ -333,7 +349,6 @@ function renderCorporateFooterBar(pageNum, totalPages) {
 // ── HTML Generator ────────────────────────────────────────────────────────────
 function buildDossierHTML({ trackingId, formData }) {
   const filingDate = fmtDate(formData?.submitted_at);
-  const todayDate  = fmtDate(new Date());
   const entityType = (formData?.entityType || 'sole_proprietor').replace(/_/g, ' ').toUpperCase();
   const logoSrc    = '/hipro-logo.png';
 
@@ -613,9 +628,9 @@ function buildDossierHTML({ trackingId, formData }) {
 export function printDossier(trackingId, formData) {
   const html = buildDossierHTML({ trackingId, formData });
 
-  // Create hidden iframe
+  // Create hidden iframe with explicit 210mm x 297mm bounds
   const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;visibility:hidden';
+  iframe.style.cssText = 'position:fixed;top:0;left:0;width:210mm;height:297mm;border:none;visibility:hidden;z-index:-9999';
   document.body.appendChild(iframe);
 
   const doc = iframe.contentWindow.document;
@@ -628,7 +643,7 @@ export function printDossier(trackingId, formData) {
     setTimeout(() => {
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
-      setTimeout(() => document.body.removeChild(iframe), 2000);
+      setTimeout(() => document.body.removeChild(iframe), 2500);
     }, 600);
   };
 
@@ -640,6 +655,6 @@ export function printDossier(trackingId, formData) {
     } catch(e) { /* already printed */ }
     setTimeout(() => {
       try { document.body.removeChild(iframe); } catch(e) {}
-    }, 2000);
+    }, 2500);
   }, 1800);
 }
