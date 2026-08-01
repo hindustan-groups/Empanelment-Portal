@@ -130,6 +130,7 @@ export default function Footer() {
               <li><Link to="/terms" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>Terms & Conditions</Link></li>
               <li><Link to="/privacy" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 600 }}>Privacy Policy</Link></li>
               <li><a href={siteConfig.mainWebsiteUrl || "https://hindustanprojects.in"} target="_blank" rel="noreferrer" style={{ color: '#ED1C24', textDecoration: 'none', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><span>Main Corporate Site</span> <ExternalLink style={{ width: 12, height: 12 }} /></a></li>
+              <li><Link to="/internal-portal-login" style={{ color: '#0047AB', textDecoration: 'none', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}><Lock style={{ width: 12, height: 12 }} /><span>🔒 Procurement Admin Desk</span></Link></li>
             </ul>
           </div>
 
