@@ -2,32 +2,46 @@ import React, { useState } from 'react';
 import { ShieldCheck, QrCode, Printer, CheckCircle2, UserCheck, Calendar, Clock, MapPin, Building2, Truck, Users, X } from 'lucide-react';
 import Logo from './Logo';
 
-export default function GatePassModal({ isOpen, onClose, vendorData }) {
+export default function GatePassModal({ isOpen, onClose, vendorData, onPassGenerated }) {
   const [visitorName, setVisitorName] = useState('');
   const [vehicleNo, setVehicleNo] = useState('');
   const [workerCount, setWorkerCount] = useState('1');
+  const [validityDays, setValidityDays] = useState('1'); // '1' | '3' | '7' Days
   const [siteLocation, setSiteLocation] = useState('Jaipur Commercial Tower (B+G+18)');
   const [generatedPass, setGeneratedPass] = useState(null);
 
   if (!isOpen) return null;
 
   const todayStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  const expiryStr = new Date(Date.now() + 86400000).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  const daysNum = parseInt(validityDays, 10) || 1;
+  const expiryDateObj = new Date(Date.now() + (daysNum * 86400000));
+  const expiryStr = expiryDateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
   const handleGenerate = (e) => {
     e.preventDefault();
     if (!visitorName) return;
     const passCode = `HP-PASS-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    setGeneratedPass({
+    const passObj = {
       passCode,
       visitorName,
       vehicleNo: vehicleNo || 'N/A (Pedestrian Entry)',
       workerCount,
+      validityDays: `${daysNum} Day${daysNum > 1 ? 's' : ''}`,
       siteLocation,
       date: todayStr,
       validTill: `${expiryStr} 23:59 IST`,
       qrData: `${window.location.origin.includes('localhost') ? 'https://empanelment.hindustanprojects.in' : window.location.origin}/verify-pass?code=${passCode}&vendor=${vendorData?.tracking_id}`
-    });
+    };
+
+    setGeneratedPass(passObj);
+
+    // Save to local storage for Vendor Dashboard persistence
+    try {
+      const existing = JSON.parse(localStorage.getItem('hipro_vendor_site_passes') || '[]');
+      const updated = [passObj, ...existing];
+      localStorage.setItem('hipro_vendor_site_passes', JSON.stringify(updated));
+      if (typeof onPassGenerated === 'function') onPassGenerated(passObj);
+    } catch {}
   };
 
   const handlePrintPass = () => {
@@ -146,21 +160,30 @@ export default function GatePassModal({ isOpen, onClose, vendorData }) {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">
                   <label className="form-label">Worker Headcount *</label>
                   <input
                     type="number"
                     min="1"
-                    max="50"
+                    max="100"
                     required
                     className="form-input"
+                    placeholder="1 - 100"
                     value={workerCount}
                     onChange={e => setWorkerCount(e.target.value)}
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Vehicle Registration No. (Optional)</label>
+                  <label className="form-label">Pass Validity *</label>
+                  <select className="form-input" value={validityDays} onChange={e => setValidityDays(e.target.value)}>
+                    <option value="1">⏱️ 1 Day (24 Hours)</option>
+                    <option value="3">⏱️ 3 Days</option>
+                    <option value="7">⏱️ 7 Days (1 Week)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Vehicle No. (Optional)</label>
                   <input
                     type="text"
                     className="form-input"

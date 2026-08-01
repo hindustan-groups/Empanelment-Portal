@@ -40,7 +40,13 @@ export default function VendorDashboardPage() {
     ];
   });
 
-  /* Technical Tickets State */
+  /* Site Gate Passes State */
+  const [sitePasses, setSitePasses] = useState(() => {
+    const saved = localStorage.getItem('hipro_vendor_site_passes');
+    return saved ? JSON.parse(saved) : [
+      { passCode: 'HP-PASS-2026-8812', visitorName: 'Ramesh Kumar (Site Supervisor)', workerCount: '15', vehicleNo: 'RJ 06 GB 1234', validityDays: '1 Day', siteLocation: 'Jaipur Commercial Tower (B+G+18)', date: '01 Aug 2026', validTill: '02 Aug 2026 23:59 IST' }
+    ];
+  });
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [ticketForm, setTicketForm] = useState({ category: 'Construction Site Gate Pass Request', query: '' });
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
@@ -451,6 +457,56 @@ export default function VendorDashboardPage() {
                 <Printer style={{ width: 18, height: 18 }} />
                 <span>Download A4 Certificate (PDF)</span>
               </button>
+            </div>
+
+            {/* 🎟️ Issued Site Gate Passes History Card */}
+            <div style={{ marginTop: '1.5rem', padding: '1.5rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <QrCode style={{ width: 18, height: 18, color: '#0047AB' }} />
+                    <span>Issued Construction Site Gate Passes Roster:</span>
+                  </h4>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Active & Historical 24-Hr Security QR Passes generated for site supervisors and workers.</span>
+                </div>
+                <button
+                  onClick={() => setShowGatePassModal(true)}
+                  style={{ padding: '0.4rem 0.85rem', borderRadius: 8, background: '#0047AB', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                >
+                  <QrCode style={{ width: 13, height: 13 }} />
+                  <span>+ Generate New Gate Pass</span>
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {sitePasses.map((p, idx) => (
+                  <div key={idx} style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.8rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 2 }}>
+                        <span style={{ fontWeight: 900, color: '#0047AB', fontFamily: 'monospace' }}>{p.passCode}</span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 900, padding: '0.1rem 0.45rem', borderRadius: 4, background: 'rgba(16,185,129,0.15)', color: '#047857' }}>ACTIVE PASS</span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#B45309', background: 'rgba(245,158,11,0.15)', padding: '0.1rem 0.45rem', borderRadius: 4 }}>{p.validityDays || '1 Day'}</span>
+                      </div>
+                      <div style={{ fontWeight: 800, color: '#0F172A' }}>{p.siteLocation}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        Supervisor: <strong>{p.visitorName}</strong> • Workers: <strong>{p.workerCount} Personnel</strong> • Vehicle: <strong>{p.vehicleNo}</strong>
+                      </div>
+                    </div>
+
+                    <div style={{ textAlign: 'right', fontSize: '0.75rem' }}>
+                      <div style={{ color: 'var(--text-muted)' }}>Valid Till: <strong style={{ color: '#0047AB' }}>{p.validTill}</strong></div>
+                      <a
+                        href={p.qrData}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: '#047857', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', marginTop: 4 }}
+                      >
+                        <span>Verify QR Pass ↗</span>
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
