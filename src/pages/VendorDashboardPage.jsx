@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Award, FileText, Download, DollarSign, Clock, CheckCircle2, Building2, Briefcase, Lock, UserCheck, Printer, LogOut, Search, ExternalLink, FileCheck2, FolderCheck, ArrowRight, X, AlertCircle, HelpCircle, MessageSquarePlus, Send, Activity, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Award, FileText, Download, DollarSign, Clock, CheckCircle2, Building2, Briefcase, Lock, UserCheck, Printer, LogOut, Search, ExternalLink, FileCheck2, FolderCheck, ArrowRight, X, AlertCircle, HelpCircle, MessageSquarePlus, Send, Activity, ShieldAlert, QrCode, FileSignature, Bell } from 'lucide-react';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
+import GatePassModal from '../components/GatePassModal';
 import Logo from '../components/Logo';
 
 export default function VendorDashboardPage() {
   const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
   /* Active Tab & Dynamic Modals State */
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'tenders' | 'payouts' | 'documents' | 'support'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'work_orders' | 'tenders' | 'payouts' | 'documents' | 'support'
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
+  const [showGatePassModal, setShowGatePassModal] = useState(false);
   
-  /* Dynamic Bidding & Payouts State */
+  /* Work Orders & Contracts State */
+  const [workOrders] = useState([
+    { code: 'HP-WO-2026-081', project: 'Jaipur Commercial Tower (B+G+18)', package: 'Turnkey RCC Structural Package', val: '₹ 14.50 Crores', startDate: '01 Jun 2026', endDate: '30 May 2027', status: 'ACTIVE & IN EXECUTION', progress: '35%' },
+    { code: 'HP-WO-2026-042', project: 'Bhilwara Industrial Park Site-2', package: 'Site Ground Leveling & Foundation Substructure', val: '₹ 3.20 Crores', startDate: '15 Jan 2026', endDate: '10 May 2026', status: 'COMPLETED & HANDED OVER', progress: '100%' }
+  ]);
   const [biddingTender, setBiddingTender] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
   const [bidRemarks, setBidRemarks] = useState('');
@@ -208,6 +214,7 @@ export default function VendorDashboardPage() {
           <div className="vendor-dashboard-tabs" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', borderTop: '1px solid var(--border-color)', paddingTop: '0.65rem' }}>
             {[
               { id: 'overview', label: '📊 Overview & Profile', icon: Award },
+              { id: 'work_orders', label: '📜 Work Orders & Contracts', icon: FileSignature },
               { id: 'tenders', label: '🏗️ Active Tenders Radar', icon: Briefcase },
               { id: 'payouts', label: '💰 Payouts & Invoices', icon: DollarSign },
               { id: 'documents', label: '📂 Document Vault', icon: FolderCheck },
@@ -244,8 +251,23 @@ export default function VendorDashboardPage() {
       </header>
 
       {/* ════════════════ PORTAL MAIN BODY CONTENT ════════════════ */}
-      <main style={{ maxWidth: 1240, margin: '2rem auto 4rem auto', padding: '0 1.25rem' }}>
+      <main style={{ maxWidth: 1240, margin: '1.5rem auto 4rem auto', padding: '0 1.25rem' }}>
         
+        {/* Action Notification Alert Strip */}
+        <div style={{ padding: '0.75rem 1.25rem', borderRadius: 12, background: 'rgba(0,71,171,0.06)', border: '1px solid rgba(0,71,171,0.2)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', fontWeight: 700, color: '#0047AB' }}>
+            <Bell style={{ width: 16, height: 16, color: '#0047AB' }} />
+            <span><strong>Live Procurement Alert:</strong> Work Order `HP-WO-2026-081` is active. Daily site QR gate pass generation is open for site engineers.</span>
+          </div>
+          <button
+            onClick={() => setShowGatePassModal(true)}
+            style={{ padding: '0.3rem 0.75rem', borderRadius: 8, background: '#0047AB', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+          >
+            <QrCode style={{ width: 13, height: 13 }} />
+            <span>Generate Site Gate Pass</span>
+          </button>
+        </div>
+
         {/* Executive Welcome Banner */}
         <div className="vendor-welcome-banner" style={{
           padding: '1.75rem 2rem',
@@ -283,12 +305,20 @@ export default function VendorDashboardPage() {
 
           <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
             <button
+              onClick={() => setShowGatePassModal(true)}
+              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, backgroundColor: '#10B981', color: 'white', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              <QrCode style={{ width: 16, height: 16 }} />
+              <span>🎟️ Daily Site QR Gate Pass</span>
+            </button>
+
+            <button
               onClick={() => setShowCertificateModal(true)}
               className="btn-secondary"
               style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer' }}
             >
               <Printer style={{ width: 16, height: 16 }} />
-              <span>Print Official A4 Certificate</span>
+              <span>Print A4 Certificate</span>
             </button>
 
             <button
@@ -297,7 +327,7 @@ export default function VendorDashboardPage() {
               style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, cursor: 'pointer' }}
             >
               <UserCheck style={{ width: 16, height: 16 }} />
-              <span>🪪 Print Official Vendor Smart ID Card</span>
+              <span>🪪 Smart PVC ID Card</span>
             </button>
           </div>
         </div>
@@ -420,6 +450,71 @@ export default function VendorDashboardPage() {
                 <Printer style={{ width: 18, height: 18 }} />
                 <span>Download A4 Certificate (PDF)</span>
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ TAB: WORK ORDERS & EXECUTED CONTRACTS ════════════════ */}
+        {activeTab === 'work_orders' && (
+          <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <FileSignature style={{ width: 20, height: 20, color: '#0047AB' }} />
+                <span>Executed Contracts & Formal Work Orders Roster:</span>
+              </h3>
+              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                Official Work Orders issued to {vendor.company_name} by Hindustan Projects Corporate Procurement Committee.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {workOrders.map((wo, idx) => (
+                <div key={idx} style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.65rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 4 }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.6rem', borderRadius: 6, fontFamily: 'monospace' }}>
+                          {wo.code}
+                        </span>
+                        <span style={{ fontSize: '0.725rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: wo.status.includes('ACTIVE') ? 'rgba(16,185,129,0.15)' : 'rgba(0,71,171,0.15)', color: wo.status.includes('ACTIVE') ? '#047857' : '#0047AB' }}>
+                          {wo.status}
+                        </span>
+                      </div>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A' }}>{wo.project} — {wo.package}</h4>
+                    </div>
+
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>{wo.val}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Progress Completion: <strong>{wo.progress}</strong></div>
+                    </div>
+                  </div>
+
+                  {/* Execution Timeline & Actions Bar */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    <div>Execution Timeline: <strong>{wo.startDate}</strong> to <strong>{wo.endDate}</strong></div>
+                    
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        onClick={() => setShowGatePassModal(true)}
+                        className="btn-secondary"
+                        style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: 8, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                      >
+                        <QrCode style={{ width: 13, height: 13 }} />
+                        <span>Site Gate Pass</span>
+                      </button>
+
+                      <button
+                        onClick={() => alert(`Downloading Official Work Order PDF for ${wo.code}...`)}
+                        className="btn-accent"
+                        style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: 8, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                      >
+                        <FileText style={{ width: 13, height: 13 }} />
+                        <span>Work Order PDF</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -1092,6 +1187,15 @@ export default function VendorDashboardPage() {
         <VendorIdCardModal
           isOpen={showIdCardModal}
           onClose={() => setShowIdCardModal(false)}
+          vendorData={vendor}
+        />
+      )}
+
+      {/* ════════════════ DAILY SITE QR GATE PASS MODAL ════════════════ */}
+      {showGatePassModal && (
+        <GatePassModal
+          isOpen={showGatePassModal}
+          onClose={() => setShowGatePassModal(false)}
           vendorData={vendor}
         />
       )}
