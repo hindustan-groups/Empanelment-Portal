@@ -408,10 +408,8 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         e.otherCategory = 'Please specify your business category';
       }
 
-      if (!formData.nbcSubCategory) {
-        e.nbcSubCategory = 'Please select NBC Building Code Classification / Sub-Category';
-      } else if (formData.nbcSubCategory === 'other' && !(formData.otherNbcSubCategory || '').trim()) {
-        e.otherNbcSubCategory = 'Please specify your building sub-category';
+      if (!(formData.specialization || '').trim()) {
+        e.specialization = 'Please type your core Specialization (e.g. Structural Audit, RCC Construction, Organic Produce)';
       }
 
       if (formData.entityType === 'other' && !(formData.otherEntityType || '').trim()) {
