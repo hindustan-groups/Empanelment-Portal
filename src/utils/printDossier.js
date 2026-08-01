@@ -348,31 +348,36 @@ function renderCorporateFooterBar(pageNum, totalPages) {
 
 // Helper to render attachment pages for uploaded documents
 function renderDocumentAttachmentsHTML(formData, trackingId) {
-  const allDocCategories = [
-    { title: 'Permanent Account Number (PAN Card)', keys: ['panDoc', 'pan_doc'], docType: 'Mandatory Income Tax Identity Document', defaultFileName: 'pan_card_document.pdf' },
-    { title: 'Aadhaar Card (National Identity & Address Proof)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc'], docType: 'Mandatory UIDAI National Identity Proof', defaultFileName: 'aadhaar_card_scans.pdf' },
-    { title: 'Cancelled Bank Cheque Copy', keys: ['bankDoc', 'bank_doc'], docType: 'Verified Bank Account & RTGS Payout Proof', defaultFileName: 'cancelled_cheque_copy.pdf' },
-    { title: 'GST REG-06 Registration Certificate', keys: ['gstDoc', 'gst_doc'], docType: 'CBIC Statutory GST Compliance Registration', defaultFileName: 'gst_reg_06_certificate.pdf' },
-    { title: 'Technical Work Portfolio & Equipment Catalog', keys: ['portfolioDoc', 'portfolio_doc'], docType: 'Technical Capability Roster & Inventory Catalog', defaultFileName: 'company_work_portfolio.pdf' },
-    { title: 'Past Work Experience & Completion Certificates', keys: ['expDoc', 'exp_doc'], docType: 'CPWD / Corporate Work Order Execution Proof', defaultFileName: 'work_completion_certificates.pdf' }
+  const categories = [
+    { title: 'Permanent Account Number (PAN Card)', keys: ['panDoc', 'pan_doc'], docType: 'Mandatory Income Tax Identity Document' },
+    { title: 'Aadhaar Card (National Identity & Address Proof)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc'], docType: 'Mandatory UIDAI National Identity Proof' },
+    { title: 'Cancelled Bank Cheque Copy', keys: ['bankDoc', 'bank_doc'], docType: 'Verified Bank Account & RTGS Payout Proof' },
+    { title: 'GST REG-06 Registration Certificate', keys: ['gstDoc', 'gst_doc'], docType: 'CBIC Statutory GST Compliance Registration' },
+    { title: 'Technical Work Portfolio & Equipment Catalog', keys: ['portfolioDoc', 'portfolio_doc'], docType: 'Technical Capability Roster & Inventory Catalog' },
+    { title: 'Past Work Experience & Completion Certificates', keys: ['expDoc', 'exp_doc'], docType: 'CPWD / Corporate Work Order Execution Proof' }
   ];
 
-  const totalPages = 3 + allDocCategories.length;
-  let htmlStr = '';
-
-  allDocCategories.forEach((doc, idx) => {
-    const pageNum = 4 + idx;
+  // ONLY include documents that were ACTUALLY uploaded by the applicant
+  const activeUploadedDocs = categories.map(cat => {
     let fileVal = null;
     if (formData) {
-      for (const k of doc.keys) {
+      for (const k of cat.keys) {
         if (formData[k]) { fileVal = formData[k]; break; }
       }
     }
+    return fileVal ? { ...cat, fileVal } : null;
+  }).filter(Boolean);
 
-    const fileName = fileVal
-      ? (typeof fileVal === 'object' && fileVal?.name ? fileVal.name : String(fileVal))
-      : doc.defaultFileName;
+  // If user uploaded 0 documents, return empty string so no blank attachment pages print
+  if (activeUploadedDocs.length === 0) return '';
 
+  const totalPages = 3 + activeUploadedDocs.length;
+  let htmlStr = '';
+
+  activeUploadedDocs.forEach((doc, idx) => {
+    const pageNum = 4 + idx;
+    const fileVal = doc.fileVal;
+    const fileName = typeof fileVal === 'object' && fileVal?.name ? fileVal.name : String(fileVal);
     const isImgUrl = typeof fileVal === 'string' && (fileVal.startsWith('data:image') || fileVal.startsWith('blob:') || fileVal.startsWith('http'));
 
     htmlStr += `
@@ -390,7 +395,7 @@ function renderDocumentAttachmentsHTML(formData, trackingId) {
           <div style="text-align:right;font-size:8pt;color:${HP_MUTED};font-weight:700">Ref: HP-EMP-DOC-${trackingId}</div>
         </div>
 
-        <div class="section-heading">ATTACHMENT SHEET ${idx + 1} OF ${allDocCategories.length} — ${doc.title.toUpperCase()}</div>
+        <div class="section-heading">ATTACHMENT SHEET ${idx + 1} OF ${activeUploadedDocs.length} — ${doc.title.toUpperCase()}</div>
 
         <div style="border:2px solid ${HP_BLUE};border-radius:12px;padding:20px;background:#F8FAFC;margin-top:14px;min-height:175mm;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative">
           ${isImgUrl ? `
