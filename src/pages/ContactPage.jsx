@@ -1,17 +1,60 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react';
+import SecurityCaptcha from '../components/SecurityCaptcha';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  const [spamError, setSpamError] = useState('');
+  
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', company: '', department: 'Empanelment Helpdesk', customDepartment: '', message: ''
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    department: 'Empanelment Helpdesk',
+    customDepartment: '',
+    message: '',
+    website_url_hp: '' // 🍯 Honeypot Trap field for anti-spambots
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.name && formData.email && formData.message) {
-      setSubmitted(true);
+    setSpamError('');
+
+    // 1. 🍯 Honeypot Check: Spambot trap field must be empty
+    if (formData.website_url_hp && formData.website_url_hp.trim() !== '') {
+      console.warn('Spambot detected via Honeypot trap!');
+      setSubmitted(true); // Silently block bot without error feedback
+      return;
     }
+
+    // 2. ⏱️ Rate Limiting Check: 60-second cooldown per session
+    const lastSubTime = sessionStorage.getItem('hipro_last_contact_sub');
+    if (lastSubTime) {
+      const secondsPassed = Math.floor((Date.now() - parseInt(lastSubTime, 10)) / 1000);
+      if (secondsPassed < 60) {
+        setSpamError(`Anti-Spam Rate Limit: Please wait ${60 - secondsPassed} seconds before sending another inquiry.`);
+        return;
+      }
+    }
+
+    // 3. 🔒 Captcha Check: Math challenge must be solved
+    if (!isCaptchaVerified) {
+      setSpamError('Security Check Required: Please solve the Anti-Bot Math Security Challenge below before submitting.');
+      return;
+    }
+
+    // 4. 🛡️ Content Filter Check: Max 2 links & no malicious HTML
+    const linkMatches = (formData.message.match(/https?:\/\//gi) || []).length;
+    if (linkMatches > 2 || /<script|javascript:/i.test(formData.message)) {
+      setSpamError('Security Filter: Excessive links or disallowed characters detected in message body.');
+      return;
+    }
+
+    // Valid human submission
+    sessionStorage.setItem('hipro_last_contact_sub', Date.now().toString());
+    setSubmitted(true);
   };
 
   return (
@@ -115,6 +158,14 @@ export default function ContactPage() {
             Fill out the form below and our procurement officer will respond within 24 business hours.
           </p>
 
+          {/* Spam Warning Banner */}
+          {spamError && (
+            <div style={{ padding: '0.85rem 1rem', borderRadius: 12, backgroundColor: '#FEF2F2', border: '1.5px solid #EF4444', color: '#B91C1C', fontSize: '0.825rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+              <ShieldAlert style={{ width: 18, height: 18, flexShrink: 0 }} />
+              <span>{spamError}</span>
+            </div>
+          )}
+
           {submitted ? (
             <div style={{ padding: '2rem', backgroundColor: '#ECFDF5', border: '1.5px solid #10B981', borderRadius: 16, textAlign: 'center', color: '#047857' }}>
               <CheckCircle2 style={{ width: 48, height: 48, margin: '0 auto 0.75rem auto', color: '#10B981' }} />
@@ -123,7 +174,7 @@ export default function ContactPage() {
                 Thank you, {formData.name}. Your message has been routed to our Procurement Helpdesk. Reference Ticket: <strong>HIPRO-TICK-{Math.floor(1000 + Math.random() * 9000)}</strong>
               </p>
               <button
-                onClick={() => { setSubmitted(false); setFormData({ name: '', email: '', phone: '', company: '', department: 'Empanelment Helpdesk', message: '' }); }}
+                onClick={() => { setSubmitted(false); setIsCaptchaVerified(false); setSpamError(''); setFormData({ name: '', email: '', phone: '', company: '', department: 'Empanelment Helpdesk', customDepartment: '', message: '', website_url_hp: '' }); }}
                 style={{ marginTop: '1.25rem', padding: '0.5rem 1.2rem', backgroundColor: '#047857', color: 'white', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}
               >
                 Send Another Message
@@ -131,6 +182,18 @@ export default function ContactPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              
+              {/* 🍯 Hidden Honeypot Field for Spambot Trapping */}
+              <input
+                type="text"
+                name="website_url_hp"
+                value={formData.website_url_hp}
+                onChange={e => setFormData({ ...formData, website_url_hp: e.target.value })}
+                style={{ display: 'none', position: 'absolute', left: '-9999px' }}
+                tabIndex="-1"
+                autoComplete="off"
+              />
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', marginBottom: 4 }}>Full Name *</label>
@@ -223,10 +286,13 @@ export default function ContactPage() {
                 />
               </div>
 
+              {/* 🔒 Anti-Bot Security Challenge Captcha */}
+              <SecurityCaptcha onCaptchaVerify={(status) => setIsCaptchaVerified(status)} />
+
               <button
                 type="submit"
                 className="btn-accent"
-                style={{ padding: '0.75rem 1.5rem', fontSize: '0.9rem', borderRadius: 12, marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                style={{ padding: '0.75rem 1.5rem', fontSize: '0.9rem', borderRadius: 12, marginTop: '0.25rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
               >
                 <Send style={{ width: 16, height: 16 }} />
                 <span>Submit Inquiry</span>
