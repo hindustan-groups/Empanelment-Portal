@@ -101,12 +101,12 @@ const PRINT_CSS = `
   /* ── Watermark ── */
   .watermark {
     position: absolute;
-    top: 45%;
+    top: 48%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 260px;
-    height: 260px;
-    opacity: 0.04;
+    width: 340px;
+    height: 340px;
+    opacity: 0.10;
     pointer-events: none;
     z-index: 0;
     background: url('/hipro-logo.png') center/contain no-repeat;
