@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Scale, AlertTriangle, ShieldCheck, CheckSquare, Award } from 'lucide-react';
+import { X, ShieldCheck, Scale, FileText, Lock, AlertTriangle } from 'lucide-react';
 
 export default function TermsModal({ isOpen, onClose }) {
   if (!isOpen) return null;
@@ -16,60 +16,60 @@ export default function TermsModal({ isOpen, onClose }) {
         </button>
 
         <div className="flex items-center gap-3 mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">
-          <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950 text-[#ED1C24]">
+          <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950 text-[#0047AB]">
             <Scale className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Empanelment Terms & Anti-Bribery Integrity Pact</h3>
-            <p className="text-xs text-slate-500">Official Conditions for Registration on empanel.hindustanprojects.in</p>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Empanelment Terms &amp; Conditions</h3>
+            <p className="text-xs text-slate-500">Hindustan Projects Procurement Governance (empanelment.hindustanprojects.in)</p>
           </div>
         </div>
 
         <div className="space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
           <section className="space-y-2">
             <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-              <CheckSquare className="w-4 h-4 text-blue-600" />
-              <span>1. Accuracy of Submitted Credentials</span>
+              <Scale className="w-4 h-4 text-blue-600" />
+              <span>1. Empanelment Scope &amp; Eligibility</span>
             </h4>
             <p>
-              By filing an empanelment application, the applicant vendor warrants that all information, GSTIN, PAN numbers, audited balance sheets, and work completion certificates provided are authentic and true copies. Submission of forged or misleading documents will result in immediate disqualification and legal action under statutory penal laws.
+              Empanelment on <strong>empanelment.hindustanprojects.in</strong> grants contractors and vendors bidding eligibility for tender allocation across commercial and residential projects of Hindustan Projects. Empanelment is subject to document verification and corporate committee approval.
             </p>
           </section>
 
           <section className="space-y-2">
             <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>2. Anti-Blacklisting & Integrity Declaration</span>
+              <FileText className="w-4 h-4 text-emerald-600" />
+              <span>2. Document Authenticity &amp; Integrity</span>
             </h4>
             <p>
-              The applying firm certifies that it is not blacklisted, debarred, or suspended by any Central/State Government PSU, Public Works Department (PWD), National Highway Authority (NHAI), or Indian Railways as of the date of application.
+              Applicants affirm that all uploaded GST, PAN, Udyam MSME certificates, bank documents, and turnover statements are authentic. Submission of forged or misleading credentials will lead to immediate rejection, permanent blacklisting, and legal action.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-purple-600" />
+              <span>3. Smart PVC ID Card &amp; Site Gate Access</span>
+            </h4>
+            <p>
+              Empanelled vendors are issued Smart PVC ID Cards with embedded QR verification. Site gate passes are generated via Vendor Dashboard. Cards and passes are non-transferable and must be presented to site security on demand.
             </p>
           </section>
 
           <section className="space-y-2">
             <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-600" />
-              <span>3. Zero Tolerance for Corruption & Bribery</span>
+              <span>4. Performance Standards &amp; De-Listing</span>
             </h4>
             <p>
-              Hindustan Projects maintains a strict zero-tolerance policy towards bribery, illegal gratification, or influence peddling. Any vendor offering unlawful commission to HiPRO employees or consultants will be permanently blacklisted across all project sites.
-            </p>
-          </section>
-
-          <section className="space-y-2">
-            <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-              <Award className="w-4 h-4 text-purple-600" />
-              <span>4. Empanelment Rights & Tender Issuance</span>
-            </h4>
-            <p>
-              Empanelment approval assigns a registered status to the vendor but does not guarantee the automatic award of work orders or contracts. Tenders and Purchase Orders will be invited as per project requirement and competitive financial bidding.
+              Empaneled vendors must adhere to NBC 2016 safety norms, IS material standards, and 14-Point Corporate Code of Conduct. Quarter performance scores dropping below 60% will trigger automatic de-listing.
             </p>
           </section>
         </div>
 
         <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 text-right">
           <button onClick={onClose} className="btn-primary">
-            Accept & Continue
+            I Understand &amp; Accept Terms
           </button>
         </div>
 

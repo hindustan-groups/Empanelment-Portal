@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ShieldCheck, Lock, Eye, FileText, Database } from 'lucide-react';
+import { X, ShieldCheck, Lock, Eye, FileText, Database, Server } from 'lucide-react';
 
 export default function PrivacyPolicyModal({ isOpen, onClose }) {
   if (!isOpen) return null;
@@ -20,8 +20,8 @@ export default function PrivacyPolicyModal({ isOpen, onClose }) {
             <Lock className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Privacy & Vendor Data Protection Policy</h3>
-            <p className="text-xs text-slate-500">Hindustan Projects Infrastructure Ltd. (empanel.hindustanprojects.in)</p>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Privacy &amp; Vendor Data Protection Policy</h3>
+            <p className="text-xs text-slate-500">Hindustan Projects Corporate Infrastructure (empanelment.hindustanprojects.in)</p>
           </div>
         </div>
 
@@ -29,47 +29,47 @@ export default function PrivacyPolicyModal({ isOpen, onClose }) {
           <section className="space-y-2">
             <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
               <Database className="w-4 h-4 text-blue-600" />
-              <span>1. Information Collection & Statutory Use</span>
+              <span>1. Information Collection &amp; Statutory Processing</span>
             </h4>
             <p>
-              When applying for vendor empanelment on <strong>empanel.hindustanprojects.in</strong>, we collect business registration details including Company Name, GSTIN, PAN, MSME Udyam Registration, Audited Turnovers, and Bank Account credentials. This data is exclusively processed for vendor eligibility screening, statutory tax compliance, and procurement contract allocation.
+              When applying for vendor empanelment on <strong>empanelment.hindustanprojects.in</strong>, we collect corporate registration credentials including Company Name, GSTIN, PAN, MSME Udyam Registration, Audited Turnovers, and Bank Account credentials. This data is exclusively processed for vendor eligibility screening, statutory tax compliance, and contract allocation.
             </p>
           </section>
 
           <section className="space-y-2">
             <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>2. Encryption & Bank-Grade Security</span>
+              <span>2. 256-Bit SSL Vault Security</span>
             </h4>
             <p>
-              All uploaded verification documents (GST Certificates, Cancelled Cheques, PAN Cards) are stored in encrypted cloud vaults adhering to ISO 27001 data safety protocols. Access is strictly restricted to authorized members of the HiPRO Vendor Empanelment & Procurement Audit Committee.
+              All uploaded verification documents (GST REG-06, Cancelled Cheques, PAN Cards, Aadhaar Scans) are stored in encrypted cloud vaults adhering to ISO 27001 data safety protocols. Access is strictly restricted to authorized members of the Hindustan Projects Audit &amp; Procurement Committee.
             </p>
           </section>
 
           <section className="space-y-2">
             <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
               <Eye className="w-4 h-4 text-amber-600" />
-              <span>3. Non-Disclosure & Third-Party Protection</span>
+              <span>3. Non-Disclosure &amp; Commercial Confidentiality</span>
             </h4>
             <p>
-              Hindustan Projects does not sell, lease, or share vendor commercial data with commercial third parties. Data may only be shared with Statutory Govt Authorities (GST Network, Income Tax Dept, PSU Audit Bodies) upon official legal requisition.
+              Hindustan Projects does not sell, lease, or share vendor commercial data with third-party commercial entities. Data may only be shared with Statutory Govt Authorities (GST Network, Income Tax Dept, CVC Audit Bodies) upon official legal requisition.
             </p>
           </section>
 
           <section className="space-y-2">
             <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-              <FileText className="w-4 h-4 text-purple-600" />
-              <span>4. Data Retention & Vendor Right to Update</span>
+              <Server className="w-4 h-4 text-purple-600" />
+              <span>4. Data Retention &amp; Vendor Rights</span>
             </h4>
             <p>
-              Empaneled vendor records are retained for the duration of the active empanelment period (3 Years) and subsequent statutory retention mandates. Vendors can submit official requests to update address, bank details, or turnover certificates by contacting <code>empanelment@hindustanprojects.in</code>.
+              Empaneled vendor records are retained for the duration of the active empanelment period (up to 3 Years) and subsequent statutory retention mandates under the IT Act 2000. Vendors can submit official requests to update credentials by writing to <code>empanelment@hindustanprojects.in</code>.
             </p>
           </section>
         </div>
 
         <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 text-right">
           <button onClick={onClose} className="btn-primary">
-            I Understand & Agree
+            I Understand &amp; Agree
           </button>
         </div>
 
