@@ -47,8 +47,8 @@ export default function PaymentSlip({ isMsme, category }) {
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>Official Bank Payout Details</div>
           <div style={{ fontSize: '0.775rem', marginTop: '0.25rem', lineHeight: 1.4 }}>
             <div>Bank: <strong>HDFC Bank Ltd</strong></div>
-            <div>Account Name: <strong>Hindustan Projects Corporate</strong></div>
-            <div>A/C No: <strong>50200088991200</strong> | IFSC: <strong>HDFC0001234</strong></div>
+            <div>Payout via: <strong>RTGS / NEFT Direct Transfer</strong></div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 2 }}>Bank details shared privately after empanelment approval.</div>
           </div>
         </div>
 

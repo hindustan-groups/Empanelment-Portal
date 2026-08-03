@@ -26,16 +26,10 @@ export default function AdminLoginPage({ onLoginSuccess }) {
 
     setErrorMsg('');
 
-    // Dynamic Password Check: Check localStorage set password first, then env or fallback
-    const savedPassword = localStorage.getItem('hipro_admin_password');
+    // Dynamic Password Check: Check localStorage set password first, then env variable
+    const savedPassword = localStorage.getItem('hipro_admin_pwd');
     const envPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'HindustanAdmin2026#';
-
-    const validPasswords = [
-      savedPassword,
-      envPassword,
-      'HindustanAdmin2026#',
-      'admin123'
-    ].filter(Boolean);
+    const validPasswords = [savedPassword, envPassword].filter(Boolean);
 
     if (validPasswords.includes(password.trim())) {
       // 4-Hour Expiring Corporate Session Token
@@ -104,7 +98,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
               </button>
             </div>
             <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-              Corporate Passcode: <strong>HindustanAdmin2026#</strong> (or <strong>admin123</strong>)
+              Contact IT Administrator for access credentials.
             </div>
           </div>
 

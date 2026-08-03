@@ -83,10 +83,10 @@ export default function GstVerifier({ gstin, pan, onVerifySuccess }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <ShieldCheck style={{ width: 18, height: 18, color: '#0047AB' }} />
-          <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>Automated GSTN & Income Tax Verification Engine</span>
+          <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>GSTIN & PAN Format Verification</span>
         </div>
-        <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.2rem 0.65rem', borderRadius: 9999, backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#047857' }}>
-          Government GSTN Portal Sync
+        <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.2rem 0.65rem', borderRadius: 9999, backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#B45309' }}>
+          Format Validation Only
         </span>
       </div>
 

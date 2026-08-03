@@ -126,7 +126,7 @@ function MainAppLayout() {
       signature_data: formData?.signature || null,
       status: 'Under Verification',
       current_stage: 'Financial Committee Audit',
-      ip_address: '103.45.12.' + Math.floor(Math.random() * 200),
+      ip_address: 'client-side-submission',
       admin_remarks: '',
       submitted_at: new Date().toISOString()
     };

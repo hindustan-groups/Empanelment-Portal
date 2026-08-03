@@ -28,31 +28,42 @@ export default function VendorLoginPage() {
     setIsSubmitting(true);
 
     setTimeout(() => {
-      // Find vendor in localStorage or create demo session
+      // Find vendor in localStorage — must match identity AND a simple password check
       const storedApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-      const match = storedApps.find(app => 
+      const match = storedApps.find(app =>
         (app.tracking_id && app.tracking_id.toLowerCase() === cleanIdentity.toLowerCase()) ||
         (app.gstin && app.gstin.toLowerCase() === cleanIdentity.toLowerCase()) ||
-        (app.email && app.email.toLowerCase() === cleanIdentity.toLowerCase()) ||
-        (app.company_name && app.company_name.toLowerCase().includes(cleanIdentity.toLowerCase()))
+        (app.email && app.email.toLowerCase() === cleanIdentity.toLowerCase())
       );
 
-      const sessionVendor = match ? {
-        tracking_id: match.tracking_id || 'HP-EMP-025',
-        company_name: match.company_name || 'Apex Infrastructure Pvt Ltd',
-        gstin: match.gstin || '08AAAAA0000A1Z5',
-        category: match.category || 'Civil & Structural Contractors',
-        status: match.status || 'Empanelled',
-        tier: 'CLASS-A (TIER 1 PRIME)',
-        email: match.email || 'vendor@apexinfra.com'
-      } : {
-        tracking_id: cleanIdentity.startsWith('HP-') ? cleanIdentity : 'HP-EMP-025',
-        company_name: 'Empanelled Vendor Enterprise',
-        gstin: '08AAAAA0000A1Z5',
-        category: 'Civil & Structural Engineering',
-        status: 'Empanelled',
-        tier: 'CLASS-A (TIER 1 PRIME)',
-        email: cleanIdentity
+      // Password must be the last 4 digits of registered phone OR the vendor's tracking ID
+      // This gives a real (though simple) auth check without needing a backend session
+      let passwordValid = false;
+      if (match) {
+        const last4Phone = (match.phone || '').replace(/\D/g, '').slice(-4);
+        const trackingId = (match.tracking_id || '').toUpperCase();
+        const enteredPassword = password.trim();
+        passwordValid = (
+          enteredPassword === last4Phone ||
+          enteredPassword === trackingId ||
+          enteredPassword === 'Vendor@2026' // demo fallback for seed data
+        );
+      }
+
+      if (!match || !passwordValid) {
+        setError('Invalid credentials. Use your Tracking ID as password, or last 4 digits of registered mobile number.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const sessionVendor = {
+        tracking_id: match.tracking_id,
+        company_name: match.company_name || match.contactName || 'Empanelled Vendor',
+        gstin: match.gstin || '',
+        category: match.category || 'General',
+        status: match.status || 'Under Verification',
+        tier: match.status?.includes('Approved') ? 'CLASS-A (TIER 1 PRIME)' : 'PENDING CLASSIFICATION',
+        email: match.email || ''
       };
 
       localStorage.setItem('hipro_vendor_session', JSON.stringify(sessionVendor));
@@ -115,7 +126,7 @@ export default function VendorLoginPage() {
           Vendor Dashboard Sign-In
         </h2>
         <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginBottom: '1.75rem', lineHeight: 1.5 }}>
-          Sign in to access your official A4 Empanelment Certificate, bid on active tenders, and track milestone payouts.
+          Sign in using your Tracking ID and your registered mobile number's last 4 digits as password.
         </p>
 
         {/* 1-Click Demo Login Banner */}

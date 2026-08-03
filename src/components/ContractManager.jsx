@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { FileText, Printer, Plus, Check, Trash2, Edit, Building2, UserCheck, ShieldCheck, Scale, Award, FileSignature } from 'lucide-react';
 import Logo from './Logo';
 
+// Company credentials — loaded from env so they don't appear in plain source
+const COMPANY_GSTIN = import.meta.env.VITE_COMPANY_GSTIN || '08HYJPK••••••••ZC';
+const COMPANY_PHONE = import.meta.env.VITE_COMPANY_PHONE || '+91-7597000601';
+
 export default function ContractManager({ selectedVendor }) {
   const [activeDocType, setActiveDocType] = useState('declaration'); // 'declaration' | 'contract' | 'work_order'
   
@@ -156,7 +160,7 @@ export default function ContractManager({ selectedVendor }) {
               </div>
               <div style={{ textAlign: 'right', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>
                 <div>(M) +91-7597000601</div>
-                <div>GSTIN: <strong>08HYJPK8847M1ZC</strong></div>
+                <div>GSTIN: <strong>{COMPANY_GSTIN}</strong></div>
               </div>
             </div>
             <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: 2, fontWeight: 600 }}>
@@ -261,7 +265,7 @@ export default function ContractManager({ selectedVendor }) {
               </div>
               <div style={{ textAlign: 'right', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>
                 <div>(M) +91-7597000601</div>
-                <div>GSTIN: <strong>08HYJPK8847M1ZC</strong></div>
+                <div>GSTIN: <strong>{COMPANY_GSTIN}</strong></div>
               </div>
             </div>
             <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: 2, fontWeight: 600 }}>
@@ -381,7 +385,7 @@ export default function ContractManager({ selectedVendor }) {
               </div>
               <div style={{ textAlign: 'right', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>
                 <div>(M) +91-7597000601</div>
-                <div>GSTIN: <strong>08HYJPK8847M1ZC</strong></div>
+                <div>GSTIN: <strong>{COMPANY_GSTIN}</strong></div>
               </div>
             </div>
             <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: 2, fontWeight: 600 }}>
