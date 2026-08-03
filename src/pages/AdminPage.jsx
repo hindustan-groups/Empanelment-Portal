@@ -468,45 +468,74 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   return (
     <div style={{ maxWidth: 1280, margin: '2rem auto 5rem auto', padding: '0 1.5rem' }}>
-      <div className="form-card" style={{ padding: '1.75rem 2rem' }}>
+      <div className="form-card" style={{ padding: '2rem', borderRadius: 24, boxShadow: '0 12px 40px rgba(0,0,0,0.06)' }}>
 
-        {/* ── Header ── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Logo height={40} />
+        {/* ── Executive Command Header ── */}
+        <div style={{ 
+          background: 'linear-gradient(135deg, #0F172A 0%, #0B1B3D 50%, #0047AB 100%)', 
+          borderRadius: 20, 
+          padding: '1.5rem 1.75rem', 
+          color: 'white', 
+          marginBottom: '1.75rem',
+          boxShadow: '0 8px 30px rgba(0, 71, 171, 0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1.25rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ padding: '0.6rem', borderRadius: 14, backgroundColor: 'rgba(255, 255, 255, 0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <Logo height={42} />
+            </div>
             <div>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 900 }}>Corporate Procurement Admin Dashboard</h2>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Hindustan Projects VPS • Real-time Vendor Management</p>
+              <div style={{ fontSize: '0.725rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block', boxShadow: '0 0 10px #10B981' }}></span>
+                EXECUTIVE PROCUREMENT CONTROL CENTER • HINDUSTAN PROJECTS
+              </div>
+              <h2 style={{ fontSize: '1.45rem', fontWeight: 900, marginTop: 2, marginBottom: 2, letterSpacing: '-0.01em' }}>
+                Corporate Admin &amp; Vendor Management Console
+              </h2>
+              <div style={{ fontSize: '0.78rem', color: '#94A3B8', fontWeight: 600 }}>
+                VPS SQLite Database Sync • Real-Time Dossier Auditing &amp; Smart PVC ID Issuance
+              </div>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <a href="https://www.hindustanprojects.in" target="_blank" rel="noreferrer" className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.45rem 0.85rem', color: '#0047AB' }}>
-              <ExternalLink style={{ width: 14, height: 14 }} /><span>Main Corporate Site</span>
+
+          <div style={{ display: 'flex', gap: '0.55rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <a href="https://www.hindustanprojects.in" target="_blank" rel="noreferrer" className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.95rem', color: 'white', backgroundColor: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.2)' }}>
+              <ExternalLink style={{ width: 14, height: 14 }} /><span>Main Site</span>
             </a>
-            <button onClick={handleExportCSV} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.45rem 0.85rem' }}>
-              <Download style={{ width: 14, height: 14, color: '#10B981' }} /><span>Export CSV</span>
+            <button onClick={handleExportCSV} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.95rem', color: 'white', backgroundColor: 'rgba(16,185,129,0.2)', borderColor: 'rgba(16,185,129,0.4)' }}>
+              <Download style={{ width: 14, height: 14, color: '#34D399' }} /><span>Export CSV</span>
             </button>
-            <button onClick={fetchVendors} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.45rem 0.85rem' }}>
+            <button onClick={fetchVendors} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.95rem', color: 'white', backgroundColor: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.2)' }}>
               <RefreshCw style={{ width: 14, height: 14 }} className={loading ? 'animate-spin' : ''} /><span>Refresh</span>
             </button>
-            <button onClick={() => window.print()} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.45rem 0.85rem' }}>
-              <Printer style={{ width: 14, height: 14 }} /><span>Print</span>
-            </button>
-            <button onClick={onLogout} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.45rem 0.85rem', color: '#ED1C24', borderColor: 'rgba(237,28,36,0.25)' }}>
+            <button onClick={onLogout} className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.95rem', color: '#FCA5A5', backgroundColor: 'rgba(237,28,36,0.2)', borderColor: 'rgba(237,28,36,0.4)' }}>
               <LogOut style={{ width: 14, height: 14 }} /><span>Logout</span>
             </button>
           </div>
         </div>
 
         {/* ── Navigation Tabs ── */}
-        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.75rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem', overflowX: 'auto' }}>
+        <div style={{ display: 'flex', gap: '0.45rem', marginBottom: '1.75rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.65rem', overflowX: 'auto' }}>
           {TABS.map(tab => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0.85rem', borderRadius: '10px 10px 0 0', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', border: 'none', background: active ? '#0047AB' : 'var(--bg-surface)', color: active ? 'white' : 'var(--text-secondary)', boxShadow: active ? '0 2px 8px rgba(0,71,171,0.25)' : 'none', transition: 'all 0.18s' }}>
-                <Icon style={{ width: 14, height: 14 }} />{tab.label}
+                style={{ 
+                  display: 'inline-flex', alignItems: 'center', gap: '0.45rem', 
+                  padding: '0.6rem 1.05rem', borderRadius: '12px', 
+                  fontSize: '0.825rem', fontWeight: active ? 900 : 700, 
+                  cursor: 'pointer', whiteSpace: 'nowrap', border: active ? '2px solid #0047AB' : '1px solid var(--border-color)', 
+                  background: active ? '#0047AB' : 'var(--bg-surface)', 
+                  color: active ? 'white' : 'var(--text-secondary)', 
+                  boxShadow: active ? '0 4px 14px rgba(0,71,171,0.25)' : 'none', 
+                  transition: 'all 0.18s' 
+                }}>
+                <Icon style={{ width: 15, height: 15, color: active ? 'white' : '#0047AB' }} />{tab.label}
               </button>
             );
           })}
@@ -515,27 +544,45 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         {/* ════════════════ TAB 1: APPLICATIONS LIST & DOSSIER AUDIT ════════════════ */}
         {activeTab === 'applications' && (
           <div>
-            {/* Stats Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ padding: '1rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Total Registered</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{totalApps} Vendors</div>
+            {/* KPI Executive Stats Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.75rem' }}>
+              
+              <div style={{ padding: '1.15rem', borderRadius: 16, background: 'var(--bg-card)', border: '2px solid #0047AB', boxShadow: '0 4px 16px rgba(0,71,171,0.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: '0.725rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Registered</span>
+                  <Database style={{ width: 18, height: 18, color: '#0047AB' }} />
+                </div>
+                <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#0F172A' }}>{totalApps} <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)' }}>Firms</span></div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Total filings in portal database</div>
               </div>
 
-              <div style={{ padding: '1rem', borderRadius: 14, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase' }}>Under Verification</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#D97706', marginTop: 2 }}>{pendingApps} Pending</div>
+              <div style={{ padding: '1.15rem', borderRadius: 16, background: 'var(--bg-card)', border: '2px solid #F59E0B', boxShadow: '0 4px 16px rgba(245,158,11,0.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: '0.725rem', fontWeight: 800, color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Under Verification</span>
+                  <Clock style={{ width: 18, height: 18, color: '#D97706' }} />
+                </div>
+                <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#D97706' }}>{pendingApps} <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#D97706' }}>Pending</span></div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Awaiting Committee Audit</div>
               </div>
 
-              <div style={{ padding: '1rem', borderRadius: 14, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#047857', textTransform: 'uppercase' }}>Empanelled Approved</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#10B981', marginTop: 2 }}>{approvedApps} Class-A/B</div>
+              <div style={{ padding: '1.15rem', borderRadius: 16, background: 'var(--bg-card)', border: '2px solid #10B981', boxShadow: '0 4px 16px rgba(16,185,129,0.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: '0.725rem', fontWeight: 800, color: '#047857', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Approved Empanelled</span>
+                  <CheckCircle2 style={{ width: 18, height: 18, color: '#10B981' }} />
+                </div>
+                <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#10B981' }}>{approvedApps} <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#047857' }}>Approved</span></div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Active Class-A/B/C Vendors</div>
               </div>
 
-              <div style={{ padding: '1rem', borderRadius: 14, background: 'rgba(237,28,36,0.08)', border: '1px solid rgba(237,28,36,0.3)' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#991B1B', textTransform: 'uppercase' }}>Archived / Rejected</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ED1C24', marginTop: 2 }}>{rejectedApps} Applications</div>
+              <div style={{ padding: '1.15rem', borderRadius: 16, background: 'var(--bg-card)', border: '1.5px solid #CBD5E1' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: '0.725rem', fontWeight: 800, color: '#ED1C24', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Archived / Rejected</span>
+                  <XCircle style={{ width: 18, height: 18, color: '#ED1C24' }} />
+                </div>
+                <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#ED1C24' }}>{rejectedApps} <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ED1C24' }}>Rejected</span></div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>Non-compliant submissions</div>
               </div>
+
             </div>
 
             {/* Filter & Search Bar */}
