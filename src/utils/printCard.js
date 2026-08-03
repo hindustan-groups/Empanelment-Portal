@@ -12,28 +12,12 @@ export function printCard(cardElementId, title = 'Hindustan Projects - Empanelme
   // Clone exact element HTML
   const cardHtml = element.innerHTML;
 
-  // Get or create hidden iframe
-  let iframe = document.getElementById('hipro-print-iframe');
-  if (!iframe) {
-    iframe = document.createElement('iframe');
-    iframe.id = 'hipro-print-iframe';
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = '0';
-    iframe.style.visibility = 'hidden';
-    document.body.appendChild(iframe);
-  }
-
-  const doc = iframe.contentWindow.document;
-  doc.open();
-  doc.write(`
+  const fullHtml = `
     <!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>${title}</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
@@ -70,6 +54,12 @@ export function printCard(cardElementId, title = 'Hindustan Projects - Empanelme
             size: A4 portrait;
             margin: 10mm;
           }
+
+          @media print {
+            body {
+              padding: 0 !important;
+            }
+          }
         </style>
       </head>
       <body>
@@ -78,7 +68,50 @@ export function printCard(cardElementId, title = 'Hindustan Projects - Empanelme
         </div>
       </body>
     </html>
-  `);
+  `;
+
+  const isMobileOrTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth <= 1024);
+
+  if (isMobileOrTablet) {
+    const printWin = window.open('', '_blank');
+    if (printWin) {
+      printWin.document.open();
+      printWin.document.write(fullHtml);
+      printWin.document.close();
+      printWin.onload = () => {
+        setTimeout(() => {
+          printWin.focus();
+          printWin.print();
+        }, 400);
+      };
+      setTimeout(() => {
+        try {
+          printWin.focus();
+          printWin.print();
+        } catch(e) {}
+      }, 1000);
+      return;
+    }
+  }
+
+  // Get or create hidden iframe
+  let iframe = document.getElementById('hipro-print-iframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'hipro-print-iframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+  }
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(fullHtml);
   doc.close();
 
   // Trigger print after iframe renders

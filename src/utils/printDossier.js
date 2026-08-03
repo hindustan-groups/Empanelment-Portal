@@ -84,17 +84,23 @@ const PRINT_CSS = `
 
   @media print {
     html, body {
-      width: 210mm;
-      margin: 0;
-      padding: 0;
+      width: 210mm !important;
+      min-width: 210mm !important;
+      max-width: 210mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
     .dossier-page {
-      width: 210mm;
-      height: 297mm;
-      max-height: 297mm;
-      page-break-after: always;
-      break-after: always;
-      overflow: hidden;
+      width: 210mm !important;
+      min-width: 210mm !important;
+      max-width: 210mm !important;
+      height: 297mm !important;
+      max-height: 297mm !important;
+      page-break-after: always !important;
+      break-after: always !important;
+      overflow: hidden !important;
     }
   }
 
@@ -766,7 +772,32 @@ ${renderDocumentAttachmentsHTML(formData, trackingId)}
 export function printDossier(trackingId, formData) {
   const html = buildDossierHTML({ trackingId, formData });
 
-  // Create hidden iframe with explicit 210mm x 297mm bounds
+  const isMobileOrTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth <= 1024);
+
+  if (isMobileOrTablet) {
+    // Mobile/Tablet Strategy: Open a clean popup window containing ONLY the isolated dossier HTML
+    const printWin = window.open('', '_blank');
+    if (printWin) {
+      printWin.document.open();
+      printWin.document.write(html);
+      printWin.document.close();
+      printWin.onload = () => {
+        setTimeout(() => {
+          printWin.focus();
+          printWin.print();
+        }, 500);
+      };
+      setTimeout(() => {
+        try {
+          printWin.focus();
+          printWin.print();
+        } catch(e) {}
+      }, 1200);
+      return;
+    }
+  }
+
+  // Desktop Strategy: Hidden iframe with explicit 210mm x 297mm bounds
   const iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:fixed;top:0;left:0;width:210mm;height:297mm;border:none;visibility:hidden;z-index:-9999';
   document.body.appendChild(iframe);
