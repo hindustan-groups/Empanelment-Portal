@@ -402,12 +402,6 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         e.otherPrimaryRole = 'Please specify your discipline';
       }
 
-      if (!formData.category) {
-        e.category = 'Please select an empanelment trade category';
-      } else if (formData.category === 'other' && !(formData.otherCategory || '').trim()) {
-        e.otherCategory = 'Please specify your business category';
-      }
-
       if (!(formData.specialization || '').trim()) {
         e.specialization = 'Please type your core Specialization (e.g. Structural Audit, RCC Construction, Organic Produce)';
       }
@@ -893,25 +887,6 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     value={formData.ownerContact}
                     onChange={handleChange}
                     placeholder="e.g. +91 9876543210 / owner@company.com"
-                  />
-                </FieldGroup>
-
-                {/* ── Empanelment Business Category ── */}
-                <FieldGroup
-                  label="Empanelment Trade Line Category"
-                  required
-                  error={errors.category}
-                >
-                  <SelectWithOther
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    options={availableCategories.map(c => ({ ...c, value: c.id }))}
-                    otherName="otherCategory"
-                    otherValue={formData.otherCategory}
-                    otherPlaceholder="e.g. EV Charging Infrastructure, Modular Furniture, etc."
-                    error={errors.category}
-                    otherError={errors.otherCategory}
                   />
                 </FieldGroup>
 
