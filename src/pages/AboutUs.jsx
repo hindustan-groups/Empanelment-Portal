@@ -138,27 +138,39 @@ export default function AboutUs() {
             <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0F172A', marginTop: 0, marginBottom: '1rem', borderBottom: '1px solid #F1F5F9', paddingBottom: '0.5rem' }}>
               Corporate Identity Overview
             </h4>
-            <table style={{ width: '100%', fontSize: '0.825rem', borderCollapse: 'collapse', color: '#334155' }}>
+            <table style={{ width: '100%', fontSize: '0.825rem', borderCollapse: 'collapse', color: '#334155', tableLayout: 'fixed' }}>
               <tbody>
                 <tr>
-                  <td style={{ padding: '8px 0', fontWeight: 700, width: '40%' }}>Headquarters</td>
-                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#0F172A' }}>Bhilwara, Rajasthan, India</td>
+                  <td style={{ padding: '8px 0', fontWeight: 700, width: '38%', verticalAlign: 'top' }}>Headquarters</td>
+                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#0F172A', wordBreak: 'break-word' }}>Bhilwara, Rajasthan, India</td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '8px 0', fontWeight: 700 }}>Helpline Phone</td>
-                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#0047AB' }}>+91 7597000601</td>
+                  <td style={{ padding: '8px 0', fontWeight: 700, verticalAlign: 'top' }}>Corporate Email</td>
+                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#ED1C24', wordBreak: 'break-all' }}>
+                    <a href="mailto:empanelment@hindustanprojects.in" style={{ color: '#ED1C24', textDecoration: 'none' }}>empanelment@hindustanprojects.in</a>
+                  </td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '8px 0', fontWeight: 700 }}>Official Portal</td>
-                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#0047AB' }}>www.empanelment.hindustanprojects.in</td>
+                  <td style={{ padding: '8px 0', fontWeight: 700, verticalAlign: 'top' }}>Helpline Phone</td>
+                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#0047AB', wordBreak: 'break-word' }}>
+                    <a href="tel:+917597000601" style={{ color: '#0047AB', textDecoration: 'none' }}>+91 7597000601</a>
+                  </td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '8px 0', fontWeight: 700 }}>Main Corporate Site</td>
-                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#ED1C24' }}>www.hindustanprojects.in</td>
+                  <td style={{ padding: '8px 0', fontWeight: 700, verticalAlign: 'top' }}>Official Portal</td>
+                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#0047AB', wordBreak: 'break-all' }}>
+                    <a href="https://empanelment.hindustanprojects.in" style={{ color: '#0047AB', textDecoration: 'none' }}>empanelment.hindustanprojects.in</a>
+                  </td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '8px 0', fontWeight: 700 }}>Quality Standard</td>
-                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#047857' }}>ISO 9001:2015 Certified</td>
+                  <td style={{ padding: '8px 0', fontWeight: 700, verticalAlign: 'top' }}>Main Corporate Site</td>
+                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#ED1C24', wordBreak: 'break-all' }}>
+                    <a href="https://www.hindustanprojects.in" target="_blank" rel="noreferrer" style={{ color: '#ED1C24', textDecoration: 'none' }}>www.hindustanprojects.in</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '8px 0', fontWeight: 700, verticalAlign: 'top' }}>Quality Standard</td>
+                  <td style={{ padding: '8px 0', fontWeight: 900, color: '#047857', wordBreak: 'break-word' }}>ISO 9001:2015 Certified</td>
                 </tr>
               </tbody>
             </table>
