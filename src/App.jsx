@@ -21,6 +21,7 @@ import TendersPage from './pages/TendersPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import VerifyPassPage from './pages/VerifyPassPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // Auto Scroll To Top Component on Route Navigation
 function ScrollToTop() {
@@ -204,7 +205,6 @@ function MainAppLayout() {
               />
             } 
           />
-          <Route path="/admin-login" element={<Navigate to="/internal-portal-login" replace />} />
 
           <Route 
             path="/internal-admin-dashboard" 
@@ -219,7 +219,14 @@ function MainAppLayout() {
               )
             } 
           />
-          <Route path="/admin" element={<Navigate to="/internal-admin-dashboard" replace />} />
+
+          {/* Secure Obfuscation: Public /admin and /admin-login redirect to 404 Page */}
+          <Route path="/admin-login" element={<Navigate to="/404" replace />} />
+          <Route path="/admin" element={<Navigate to="/404" replace />} />
+
+          {/* Global 404 Not Found Page */}
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
 
