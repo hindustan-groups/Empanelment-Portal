@@ -585,12 +585,60 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
             </div>
 
+            {/* Interactive Quick Status Filter Chips */}
+            <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginRight: '0.3rem' }}>Quick Status Filter:</span>
+              
+              {[
+                { id: 'all', label: 'All Filings', count: totalApps, color: '#0047AB' },
+                { id: 'Under Verification', label: 'Pending Audit', count: pendingApps, color: '#D97706' },
+                { id: 'Approved Class-A', label: 'Class-A Prime', count: vendors.filter(v => v.status === 'Approved Class-A').length, color: '#047857' },
+                { id: 'Approved Class-B', label: 'Class-B Vendor', count: vendors.filter(v => v.status === 'Approved Class-B').length, color: '#0047AB' },
+                { id: 'Approved Class-C', label: 'Class-C Vendor', count: vendors.filter(v => v.status === 'Approved Class-C').length, color: '#475569' },
+                { id: 'Clarification Required', label: 'Clarification Req.', count: vendors.filter(v => v.status === 'Clarification Required').length, color: '#7C3AED' },
+                { id: 'Rejected', label: 'Rejected', count: rejectedApps, color: '#ED1C24' },
+              ].map(chip => {
+                const active = filterStatus === chip.id;
+                return (
+                  <button
+                    key={chip.id}
+                    onClick={() => setFilterStatus(chip.id)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      padding: '0.35rem 0.75rem',
+                      borderRadius: 99,
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      border: active ? `1.5px solid ${chip.color}` : '1px solid var(--border-color)',
+                      backgroundColor: active ? `${chip.color}15` : 'var(--bg-surface)',
+                      color: active ? chip.color : 'var(--text-secondary)',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <span>{chip.label}</span>
+                    <span style={{
+                      padding: '0.1rem 0.4rem',
+                      borderRadius: 99,
+                      backgroundColor: active ? chip.color : 'var(--border-color)',
+                      color: active ? 'white' : 'var(--text-secondary)',
+                      fontSize: '0.7rem'
+                    }}>
+                      {chip.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Filter & Search Bar */}
             <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
               <div style={{ position: 'relative', flex: 2, minWidth: 240 }}>
                 <input
                   type="text"
-                  placeholder="Search by Company, Tracking ID, GSTIN, Email..."
+                  placeholder="Search by Company Name, Tracking Code (HP-EMP-...), GSTIN, PAN, Email..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className="form-input"
