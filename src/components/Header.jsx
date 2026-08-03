@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import Logo from './Logo';
-import { Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink, Home } from 'lucide-react';
+import { Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink, Home, FileText, Building2 } from 'lucide-react';
 
 const DEFAULT_SITE_CONFIG = {
   companyTitle: 'Hindustan Projects',
