@@ -173,40 +173,6 @@ export default function VendorLoginPage() {
           Sign in to access your official A4 Empanelment Certificate, bid on active tenders, and track milestone payouts.
         </p>
 
-        {/* 1-Click Demo Login Banner */}
-        <div style={{
-          padding: '0.75rem 1rem',
-          borderRadius: 12,
-          backgroundColor: 'rgba(0, 71, 171, 0.05)',
-          border: '1px solid rgba(0, 71, 171, 0.2)',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          fontSize: '0.78rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#0047AB', fontWeight: 800 }}>
-            <UserCheck style={{ width: 16, height: 16 }} />
-            <span>Empanelled Demo Account</span>
-          </div>
-          <button
-            type="button"
-            onClick={fillDemoLogin}
-            style={{
-              padding: '0.25rem 0.65rem',
-              borderRadius: 6,
-              fontSize: '0.725rem',
-              fontWeight: 800,
-              color: '#0047AB',
-              background: '#FFFFFF',
-              border: '1px solid rgba(0, 71, 171, 0.3)',
-              cursor: 'pointer'
-            }}
-          >
-            Auto-Fill Demo
-          </button>
-        </div>
-
         {error && (
           <div style={{ padding: '0.75rem 1rem', borderRadius: 10, backgroundColor: 'rgba(237, 28, 36, 0.1)', color: '#ED1C24', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1.25rem', textAlign: 'left' }}>
             ⚠️ {error}

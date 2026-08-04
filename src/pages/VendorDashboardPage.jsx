@@ -28,6 +28,31 @@ export default function VendorDashboardPage() {
     return JSON.parse(localStorage.getItem('hipro_vendor_submitted_bids') || '[]');
   });
 
+  /* Live Tenders Synced from Admin Panel */
+  const [liveTenders, setLiveTenders] = useState(() => {
+    const saved = localStorage.getItem('hipro_tenders');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(t => ({
+            ref: t.id || t.ref || 'HP-TND-2026-101',
+            title: t.title || 'Tender Notice',
+            val: t.estimatedCost || t.val || '₹ 5.00 Crore',
+            location: t.location || 'Rajasthan Site',
+            end: t.dueDate || t.end || '15 Aug 2026',
+            scope: t.eligibility || t.scope || 'Empanelled vendor bidding opportunity.'
+          }));
+        }
+      } catch {}
+    }
+    return [
+      { ref: 'HP-TND-2026-101', title: 'Jaipur Commercial Tower — Turnkey Civil & Structural Package', val: '₹ 14.50 Crores', location: 'Jaipur, Rajasthan', end: '08 Aug 2026', scope: 'Complete RCC superstructure, basement waterproofing, and structural steel fabrication.' },
+      { ref: 'HP-TND-2026-102', title: 'Bhilwara Industrial Park — High-Tension Electrical & Substation Installation', val: '₹ 3.80 Crores', location: 'Bhilwara, Rajasthan', end: '12 Aug 2026', scope: '11kV Substation installation, HT cable laying, transformer commissioning, and panel board setup.' },
+      { ref: 'HP-TND-2026-103', title: 'Luxury Residential Township — BIM Architectural & HVAC Consultancy', val: '₹ 1.20 Crores', location: 'Udaipur, Rajasthan', end: '15 Aug 2026', scope: 'Revit 3D BIM modeling, VRF HVAC layout design, fire safety NOC documentation.' }
+    ];
+  });
+
   /* Invoices & Payouts State */
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [invoiceForm, setInvoiceForm] = useState({ invoiceNo: '', milestone: 'Milestone 1: Progress Claim', amt: '', file: null });
@@ -612,11 +637,7 @@ export default function VendorDashboardPage() {
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {[
-                { ref: 'HP-TND-2026-101', title: 'Jaipur Commercial Tower — Turnkey Civil & Structural Package', val: '₹ 14.50 Crores', location: 'Jaipur, Rajasthan', end: '08 Aug 2026', scope: 'Complete RCC superstructure, basement waterproofing, and structural steel fabrication.' },
-                { ref: 'HP-TND-2026-102', title: 'Bhilwara Industrial Park — High-Tension Electrical & Substation Installation', val: '₹ 3.80 Crores', location: 'Bhilwara, Rajasthan', end: '12 Aug 2026', scope: '11kV Substation installation, HT cable laying, transformer commissioning, and panel board setup.' },
-                { ref: 'HP-TND-2026-103', title: 'Luxury Residential Township — BIM Architectural & HVAC Consultancy', val: '₹ 1.20 Crores', location: 'Udaipur, Rajasthan', end: '15 Aug 2026', scope: 'Revit 3D BIM modeling, VRF HVAC layout design, fire safety NOC documentation.' },
-              ].map((tnd, idx) => (
+              {liveTenders.map((tnd, idx) => (
                 <div key={idx} style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.65rem' }}>
                     <div>

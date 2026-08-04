@@ -165,17 +165,35 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [newTender, setNewTender] = useState({ title: '', category: 'civil', location: '', estimatedCost: '', deadline: '', status: 'OPEN FOR BIDDING' });
 
   /* Vendor RA Invoices Approval State */
-  const [invoices, setInvoices] = useState([
-    { id: 'INV-2026-881', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', milestone: 'Milestone 1: Concept Signoff', amt: '₹ 4,35,000', date: '2026-07-28', status: 'RELEASED', rtgsRef: 'RTGS-HDFC280726-99120' },
-    { id: 'INV-2026-894', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', milestone: 'Milestone 2: GFC Structural Drawings', amt: '₹ 7,25,000', date: '2026-07-29', status: 'PENDING AUDIT', rtgsRef: 'PENDING' },
-    { id: 'INV-2026-902', vendor: 'Hindustan Electro-Mechanical', trackingId: 'HP-EMP-026', milestone: 'Milestone 1: Substation Design', amt: '₹ 3,80,000', date: '2026-07-29', status: 'PENDING AUDIT', rtgsRef: 'PENDING' }
-  ]);
+  const [invoices, setInvoices] = useState(() => {
+    const saved = localStorage.getItem('hipro_vendor_invoices');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch {}
+    }
+    return [
+      { id: 'INV-2026-881', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', milestone: 'Milestone 1: Concept Signoff', amt: '₹ 4,35,000', date: '2026-07-28', status: 'RELEASED', rtgsRef: 'RTGS-HDFC280726-99120' },
+      { id: 'INV-2026-894', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', milestone: 'Milestone 2: GFC Structural Drawings', amt: '₹ 7,25,000', date: '2026-07-29', status: 'PENDING AUDIT', rtgsRef: 'PENDING' },
+      { id: 'INV-2026-902', vendor: 'Hindustan Electro-Mechanical', trackingId: 'HP-EMP-026', milestone: 'Milestone 1: Substation Design', amt: '₹ 3,80,000', date: '2026-07-29', status: 'PENDING AUDIT', rtgsRef: 'PENDING' }
+    ];
+  });
 
   /* Support Tickets State */
-  const [tickets, setTickets] = useState([
-    { id: 'TCK-99201', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', subject: 'Construction Site Entry Gate Pass Request (Jaipur Tower)', category: 'Gate Pass', status: 'RESOLVED', date: '2026-07-27' },
-    { id: 'TCK-99145', vendor: 'Hindustan Electro-Mechanical', trackingId: 'HP-EMP-026', subject: 'GFC Structural Drawing Revision R1 Clarification Request', category: 'Drawing Clarification', status: 'IN PROGRESS', date: '2026-07-28' }
-  ]);
+  const [tickets, setTickets] = useState(() => {
+    const saved = localStorage.getItem('hipro_vendor_tickets');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch {}
+    }
+    return [
+      { id: 'TCK-99201', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', subject: 'Construction Site Entry Gate Pass Request (Jaipur Tower)', category: 'Gate Pass', status: 'RESOLVED', date: '2026-07-27' },
+      { id: 'TCK-99145', vendor: 'Hindustan Electro-Mechanical', trackingId: 'HP-EMP-026', subject: 'GFC Structural Drawing Revision R1 Clarification Request', category: 'Drawing Clarification', status: 'IN PROGRESS', date: '2026-07-28' }
+    ];
+  });
 
   /* Security */
   const [adminPassword, setAdminPassword] = useState('');
