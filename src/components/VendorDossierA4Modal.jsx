@@ -4,7 +4,7 @@ import {
   FileText, Building2, CreditCard, DollarSign, FileCheck2, Eye,
   ChevronRight, Download, AlertCircle, Image, File
 } from 'lucide-react';
-import { printDossier } from '../utils/printDossier';
+import { printDossier, getEmpanelmentMode } from '../utils/printDossier';
 
 /* ─────────────────────────────────────────────────────────────────────────────
    VendorDossierA4Modal  v3
@@ -208,6 +208,8 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
   const statusColor = signed ? '#10B981' : vendor.status?.includes('Approved') ? '#10B981'
                     : vendor.status === 'Rejected' ? '#EF4444' : '#F59E0B';
 
+  const modeInfo = getEmpanelmentMode(vendor);
+
   const TABS = [
     { id: 'overview',   label: '📋 Overview',  },
     { id: 'documents',  label: '📁 Documents', },
@@ -236,6 +238,9 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
               <span style={{ fontFamily: 'monospace', color: '#34D399', fontWeight: 900, fontSize: '0.9rem' }}>{vendor.tracking_id}</span>
               <span style={{ color: '#E2E8F0', fontWeight: 800 }}>{vendor.company_name}</span>
+              <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '0.12rem 0.55rem', borderRadius: 20, background: 'rgba(59,130,246,0.15)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.3)' }}>
+                {modeInfo.badge}
+              </span>
               <span style={{ fontSize: '0.7rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 20, background: `${statusColor}20`, color: statusColor, border: `1px solid ${statusColor}40` }}>
                 {signed ? `Approved ${approvalClass}` : (vendor.status || 'Pending')}
               </span>

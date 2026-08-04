@@ -454,8 +454,91 @@ function renderDocumentAttachmentsHTML(formData, trackingId) {
   return htmlStr;
 }
 
+// ── Category / Role Mode Detector ──────────────────────────────────────────────
+export function getEmpanelmentMode(formData) {
+  const role = String(formData?.primaryRole || formData?.primary_role || '').toLowerCase();
+  const entity = String(formData?.entityType || formData?.entity_type || '').toLowerCase();
+
+  const isFreelanceRole = ['freelancer', 'architect', 'civil_engineer', 'surveyor', 'financer', 'property_dealer'].includes(role) || entity === 'sole_proprietor';
+  const isSupplierRole  = ['material_supplier', 'transporter', 'machine_rental_provider', 'fruits_vegetables'].includes(role);
+
+  if (isFreelanceRole) {
+    return {
+      mode: 'FREELANCER',
+      bannerTitle: 'INDIVIDUAL CONSULTANT & FREELANCER EMPANELMENT DOSSIER',
+      sec1Title: '§ 1 — INDIVIDUAL CONSULTANT & PROFESSIONAL SPECIALIZATION PROFILE',
+      rulesTitle: '📋 HINDUSTAN PROJECTS — INDIVIDUAL CONSULTANT & PROFESSIONAL CODE OF CONDUCT',
+      rules: [
+        'Audit SLA: Fast-track 24–48 hours document audit for individual consultants & freelancers.',
+        'Smart PVC Badge: Approved individual consultants carry PVC Smart ID Card for site visit clearance.',
+        'Zero Corruption: CVC compliance — Zero tolerance for fake degree certificates or misrepresentation.',
+        'Professional Integrity: Direct engagement based on verified technical expertise & portfolio.',
+        'Work Orders: Written Consultant Engagement Letter prior to commencement of any design / site service.',
+        'Direct Payout: 7-Day RTGS direct bank payout upon milestone deliverable / report sign-off.',
+        'Quality Standards: Individual professional certifications (COA / IEI / NABL) verified prior to empanelment.',
+        'Tax Compliance: PAN & TDS (194J / 194C) deducted as per Income Tax Act regulations.',
+        'Fee Structure: Professional fee billing based on agreed day/hourly rate card or milestone lump sum.',
+        'Intellectual Property: CAD drawings, BIM models & technical designs created belong to Hindustan Projects.',
+        'Confidentiality: Project site specifications, GFC drawings & commercial data strictly confidential.',
+        'Site Safety: Compliance with site safety protocols during field surveys & site inspections.',
+        'Performance Index: Client & Project Manager feedback score evaluated after each assignment.',
+        'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
+      ]
+    };
+  }
+
+  if (isSupplierRole) {
+    return {
+      mode: 'SUPPLIER',
+      bannerTitle: 'MATERIAL SUPPLIER & LOGISTICS VENDOR DOSSIER',
+      sec1Title: '§ 1 — MATERIAL SUPPLIER & LOGISTICS FLEET PROFILE',
+      rulesTitle: '📋 HINDUSTAN PROJECTS — MATERIAL SUPPLIER & LOGISTICS CODE OF CONDUCT',
+      rules: [
+        'Audit SLA: 48–72 Hours document audit by Corporate Procurement & Material Control Committee.',
+        'Gate Pass QR: Transporter & delivery trucks issued QR-code site entry gate passes.',
+        'Zero Corruption: CVC compliance — Zero tolerance for short supply, adulteration or substandard goods.',
+        'Quality Assurance: Mandatory NABL / ISI / BIS test reports submitted with every consignment.',
+        'Purchase Orders: Goods delivered strictly against official Hindustan Projects PO.',
+        'Weighbridge SLA: Site weighbridge slip signed by Project Engineer required for bill claim.',
+        'Payment SLA: 7-Day RTGS payout turnaround after GRN (Goods Receipt Note) generation.',
+        'Tax Compliance: GST E-Invoice mandatory for billing > ₹5L with GSTR-2B input match.',
+        'Replacement Guarantee: 24-hour rejection replacement guarantee for defective/damaged materials.',
+        'Yard Storage: Allocated site unloading yard & utility points provided at project location.',
+        'Transit Safety: Materials transported with proper tarping & hazardous goods compliance.',
+        'Confidentiality: Project site locations & quantity estimates strictly confidential under IT Act.',
+        'Quarterly Rating: Delivery SLA & material quality score evaluated quarterly.',
+        'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
+      ]
+    };
+  }
+
+  return {
+    mode: 'CONTRACTOR',
+    bannerTitle: 'CORPORATE CONTRACTOR & TURNKEY EXECUTION DOSSIER',
+    sec1Title: '§ 1 — APPLICANT ORGANIZATION & SPECIALIZATION PROFILE',
+    rulesTitle: '📋 HINDUSTAN PROJECTS — COMPREHENSIVE VENDOR & CORPORATE CODE OF CONDUCT',
+    rules: [
+      'Audit SLA: 48–72 hours document audit by Corporate Procurement Committee & CEO Office.',
+      'Smart PVC Access: Approved vendors carry PVC Smart Card for site QR gate access.',
+      'Zero Corruption: CVC & PC Act compliance — Zero tolerance for kickbacks, gifts, or fraud.',
+      'Site PPE Safety: Mandatory IS safety PPE gear (hard hat, vest, boots) on all project sites.',
+      'Work Orders: No work commences without a duly signed corporate written Work Order.',
+      'Payment SLA: 7-Day RTGS payout turnaround from approval date of certified RA Bills.',
+      'Material Testing: ISI/BIS certified materials mandatory with NABL lab test report before site use.',
+      'Billing & Tax: GST E-Invoice mandatory for bills > ₹5L with GSTR-2B input credit match.',
+      'Defect Liability: 5% retention per bill. 12-month DLP from completion certificate date.',
+      'Site Facilities: Hindustan Projects provides material yard storage & site utility points.',
+      'Sub-Contracting: Sub-contracting without prior written approval strictly prohibited.',
+      'Confidentiality: GFC drawings & site BIM data strictly confidential under IT Act 2000.',
+      'Performance Score: Quarterly vendor rating (<60% score triggers automatic de-listing).',
+      'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
+    ]
+  };
+}
+
 // ── HTML Generator ────────────────────────────────────────────────────────────
 function buildDossierHTML({ trackingId, formData }) {
+  const modeInfo   = getEmpanelmentMode(formData);
   const filingDate = fmtDate(formData?.submitted_at);
   const entityType = (formData?.entityType || 'sole_proprietor').replace(/_/g, ' ').toUpperCase();
   const logoSrc    = '/hipro-logo.png';
@@ -470,7 +553,7 @@ function buildDossierHTML({ trackingId, formData }) {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Hindustan Projects — Vendor Empanelment Dossier — ${trackingId}</title>
+  <title>Hindustan Projects — ${modeInfo.bannerTitle} — ${trackingId}</title>
   <style>${PRINT_CSS}</style>
 </head>
 <body>
@@ -503,7 +586,7 @@ function buildDossierHTML({ trackingId, formData }) {
     <!-- TITLE BANNER -->
     <div class="title-banner">
       <div>
-        <div class="tb-main">VENDOR EMPANELMENT APPLICATION DOSSIER</div>
+        <div class="tb-main">${modeInfo.bannerTitle}</div>
         <div class="tb-sub">Hindustan Projects Procurement &amp; Contract Division — Empanelment System v2.0</div>
       </div>
       <div class="tb-ref">
@@ -513,7 +596,7 @@ function buildDossierHTML({ trackingId, formData }) {
     </div>
 
     <!-- SECTION 1: ORGANIZATION PROFILE & MANAGER FIELDS -->
-    <div class="section-heading">§ 1 — APPLICANT ORGANIZATION &amp; SPECIALIZATION PROFILE</div>
+    <div class="section-heading">${modeInfo.sec1Title}</div>
     <table class="dt">
       <tr>
         <td class="label">Legal Entity Name</td>
@@ -697,24 +780,16 @@ function buildDossierHTML({ trackingId, formData }) {
     </div>
 
     <!-- SECTION 5: OFFICIAL RULES & GUIDELINES -->
-    <div class="section-heading">§ 5 — OFFICIAL EMPANELMENT RULES &amp; CORPORATE OBLIGATIONS MATRIX</div>
+    <div class="section-heading">§ 5 — OFFICIAL EMPANELMENT RULES &amp; OBLIGATIONS MATRIX</div>
     <div class="rules-box">
-      <div class="rules-title">📋 HINDUSTAN PROJECTS — COMPREHENSIVE VENDOR &amp; CORPORATE CODE OF CONDUCT</div>
+      <div class="rules-title">${modeInfo.rulesTitle}</div>
       <div class="rules-grid">
-        <div class="rule-item"><div class="rule-num">1</div><div><strong>Audit SLA:</strong> 48–72 hours document audit by Corporate Procurement Committee &amp; CEO Office.</div></div>
-        <div class="rule-item"><div class="rule-num">2</div><div><strong>Smart PVC Access:</strong> Approved vendors carry PVC Smart Card for site QR gate access.</div></div>
-        <div class="rule-item"><div class="rule-num">3</div><div><strong>Zero Corruption:</strong> CVC &amp; PC Act compliance — Zero tolerance for kickbacks, gifts, or fraud.</div></div>
-        <div class="rule-item"><div class="rule-num">4</div><div><strong>Site PPE Safety:</strong> Mandatory IS safety PPE gear (hard hat, vest, boots) on all project sites.</div></div>
-        <div class="rule-item"><div class="rule-num">5</div><div><strong>Work Orders:</strong> No work commences without a duly signed corporate written Work Order.</div></div>
-        <div class="rule-item"><div class="rule-num">6</div><div><strong>Payment SLA:</strong> 7-Day RTGS payout turnaround from approval date of certified RA Bills.</div></div>
-        <div class="rule-item"><div class="rule-num">7</div><div><strong>Material Testing:</strong> ISI/BIS certified materials mandatory with NABL lab test report before site use.</div></div>
-        <div class="rule-item"><div class="rule-num">8</div><div><strong>Billing &amp; Tax:</strong> GST E-Invoice mandatory for bills &gt; ₹5L with GSTR-2B input credit match.</div></div>
-        <div class="rule-item"><div class="rule-num">9</div><div><strong>Defect Liability:</strong> 5% retention per bill. 12-month DLP from completion certificate date.</div></div>
-        <div class="rule-item"><div class="rule-num">10</div><div><strong>Site Facilities:</strong> Hindustan Projects provides material yard storage &amp; site utility points.</div></div>
-        <div class="rule-item"><div class="rule-num">11</div><div><strong>Sub-Contracting:</strong> Sub-contracting without prior written approval strictly prohibited.</div></div>
-        <div class="rule-item"><div class="rule-num">12</div><div><strong>Confidentiality:</strong> GFC drawings &amp; site BIM data strictly confidential under IT Act 2000.</div></div>
-        <div class="rule-item"><div class="rule-num">13</div><div><strong>Performance Score:</strong> Quarterly vendor rating (&lt;60% score triggers automatic de-listing).</div></div>
-        <div class="rule-item"><div class="rule-num">14</div><div><strong>Dispute Jurisdiction:</strong> Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.</div></div>
+        ${modeInfo.rules.map((r, i) => {
+          const split = r.split(': ');
+          const title = split[0] ? `<strong>${split[0]}:</strong> ` : '';
+          const body  = split.slice(1).join(': ') || r;
+          return `<div class="rule-item"><div class="rule-num">${i + 1}</div><div>${title}${body}</div></div>`;
+        }).join('')}
       </div>
     </div>
 

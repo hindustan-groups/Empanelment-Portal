@@ -280,8 +280,12 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
   const [errors, setErrors] = useState({});
 
-  /* Is this a single/sole person entity? */
+  /* Category / Role Mode Detection */
+  const role = (formData.primaryRole || '').toLowerCase();
   const isSoleProp = formData.entityType === 'sole_proprietor';
+  const isFreelanceMode = ['freelancer', 'architect', 'civil_engineer', 'surveyor', 'financer', 'property_dealer'].includes(role) || isSoleProp;
+  const isSupplierMode  = ['material_supplier', 'transporter', 'machine_rental_provider', 'fruits_vegetables'].includes(role);
+  const isContractorMode = !isFreelanceMode && !isSupplierMode;
 
   useEffect(() => {
     if (category) setFormData(prev => ({ ...prev, category }));
@@ -654,17 +658,22 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
           )}
           {errors.otherEntityType && <span className="error-text">{errors.otherEntityType}</span>}
 
-          {isSoleProp ? (
+          {isFreelanceMode ? (
             <div style={{ marginTop: '0.85rem', padding: '0.65rem 1rem', borderRadius: 10, background: '#ECFDF5', border: '1.5px solid #10B981', fontSize: '0.82rem', fontWeight: 800, color: '#047857', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>⚡ Dynamic Mode Activated:</span>
-              <span>Form is auto-simplified for Individual Freelancers & Consultants. Non-essential company registration fields are automatically hidden for faster filing!</span>
+              <span>👤 Freelancer / Individual Professional Mode Activated:</span>
+              <span>Form is auto-customized for Individual Consultants, Architects & Freelancers. Asks for Day Rates, Personal Portfolio, PAN & Aadhaar. Unnecessary corporate fields (CIN, EPF, heavy machinery) hidden!</span>
             </div>
-          ) : formData.entityType ? (
+          ) : isSupplierMode ? (
+            <div style={{ marginTop: '0.85rem', padding: '0.65rem 1rem', borderRadius: 10, background: '#FEF3C7', border: '1.5px solid #F59E0B', fontSize: '0.82rem', fontWeight: 800, color: '#92400E', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span>🚚 Material Supplier & Logistics Mode Activated:</span>
+              <span>Form is customized for Material Suppliers, Transporters & Fresh Produce Vendors. Supply Capacity & Vehicle Fleet details enabled!</span>
+            </div>
+          ) : (
             <div style={{ marginTop: '0.85rem', padding: '0.65rem 1rem', borderRadius: 10, background: '#EFF6FF', border: '1.5px solid #3B82F6', fontSize: '0.82rem', fontWeight: 800, color: '#1E40AF', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>🏢 Corporate Entity Mode Activated:</span>
-              <span>Full corporate credential fields enabled (Firm Name, CIN/COA No, Owner/Director details, and Technical Manpower Count).</span>
+              <span>🏗️ Corporate Contractor & Turnkey Mode Activated:</span>
+              <span>Full corporate credential fields enabled (Firm Name, CIN/LLPIN, Machinery Checklist, EPF, and 3-Year Corporate Turnovers).</span>
             </div>
-          ) : null}
+          )}
         </div>
 
         {/* ── Step Progress Nav (inside blue banner strip) ── */}

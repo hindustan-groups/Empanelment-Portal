@@ -5,6 +5,7 @@ import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
 import GatePassModal from '../components/GatePassModal';
 import Logo from '../components/Logo';
+import { getEmpanelmentMode } from '../utils/printDossier';
 
 export default function VendorDashboardPage() {
   const navigate = useNavigate();
@@ -201,6 +202,12 @@ export default function VendorDashboardPage() {
                 </div>
               </div>
 
+              {vendor && (
+                <div style={{ padding: '0.25rem 0.65rem', borderRadius: 99, background: 'rgba(0,71,171,0.08)', color: '#0047AB', fontSize: '0.725rem', fontWeight: 900, border: '1px solid rgba(0,71,171,0.25)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span>{getEmpanelmentMode(vendor).badge}</span>
+                </div>
+              )}
+
               <div style={{ padding: '0.25rem 0.65rem', borderRadius: 99, background: 'rgba(16,185,129,0.12)', color: '#047857', fontSize: '0.725rem', fontWeight: 900, border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                 <ShieldCheck style={{ width: 13, height: 13, color: '#10B981' }} />
                 <span>OFFICIAL VENDOR PORTAL</span>
@@ -215,8 +222,8 @@ export default function VendorDashboardPage() {
             {/* Right User Status & Logout */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0F172A' }}>{vendor.company_name}</div>
-                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Code: <strong>{vendor.tracking_id}</strong></div>
+                <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0F172A' }}>{vendor?.company_name}</div>
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Code: <strong>{vendor?.tracking_id}</strong></div>
               </div>
 
               <button
