@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
 import SecurityCaptcha from '../components/SecurityCaptcha';
 import ContractManager from '../components/ContractManager';
+import VendorDossierA4Modal from '../components/VendorDossierA4Modal';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
 import {
@@ -124,6 +125,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [adminRemark, setAdminRemark] = useState('');
   const [showAdminCertModal, setShowAdminCertModal] = useState(false);
   const [showAdminIdCardModal, setShowAdminIdCardModal] = useState(false);
+  const [showDossierModal, setShowDossierModal] = useState(false);
 
   /* ── Email Action Modals ── */
   const [showApproveModal, setShowApproveModal] = useState(false);
@@ -790,12 +792,12 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                         <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
                           <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                             <button
-                              onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); }}
+                              onClick={() => { setSelectedVendor(v); setAdminRemark(v.admin_remarks || ''); setShowDossierModal(true); }}
                               className="btn-primary"
-                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: 8, background: '#0047AB' }}
+                              style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: 8, background: 'linear-gradient(135deg, #0047AB, #0065D0)', whiteSpace: 'nowrap' }}
                             >
-                              <Eye style={{ width: 13, height: 13 }} />
-                              <span>Audit</span>
+                              <FileText style={{ width: 13, height: 13 }} />
+                              <span>📄 View Dossier</span>
                             </button>
                             {/* Quick Email Action Buttons */}
                             <button
@@ -1320,6 +1322,17 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
             </div>
           </div>
+        )}
+
+        {/* ════════════════ A4 VENDOR DOSSIER MODAL ════════════════ */}
+        {showDossierModal && selectedVendor && (
+          <VendorDossierA4Modal
+            vendor={selectedVendor}
+            onClose={() => { setShowDossierModal(false); }}
+            onUpdateStatus={handleUpdateStatus}
+            adminRemark={adminRemark}
+            setAdminRemark={setAdminRemark}
+          />
         )}
 
         {/* ════════════════ CERTIFICATE A4 PRINT MODAL FOR ADMIN ════════════════ */}
