@@ -2,27 +2,30 @@
 
 **Project Title:** Official Vendor & Contractor Empanelment Portal  
 **Target Domain:** `empanel.hindustanprojects.in`  
+**Primary Corporate Site:** `hindustanprojects.in`  
 **GitHub Repository:** `https://github.com/hindustan-groups/Empanelment-Portal`  
-**Local Workspace:** `D:\HindustanProjects\empanelment-portal`  
-**Report Generated:** July 25, 2026  
+**Local Workspace:** `C:\Users\HP\.gemini\antigravity\scratch\hindustan-projects-empanelment`  
+**Report Generated:** August 4, 2026  
+**Latest Git Commit:** `a6c7a5e` (*fix(auth): update credential validation hint and error message to use Registered Email Address*)  
 
 ---
 
-##  EXECUTIVE SUMMARY & CORPORATE IDENTITY
+## 1. EXECUTIVE SUMMARY & CORPORATE IDENTITY
 
-Hindustan Projects (**HiPRO**) has established an official, enterprise-grade, paperless digital empanelment portal designed to onboard EPC Civil Contractors, MEP Services, Goods Suppliers, Architects, Equipment Rentals, and Logistics Partners for active infrastructure and commercial building projects.
+Hindustan Projects (**HiPRO**) has established an official, enterprise-grade, paperless digital empanelment portal designed to onboard EPC Civil Contractors, MEP Services, Goods Suppliers, Architects, Equipment Rentals, and Site Logistics Partners for active infrastructure and commercial building projects across India.
 
 ### Key Brand & Operational Tokens:
 - **Corporate Colors:** Brand Red (`#ED1C24`) and Royal Blue (`#0047AB`).
 - **Target Subdomain:** `empanel.hindustanprojects.in`
 - **Primary Domain:** `hindustanprojects.in`
-- **Procurement Helpdesk:** `empanelment@hindustanprojects.in` | `+91 (011) 4500 8899`
+- **Procurement Helpdesk:** `empanelment@hindustanprojects.in` | `+91 (011) 4500 8899` | `+91 7597000601`
+- **Headquarters Address:** Bhopal Ganj, Bhilwara (Raj.) - 311001
 
 ---
 
-## 🏗️ SYSTEM & CODE ARCHITECTURE
+## 2. 🏗️ SYSTEM & CODE ARCHITECTURE
 
-The application follows a decoupled, high-performance architecture split into a lightweight Single-Page Application (SPA) frontend and a secure VPS Node.js REST API backend.
+The application follows a decoupled, high-performance web architecture split into a lightweight Single-Page Application (SPA) frontend and a secure VPS Node.js REST API backend with SQLite database persistence.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -35,34 +38,55 @@ The application follows a decoupled, high-performance architecture split into a 
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                              BACKEND (VPS Node.js Host)                                │
 │        Express API + SQLite3 DB + Multer Upload Engine + Helmet Security + PM2         │
-│                           Directory: D:\HindustanProjects\empanelment-portal\backend   │
+│       Directory: hindustan-projects-empanelment/backend                               │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Technical Stack Details:
-- **Frontend Stack:** React 18, Vite 8.1, React Router DOM 6.22, Lucide React Icons, Canvas Confetti.
+- **Frontend Stack:** React 18, Vite 8.1.5, React Router DOM 6.22, Lucide React Icons, Canvas Confetti.
 - **Backend Stack:** Node.js, Express 4.19, SQLite3 5.1, Multer 1.4, Helmet 7.1, Express Rate Limit 7.2.
 - **Design Tokens:** Pure HSL Vanilla CSS variables, Glassmorphism panels, CSS Dark/Light Theme variables (`.dark`), Micro-animations.
 
 ---
 
-## 📂 PROJECT DIRECTORY STRUCTURE & FILE MAP
+## 3. 📂 PROJECT DIRECTORY STRUCTURE & FILE MAP
 
 ```
-D:\HindustanProjects\empanelment-portal\
+hindustan-projects-empanelment/
 ├── index.html                       # Base HTML, HiPRO Vector SVG Favicon & Webmanifest
-├── package.json                     # Frontend dependencies & Vite scripts
+├── package.json                     # Frontend dependencies & Vite build scripts
 ├── PORTAL_SYSTEM_GUIDE.md           # Interactive component event & click reaction map
 ├── DEPLOYMENT_ROADMAP.md            # 5-Phase Vercel & Subdomain DNS deployment guide
 ├── PROJECT_MASTER_REPORT.md         # Master Technical & Operations Report (This Document)
+├── vercel.json                      # Vercel SPA rewrite configuration
+├── vite.config.js                   # Vite build configuration
 ├── public/
 │   ├── favicon.svg                  # High-res vector HiPRO Red/Blue SVG Favicon
-│   └── site.webmanifest             # Android/iOS PWA manifest metadata
+│   ├── site.webmanifest             # Android/iOS PWA manifest metadata
+│   ├── hipro-logo.png               # High-res corporate logo
+│   ├── lanyard-official.jpg         # 20mm Navy Blue Lanyard Product Asset
+│   └── ceo-signature-exact-final.png# CEO Digital Signature Stamp Asset
 ├── src/
 │   ├── App.jsx                      # Router root, Dark theme state, Protected Admin routes
 │   ├── index.css                    # HSL CSS variables, glassmorphic cards, micro-animations
 │   ├── main.jsx                     # Vite React DOM entrypoint
-│   ├── components/
+│   ├── pages/ (15 Dedicated Client Routes)
+│   │   ├── Home.jsx                 # Public portal dashboard (/)
+│   │   ├── ApplyPage.jsx            # 5-Step Registration Wizard (/apply)
+│   │   ├── TrackPage.jsx            # Dedicated status tracking & audit timeline (/track)
+│   │   ├── GuidelinesPage.jsx       # Vendor onboarding manual & NBC 2016 standards (/guidelines)
+│   │   ├── AboutUs.jsx              # Corporate profile & leadership team (/about)
+│   │   ├── ContactPage.jsx          # Helpdesk contacts & inquiry form (/contact)
+│   │   ├── TendersPage.jsx          # Active tender opportunities radar (/tenders)
+│   │   ├── PrivacyPage.jsx          # Full Data Protection Policy (/privacy)
+│   │   ├── TermsPage.jsx            # Full Legal & Terms Policy (/terms)
+│   │   ├── VendorLoginPage.jsx      # Vendor Dashboard Sign-In (/vendor-login)
+│   │   ├── VendorDashboardPage.jsx # Vendor Portal Dashboard (/vendor-dashboard)
+│   │   ├── AdminLoginPage.jsx       # Corporate officer login screen (/admin-login)
+│   │   ├── AdminPage.jsx            # Protected procurement database dashboard (/admin)
+│   │   ├── VerifyPassPage.jsx       # Daily Site QR Gate Pass verification route (/verify-pass)
+│   │   └── NotFoundPage.jsx         # Custom 404 error page
+│   ├── components/ (24 Interactive Components)
 │   │   ├── Header.jsx               # Top navbar with live subdomain badge & theme toggle
 │   │   ├── Footer.jsx               # Helpdesk contacts & discrete Officer Login link
 │   │   ├── HeroSection.jsx          # Hero title, trust metrics grid & category selector
@@ -73,14 +97,23 @@ D:\HindustanProjects\empanelment-portal\
 │   │   ├── EligibilityCalculator.jsx# Interactive score engine (0-100) & Class A/B tier evaluator
 │   │   ├── ActiveTenders.jsx        # Live tender opportunity radar grid
 │   │   ├── SupportWidget.jsx        # Floating 24/7 Procurement Helpdesk widget
-│   │   └── SuccessModal.jsx         # Confetti celebration & PDF receipt modal
-│   └── pages/
-│       ├── Home.jsx                 # Public portal dashboard (/)
-│       ├── ApplyPage.jsx            # Dedicated full-page registration route (/apply)
-│       ├── TrackPage.jsx            # Dedicated status tracking route (/track)
-│       ├── GuidelinesPage.jsx       # Vendor onboarding policy route (/guidelines)
-│       ├── AdminLoginPage.jsx       # Corporate officer login screen (/admin-login)
-│       └── AdminPage.jsx            # Protected procurement database dashboard (/admin)
+│   │   ├── SuccessModal.jsx         # Confetti celebration & PDF receipt modal
+│   │   ├── VendorIdCardModal.jsx    # Dual CR80 Smart PVC Card & 3D Lanyard Mockup
+│   │   ├── GatePassModal.jsx        # Daily 24-Hour QR Site Gate Pass Generator
+│   │   ├── ContractManager.jsx      # Milestone payout & contract manager component
+│   │   ├── DigitalSignature.jsx     # E-Signature canvas component
+│   │   ├── AdminDrawer.jsx          # Mobile slide-out drawer for admin panel
+│   │   ├── CategoryMatrixModal.jsx  # Vendor tier eligibility matrix modal
+│   │   ├── StatusModal.jsx          # Application status timeline modal
+│   │   ├── PrivacyPolicyModal.jsx   # Data protection policy modal
+│   │   ├── TermsModal.jsx           # Legal terms & conditions modal
+│   │   ├── GuideModal.jsx           # Onboarding step guide modal
+│   │   ├── PortalPreviewObject.jsx  # Interactive portal UI preview component
+│   │   ├── ErrorBoundary.jsx        # Crash-proof React Error Boundary wrapper
+│   │   └── Logo.jsx                 # Dynamic vector logo renderer
+│   └── utils/
+│       ├── printDossier.js          # Multi-Page A4 Print Engine for Dossiers & Certificates
+│       └── printCard.js             # High-DPI Smart PVC ID Card Print Engine
 └── backend/
     ├── server.js                    # Secure Express API, SQLite database setup, Helmet & RateLimiter
     ├── package.json                 # Backend dependencies (express, sqlite3, multer, helmet)
@@ -90,27 +123,30 @@ D:\HindustanProjects\empanelment-portal\
 
 ---
 
-## 🔐 SECURITY & DATA PROTECTION MATRIX
+## 4. 🔐 SECURITY & DATA PROTECTION MATRIX
 
-To ensure enterprise safety, multi-layered security controls have been built directly into the system:
+Multi-layered security controls are built into the system:
 
-1. **Helmet HTTP Security Headers:** Enforces XSS Filter, HSTS (Strict Transport Security), X-Frame-Options (Clickjacking Prevention), and X-Content-Type-Options.
-2. **IP Rate-Limiting:** Protects VPS endpoints against DDoS and brute-force attacks (`100 requests / 15 mins`, `10 form submissions / hour`).
-3. **Strict MIME-Type File Whitelisting:** Accepts only `.pdf`, `.jpg`, `.jpeg`, and `.png` document formats (Max 10MB limit). Executable files (`.exe`, `.bat`, `.php`, `.sh`) are rejected at the server level.
-4. **SHA-256 Application Cryptographic Hash Signatures:** Computes a unique digital audit signature (`SHA256: 8f3a...`) for every submitted record to prevent tampering.
-5. **Anti-Bot Math Captcha Verification:** Step 5 requires human verification before sending payloads to the server.
-6. **Parameterized SQLite Queries:** Prevents SQL Injection vulnerabilities by binding all SQL variables (`?` parameters).
-7. **Protected Admin Route:** Corporate Admin Panel (`/admin`) is hidden from public navigation and requires password authentication (`HindustanAdmin2026#`).
+1. **Helmet HTTP Security Headers:** Enforces XSS Filter, HSTS, X-Frame-Options (Clickjacking Prevention), and X-Content-Type-Options.
+2. **IP Rate-Limiting:** Protects endpoints against DDoS & brute-force (`100 requests / 15 mins`, `10 submissions / hour`).
+3. **Strict MIME-Type File Whitelisting:** Accepts only `.pdf`, `.jpg`, `.jpeg`, and `.png` formats (Max 10MB limit). Executables (`.exe`, `.sh`, `.php`) rejected.
+4. **SHA-256 Application Signatures:** Computes a unique digital audit signature (`SHA256: 8f3a...`) for every submitted record.
+5. **Anti-Bot Math Captcha:** Step 5 requires human verification before sending payloads.
+6. **Parameterized SQLite Queries:** Prevents SQL injection vulnerabilities by binding parameters (`?`).
+7. **Protected Admin Route:** Corporate Admin Panel (`/admin`) requires password authentication (`HindustanAdmin2026#`).
+8. **Updated Authentication Security:** Credentials error messages and password hints use **Registered Corporate Email Address**, **GSTIN**, or **Tracking ID**.
 
 ---
 
-## 🐙 GIT REPOSITORY & COMMIT LOG
+## 5. 🐙 GIT REPOSITORY & COMMIT LOG
 
 **Repository URL:** `https://github.com/hindustan-groups/Empanelment-Portal`  
 **Default Branch:** `master`  
 **Status:** Clean, 100% synchronized with `origin/master`.
 
 ### Commit Trajectory:
+- `a6c7a5e` — *fix(auth): update credential validation hint and error message to use Registered Email Address instead of mobile number*
+- `214f479` — *feat(dossier-and-legal): overhaul print dossier A4 page layout density and expand guidelines, privacy, and terms pages*
 - `abcd277` — *Enterprise Security Hardening: Helmet security headers, rate-limiting, SHA-256 hash signatures, MIME-type file whitelisting, and Anti-Bot Math Captcha*
 - `c423e6d` — *Real Enterprise Upgrade: Authentic GSTN format audit, Processing Fee & MSME Waiver slip, and File Drag-and-Drop upload cards*
 - `fb99ece` — *Add HiPRO brand vector favicon, Apple touch icon, and webmanifest for multi-device support*
@@ -120,7 +156,7 @@ To ensure enterprise safety, multi-layered security controls have been built dir
 
 ---
 
-## 🚀 GO-LIVE & DEPLOYMENT PLAYBOOK
+## 6. 🚀 GO-LIVE & DEPLOYMENT PLAYBOOK
 
 ### 1. Vercel Frontend Deployment (`empanel.hindustanprojects.in`)
 1. Log in to [Vercel](https://vercel.com) using your GitHub account.
@@ -135,14 +171,10 @@ In your domain registrar DNS settings for `hindustanprojects.in`:
 - **Target Value:** `cname.vercel-dns.com`
 
 ### 3. VPS Backend Deployment & Maintenance
-Connect to your VPS server via SSH and execute:
 ```bash
-# Clone and setup
 git clone https://github.com/hindustan-groups/Empanelment-Portal.git
 cd Empanelment-Portal/backend
 npm install
-
-# Start with PM2 Process Manager
 npm install -g pm2
 pm2 start ecosystem.config.js
 pm2 save
@@ -150,7 +182,7 @@ pm2 startup
 ```
 
 ### 4. Database Backup & Maintenance
-The SQLite database is stored at `backend/empanelment.db`. Backup the database weekly using:
+The SQLite database is stored at `backend/empanelment.db`. Backup weekly:
 ```bash
 cp backend/empanelment.db backend/backups/empanelment_backup_$(date +%Y%m%d).db
 ```
@@ -162,7 +194,7 @@ cp backend/empanelment.db backend/backups/empanelment_backup_$(date +%Y%m%d).db
 - **Organization:** Hindustan Projects (**HiPRO**)
 - **Portal URL:** `empanel.hindustanprojects.in`
 - **Corporate Main Site:** `hindustanprojects.in`
-- **Support Helpline:** +91 (011) 4500 8899 / 900
+- **Support Helpline:** +91 (011) 4500 8899 / 900 | +91 7597000601
 - **Official Email:** empanelment@hindustanprojects.in
 
 *Report Prepared & Verified for Hindustan Projects Procurement Committee.*
