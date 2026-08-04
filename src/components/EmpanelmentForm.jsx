@@ -243,6 +243,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     gstin: '',
     gstExempt: false,
     pan: '',
+    aadharNo: '',
     msmeNo: '',
 
     /* Bank (optional) */
@@ -434,9 +435,16 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       const pan = (formData.pan || '').replace(/\s/g, '').toUpperCase();
       const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
       if (!pan) {
-        e.pan = '10-character PAN Card number is required';
+        e.pan = '10-character PAN Card number is MANDATORY';
       } else if (!panRegex.test(pan)) {
         e.pan = 'Invalid PAN format! Must be 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)';
+      }
+
+      const aadhar = (formData.aadharNo || '').replace(/\s|-/g, '');
+      if (!aadhar) {
+        e.aadharNo = '12-digit Aadhaar Card number is MANDATORY for identity verification';
+      } else if (!/^[0-9]{12}$/.test(aadhar)) {
+        e.aadharNo = 'Invalid Aadhaar format! Must be exactly 12 digits (e.g. 990012345678)';
       }
 
       const bankAccount = (formData.bankAccount || '').trim();
@@ -990,7 +998,12 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     placeholder="e.g. ABCDE1234F" upper error={errors.pan} />
                 </FieldGroup>
 
-                <FieldGroup label="MSME / Udyam Registration" optional hint="UDYAM-XX-XX-XXXXXXX">
+                <FieldGroup label="12-Digit Aadhaar Card Number" required error={errors.aadharNo} hint="UIDAI 12-digit national identity number">
+                  <Input name="aadharNo" value={formData.aadharNo} onChange={handleChange}
+                    placeholder="e.g. 9900 1234 5678" error={errors.aadharNo} />
+                </FieldGroup>
+
+                <FieldGroup label="MSME / Udyam Registration" optional hint="UDYAM-XX-XX-XXXXXXX (Optional)">
                   <Input name="msmeNo" value={formData.msmeNo} onChange={handleChange}
                     placeholder="e.g. UDYAM-RJ-14-0028491" upper />
                 </FieldGroup>
