@@ -196,13 +196,36 @@ function MainAppLayout() {
           <Route path="/vendor-login" element={<VendorLoginPage />} />
           <Route path="/vendor-dashboard" element={<VendorDashboardPage />} />
           
-          {/* Isolated Unlisted Internal Admin Security Gateway */}
+          {/* Admin Auth & Control Center Routes */}
+          <Route 
+            path="/admin-login" 
+            element={
+              <AdminLoginPage 
+                onLoginSuccess={handleAdminLogin} 
+              />
+            } 
+          />
+
           <Route 
             path="/internal-portal-login" 
             element={
               <AdminLoginPage 
                 onLoginSuccess={handleAdminLogin} 
               />
+            } 
+          />
+
+          <Route 
+            path="/admin" 
+            element={
+              isAdminAuth ? (
+                <AdminPage 
+                  isAuthenticated={isAdminAuth} 
+                  onLogout={handleAdminLogout} 
+                />
+              ) : (
+                <Navigate to="/admin-login" replace />
+              )
             } 
           />
 
@@ -215,14 +238,10 @@ function MainAppLayout() {
                   onLogout={handleAdminLogout} 
                 />
               ) : (
-                <Navigate to="/internal-portal-login" replace />
+                <Navigate to="/admin-login" replace />
               )
             } 
           />
-
-          {/* Secure Obfuscation: Public /admin and /admin-login redirect to 404 Page */}
-          <Route path="/admin-login" element={<Navigate to="/404" replace />} />
-          <Route path="/admin" element={<Navigate to="/404" replace />} />
 
           {/* Global 404 Not Found Page */}
           <Route path="/404" element={<NotFoundPage />} />
