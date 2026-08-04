@@ -242,7 +242,7 @@ export default function TrackPage() {
         <form id="track-search-form" onSubmit={handleSearch} style={{ marginBottom: '1.75rem' }}>
           <div className="form-group">
             <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 800 }}>
-              Enter Tracking Reference Code, 15-Digit GSTIN, Email, or Mobile Number:
+              Enter Tracking Reference Code, 15-Digit GSTIN, or Registered Email Address:
             </label>
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <input
@@ -281,8 +281,8 @@ export default function TrackPage() {
                   <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>GSTIN entered during registration (e.g. 08HYJPK8847M1ZC).</span>
                 </div>
                 <div style={{ padding: '0.75rem', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-                  <strong style={{ color: '#0F172A', display: 'block' }}>📱 Mobile or Email</strong>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Registered mobile number or corporate email address.</span>
+                  <strong style={{ color: '#0F172A', display: 'block' }}>✉️ Registered Email Address</strong>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Corporate email address registered during onboarding.</span>
                 </div>
               </div>
             </div>
@@ -329,7 +329,7 @@ export default function TrackPage() {
               <ul style={{ paddingLeft: '1.25rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
                 <li><strong>Tracking ID format:</strong> Ensure valid reference code format (e.g. <code>HP-EMP-025</code>).</li>
                 <li><strong>GSTIN format:</strong> Verify your 15-digit GSTIN (e.g. <code>08HYJPK8847M1ZC</code>).</li>
-                <li><strong>Mobile / Email:</strong> Make sure you enter the exact mobile number or email used during registration.</li>
+                <li><strong>Registered Email:</strong> Make sure you enter the exact corporate email address used during registration.</li>
                 <li><strong>Haven't filed yet?</strong> If you have not submitted the empanelment form, please register below.</li>
               </ul>
             </div>
