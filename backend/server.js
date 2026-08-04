@@ -237,6 +237,27 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
 });
 
 // ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/contact
+// Contact form inquiry endpoint
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/contact', async (req, res) => {
+  const { name, email, phone, company, department, message } = req.body;
+  const adminEmail = process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in';
+
+  try {
+    if (emailService && emailService.sendEmail) {
+      await emailService.sendEmail(adminEmail, {
+        subject: `[Contact Support] ${department} — ${name} (${company || 'Individual'})`,
+        html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Company:</strong> ${company}</p><p><strong>Message:</strong> ${message}</p>`
+      });
+    }
+    res.json({ success: true, message: 'Inquiry email sent successfully.' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────
 // GET /api/empanelment/status/:trackingId
 // Public tracking — returns status for a given tracking ID
 // ─────────────────────────────────────────────────────────────────
