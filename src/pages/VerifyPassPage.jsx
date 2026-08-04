@@ -1,28 +1,51 @@
 import React from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { ShieldCheck, CheckCircle2, Clock, Calendar, Building2, UserCheck, Truck, Users, QrCode, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Clock, Calendar, Building2, UserCheck, Truck, Users, QrCode, ArrowLeft, AlertCircle } from 'lucide-react';
 import Logo from '../components/Logo';
 
 export default function VerifyPassPage() {
   const [searchParams] = useSearchParams();
-  const code = searchParams.get('code') || 'HP-PASS-2026-8812';
-  const vendorId = searchParams.get('vendor') || 'HP-EMP-025';
+  const code = searchParams.get('code');
+  const vendorId = searchParams.get('vendor');
 
-  // Read matching vendor from localStorage if available
+  // Read matching pass from localStorage site passes
+  let passData = null;
   let vendorName = 'Apex Infrastructure & Engineering Pvt Ltd';
-  try {
-    const apps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-    const match = apps.find(a => a.tracking_id === vendorId);
-    if (match) vendorName = match.company_name;
-  } catch {}
 
-  const todayStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  const expiryStr = new Date(Date.now() + 86400000).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  try {
+    const savedPasses = JSON.parse(localStorage.getItem('hipro_vendor_site_passes') || '[]');
+    if (code) {
+      passData = savedPasses.find(p => p.passCode === code);
+    }
+    
+    // Read vendor name from applications or session
+    const apps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+    const matchApp = apps.find(a => a.tracking_id === vendorId || (passData && a.tracking_id === passData.vendorId));
+    if (matchApp) {
+      vendorName = matchApp.company_name || matchApp.companyName;
+    } else {
+      const session = JSON.parse(localStorage.getItem('hipro_vendor_session') || '{}');
+      if (session.company_name) vendorName = session.company_name;
+    }
+  } catch (err) {
+    console.warn('Pass lookup error:', err);
+  }
+
+  // Fallback demo pass data if params present
+  const activeCode = code || 'HP-PASS-2026-8812';
+  const activeVendorId = vendorId || 'HP-EMP-025';
+
+  const siteLocation = passData?.siteLocation || 'Jaipur Commercial Tower (B+G+18)';
+  const visitorName = passData?.visitorName || 'Ramesh Kumar (Site Supervisor)';
+  const workerCount = passData?.workerCount || '15 Personnel';
+  const vehicleNo = passData?.vehicleNo || 'RJ 06 GB 1234';
+  const dateIssued = passData?.date || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  const validTill = passData?.validTill || `${new Date(Date.now() + 86400000).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} 23:59 IST`;
 
   return (
-    <div style={{ minHeight: '80vh', backgroundColor: '#F8FAFC', padding: '2rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ minHeight: '80vh', backgroundColor: '#F8FAFC', padding: '2.5rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{
-        maxWidth: 500, width: '100%', backgroundColor: '#FFFFFF', borderRadius: 24,
+        maxWidth: 520, width: '100%', backgroundColor: '#FFFFFF', borderRadius: 24,
         boxShadow: '0 20px 40px rgba(0,0,0,0.08)', border: '1px solid #E2E8F0', overflow: 'hidden'
       }}>
         
@@ -47,11 +70,11 @@ export default function VerifyPassPage() {
         <div style={{ padding: '1.25rem 1.5rem', backgroundColor: '#F0FDF4', borderBottom: '1px solid #DCFCE7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '0.725rem', color: '#047857', fontWeight: 800 }}>SECURITY TOKEN ID</div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 900, fontFamily: 'monospace', color: '#065F46' }}>{code}</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 900, fontFamily: 'monospace', color: '#065F46' }}>{activeCode}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '0.725rem', color: '#047857', fontWeight: 800 }}>VENDOR TRACKING ID</div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 900, fontFamily: 'monospace', color: '#065F46' }}>{vendorId}</div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 900, fontFamily: 'monospace', color: '#065F46' }}>{activeVendorId}</div>
           </div>
         </div>
 
@@ -65,28 +88,28 @@ export default function VerifyPassPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
             <div style={{ padding: '0.85rem', borderRadius: 12, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
               <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>Project Site</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0047AB', marginTop: 2 }}>Jaipur Commercial Tower (B+G+18)</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0047AB', marginTop: 2 }}>{siteLocation}</div>
             </div>
 
             <div style={{ padding: '0.85rem', borderRadius: 12, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
               <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>Site In-Charge</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>Ramesh Kumar (Supervisor)</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{visitorName}</div>
             </div>
 
             <div style={{ padding: '0.85rem', borderRadius: 12, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
               <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>Allowed Workers</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#047857', marginTop: 2 }}>15 Personnel</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#047857', marginTop: 2 }}>{workerCount}</div>
             </div>
 
             <div style={{ padding: '0.85rem', borderRadius: 12, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
               <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 800 }}>Vehicle Registration</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>RJ 06 GB 1234</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{vehicleNo}</div>
             </div>
           </div>
 
           <div style={{ padding: '0.85rem', borderRadius: 12, backgroundColor: '#FEF3C7', border: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: '#92400E' }}>
             <Clock style={{ width: 16, height: 16, flexShrink: 0 }} />
-            <span>Pass Issued: <strong>{todayStr}</strong> • Expires: <strong>{expiryStr} 23:59 IST</strong> (24-Hr Window)</span>
+            <span>Pass Issued: <strong>{dateIssued}</strong> • Valid Till: <strong>{validTill}</strong></span>
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>

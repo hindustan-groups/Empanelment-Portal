@@ -160,13 +160,14 @@ export default function TendersPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '0.65rem' }}>
-                <button
-                  onClick={() => alert(`Downloading Tender Document Document Package for ${tender.id}...`)}
-                  style={{ padding: '0.5rem 0.95rem', fontSize: '0.8rem', fontWeight: 800, borderRadius: 10, border: '1px solid #CBD5E1', backgroundColor: '#FFFFFF', color: '#334155', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                <Link
+                  to="/vendor-login"
+                  style={{ padding: '0.5rem 0.95rem', fontSize: '0.8rem', fontWeight: 800, borderRadius: 10, border: '1px solid #CBD5E1', backgroundColor: '#FFFFFF', color: '#334155', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none' }}
+                  title="Sign in to Vendor Portal to download official Tender Package PDF"
                 >
                   <Download style={{ width: 14, height: 14 }} />
-                  <span>Tender Document PDF</span>
-                </button>
+                  <span>Download Tender Package PDF</span>
+                </Link>
 
                 <Link
                   to="/apply"
