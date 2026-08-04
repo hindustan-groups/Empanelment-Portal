@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import ActiveTenders from '../components/ActiveTenders';
-import EligibilityCalculator from '../components/EligibilityCalculator';
+
 import { ShieldCheck, Award, FileText, ArrowRight, CheckCircle2, Building2 } from 'lucide-react';
 
 export default function Home({ selectedCategory, setSelectedCategory }) {
@@ -21,10 +21,7 @@ export default function Home({ selectedCategory, setSelectedCategory }) {
         onStartForm={handleStartForm}
       />
 
-      {/* Interactive Vendor Eligibility & Tier Evaluator */}
-      <div style={{ marginTop: '2.5rem' }}>
-        <EligibilityCalculator onApplyCategory={() => navigate('/apply')} />
-      </div>
+
 
       {/* 4-Step Empanelment Journey Workflow */}
       <div style={{ maxWidth: 1200, margin: '2.5rem auto 3.5rem auto', padding: '0 1.5rem' }}>
