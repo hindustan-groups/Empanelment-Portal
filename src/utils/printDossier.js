@@ -731,7 +731,7 @@ function buildDossierHTML({ trackingId, formData }) {
       <div class="sig-row">
         <div>
           <div class="sig-line"></div>
-          <div class="sig-label">Authorized Signatory</div>
+          <div class="sig-label">Authorized Signatory (Vendor)</div>
           <div class="sig-name">${formData?.signatoryName || formData?.contactName || '___________________________'}</div>
           <div class="sig-date">Date: ${filingDate}</div>
         </div>
@@ -740,19 +740,32 @@ function buildDossierHTML({ trackingId, formData }) {
         <div class="sig-img-box">
           <div class="sig-img-label">Digital Seal / E-Signature</div>
           <img src="${formData.signature}" alt="Digital Signature" style="height:45px;max-width:150px;object-fit:contain;display:block"/>
+        </div>` : (formData?.adminSeal ? `
+        <div class="sig-img-box">
+          <div class="sig-img-label">OFFICIAL COMPANY SEAL</div>
+          <img src="${formData.adminSeal}" alt="Official Seal" style="height:55px;max-width:120px;object-fit:contain;display:block;margin:0 auto"/>
         </div>` : `
         <div class="sig-img-box" style="padding:6px 12px">
           <div class="sig-img-label">OFFICIAL STAMP</div>
           <div style="font-size:7pt;font-weight:900;color:${HP_MUTED}">STAMP &amp; SEAL</div>
-        </div>`}
+        </div>`)}
 
         <div>
           <div class="sig-line"></div>
           <div class="sig-label">For Hindustan Projects</div>
-          <div class="sig-name">Empanelment Committee</div>
-          <div class="sig-date">Bhilwara HQ</div>
+          <div class="sig-name">${formData?.adminSigned ? (formData?.adminCeoName || 'Empanelment Committee') : 'Empanelment Committee'}</div>
+          <div class="sig-date">${formData?.adminSigned ? (formData?.adminOfficerName || 'Procurement Officer') : 'Bhilwara HQ'}</div>
         </div>
       </div>
+
+      ${formData?.adminSigned ? `
+      <div style="margin-top:10px;padding:8px 12px;background:#D1FAE5;border:1.5px solid #10B981;border-radius:8px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:12pt">✅</span>
+        <div>
+          <div style="font-size:8.5pt;font-weight:900;color:#065F46">APPLICATION ${(formData?.adminApprovalClass || 'APPROVED').toUpperCase()} — OFFICIAL AUTHORIZATION</div>
+          <div style="font-size:7pt;color:#047857">Authorized on ${formData?.adminSignedAt || filingDate} by Procurement Committee, Hindustan Projects · Ref: ${trackingId}</div>
+        </div>
+      </div>` : ''}
     </div>
   </div>
 
