@@ -73,9 +73,20 @@ html, body, #root {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+*:focus,
+*:focus-visible,
+button:focus,
+a:focus,
+div:focus,
+span:focus {
+  outline: none !important;
+  box-shadow: none;
 }
 
 h1, h2, h3, h4, h5, h6 {
