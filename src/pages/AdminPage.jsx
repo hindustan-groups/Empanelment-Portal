@@ -490,93 +490,118 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
         {/* ── Executive Command Header ── */}
         <div style={{ 
-          background: 'linear-gradient(135deg, #0F172A 0%, #0B1B3D 50%, #0047AB 100%)', 
-          borderRadius: 24, 
-          padding: '1.75rem 2rem', 
-          color: 'white', 
+          background: 'linear-gradient(135deg, #060D1F 0%, #0A1535 40%, #0D2B6E 75%, #0047AB 100%)',
+          borderRadius: 24,
+          padding: '0',
+          color: 'white',
           marginBottom: '1.75rem',
-          boxShadow: '0 16px 40px rgba(0, 71, 171, 0.25)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.25rem'
+          boxShadow: '0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)',
+          overflow: 'hidden',
+          position: 'relative',
         }}>
-          {/* TOP ROW: Logo & Title on Far Left, Action Buttons on Far Right */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '1rem', flexWrap: 'wrap' }}>
-            
-            {/* Far Left: Logo & Title Block */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <Logo height={42} />
-              <div>
-                <div style={{ fontSize: '0.725rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block', boxShadow: '0 0 10px #10B981' }}></span>
-                  EXECUTIVE PROCUREMENT CONTROL CENTER • HINDUSTAN PROJECTS
-                </div>
-                <h2 style={{ fontSize: '1.45rem', fontWeight: 900, marginTop: 2, marginBottom: 2, letterSpacing: '-0.01em', color: '#FFFFFF' }}>
-                  Corporate Admin &amp; Vendor Management Console
-                </h2>
-                <div style={{ fontSize: '0.78rem', color: '#94A3B8', fontWeight: 600 }}>
-                  VPS SQLite Database Sync • Real-Time Dossier Auditing &amp; Smart PVC ID Issuance
-                </div>
-              </div>
-            </div>
 
-            {/* Far Right: Action Buttons */}
-            <div style={{ display: 'flex', gap: '0.55rem', alignItems: 'center', marginLeft: 'auto', flexWrap: 'wrap' }}>
-              <a href="https://www.hindustanprojects.in" target="_blank" rel="noreferrer" className="btn-secondary" style={{ fontSize: '0.78rem', padding: '0.5rem 0.9rem', color: 'white', backgroundColor: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.25)', borderRadius: 10, whiteSpace: 'nowrap' }}>
-                <ExternalLink style={{ width: 14, height: 14 }} /><span>Main Site</span>
+          {/* Decorative radial glow background */}
+          <div style={{ position: 'absolute', top: -60, right: -60, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,71,171,0.3) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: -40, left: 200, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+          {/* SECTION 1: Top Strip - Status & Actions */}
+          <div style={{ 
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '0.6rem 1.75rem',
+            borderBottom: '1px solid rgba(255,255,255,0.07)',
+            background: 'rgba(0,0,0,0.2)',
+            flexWrap: 'wrap', gap: '0.5rem'
+          }}>
+            {/* Left: System Status */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block', boxShadow: '0 0 8px #10B981' }} />
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#6EE7B7', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Systems Online</span>
+              </div>
+              <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.15)' }} />
+              <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600 }}>
+                🔒 256-bit SSL  •  VPS SQLite Sync  •  Real-Time Audit
+              </span>
+            </div>
+            {/* Right: Action Buttons */}
+            <div style={{ display: 'flex', gap: '0.45rem', alignItems: 'center' }}>
+              <a href="https://www.hindustanprojects.in" target="_blank" rel="noreferrer" 
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.38rem 0.8rem', borderRadius: 8, color: '#CBD5E1', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', textDecoration: 'none', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>
+                <ExternalLink style={{ width: 13, height: 13 }} /> Main Site
               </a>
-              <button onClick={handleExportCSV} className="btn-secondary" style={{ fontSize: '0.78rem', padding: '0.5rem 0.9rem', color: 'white', backgroundColor: 'rgba(16,185,129,0.22)', borderColor: 'rgba(16,185,129,0.45)', borderRadius: 10, whiteSpace: 'nowrap' }}>
-                <Download style={{ width: 14, height: 14, color: '#34D399' }} /><span>Export CSV</span>
+              <button onClick={handleExportCSV}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.38rem 0.8rem', borderRadius: 8, color: '#6EE7B7', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <Download style={{ width: 13, height: 13 }} /> Export CSV
               </button>
-              <button onClick={fetchVendors} className="btn-secondary" style={{ fontSize: '0.78rem', padding: '0.5rem 0.9rem', color: 'white', backgroundColor: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.25)', borderRadius: 10, whiteSpace: 'nowrap' }}>
-                <RefreshCw style={{ width: 14, height: 14 }} className={loading ? 'animate-spin' : ''} /><span>Refresh</span>
+              <button onClick={fetchVendors}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.38rem 0.8rem', borderRadius: 8, color: '#CBD5E1', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <RefreshCw style={{ width: 13, height: 13 }} className={loading ? 'animate-spin' : ''} /> Refresh
               </button>
-              <button onClick={onLogout} className="btn-secondary" style={{ fontSize: '0.78rem', padding: '0.5rem 0.9rem', color: '#FCA5A5', backgroundColor: 'rgba(237,28,36,0.22)', borderColor: 'rgba(237,28,36,0.45)', borderRadius: 10, whiteSpace: 'nowrap' }}>
-                <LogOut style={{ width: 14, height: 14 }} /><span>Logout</span>
+              <button onClick={onLogout}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.38rem 0.8rem', borderRadius: 8, color: '#FCA5A5', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <LogOut style={{ width: 13, height: 13 }} /> Logout
               </button>
             </div>
-
           </div>
 
-          {/* BOTTOM ROW: Officer Badge on Far Left, Metric Cards on Far Right */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.12)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '1rem', flexWrap: 'wrap' }}>
+          {/* SECTION 2: Main Content Row - Logo+Title | Metric Cards */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.5rem 1.75rem', gap: '2rem', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
             
-            {/* Far Left: Officer Session Badge */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <div style={{ padding: '0.4rem 0.9rem', borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', fontSize: '0.78rem', color: '#E2E8F0', display: 'flex', alignItems: 'center', gap: '0.55rem', whiteSpace: 'nowrap' }}>
-                <ShieldCheck style={{ width: 16, height: 16, color: '#10B981' }} />
-                <span>Officer: <strong>{localStorage.getItem('hipro_admin_email') || 'admin@hindustanprojects.in'}</strong></span>
-                <span style={{ fontSize: '0.68rem', backgroundColor: 'rgba(16,185,129,0.25)', color: '#34D399', padding: '0.12rem 0.5rem', borderRadius: 6, fontWeight: 800 }}>ACTIVE SESSION</span>
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                🔒 256-Bit SSL Encrypted Console
+            {/* Left: Logo + Title */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: '1 1 400px' }}>
+              <Logo height={48} />
+              <div style={{ borderLeft: '1px solid rgba(255,255,255,0.15)', paddingLeft: '1.25rem' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem' }}>
+                  EXECUTIVE PROCUREMENT CONTROL CENTER
+                </div>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#FFFFFF', lineHeight: 1.15 }}>
+                  Corporate Admin &amp; Vendor
+                  <span style={{ display: 'block', background: 'linear-gradient(90deg, #60A5FA, #818CF8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    Management Console
+                  </span>
+                </h2>
               </div>
             </div>
 
-            {/* Far Right: Metric Grid Cards */}
-            <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', marginLeft: 'auto', flexWrap: 'wrap' }}>
-              <div style={{ padding: '0.5rem 1rem', borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', textAlign: 'center', minWidth: 95 }}>
-                <div style={{ fontSize: '0.68rem', color: '#94A3B8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>TOTAL APPS</div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#FFFFFF', marginTop: 1 }}>{totalApps}</div>
-              </div>
-
-              <div style={{ padding: '0.5rem 1rem', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.18)', border: '1px solid rgba(16,185,129,0.35)', textAlign: 'center', minWidth: 95 }}>
-                <div style={{ fontSize: '0.68rem', color: '#A7F3D0', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>APPROVED</div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#34D399', marginTop: 1 }}>{approvedApps}</div>
-              </div>
-
-              <div style={{ padding: '0.5rem 1rem', borderRadius: 14, backgroundColor: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.35)', textAlign: 'center', minWidth: 95 }}>
-                <div style={{ fontSize: '0.68rem', color: '#FDE68A', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>PENDING</div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#FBBF24', marginTop: 1 }}>{pendingApps}</div>
-              </div>
-
-              <div style={{ padding: '0.5rem 1rem', borderRadius: 14, backgroundColor: 'rgba(237,28,36,0.18)', border: '1px solid rgba(237,28,36,0.35)', textAlign: 'center', minWidth: 95 }}>
-                <div style={{ fontSize: '0.68rem', color: '#FECDD3', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>REJECTED</div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#F87171', marginTop: 1 }}>{rejectedApps}</div>
-              </div>
+            {/* Right: KPI Metric Cards */}
+            <div style={{ display: 'flex', gap: '0.75rem', flexShrink: 0, flexWrap: 'wrap' }}>
+              {[
+                { label: 'TOTAL APPS', value: totalApps,    bg: 'rgba(255,255,255,0.07)', border: 'rgba(255,255,255,0.14)', color: '#FFFFFF',  labelColor: '#94A3B8' },
+                { label: 'APPROVED',   value: approvedApps, bg: 'rgba(16,185,129,0.14)', border: 'rgba(16,185,129,0.3)',  color: '#34D399',  labelColor: '#6EE7B7' },
+                { label: 'PENDING',    value: pendingApps,  bg: 'rgba(245,158,11,0.14)', border: 'rgba(245,158,11,0.3)',  color: '#FBBF24',  labelColor: '#FDE68A' },
+                { label: 'REJECTED',   value: rejectedApps, bg: 'rgba(239,68,68,0.14)',  border: 'rgba(239,68,68,0.3)',   color: '#F87171',  labelColor: '#FECDD3' },
+              ].map(card => (
+                <div key={card.label} style={{ 
+                  padding: '0.9rem 1.2rem', borderRadius: 16,
+                  background: card.bg, border: `1px solid ${card.border}`,
+                  textAlign: 'center', minWidth: 100,
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                }}>
+                  <div style={{ fontSize: '0.64rem', fontWeight: 800, color: card.labelColor, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.35rem' }}>{card.label}</div>
+                  <div style={{ fontSize: '1.75rem', fontWeight: 900, color: card.color, lineHeight: 1 }}>{card.value}</div>
+                </div>
+              ))}
             </div>
 
           </div>
+
+          {/* SECTION 3: Bottom Officer Badge Strip */}
+          <div style={{ 
+            display: 'flex', alignItems: 'center', gap: '0.75rem',
+            padding: '0.65rem 1.75rem',
+            borderTop: '1px solid rgba(255,255,255,0.07)',
+            background: 'rgba(0,0,0,0.15)',
+          }}>
+            <ShieldCheck style={{ width: 15, height: 15, color: '#10B981', flexShrink: 0 }} />
+            <span style={{ fontSize: '0.76rem', color: '#CBD5E1', fontWeight: 600 }}>
+              Logged in as: <strong style={{ color: '#E2E8F0' }}>{localStorage.getItem('hipro_admin_email') || 'admin@hindustanprojects.in'}</strong>
+            </span>
+            <span style={{ fontSize: '0.65rem', fontWeight: 800, background: 'rgba(16,185,129,0.2)', color: '#34D399', padding: '0.18rem 0.6rem', borderRadius: 20, border: '1px solid rgba(16,185,129,0.35)', letterSpacing: '0.06em' }}>
+              ● ACTIVE SESSION
+            </span>
+          </div>
+
         </div>
 
         {/* ── Navigation Tabs ── */}
