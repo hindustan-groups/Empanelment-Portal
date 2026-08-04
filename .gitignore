@@ -1,3 +1,15 @@
+# Environment & Credentials
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Database & Uploads
+*.db
+backend/empanelment.db
+backend/uploads/*
+!backend/uploads/.gitkeep
+
 # Logs
 logs
 *.log
@@ -10,7 +22,6 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-*.local
 
 # Editor directories and files
 .vscode/*
