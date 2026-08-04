@@ -503,9 +503,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           gap: '1.25rem'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ padding: '0.6rem', borderRadius: 14, backgroundColor: 'rgba(255, 255, 255, 0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-              <Logo height={42} />
-            </div>
+            <Logo height={40} />
             <div>
               <div style={{ fontSize: '0.725rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block', boxShadow: '0 0 10px #10B981' }}></span>
