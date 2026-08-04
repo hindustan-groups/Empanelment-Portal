@@ -316,16 +316,21 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       return;
     }
     const previewUrl = URL.createObjectURL(file);
-    setFormData(prev => ({
-      ...prev,
-      [field]: {
-        name: file.name || 'document.pdf',
-        size: file.size || 0,
-        type: file.type || 'application/pdf',
-        previewUrl,
-        rawFile: file
-      }
-    }));
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData(prev => ({
+        ...prev,
+        [field]: {
+          name: file.name || 'document.pdf',
+          size: file.size || 0,
+          type: file.type || 'application/pdf',
+          previewUrl,
+          data: reader.result,
+          rawFile: file
+        }
+      }));
+    };
+    reader.readAsDataURL(file);
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
   };
 
