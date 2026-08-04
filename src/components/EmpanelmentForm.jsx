@@ -423,12 +423,10 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
     // Step 2: Statutory Tax & Compliance Validation (GSTIN + PAN + Bank)
     if (step === 2) {
-      if (!formData.gstExempt) {
+      if (!formData.gstExempt && formData.gstin && formData.gstin.trim() !== '') {
         const gstin = (formData.gstin || '').replace(/\s/g, '').toUpperCase();
         const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-        if (!gstin) {
-          e.gstin = 'Enter your 15-character GSTIN or check "No GSTIN / Exempt"';
-        } else if (!gstinRegex.test(gstin)) {
+        if (!gstinRegex.test(gstin)) {
           e.gstin = 'Invalid GSTIN format! Must be 15 characters (e.g. 08AAAAA0000A1Z5)';
         }
       }
@@ -978,13 +976,12 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
                 <FieldGroup
                   label="15-Digit GSTIN"
-                  required={!formData.gstExempt}
-                  optional={formData.gstExempt || isSoleProp}
-                  hint={isSoleProp ? 'Leave blank if you checked "No GSTIN" above' : undefined}
+                  optional
+                  hint="Optional — leave blank if not GST registered or turnover < ₹20 Lakhs"
                   error={errors.gstin}
                 >
                   <Input name="gstin" value={formData.gstin} onChange={handleChange}
-                    placeholder={formData.gstExempt ? 'EXEMPTED – not required' : 'e.g. 08AAAAA0000A1Z5'}
+                    placeholder={formData.gstExempt ? 'EXEMPTED – not required' : 'e.g. 08AAAAA0000A1Z5 (Optional)'}
                     upper disabled={formData.gstExempt} error={errors.gstin} />
                 </FieldGroup>
 
