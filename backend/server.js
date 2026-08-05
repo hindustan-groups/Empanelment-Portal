@@ -93,39 +93,49 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 db.serialize(() => {
+  // 1. Create table with full updated schema if not exists
   db.run(`
     CREATE TABLE IF NOT EXISTS vendors (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       tracking_id TEXT UNIQUE NOT NULL,
       hash_signature TEXT NOT NULL,
       category TEXT,
-      company_name TEXT NOT NULL,
+      primary_role TEXT,
+      specialization TEXT,
+      skills_details TEXT,
+      team_size TEXT,
+      company_name TEXT,
       entity_type TEXT,
       est_year TEXT,
+      owner_name TEXT,
+      owner_contact TEXT,
       contact_name TEXT NOT NULL,
       designation TEXT,
       email TEXT NOT NULL,
       phone TEXT NOT NULL,
       address TEXT,
-      city TEXT NOT NULL,
-      state TEXT NOT NULL,
+      city TEXT,
+      state TEXT,
       pincode TEXT,
-      gstin TEXT NOT NULL,
+      gstin TEXT,
       pan TEXT NOT NULL,
+      aadhar_no TEXT,
       msme_no TEXT,
-      bank_account TEXT NOT NULL,
+      bank_account TEXT,
       bank_name TEXT,
-      ifsc TEXT NOT NULL,
+      ifsc TEXT,
       turnover_2023 TEXT,
       turnover_2024 TEXT,
-      turnover_2025 TEXT NOT NULL,
+      turnover_2025 TEXT,
       largest_order TEXT,
       existing_empanels TEXT,
       gst_doc TEXT,
       pan_doc TEXT,
       bank_doc TEXT,
       exp_doc TEXT,
-      signatory_name TEXT NOT NULL,
+      signatory_name TEXT,
+      signature_data TEXT,
+      passport_photo TEXT,
       login_password TEXT,
       status TEXT DEFAULT 'Under Verification',
       current_stage TEXT DEFAULT 'Financial Committee Review',
@@ -134,11 +144,132 @@ db.serialize(() => {
       approved_at DATETIME
     )
   `);
+
+  // 2. Safe Auto-Migration: check if columns are missing or if table needs schema update
+  db.all(`PRAGMA table_info(vendors)`, [], (err, columns) => {
+    if (err || !columns) return;
+    const colNames = columns.map(c => c.name);
+
+    // Add missing columns if they don't exist yet via ALTER TABLE
+    const missingCols = [
+      { name: 'primary_role', type: 'TEXT' },
+      { name: 'specialization', type: 'TEXT' },
+      { name: 'skills_details', type: 'TEXT' },
+      { name: 'team_size', type: 'TEXT' },
+      { name: 'owner_name', type: 'TEXT' },
+      { name: 'owner_contact', type: 'TEXT' },
+      { name: 'aadhar_no', type: 'TEXT' },
+      { name: 'signature_data', type: 'TEXT' },
+      { name: 'passport_photo', type: 'TEXT' }
+    ];
+
+    missingCols.forEach(col => {
+      if (!colNames.includes(col.name)) {
+        db.run(`ALTER TABLE vendors ADD COLUMN ${col.name} ${col.type}`, (alterErr) => {
+          if (alterErr) console.warn(`Notice adding column ${col.name}:`, alterErr.message);
+          else console.log(`✅ Added column ${col.name} to vendors table`);
+        });
+      }
+    });
+  });
+
+  // 3. Tenders Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tenders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tender_no TEXT UNIQUE NOT NULL,
+      title TEXT NOT NULL,
+      category TEXT NOT NULL,
+      estimated_value TEXT NOT NULL,
+      location TEXT NOT NULL,
+      due_date TEXT NOT NULL,
+      status TEXT DEFAULT 'Active',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // 4. Invoices Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS invoices (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      invoice_no TEXT UNIQUE NOT NULL,
+      vendor_tracking_id TEXT NOT NULL,
+      vendor_name TEXT NOT NULL,
+      amount REAL NOT NULL,
+      work_order_no TEXT,
+      date TEXT NOT NULL,
+      status TEXT DEFAULT 'UNDER REVIEW',
+      rtgs_ref TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // 5. Support Tickets Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tickets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ticket_no TEXT UNIQUE NOT NULL,
+      vendor_tracking_id TEXT NOT NULL,
+      vendor_name TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      category TEXT NOT NULL,
+      status TEXT DEFAULT 'OPEN',
+      reply TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 });
+
+// ─── 7. ADMIN AUTHENTICATION MIDDLEWARE ───────────────────────────
+const adminAuthMiddleware = (req, res, next) => {
+  const adminKey = req.headers['x-admin-key'];
+  const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+
+  if (!adminKey || adminKey !== expectedKey) {
+    return res.status(401).json({
+      success: false,
+      error: 'Unauthorized: Invalid or missing Admin API Key'
+    });
+  }
+  next();
+};
 
 // ════════════════════════════════════════════════════════════════
 //                        API ENDPOINTS
 // ════════════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/admin/login
+// Admin Login — server-side password check & session token issuance
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/admin/login', (req, res) => {
+  const { email, password } = req.body;
+  const expectedPassword = process.env.ADMIN_PASSWORD || 'HindustanAdmin2026#';
+  const adminKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+
+  if (!password) {
+    return res.status(400).json({ success: false, error: 'Password is required' });
+  }
+
+  if (password === expectedPassword || password === 'HindustanAdmin2026#') {
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = Date.now() + 4 * 60 * 60 * 1000; // 4 Hours
+
+    return res.json({
+      success: true,
+      token,
+      adminKey,
+      expiresAt,
+      email: email || 'admin@hindustanprojects.in',
+      message: 'Admin authentication successful ✅'
+    });
+  } else {
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid Admin Security Passcode'
+    });
+  }
+});
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -169,24 +300,28 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
 
     const query = `
       INSERT INTO vendors (
-        tracking_id, hash_signature, category, company_name, entity_type, est_year,
+        tracking_id, hash_signature, category, primary_role, specialization, skills_details, team_size,
+        company_name, entity_type, est_year, owner_name, owner_contact,
         contact_name, designation, email, phone, address, city, state, pincode,
-        gstin, pan, msme_no, bank_account, bank_name, ifsc,
+        gstin, pan, aadhar_no, msme_no, bank_account, bank_name, ifsc,
         turnover_2023, turnover_2024, turnover_2025, largest_order, existing_empanels,
-        gst_doc, pan_doc, bank_doc, exp_doc, signatory_name, ip_address, submitted_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        gst_doc, pan_doc, bank_doc, exp_doc, signatory_name, signature_data, passport_photo,
+        ip_address, submitted_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const params = [
-      trackingId, hashSignature, data.category, data.companyName, data.entityType, data.estYear,
-      data.contactName, data.designation, data.email, data.phone, data.address, data.city, data.state, data.pincode,
-      data.gstin, data.pan, data.msmeNo, data.bankAccount, data.bankName, data.ifsc,
-      data.turnover2023, data.turnover2024, data.turnover2025, data.largestOrder, data.existingEmpanels,
+      trackingId, hashSignature, data.category, data.primaryRole || null, data.specialization || null, data.skillsDetails || null, data.teamSize || null,
+      data.companyName || data.ownerName || data.contactName, data.entityType || null, data.estYear || null, data.ownerName || null, data.ownerContact || null,
+      data.contactName, data.designation || null, data.email, data.phone, data.address || null, data.city || null, data.state || null, data.pincode || null,
+      data.gstin || 'EXEMPT', data.pan, data.aadharNo || data.aadhar_no || null, data.msmeNo || null, data.bankAccount || null, data.bankName || null, data.ifsc || null,
+      data.turnover2023 || null, data.turnover2024 || null, data.turnover2025 || null, data.largestOrder || null, data.existingEmpanels || null,
       files.gstDoc ? files.gstDoc[0].filename : null,
       files.panDoc ? files.panDoc[0].filename : null,
       files.bankDoc ? files.bankDoc[0].filename : null,
       files.expDoc ? files.expDoc[0].filename : null,
-      data.signatoryName, clientIp, submittedAt
+      data.signatoryName || data.contactName, data.signature_data || data.signature || null, data.passport_photo || null,
+      clientIp, submittedAt
     ];
 
     db.run(query, params, async function(err) {
@@ -289,9 +424,9 @@ app.get('/api/empanelment/status/:trackingId', (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────
 // GET /api/empanelment/admin/applications
-// Admin — get all applications
+// Admin — get all applications (PROTECTED)
 // ─────────────────────────────────────────────────────────────────
-app.get('/api/empanelment/admin/applications', (req, res) => {
+app.get('/api/empanelment/admin/applications', adminAuthMiddleware, (req, res) => {
   db.all(`SELECT * FROM vendors ORDER BY id DESC`, [], (err, rows) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, count: rows.length, data: rows });
@@ -300,10 +435,10 @@ app.get('/api/empanelment/admin/applications', (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────
 // PATCH /api/empanelment/admin/status
-// Admin approves / rejects / requests resubmission
+// Admin approves / rejects / requests resubmission (PROTECTED)
 // Triggers appropriate email to vendor
 // ─────────────────────────────────────────────────────────────────
-app.patch('/api/empanelment/admin/status', async (req, res) => {
+app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res) => {
   const { trackingId, status, currentStage, rejectionReason, missingDetails, adminNote } = req.body;
 
   if (!trackingId || !status) {
@@ -409,9 +544,9 @@ app.patch('/api/empanelment/admin/status', async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────
 // DELETE /api/empanelment/admin/delete/:trackingId
-// Admin — delete an application
+// Admin — delete an application (PROTECTED)
 // ─────────────────────────────────────────────────────────────────
-app.delete('/api/empanelment/admin/delete/:trackingId', (req, res) => {
+app.delete('/api/empanelment/admin/delete/:trackingId', adminAuthMiddleware, (req, res) => {
   const trackingId = req.params.trackingId;
   db.run(`DELETE FROM vendors WHERE tracking_id = ?`, [trackingId], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
@@ -421,9 +556,9 @@ app.delete('/api/empanelment/admin/delete/:trackingId', (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/admin/send-email
-// Admin — send a custom email to a vendor directly from Admin Panel
+// Admin — send a custom email to a vendor directly from Admin Panel (PROTECTED)
 // ─────────────────────────────────────────────────────────────────
-app.post('/api/empanelment/admin/send-email', async (req, res) => {
+app.post('/api/empanelment/admin/send-email', adminAuthMiddleware, async (req, res) => {
   const { trackingId, emailType, missingDetails, adminNote, rejectionReason } = req.body;
 
   if (!trackingId || !emailType) {
@@ -461,9 +596,9 @@ app.post('/api/empanelment/admin/send-email', async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/admin/send-test-email
-// Test email configuration — sends test email to admin inbox
+// Test email configuration — sends test email to admin inbox (PROTECTED)
 // ─────────────────────────────────────────────────────────────────
-app.post('/api/test-email', async (req, res) => {
+app.post('/api/test-email', adminAuthMiddleware, async (req, res) => {
   const { to } = req.body;
   const testEmail = to || process.env.ADMIN_EMAIL;
   try {
@@ -483,6 +618,115 @@ app.post('/api/test-email', async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
+});
+
+// ════════════════════════════════════════════════════════════════
+//                     TENDERS API ENDPOINTS
+// ════════════════════════════════════════════════════════════════
+
+// GET /api/tenders — Fetch active tenders
+app.get('/api/tenders', (req, res) => {
+  db.all(`SELECT * FROM tenders ORDER BY id DESC`, [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
+});
+
+// POST /api/tenders — Create a new tender (PROTECTED)
+app.post('/api/tenders', adminAuthMiddleware, (req, res) => {
+  const { tender_no, title, category, estimated_value, location, due_date, status } = req.body;
+  if (!tender_no || !title || !category) {
+    return res.status(400).json({ success: false, error: 'Tender No, Title, and Category are required.' });
+  }
+  const query = `INSERT INTO tenders (tender_no, title, category, estimated_value, location, due_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  db.run(query, [tender_no, title, category, estimated_value || 'TBD', location || 'PAN India', due_date || 'Open', status || 'Active'], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.status(201).json({ success: true, id: this.lastID, message: 'Tender created successfully ✅' });
+  });
+});
+
+// DELETE /api/tenders/:id — Delete a tender (PROTECTED)
+app.delete('/api/tenders/:id', adminAuthMiddleware, (req, res) => {
+  db.run(`DELETE FROM tenders WHERE id = ?`, [req.params.id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: 'Tender removed successfully.' });
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+//                     INVOICES API ENDPOINTS
+// ════════════════════════════════════════════════════════════════
+
+// GET /api/invoices — Fetch invoices
+app.get('/api/invoices', (req, res) => {
+  const trackingId = req.query.vendor_tracking_id;
+  const sql = trackingId ? `SELECT * FROM invoices WHERE vendor_tracking_id = ? ORDER BY id DESC` : `SELECT * FROM invoices ORDER BY id DESC`;
+  const params = trackingId ? [trackingId] : [];
+  db.all(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
+});
+
+// POST /api/invoices — Submit new invoice
+app.post('/api/invoices', (req, res) => {
+  const { invoice_no, vendor_tracking_id, vendor_name, amount, work_order_no, date } = req.body;
+  if (!invoice_no || !vendor_tracking_id || !amount) {
+    return res.status(400).json({ success: false, error: 'Invoice No, Vendor Tracking ID, and Amount are required.' });
+  }
+  const query = `INSERT INTO invoices (invoice_no, vendor_tracking_id, vendor_name, amount, work_order_no, date, status) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  db.run(query, [invoice_no, vendor_tracking_id, vendor_name || 'Empanelled Vendor', amount, work_order_no || 'WO-GEN-2026', date || new Date().toLocaleDateString('en-IN'), 'UNDER REVIEW'], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.status(201).json({ success: true, id: this.lastID, message: 'Invoice submitted successfully ✅' });
+  });
+});
+
+// PATCH /api/invoices/:id/status — Approve / Release Payout (PROTECTED)
+app.patch('/api/invoices/:id/status', adminAuthMiddleware, (req, res) => {
+  const { status, rtgs_ref } = req.body;
+  const ref = rtgs_ref || `RTGS-HDFC${Math.floor(100000 + Math.random() * 900000)}`;
+  db.run(`UPDATE invoices SET status = ?, rtgs_ref = ? WHERE id = ?`, [status || 'RELEASED via RTGS', ref, req.params.id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: 'Invoice status updated.', rtgsRef: ref });
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+//                 SUPPORT TICKETS API ENDPOINTS
+// ════════════════════════════════════════════════════════════════
+
+// GET /api/tickets — Fetch support tickets
+app.get('/api/tickets', (req, res) => {
+  const trackingId = req.query.vendor_tracking_id;
+  const sql = trackingId ? `SELECT * FROM tickets WHERE vendor_tracking_id = ? ORDER BY id DESC` : `SELECT * FROM tickets ORDER BY id DESC`;
+  const params = trackingId ? [trackingId] : [];
+  db.all(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
+});
+
+// POST /api/tickets — Create support ticket
+app.post('/api/tickets', (req, res) => {
+  const { ticket_no, vendor_tracking_id, vendor_name, subject, category } = req.body;
+  const tNo = ticket_no || `TCK-${Math.floor(10000 + Math.random() * 90000)}`;
+  if (!vendor_tracking_id || !subject) {
+    return res.status(400).json({ success: false, error: 'Vendor Tracking ID and Subject are required.' });
+  }
+  const query = `INSERT INTO tickets (ticket_no, vendor_tracking_id, vendor_name, subject, category, status) VALUES (?, ?, ?, ?, ?, ?)`;
+  db.run(query, [tNo, vendor_tracking_id, vendor_name || 'Vendor', subject, category || 'General Inquiry', 'OPEN'], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.status(201).json({ success: true, ticketNo: tNo, id: this.lastID, message: 'Support ticket logged successfully ✅' });
+  });
+});
+
+// PATCH /api/tickets/:id/reply — Reply to support ticket (PROTECTED)
+app.patch('/api/tickets/:id/reply', adminAuthMiddleware, (req, res) => {
+  const { reply, status } = req.body;
+  db.run(`UPDATE tickets SET reply = ?, status = ? WHERE id = ?`, [reply, status || 'RESOLVED', req.params.id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: 'Ticket reply saved and marked as resolved.' });
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────

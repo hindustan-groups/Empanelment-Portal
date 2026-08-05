@@ -218,6 +218,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const fetchVendors = async () => {
     setLoading(true);
     const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const adminKey = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
     const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
 
     const seedApps = [
@@ -226,7 +227,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     ];
 
     try {
-      const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`);
+      const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`, {
+        headers: { 'x-admin-key': adminKey }
+      });
       const data = await res.json();
       if (data.success && data.data) {
         const combined = [...localApps, ...data.data];
@@ -249,10 +252,14 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const ceoDate = isApproved ? new Date().toLocaleDateString('en-IN') : null;
 
     const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const adminKey = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
     try {
       await fetch(`${backendUrl}/api/empanelment/admin/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey
+        },
         body: JSON.stringify({ trackingId, status: newStatus, currentStage: stage, ceoSigned, ceoDate }),
       });
     } catch { /* local fallback */ }
@@ -320,9 +327,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         status = 'Clarification Required'; stage = 'Document Re-verification';
         body = { trackingId: selectedVendor.tracking_id, status: 'Resubmission Required', currentStage: stage, missingDetails, adminNote };
       }
+      const adminKey = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
       const res = await fetch(`${backendUrl}/api/empanelment/admin/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey
+        },
         body: JSON.stringify(body),
       });
       const data = await res.json();
@@ -351,7 +362,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const handleDeleteVendor = async (trackingId) => {
     if (!window.confirm(`Permanently archive application ${trackingId}?`)) return;
     const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-    try { await fetch(`${backendUrl}/api/empanelment/admin/delete/${trackingId}`, { method: 'DELETE' }); } catch { /* local */ }
+    const adminKey = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+    try {
+      await fetch(`${backendUrl}/api/empanelment/admin/delete/${trackingId}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': adminKey }
+      });
+    } catch { /* local */ }
     setVendors(prev => prev.filter(v => v.tracking_id !== trackingId));
     if (selectedVendor?.tracking_id === trackingId) setSelectedVendor(null);
   };

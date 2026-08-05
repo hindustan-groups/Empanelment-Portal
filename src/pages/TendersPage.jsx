@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Download, Calendar, ArrowRight, Filter, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -51,10 +51,36 @@ const DUMMY_TENDERS = [
 
 export default function TendersPage() {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
-  const [tenders] = useState(() => {
+  const [tenders, setTenders] = useState(() => {
     const saved = localStorage.getItem('hipro_tenders');
     return saved ? JSON.parse(saved) : DUMMY_TENDERS;
   });
+
+  React.useEffect(() => {
+    const fetchTenders = async () => {
+      const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      try {
+        const res = await fetch(`${backendUrl}/api/tenders`);
+        const data = await res.json();
+        if (data.success && data.data && data.data.length > 0) {
+          const mapped = data.data.map(t => ({
+            id: t.tender_no || `HIPRO-TND-${t.id}`,
+            title: t.title,
+            category: t.category,
+            location: t.location,
+            estimatedCost: t.estimated_value,
+            publishDate: t.created_at ? t.created_at.slice(0, 10) : '2026-08-01',
+            dueDate: t.due_date,
+            eligibility: 'Empanelled Vendors & Contractors',
+            status: t.status || 'ACTIVE'
+          }));
+          setTenders(mapped);
+          localStorage.setItem('hipro_tenders', JSON.stringify(mapped));
+        }
+      } catch { /* API fallback */ }
+    };
+    fetchTenders();
+  }, []);
 
   const filteredTenders = selectedCategory === 'ALL'
     ? tenders

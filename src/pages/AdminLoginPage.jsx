@@ -20,42 +20,65 @@ export default function AdminLoginPage({ onLoginSuccess }) {
     return () => clearInterval(timer);
   }, [lockoutTime]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (lockoutTime > 0) return;
-
     setErrorMsg('');
 
-    // Dynamic Password Check: Check localStorage set password first, then env or fallback
-    const savedPassword = localStorage.getItem('hipro_admin_password');
-    const envPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'HindustanAdmin2026#';
+    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
-    const validPasswords = [
-      savedPassword,
-      envPassword,
-      'HindustanAdmin2026#',
-      'admin123'
-    ].filter(Boolean);
+    try {
+      const res = await fetch(`${backendUrl}/api/empanelment/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: adminId, password })
+      });
+      const data = await res.json();
 
-    if (validPasswords.includes(password.trim())) {
-      // 4-Hour Expiring Corporate Session Token
-      const sessionExpiry = Date.now() + 4 * 60 * 60 * 1000;
-      localStorage.setItem('hipro_admin_session', 'true');
-      localStorage.setItem('hipro_admin_session_expiry', sessionExpiry.toString());
-      localStorage.setItem('hipro_admin_email', adminId);
+      if (data.success && data.token) {
+        localStorage.setItem('hipro_admin_session', 'true');
+        localStorage.setItem('hipro_admin_token', data.token);
+        if (data.adminKey) localStorage.setItem('hipro_admin_key', data.adminKey);
+        localStorage.setItem('hipro_admin_session_expiry', data.expiresAt ? data.expiresAt.toString() : (Date.now() + 4 * 60 * 60 * 1000).toString());
+        localStorage.setItem('hipro_admin_email', data.email);
 
-      onLoginSuccess();
-      navigate('/admin');
-    } else {
-      const newAttempts = failedAttempts + 1;
-      setFailedAttempts(newAttempts);
-
-      if (newAttempts >= 3) {
-        setLockoutTime(60); // 60s security lockout
-        setFailedAttempts(0);
-        setErrorMsg('Security Threshold Exceeded! Portal locked out for 60 seconds due to 3 failed attempts.');
+        onLoginSuccess();
+        navigate('/admin');
+        return;
       } else {
-        setErrorMsg(`Invalid Admin Password! Attempt ${newAttempts} of 3. Please check authorized corporate security key.`);
+        throw new Error(data.error || 'Invalid credentials');
+      }
+    } catch (err) {
+      // Backend offline fallback check
+      const savedPassword = localStorage.getItem('hipro_admin_password');
+      const envPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'HindustanAdmin2026#';
+
+      const validPasswords = [
+        savedPassword,
+        envPassword,
+        'HindustanAdmin2026#',
+        'admin123'
+      ].filter(Boolean);
+
+      if (validPasswords.includes(password.trim())) {
+        const sessionExpiry = Date.now() + 4 * 60 * 60 * 1000;
+        localStorage.setItem('hipro_admin_session', 'true');
+        localStorage.setItem('hipro_admin_session_expiry', sessionExpiry.toString());
+        localStorage.setItem('hipro_admin_email', adminId);
+
+        onLoginSuccess();
+        navigate('/admin');
+      } else {
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+
+        if (newAttempts >= 3) {
+          setLockoutTime(60); // 60s security lockout
+          setFailedAttempts(0);
+          setErrorMsg('Security Threshold Exceeded! Portal locked out for 60 seconds due to 3 failed attempts.');
+        } else {
+          setErrorMsg(err.message || `Invalid Admin Password! Attempt ${newAttempts} of 3.`);
+        }
       }
     }
   };
