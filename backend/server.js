@@ -236,35 +236,6 @@ db.serialize(() => {
         });
       }
     });
-
-    // Auto-seed HP-EMP-025 and HP-EMP-026 into SQLite Database if empty
-    db.get(`SELECT COUNT(*) as count FROM vendors`, [], (countErr, countRow) => {
-      if (!countErr && countRow && countRow.count === 0) {
-        console.log('🌱 Auto-seeding initial applications HP-EMP-025 & HP-EMP-026 into SQLite DB...');
-        db.run(`
-          INSERT INTO vendors (
-            tracking_id, hash_signature, category, primary_role, company_name, entity_type, est_year,
-            contact_name, designation, email, phone, address, city, state, pincode, gstin, pan,
-            turnover_2023, turnover_2024, turnover_2025, largest_order, status, current_stage
-          ) VALUES 
-          (
-            'HP-EMP-025', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'civil_contractor', 'Civil Infrastructure Contractor',
-            'Apex Infra Projects Pvt Ltd', 'private_limited', '2018', 'Rajesh Sharma', 'Managing Director', 'rajesh@apexinfra.com', '9876543210',
-            'Plot 42, Industrial Area Phase 2', 'Jaipur', 'Rajasthan', '302013', '08AAAAA1234A1Z5', 'ABCDE1234F',
-            '15.5', '18.2', '22.4', '8.5', 'Approved & Empaneled', 'Empanelment Verified'
-          ),
-          (
-            'HP-EMP-026', 'f4c1d55309fd2d250bgcg5d9007gc03538bf52f5750ca05db506002c8963c966', 'transporter', 'Logistics & Transport Operator',
-            'Sunlight Logistics & Cargo', 'proprietorship', '2020', 'Amit Verma', 'Proprietor', 'amit@sunlightlogistics.com', '9812345678',
-            'Transport Nagar, Complex B', 'Delhi', 'Delhi', '110042', '07BBBBB5678B1Z2', 'XYZPS9876Q',
-            '4.2', '5.8', '7.1', '2.4', 'Under Verification', 'Financial Committee Review'
-          )
-        `, (seedErr) => {
-          if (seedErr) console.warn('Notice seeding initial vendors:', seedErr.message);
-          else console.log('✅ Initial vendors HP-EMP-025 and HP-EMP-026 seeded into SQLite DB');
-        });
-      }
-    });
   });
 
   // 3. Tenders Table
@@ -383,13 +354,13 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
     const files = req.files || {};
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
 
-    // Generate Sequential Tracking ID (HP-EMP-027, HP-EMP-028...) or use client ID
+    // Generate Sequential Tracking ID starting at HP-EMP-025
     let trackingId = data.trackingId || data.tracking_id || data.customTrackingId;
     if (!trackingId) {
       const countRow = await new Promise((resolve) => {
         db.get(`SELECT COUNT(*) as count FROM vendors`, [], (err, row) => resolve(row));
       });
-      const nextNum = (countRow && countRow.count ? countRow.count : 0) + 27;
+      const nextNum = (countRow && countRow.count ? countRow.count : 0) + 25;
       const formattedNum = nextNum < 100 ? nextNum.toString().padStart(3, '0') : nextNum.toString();
       trackingId = `HP-EMP-${formattedNum}`;
     }
