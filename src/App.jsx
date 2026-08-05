@@ -130,6 +130,8 @@ function MainAppLayout() {
       pan_doc: formData?.panDoc?.data || formData?.panDoc?.name || (typeof formData?.panDoc === 'string' ? formData.panDoc : 'pan_card.pdf'),
       bank_doc: formData?.bankDoc?.data || formData?.bankDoc?.name || (typeof formData?.bankDoc === 'string' ? formData.bankDoc : 'cancelled_cheque.pdf'),
       exp_doc: formData?.expDoc?.data || formData?.expDoc?.name || (typeof formData?.expDoc === 'string' ? formData.expDoc : 'completion_certificate.pdf'),
+      passportPhoto: formData?.passportPhoto || formData?.photo_url || formData?.photoUrl || null,
+      photo_url: formData?.passportPhoto || formData?.photo_url || formData?.photoUrl || null,
       signatory_name: formData?.signatoryName || formData?.contactName || 'Authorized Signatory',
       signature_data: formData?.signature || null,
       status: 'Under Verification',

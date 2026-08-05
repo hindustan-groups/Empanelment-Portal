@@ -1399,6 +1399,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             onClose={() => setShowAdminIdCardModal(false)}
             vendorData={selectedVendor}
             isAdmin={true}
+            onPhotoUpdate={(newPhoto) => {
+              setSelectedVendor(prev => prev ? ({ ...prev, passportPhoto: newPhoto, photo_url: newPhoto, photoUrl: newPhoto }) : null);
+              setApplications(prev => prev.map(app => {
+                if (app.tracking_id === selectedVendor.tracking_id || app.trackingId === selectedVendor.trackingId) {
+                  return { ...app, passportPhoto: newPhoto, photo_url: newPhoto, photoUrl: newPhoto };
+                }
+                return app;
+              }));
+            }}
           />
         )}
         {/* ════════════════ ADD NEW TENDER MODAL ════════════════ */}

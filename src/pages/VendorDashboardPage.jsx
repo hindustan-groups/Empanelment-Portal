@@ -1273,6 +1273,9 @@ export default function VendorDashboardPage() {
           isOpen={showIdCardModal}
           onClose={() => setShowIdCardModal(false)}
           vendorData={vendor}
+          onPhotoUpdate={(newPhoto) => {
+            setVendor(prev => prev ? ({ ...prev, passportPhoto: newPhoto, photo_url: newPhoto, photoUrl: newPhoto }) : null);
+          }}
         />
       )}
 
