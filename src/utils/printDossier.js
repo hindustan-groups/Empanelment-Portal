@@ -21,9 +21,16 @@ function fv(val, prefix = '', suffix = '') {
 }
 
 function docCheck(val) {
-  return val
-    ? `<span style="color:#047857;font-weight:900">✓ ATTACHED &amp; SUBMITTED</span>`
-    : `<span style="color:#DC2626;font-weight:700">✗ NOT SUBMITTED</span>`;
+  if (!val) return `<span style="color:#DC2626;font-weight:700">✗ NOT SUBMITTED</span>`;
+
+  let srcUrl = null;
+  if (typeof val === 'string') srcUrl = val;
+  else if (typeof val === 'object' && val !== null) srcUrl = val.url || val.data || val.path || null;
+
+  if (srcUrl && (srcUrl.startsWith('http') || srcUrl.startsWith('data:') || srcUrl.startsWith('/'))) {
+    return `<span style="color:#047857;font-weight:900">✓ ATTACHED</span> &nbsp;·&nbsp; <a href="${srcUrl}" target="_blank" style="color:#0047AB;font-weight:800;text-decoration:underline">🔗 View Document PDF/File</a>`;
+  }
+  return `<span style="color:#047857;font-weight:900">✓ ATTACHED &amp; SUBMITTED</span>`;
 }
 
 function fmtDate(dateVal) {
@@ -369,12 +376,12 @@ function renderCorporateFooterBar(pageNum, totalPages) {
 // Helper to render attachment pages for uploaded documents
 function renderDocumentAttachmentsHTML(formData, trackingId) {
   const categories = [
-    { title: 'Permanent Account Number (PAN Card)', keys: ['panDoc', 'pan_doc'], docType: 'Mandatory Income Tax Identity Document' },
-    { title: 'Aadhaar Card (National Identity & Address Proof)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc'], docType: 'Mandatory UIDAI National Identity Proof' },
-    { title: 'Cancelled Bank Cheque Copy', keys: ['bankDoc', 'bank_doc'], docType: 'Verified Bank Account & RTGS Payout Proof' },
-    { title: 'GST REG-06 Registration Certificate', keys: ['gstDoc', 'gst_doc'], docType: 'CBIC Statutory GST Compliance Registration' },
-    { title: 'Past Work Experience & Completion Certificates', keys: ['expDoc', 'exp_doc'], docType: 'CPWD / Corporate Work Order Execution Proof' },
-    { title: 'Technical Work Portfolio & Multi-Page Equipment Catalog', keys: ['portfolioDoc', 'portfolio_doc', 'tradeLicenseDoc', 'dealershipCertDoc', 'coaCertificateDoc', 'charteredCertDoc', 'degreeDoc', 'experienceCertDoc'], docType: 'FINAL ANNEXURE — Technical Capability Roster & Multi-Page Catalog' }
+    { title: 'Permanent Account Number (PAN Card)', keys: ['panDoc', 'pan_doc', 'panDocUrl'], docType: 'Mandatory Income Tax Identity Document' },
+    { title: 'Aadhaar Card (National Identity & Address Proof)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc', 'aadharDoc', 'aadhar_doc'], docType: 'Mandatory UIDAI National Identity Proof' },
+    { title: 'Cancelled Bank Cheque Copy', keys: ['bankDoc', 'bank_doc', 'bankDocUrl'], docType: 'Verified Bank Account & RTGS Payout Proof' },
+    { title: 'GST REG-06 Registration Certificate', keys: ['gstDoc', 'gst_doc', 'gstDocUrl'], docType: 'CBIC Statutory GST Compliance Registration' },
+    { title: 'Past Work Experience & Completion Certificates', keys: ['expDoc', 'exp_doc', 'expDocUrl'], docType: 'CPWD / Corporate Work Order Execution Proof' },
+    { title: 'Technical Work Portfolio & Multi-Page Equipment Catalog', keys: ['portfolioDoc', 'portfolio_doc', 'portfolioUrl', 'tradeLicenseDoc', 'dealershipCertDoc', 'coaCertificateDoc', 'charteredCertDoc', 'degreeDoc', 'experienceCertDoc'], docType: 'FINAL ANNEXURE — Technical Capability Roster & Multi-Page Catalog' }
   ];
 
   // ONLY include documents that were ACTUALLY uploaded by the applicant
