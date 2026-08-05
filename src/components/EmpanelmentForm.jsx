@@ -576,23 +576,27 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         } else if (v instanceof File) {
           fd.append(k, v);
         } else if (typeof v === 'object') {
-          try {
-            const cleanObj = { ...v };
-            delete cleanObj.rawFile;
-            fd.append(k, JSON.stringify(cleanObj));
-          } catch {
-            /* ignore serialization error */
+          if (v.url) {
+            fd.append(k, v.url);
+          } else if (v.name) {
+            fd.append(k, v.name);
           }
         } else if (v !== null && v !== undefined) {
           fd.append(k, v);
         }
       });
       if (signatureData) fd.append('signature', signatureData);
+
       const res = await fetch(`${backendUrl}/api/empanelment/submit`, { method: 'POST', body: fd });
       const result = await res.json();
-      onFormSubmit({ ...payload, signature: signatureData }, result.trackingId);
-    } catch {
-      onFormSubmit({ ...formData, signature: signatureData });
+      if (result.success && result.trackingId) {
+        onFormSubmit({ ...payload, signature: signatureData }, result.trackingId);
+      } else {
+        throw new Error(result.error || 'Submission failed');
+      }
+    } catch (err) {
+      console.error('Submission Error:', err);
+      alert(`Submission Notice: Could not connect to backend server (${err.message}). Please check VPS connection.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -1786,20 +1790,26 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               </button>
             </div>
 
-            <div style={{ padding: '1.5rem', overflowY: 'auto', textAlign: 'center', backgroundColor: '#F8FAFC', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ padding: '1.25rem', overflowY: 'auto', textAlign: 'center', backgroundColor: '#F8FAFC', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               {previewFile.url ? (
-                previewFile.type?.startsWith('image/') || previewFile.url?.startsWith('blob:') || previewFile.url?.startsWith('data:image') ? (
+                previewFile.type?.startsWith('image/') || (previewFile.name && previewFile.name.match(/\.(jpg|jpeg|png|webp)$/i)) ? (
                   <img
                     src={previewFile.url}
                     alt={previewFile.name}
-                    style={{ maxWidth: '100%', maxHeight: '65vh', objectFit: 'contain', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
+                    style={{ maxWidth: '100%', maxHeight: '60vh', objectFit: 'contain', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
                   />
                 ) : (
-                  <iframe
-                    src={previewFile.url}
-                    title={previewFile.name}
-                    style={{ width: '100%', height: '65vh', border: 'none', borderRadius: 12 }}
-                  />
+                  <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <iframe
+                      src={previewFile.url}
+                      title={previewFile.name}
+                      style={{ width: '100%', height: '58vh', border: '1px solid #CBD5E1', borderRadius: 12, background: 'white' }}
+                    />
+                    <a href={previewFile.url} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', alignSelf: 'center', padding: '0.5rem 1rem', background: '#0047AB', color: 'white', borderRadius: 8, fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}>
+                      📄 Open PDF in New Tab
+                    </a>
+                  </div>
                 )
               ) : (
                 <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>
