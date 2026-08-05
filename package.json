@@ -8,7 +8,8 @@
     "build": "vite build",
     "test": "node test/validators.test.js",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:form": "node scripts/test-form.js"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
