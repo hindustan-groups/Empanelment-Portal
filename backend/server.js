@@ -303,7 +303,7 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
     const categorySpecificData = {};
     const statutoryKeys = [
       'coaRegNo', 'coaValidityYear', 'cadSoftwareUsed', 'ieiCharteredRegNo', 'degreeSpec', 'structuralAuditorNo',
-      'professionalCertId', 'pastExperienceYears', 'portfolioUrl', 'clientReferences', 'municipalSurveyorLicenseNo',
+      'professionalCertId', 'pastExperienceYears', 'freelanceDomainSkill', 'otherFreelanceSkill', 'portfolioUrl', 'clientReferences', 'municipalSurveyorLicenseNo',
       'surveyEquipmentOwned', 'calibrationValidDate', 'bisNablAccreditationNo', 'dailySupplyCapacityTons', 'quarryMiningPermitNo',
       'pwdContractorLicenseNo', 'contractorGrade', 'labourLicenseNo', 'epfEsicRegNo', 'reraAgentRegNo', 'reraValidityYear',
       'operationalCities', 'mcaCinNo', 'moaRegistrationNo', 'authorizedSignatoryRole', 'rbiNbfcLicenseNo', 'maxFundingCapacityCr',

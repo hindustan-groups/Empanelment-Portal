@@ -116,7 +116,8 @@ export const CATEGORY_SCHEMAS = {
     ],
     step2TechnicalFields: [
       { name: 'pastExperienceYears', label: 'Total Years of Freelance Field Experience', type: 'number', placeholder: 'e.g. 7', required: true },
-      { name: 'freelanceDomainSkill', label: 'Primary Professional Skill & Role', type: 'select', options: ['3D Architectural Visualizer', 'Site Quantity Surveyor & Billing Engineer', 'Interior Stylist & Decorator', 'Geotechnical Soil Consultant', 'Safety Auditor (HSE)', 'Project Management Consultant (PMC)'] },
+      { name: 'freelanceDomainSkill', label: 'Primary Professional Skill & Role', type: 'select', options: ['3D Architectural Visualizer', 'Site Quantity Surveyor & Billing Engineer', 'Interior Stylist & Decorator', 'Geotechnical Soil Consultant', 'Safety Auditor (HSE)', 'Project Management Consultant (PMC)', 'Other – Specify Custom Role'] },
+      { name: 'otherFreelanceSkill', label: 'Specify Your Custom Professional Skill & Role', type: 'text', placeholder: 'e.g. Land Surveying & BIM Automation Specialist, Landscape Architect...', required: false },
       { name: 'portfolioUrl', label: 'Online Portfolio / GitHub / BeHance / LinkedIn Link', type: 'text', placeholder: 'e.g. https://behance.net/ramesh_designer', required: false },
       { name: 'clientReferences', label: 'Major Past Client Names & Project References', type: 'text', placeholder: 'e.g. DLF Urban, Godrej Properties, Tata Housing', required: false }
     ],
