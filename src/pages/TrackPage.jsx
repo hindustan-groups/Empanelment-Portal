@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShieldCheck, CheckCircle2, Clock, FileText, AlertCircle, PhoneCall, FilePlus, ArrowLeft, Printer, HelpCircle, Lock, Building2, MapPin, Mail, XCircle, Ban, PauseCircle, Shield } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SuccessModal from '../components/SuccessModal';
-import VendorIdCardModal from '../components/VendorIdCardModal';
-
 import { API_BASE_URL } from '../config/api';
 
 // ── QR Verification Status Engine ──────────────────────────────────────────
@@ -19,7 +17,7 @@ function getVerificationStatus(status) {
       badgeBg: 'rgba(16,185,129,0.2)',
       badgeColor: '#6EE7B7',
       icon: 'VERIFIED',
-      scannerMsg: 'You may proceed. This ID card is genuine and the vendor\'s empanelment is currently active.',
+      scannerMsg: 'You may proceed. This vendor\'s empanelment is currently active and authorized for project execution.',
       scannerColor: '#ECFDF5',
       scannerBorder: '#A7F3D0',
     };
@@ -43,13 +41,13 @@ function getVerificationStatus(status) {
     return {
       type: 'TERMINATED',
       headline: '🚫 EMPANELMENT TERMINATED',
-      subline: 'This vendor has been removed from the Hindustan Projects approved vendor registry. This ID card is no longer valid.',
+      subline: 'This vendor has been removed from the Hindustan Projects approved vendor registry. Verification card is no longer valid.',
       bgGradient: 'linear-gradient(135deg,#7F1D1D,#DC2626)',
       borderColor: '#FCA5A5',
       badgeBg: 'rgba(220,38,38,0.25)',
       badgeColor: '#FCA5A5',
       icon: 'TERMINATED',
-      scannerMsg: 'WARNING: This vendor is NOT authorized to work with Hindustan Projects. If someone is presenting this card, please report to procurement@hindustanprojects.in immediately.',
+      scannerMsg: 'WARNING: This vendor is NOT authorized to work with Hindustan Projects. If someone is presenting credentials under this ID, please report to procurement@hindustanprojects.in immediately.',
       scannerColor: '#FEF2F2',
       scannerBorder: '#FECACA',
     };
@@ -64,7 +62,7 @@ function getVerificationStatus(status) {
       badgeBg: 'rgba(153,27,27,0.25)',
       badgeColor: '#FCA5A5',
       icon: 'REJECTED',
-      scannerMsg: 'This vendor is NOT empanelled with Hindustan Projects. This ID card may be fraudulent. Do not authorize any work or payment.',
+      scannerMsg: 'This vendor is NOT empanelled with Hindustan Projects. Do not authorize any work or payment.',
       scannerColor: '#FEF2F2',
       scannerBorder: '#FECACA',
     };
@@ -108,7 +106,6 @@ export default function TrackPage() {
   const [result, setResult] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
-  const [showIdCardModal, setShowIdCardModal] = useState(false);
   const [qrScanned, setQrScanned] = useState(false);
 
   // ── Auto-search when QR code is scanned (URL has ?id=HP-EMP-XXX) ──
@@ -117,7 +114,6 @@ export default function TrackPage() {
     if (idFromUrl && idFromUrl.trim()) {
       setSearchInput(idFromUrl.trim());
       setQrScanned(true);
-      // Trigger search automatically after setting state
       setTimeout(() => {
         document.getElementById('track-search-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
       }, 300);
@@ -133,78 +129,97 @@ export default function TrackPage() {
     setNotFound(false);
     setResult(null);
 
-    // 1. Check LocalStorage First (Real Submissions Log)
-    try {
-      const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-      const match = localApps.find(app => 
-        (app.tracking_id && app.tracking_id.toLowerCase() === query.toLowerCase()) ||
-        (app.gstin && app.gstin.toLowerCase() === query.toLowerCase()) ||
-        (app.phone && app.phone.includes(query)) ||
-        (app.email && app.email.toLowerCase() === query.toLowerCase()) ||
-        (app.contactName && app.contactName.toLowerCase().includes(query.toLowerCase())) ||
-        (app.companyName && app.companyName.toLowerCase().includes(query.toLowerCase()))
-      );
-
-      if (match) {
-        setResult({
-          id: match.tracking_id,
-          company: match.companyName || match.contactName || 'Applicant Entity',
-          gstin: match.gstin || (match.gstExempt ? 'EXEMPT / NO GST' : 'GST PENDING'),
-          category: match.category ? match.category.toUpperCase() : 'CIVIL & STRUCTURAL',
-          submittedDate: new Date(match.submitted_at || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-          stage: match.current_stage || 'Financial & Technical Committee Audit',
-          status: match.status || 'Under Verification',
-          hashSignature: match.hash_signature || '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
-          fullData: match,
-          steps: [
-            { label: 'Application Filed & SHA-256 Hash Generated', desc: `Filed on ${new Date(match.submitted_at || Date.now()).toLocaleDateString('en-GB')}`, done: true },
-            { label: 'GSTIN REG-06 & MCA Statutory Audit', desc: 'Statutory tax identity & PAN verification cleared', done: true },
-            { label: match.current_stage || 'Financial & Technical Committee Audit', desc: 'Reviewing 3-year turnovers & technical capability', done: false, active: true },
-            { label: 'Empanelment Tier Classification & Certificate Issue', desc: 'Class-A / Class-B Tier Rating assignment', done: false },
-            { label: 'Active Bidding Clearance & Tender Onboarding', desc: 'Qualified for active Hindustan Projects tenders', done: false }
-          ]
-        });
-        setLoading(false);
-        return;
-      }
-    } catch (err) {
-      console.warn('Local apps check error:', err);
-    }
-
-    // 2. Query API Backend
     const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'http://187.127.142.137:5000' : 'http://localhost:5000');
 
+    let foundData = null;
+
+    // 1. Query Live VPS Backend API First (Real Database Records)
     try {
       const response = await fetch(`${backendUrl}/api/empanelment/status/${encodeURIComponent(query)}`);
-      const data = await response.json();
-
-      if (data.success && data.data) {
-        setResult({
-          id: data.data.tracking_id || data.data.id || query.toUpperCase(),
-          company: data.data.company_name || data.data.company || 'Applicant Organization',
-          gstin: data.data.gstin || 'GST NOTIFIED',
-          category: (data.data.category || 'civil').toUpperCase(),
-          submittedDate: data.data.submitted_at ? new Date(data.data.submitted_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB'),
-          stage: data.data.current_stage || 'Financial & Technical Committee Audit',
-          status: data.data.status || 'Under Verification',
-          hashSignature: data.data.hash_signature || '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
-          fullData: data.data,
-          steps: [
-            { label: 'Application Filed & SHA-256 Hash Generated', desc: 'Digital registration logged on empanel.hindustanprojects.in', done: true },
-            { label: 'GSTIN REG-06 & MCA Statutory Audit', desc: 'Active tax status & PAN verification cleared', done: true },
-            { label: data.data.current_stage || 'Financial & Technical Committee Audit', desc: 'Reviewing 3-year turnovers & equipment capability', done: false, active: true },
-            { label: 'Empanelment Tier Classification & Certificate Issue', desc: 'Class-A / B Tier Rating assignment', done: false },
-            { label: 'Active Bidding Clearance & Tender Onboarding', desc: 'Qualified for active Hindustan Projects tenders', done: false }
-          ]
-        });
-      } else {
-        setNotFound(true);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          foundData = data.data;
+        }
       }
-    } catch {
-      setNotFound(true);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.warn('API Search notice, fallback to local apps:', err);
     }
+
+    // 2. Fallback to Local Applications if API offline or not found
+    if (!foundData) {
+      try {
+        const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+        const match = localApps.find(app => 
+          (app.tracking_id && app.tracking_id.toLowerCase() === query.toLowerCase()) ||
+          (app.gstin && app.gstin.toLowerCase() === query.toLowerCase()) ||
+          (app.phone && app.phone.includes(query)) ||
+          (app.email && app.email.toLowerCase() === query.toLowerCase()) ||
+          (app.contactName && app.contactName.toLowerCase().includes(query.toLowerCase())) ||
+          (app.companyName && app.companyName.toLowerCase().includes(query.toLowerCase()))
+        );
+        if (match) foundData = match;
+      } catch (err) {
+        console.warn('Local apps check error:', err);
+      }
+    }
+
+    // 3. Fallback to Approved Vendors
+    if (!foundData) {
+      try {
+        const approved = JSON.parse(localStorage.getItem('hipro_approved_vendors') || '[]');
+        const matchApproved = approved.find(app => 
+          (app.tracking_id && app.tracking_id.toLowerCase() === query.toLowerCase()) ||
+          (app.gstin && app.gstin.toLowerCase() === query.toLowerCase()) ||
+          (app.phone && app.phone.includes(query)) ||
+          (app.email && app.email.toLowerCase() === query.toLowerCase()) ||
+          (app.company_name && app.company_name.toLowerCase().includes(query.toLowerCase()))
+        );
+        if (matchApproved) foundData = matchApproved;
+      } catch (err) {
+        console.warn('Approved check error:', err);
+      }
+    }
+
+    if (!foundData) {
+      setNotFound(true);
+      setLoading(false);
+      return;
+    }
+
+    // Extract Real Data Fields
+    const trackingId = foundData.tracking_id || foundData.trackingId || foundData.id || query.toUpperCase();
+    const companyName = foundData.company_name || foundData.companyName || foundData.contact_name || foundData.contactName || 'Applicant Entity';
+    const gstin = foundData.gstin || (foundData.gstExempt ? 'EXEMPT / NO GST' : 'GST PENDING');
+    const category = (foundData.category || foundData.primary_role || 'CIVIL & STRUCTURAL').toUpperCase();
+    const submittedAt = foundData.submitted_at || foundData.submittedAt || foundData.submittedDate || new Date().toISOString();
+    const formattedDate = new Date(submittedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const currentStage = foundData.current_stage || foundData.stage || 'Financial & Technical Committee Audit';
+    const status = foundData.status || 'Under Verification';
+    const hashSignature = foundData.hash_signature || foundData.hashSignature || '8f3a9e120bc741a8d0521e90b6a718cf3a89045b';
+
+    const isApproved = status === 'APPROVED' || String(status).includes('Approved') || String(status).includes('Active');
+    const isRejected = String(status).includes('Rejected');
+
+    setResult({
+      id: trackingId,
+      company: companyName,
+      gstin: gstin,
+      category: category,
+      submittedDate: formattedDate,
+      stage: currentStage,
+      status: status,
+      hashSignature: hashSignature,
+      fullData: foundData,
+      steps: [
+        { label: 'Application Filed & SHA-256 Hash Generated', desc: `Filed on ${formattedDate} (Verified Audit Trail)`, done: true },
+        { label: 'GSTIN REG-06 & MCA Statutory Audit', desc: 'Statutory tax identity & PAN verification cleared', done: true },
+        { label: currentStage, desc: isApproved ? 'Audit Completed & Tier Assigned' : isRejected ? 'Committee Audit Concluded' : 'Reviewing 3-year turnovers & technical capability', done: isApproved, active: !isApproved && !isRejected },
+        { label: 'Empanelment Tier Classification & Certificate Issue', desc: isApproved ? 'Class-A / B Tier Certificate Active' : 'Class-A / Class-B Tier Rating assignment', done: isApproved },
+        { label: 'Active Bidding Clearance & Tender Onboarding', desc: isApproved ? 'Authorized for active tenders' : 'Qualified for active Hindustan Projects tenders', done: isApproved }
+      ]
+    });
+    setLoading(false);
   };
 
   return (
@@ -399,10 +414,7 @@ export default function TrackPage() {
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <button onClick={() => setShowReceiptModal(true)} className="btn-secondary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}>
                         <Printer style={{ width: 14, height: 14 }} />
-                        <span>Print Dossier</span>
-                      </button>
-                      <button onClick={() => setShowIdCardModal(true)} className="btn-accent" style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}>
-                        <span>🪪 Smart ID Card</span>
+                        <span>Print Application Dossier</span>
                       </button>
                     </div>
                   )}
@@ -495,15 +507,6 @@ export default function TrackPage() {
           onClose={() => setShowReceiptModal(false)}
           trackingId={result.id}
           formData={result.fullData}
-        />
-      )}
-
-      {/* Printable Vendor Smart ID Card Modal */}
-      {showIdCardModal && result?.fullData && (
-        <VendorIdCardModal
-          isOpen={showIdCardModal}
-          onClose={() => setShowIdCardModal(false)}
-          vendorData={result.fullData}
         />
       )}
     </div>
