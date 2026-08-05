@@ -165,12 +165,22 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
           </div>
         </div>
 
-        {/* Category Grid */}
-        <div className="category-section">
-          <h2 className="category-title">Select Empanelment Category</h2>
-          <p className="category-subtitle">Click your primary business line to start application form</p>
+        {/* Category Grid — Select Empanelment Category */}
+        <div className="category-section" style={{ marginTop: '2.5rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.95rem', borderRadius: 9999, backgroundColor: 'rgba(0, 71, 171, 0.08)', color: '#0047AB', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.5rem', border: '1px solid rgba(0,71,171,0.2)' }}>
+              <Building2 style={{ width: 14, height: 14, color: '#0047AB' }} />
+              <span>Official Corporate Empanelment Disciplines • FY 2026-27</span>
+            </div>
+            <h2 className="category-title" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.5px' }}>
+              Select Your Empanelment Category &amp; Business Discipline
+            </h2>
+            <p className="category-subtitle" style={{ fontSize: '0.92rem', color: 'var(--text-muted)', maxWidth: 680, margin: '0.3rem auto 0 auto' }}>
+              Click your organization's primary business line below to launch the 4-step registration wizard with category-specific statutory schemas.
+            </p>
+          </div>
 
-          <div className="category-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.15rem' }}>
             {categories.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;
@@ -179,14 +189,62 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
                 <div
                   key={cat.id}
                   onClick={() => handleCategoryClick(cat.id)}
-                  className={`category-card ${isSelected ? 'selected' : ''}`}
+                  style={{
+                    padding: '1.35rem 1.4rem',
+                    borderRadius: 18,
+                    backgroundColor: isSelected ? '#EFF6FF' : 'var(--bg-card)',
+                    border: isSelected ? '2px solid #0047AB' : '1.5px solid var(--border-color)',
+                    boxShadow: isSelected ? '0 12px 30px rgba(0,71,171,0.2)' : 'var(--shadow-sm)',
+                    cursor: 'pointer',
+                    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justify: 'space-between'
+                  }}
+                  className="category-card-hover"
                 >
-                  <div className="category-icon">
-                    <Icon style={{ width: 24, height: 24 }} />
-                  </div>
+                  {/* Selected Accent Bar */}
+                  {isSelected && (
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: '#0047AB' }} />
+                  )}
+
                   <div>
-                    <div className="category-name">{cat.name}</div>
-                    <div className="category-desc">{cat.desc}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.85rem' }}>
+                      <div style={{
+                        width: 46, height: 46, borderRadius: 14,
+                        backgroundColor: isSelected ? '#0047AB' : 'rgba(0, 71, 171, 0.08)',
+                        color: isSelected ? '#FFFFFF' : '#0047AB',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: isSelected ? '0 4px 14px rgba(0,71,171,0.35)' : 'none',
+                        transition: 'all 0.2s'
+                      }}>
+                        <Icon style={{ width: 23, height: 23 }} />
+                      </div>
+
+                      {isSelected ? (
+                        <span style={{ fontSize: '0.68rem', fontWeight: 900, background: '#0047AB', color: 'white', padding: '0.2rem 0.6rem', borderRadius: 99, letterSpacing: '0.04em' }}>
+                          ✓ SELECTED
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.68rem', fontWeight: 800, background: '#F1F5F9', color: '#64748B', padding: '0.2rem 0.55rem', borderRadius: 99 }}>
+                          {cat.badge || 'Fast-Track 48h'}
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ fontSize: '1.05rem', fontWeight: 900, color: isSelected ? '#0047AB' : '#0F172A', marginBottom: '0.3rem' }}>
+                      {cat.name}
+                    </div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
+                      {cat.desc}
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '1.1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 800, color: isSelected ? '#0047AB' : '#64748B' }}>
+                    <span>{isSelected ? 'Click to Apply Now' : 'Start Registration'}</span>
+                    <span style={{ fontSize: '1.1rem', lineHeight: 1, transform: isSelected ? 'translateX(4px)' : 'none', transition: 'transform 0.2s' }}>→</span>
                   </div>
                 </div>
               );
