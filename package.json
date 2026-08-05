@@ -9,7 +9,8 @@
     "test": "node test/validators.test.js",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test:form": "node scripts/test-form.js"
+    "test:form": "node scripts/test-form.js",
+    "deploy": "git add . && git commit -m \"Auto-deploy update\" && git push origin master"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
