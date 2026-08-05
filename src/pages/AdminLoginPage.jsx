@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
 import { Lock, ShieldCheck, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 export default function AdminLoginPage({ onLoginSuccess }) {
   const [adminId, setAdminId] = useState('admin@hindustanprojects.in');
@@ -25,7 +26,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
     if (lockoutTime > 0) return;
     setErrorMsg('');
 
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'http://187.127.142.137:5000' : 'http://localhost:5000');
 
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/login`, {
