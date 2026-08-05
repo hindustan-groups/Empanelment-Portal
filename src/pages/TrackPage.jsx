@@ -4,6 +4,8 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
 
+import { API_BASE_URL } from '../config/api';
+
 // ── QR Verification Status Engine ──────────────────────────────────────────
 function getVerificationStatus(status) {
   const s = (status || '').toLowerCase();
@@ -170,7 +172,7 @@ export default function TrackPage() {
     }
 
     // 2. Query API Backend
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'http://187.127.142.137:5000' : 'http://localhost:5000');
 
     try {
       const response = await fetch(`${backendUrl}/api/empanelment/status/${encodeURIComponent(query)}`);

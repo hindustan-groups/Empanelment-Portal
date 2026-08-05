@@ -510,32 +510,52 @@ app.post('/api/empanelment/contact', async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────
 // GET /api/empanelment/status/:trackingId
-// Public tracking — returns status for a given tracking ID
+// Public tracking — returns status for tracking ID, GSTIN, PAN, Email, or Company
 // ─────────────────────────────────────────────────────────────────
 app.get('/api/empanelment/status/:trackingId', (req, res) => {
-  const trackingId = req.params.trackingId.toUpperCase();
+  const queryVal = (req.params.trackingId || '').trim();
+  const upperVal = queryVal.toUpperCase();
 
-  db.get(
-    `SELECT tracking_id, hash_signature, company_name, category, status, current_stage, submitted_at FROM vendors WHERE tracking_id = ?`,
-    [trackingId],
-    (err, row) => {
-      if (err || !row) {
-        return res.status(404).json({ success: false, error: 'Application Reference ID not found.' });
-      }
-      res.json({
-        success: true,
-        data: {
-          id: row.tracking_id,
-          hash: row.hash_signature,
-          company: row.company_name,
-          category: row.category,
-          status: row.status,
-          stage: row.current_stage,
-          submittedDate: row.submitted_at
-        }
-      });
+  const sql = `
+    SELECT * FROM vendors 
+    WHERE UPPER(tracking_id) = ? 
+       OR UPPER(gstin) = ? 
+       OR UPPER(pan) = ? 
+       OR LOWER(email) = LOWER(?) 
+       OR LOWER(company_name) LIKE LOWER(?)
+    ORDER BY id DESC LIMIT 1
+  `;
+  const params = [upperVal, upperVal, upperVal, queryVal, `%${queryVal}%`];
+
+  db.get(sql, params, (err, row) => {
+    if (err || !row) {
+      return res.status(404).json({ success: false, error: 'Application Reference ID or Record not found.' });
     }
-  );
+    res.json({
+      success: true,
+      data: {
+        id: row.tracking_id,
+        tracking_id: row.tracking_id,
+        hash: row.hash_signature,
+        hash_signature: row.hash_signature,
+        company: row.company_name,
+        company_name: row.company_name,
+        contact_name: row.contact_name,
+        email: row.email,
+        phone: row.phone,
+        category: row.category,
+        gstin: row.gstin,
+        pan: row.pan,
+        status: row.status,
+        stage: row.current_stage,
+        current_stage: row.current_stage,
+        submittedDate: row.submitted_at,
+        submitted_at: row.submitted_at,
+        passportPhoto: row.passport_photo,
+        photo_url: row.passport_photo
+      }
+    });
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────
