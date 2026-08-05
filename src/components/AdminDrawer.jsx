@@ -23,22 +23,8 @@ export default function AdminDrawer({ isOpen, onClose }) {
         setVendors(data.data || []);
       }
     } catch (err) {
-      console.warn('Backend offline, using sample records:', err);
-      setVendors([
-        {
-          id: 1,
-          tracking_id: 'HP-EMP-849201',
-          company_name: 'Apex Infrastructure & Engineering Pvt Ltd',
-          category: 'Civil & Structural Contractors',
-          gstin: '07AAAAA0000A1Z5',
-          contact_name: 'Rajesh Sharma',
-          email: 'rajesh@apexinfra.com',
-          phone: '+91 98765 43210',
-          turnover_2025: '450',
-          status: 'Under Verification',
-          submitted_at: new Date().toISOString()
-        }
-      ]);
+      console.warn('Backend connection pending:', err);
+      setVendors([]);
     } finally {
       setLoading(false);
     }
