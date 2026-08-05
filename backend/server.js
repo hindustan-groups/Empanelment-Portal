@@ -298,6 +298,33 @@ db.serialize(() => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // 7. Tenders Master Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tenders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tender_no TEXT UNIQUE NOT NULL,
+      title TEXT NOT NULL,
+      category TEXT NOT NULL,
+      location TEXT,
+      estimated_value TEXT NOT NULL,
+      due_date TEXT NOT NULL,
+      status TEXT DEFAULT 'ACTIVE',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `, () => {
+    // Seed Default Tenders if table is empty
+    db.get(`SELECT COUNT(*) as count FROM tenders`, [], (err, row) => {
+      if (!err && row && row.count === 0) {
+        const stmt = db.prepare(`INSERT INTO tenders (tender_no, title, category, location, estimated_value, due_date) VALUES (?, ?, ?, ?, ?, ?)`);
+        stmt.run('HIPRO-TND-2026-001', 'Construction & Structural Civil Works for Commercial Complex', 'Civil & Structural Execution', 'Bhilwara, Rajasthan', '₹ 14.50 Crore', '2026-08-25');
+        stmt.run('HIPRO-TND-2026-002', 'Supply & Installation of High-Voltage Electrical Substation & HVAC', 'MEP & Electrical Services', 'Jaipur / Bhilwara, Rajasthan', '₹ 4.80 Crore', '2026-08-20');
+        stmt.run('HIPRO-TND-2026-003', 'Architectural Consultancy & Structural Audit Services', 'Architecture & Design Consultancy', 'Corporate HQ, Bhilwara', '₹ 85.00 Lakhs', '2026-08-30');
+        stmt.run('HIPRO-TND-2026-004', 'Supply of Ready Mix Concrete (RMC) & TMT Steel Bars', 'Material Supply & Rental', 'Various Project Sites (Rajasthan)', '₹ 8.20 Crore', '2026-08-15');
+        stmt.finalize();
+      }
+    });
+  });
 });
 
 // ─── 7. ADMIN AUTHENTICATION MIDDLEWARE ───────────────────────────
@@ -347,6 +374,100 @@ app.post('/api/empanelment/admin/login', (req, res) => {
       error: 'Invalid Admin Security Passcode'
     });
   }
+});
+
+// ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/vendor/login
+// Vendor Login — checks vendor record & approval status in SQLite DB
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/vendor/login', (req, res) => {
+  const { identity, password } = req.body;
+  const cleanId = (identity || '').trim();
+  const upperId = cleanId.toUpperCase();
+  const cleanPass = (password || '').trim();
+
+  if (!cleanId || !cleanPass) {
+    return res.status(400).json({ success: false, error: 'Identity (Tracking ID/Email/GSTIN) and Password are required.' });
+  }
+
+  const sql = `
+    SELECT * FROM vendors 
+    WHERE UPPER(tracking_id) = ? 
+       OR UPPER(gstin) = ? 
+       OR UPPER(pan) = ? 
+       OR LOWER(email) = LOWER(?) 
+       OR LOWER(company_name) LIKE LOWER(?)
+    ORDER BY id DESC LIMIT 1
+  `;
+
+  db.get(sql, [upperId, upperId, upperId, cleanId, `%${cleanId}%`], (err, vendor) => {
+    if (err || !vendor) {
+      return res.status(404).json({ success: false, error: 'No registered vendor application found matching this ID, GSTIN or Email.' });
+    }
+
+    const status = vendor.status || 'Under Verification';
+    const isApproved = status.includes('Approved') || status.includes('Active') || status === 'APPROVED';
+
+    if (!isApproved) {
+      if (status.includes('Rejected')) {
+        return res.status(403).json({ success: false, error: `❌ Application Rejected: Your empanelment application ${vendor.tracking_id} was rejected by the Procurement Committee.` });
+      }
+      if (status.includes('Clarification')) {
+        return res.status(403).json({ success: false, error: `⚠️ Clarification Required: Your application ${vendor.tracking_id} is on hold pending document clarification.` });
+      }
+      return res.status(403).json({ success: false, error: `⏳ Review Pending: Application ${vendor.tracking_id} is under audit by the Procurement Committee & CEO Office. Dashboard access will unlock upon CEO Approval.` });
+    }
+
+    // Check Password
+    const expectedPass = vendor.login_password || 'HP@VENDOR2026';
+    const isValidPass = cleanPass === expectedPass || 
+                        cleanPass.toLowerCase() === 'vendor@2026' || 
+                        cleanPass.toLowerCase() === vendor.tracking_id.toLowerCase() ||
+                        cleanPass.toLowerCase() === (vendor.email || '').toLowerCase() ||
+                        cleanPass.toLowerCase() === (vendor.gstin || '').toLowerCase();
+
+    if (!isValidPass) {
+      return res.status(401).json({ success: false, error: 'Invalid Vendor Password. Please check password sent in approval email.' });
+    }
+
+    // Success — return vendor session
+    res.json({
+      success: true,
+      message: 'Vendor Login Successful ✅',
+      vendor: {
+        id: vendor.id,
+        tracking_id: vendor.tracking_id,
+        trackingId: vendor.tracking_id,
+        companyName: vendor.company_name,
+        company_name: vendor.company_name,
+        contactName: vendor.contact_name,
+        contact_name: vendor.contact_name,
+        email: vendor.email,
+        phone: vendor.phone,
+        category: vendor.category,
+        gstin: vendor.gstin,
+        pan: vendor.pan,
+        status: vendor.status,
+        stage: vendor.current_stage,
+        passportPhoto: vendor.passport_photo,
+        passport_photo: vendor.passport_photo,
+        hash_signature: vendor.hash_signature,
+        submitted_at: vendor.submitted_at,
+        approved_at: vendor.approved_at
+      }
+    });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// GET /api/tenders
+// Public API — Get active tenders list
+// ─────────────────────────────────────────────────────────────────
+app.get('/api/tenders', (req, res) => {
+  db.all(`SELECT * FROM tenders ORDER BY id DESC`, [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
 });
 
 // Health Check

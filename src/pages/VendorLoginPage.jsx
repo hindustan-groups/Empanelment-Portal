@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, Lock, Mail, CreditCard, KeyRound, ArrowRight, ArrowLeft, Home, Building2, CheckCircle2, UserCheck } from 'lucide-react';
 import Logo from '../components/Logo';
+import { API_BASE_URL } from '../config/api';
 
 export default function VendorLoginPage() {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function VendorLoginPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -27,95 +28,94 @@ export default function VendorLoginPage() {
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      // Find vendor in localStorage or create demo session
-      // Safe parse — crash-proof if localStorage is corrupted
-      let storedApps = [];
-      try {
-        storedApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-        if (!Array.isArray(storedApps)) storedApps = [];
-      } catch {
-        storedApps = [];
-      }
-      // Check matching vendor application in stored applications
-      const match = storedApps.find(app => 
-        (app.tracking_id && app.tracking_id.toLowerCase() === cleanIdentity.toLowerCase()) ||
-        (app.gstin && app.gstin.toLowerCase() === cleanIdentity.toLowerCase()) ||
-        (app.email && app.email.toLowerCase() === cleanIdentity.toLowerCase()) ||
-        (app.company_name && app.company_name.toLowerCase().includes(cleanIdentity.toLowerCase()))
-      );
+    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'http://187.127.142.137:5000' : 'http://localhost:5000');
 
-      // 🛑 Approval Gate Check: Lock login if application is Pending, Clarification, or Rejected
-      if (match) {
-        const status = match.status || 'PENDING';
-        if (status === 'Pending' || status === 'PENDING' || status === 'PENDING COMMITTEE AUDIT') {
-          setIsSubmitting(false);
-          setError(`⏳ Application Under Committee Review: Application ${match.tracking_id} is currently under audit by the Procurement Committee & CEO Office. Vendor Dashboard access will unlock upon CEO Approval.`);
-          return;
-        }
-        if (status === 'Clarification Required' || status === 'CLARIFICATION_REQUIRED') {
-          setIsSubmitting(false);
-          setError(`⚠️ Clarification Required: Procurement Admin requested additional details for ${match.tracking_id}. Remark: "${match.admin_remarks || 'Please check email'}". Please visit /track to update details.`);
-          return;
-        }
-        if (status === 'Rejected' || status === 'REJECTED') {
-          setIsSubmitting(false);
-          setError(`✕ Application Rejected: Application ${match.tracking_id} was rejected by the Procurement Committee. Remark: "${match.admin_remarks || 'Incomplete criteria'}".`);
-          return;
-        }
-      }
-
-      // Password Validation check — accepts Tracking ID, Registered Email, GSTIN, or Vendor@2026
-      const cleanPass = password.trim();
-      const allowedPasswords = [
-        'vendor@2026',
-        'admin123',
-        cleanIdentity.toLowerCase(),
-        match?.tracking_id?.toLowerCase(),
-        match?.email?.toLowerCase(),
-        match?.gstin?.toLowerCase()
-      ].filter(Boolean);
-
-      const isPasswordValid = allowedPasswords.some(p => cleanPass.toLowerCase() === p);
-
-      if (!isPasswordValid) {
+    // 1. Try Live VPS Backend Login First
+    try {
+      const res = await fetch(`${backendUrl}/api/empanelment/vendor/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identity: cleanIdentity, password: password.trim() })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.vendor) {
+        localStorage.setItem('hipro_vendor_session', JSON.stringify(data.vendor));
         setIsSubmitting(false);
-        setError('Invalid credentials. Use your Tracking ID, GSTIN, or Registered Email Address as password.');
+        navigate('/vendor-dashboard');
+        return;
+      } else if (!res.ok && data.error) {
+        setIsSubmitting(false);
+        setError(data.error);
         return;
       }
+    } catch (err) {
+      console.warn('API login notice, fallback to local apps check:', err);
+    }
 
-      const sessionVendor = match ? {
-        tracking_id: match.tracking_id || 'HP-EMP-025',
-        company_name: match.company_name || 'Apex Infrastructure Pvt Ltd',
-        gstin: match.gstin || '08AAAAA0000A1Z5',
-        category: match.category || 'Civil & Structural Contractors',
-        status: match.status || 'Approved Class-A',
-        tier: match.status || 'CLASS-A (TIER 1 PRIME)',
-        email: match.email || 'vendor@apexinfra.com',
-        primary_role: match.primary_role || match.primaryRole || 'Contractor',
-        specialization: match.specialization || 'RCC Frame Construction',
-        team_size: match.team_size || match.teamSize || '50-100 Members',
-        owner_name: match.owner_name || match.ownerName || 'Anil Verma'
-      } : {
-        tracking_id: cleanIdentity.startsWith('HP-') ? cleanIdentity : 'HP-EMP-025',
-        company_name: 'Apex Infrastructure Pvt Ltd (Demo Approved Vendor)',
-        gstin: '08AAAAA0000A1Z5',
-        category: 'Civil & Structural Engineering',
+    // 2. Fallback check for local submissions
+    let storedApps = [];
+    try {
+      storedApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      if (!Array.isArray(storedApps)) storedApps = [];
+    } catch {
+      storedApps = [];
+    }
+    const match = storedApps.find(app => 
+      (app.tracking_id && app.tracking_id.toLowerCase() === cleanIdentity.toLowerCase()) ||
+      (app.gstin && app.gstin.toLowerCase() === cleanIdentity.toLowerCase()) ||
+      (app.email && app.email.toLowerCase() === cleanIdentity.toLowerCase()) ||
+      (app.company_name && app.company_name.toLowerCase().includes(cleanIdentity.toLowerCase()))
+    );
+
+    if (match) {
+      const status = match.status || 'PENDING';
+      if (status === 'Pending' || status === 'PENDING' || status === 'PENDING COMMITTEE AUDIT' || status.includes('Verification')) {
+        setIsSubmitting(false);
+        setError(`⏳ Application Under Committee Review: Application ${match.tracking_id} is currently under audit by the Procurement Committee & CEO Office. Vendor Dashboard access will unlock upon CEO Approval.`);
+        return;
+      }
+      if (status.includes('Clarification')) {
+        setIsSubmitting(false);
+        setError(`⚠️ Clarification Required: Procurement Admin requested additional details for ${match.tracking_id}. Please visit /track to view requirements.`);
+        return;
+      }
+      if (status.includes('Rejected')) {
+        setIsSubmitting(false);
+        setError(`✕ Application Rejected: Application ${match.tracking_id} was rejected by the Procurement Committee.`);
+        return;
+      }
+    }
+
+    // Passcode Validation for offline/demo
+    const cleanPass = password.trim();
+    const allowedPasswords = [
+      'vendor@2026',
+      'admin123',
+      cleanIdentity.toLowerCase(),
+      match?.tracking_id?.toLowerCase(),
+      match?.email?.toLowerCase(),
+      match?.gstin?.toLowerCase()
+    ].filter(Boolean);
+
+    if (allowedPasswords.some(p => cleanPass.toLowerCase() === p)) {
+      const sessionData = match || {
+        tracking_id: match?.tracking_id || 'HP-EMP-025',
+        company_name: match?.company_name || cleanIdentity,
+        contact_name: match?.contact_name || 'Empanelled Vendor Signatory',
+        email: match?.email || cleanIdentity,
+        phone: match?.phone || '+91-9876543210',
+        category: match?.category || 'Civil & Structural Execution',
         status: 'Approved Class-A',
-        tier: 'CLASS-A (TIER 1 PRIME)',
-        email: cleanIdentity,
-        primary_role: 'Contractor',
-        specialization: 'Turnkey Civil Construction',
-        team_size: '50-100 Members',
-        owner_name: 'Anil Verma'
+        approved_at: new Date().toISOString()
       };
-
-      localStorage.setItem('hipro_vendor_session', JSON.stringify(sessionVendor));
+      localStorage.setItem('hipro_vendor_session', JSON.stringify(sessionData));
       setIsSubmitting(false);
       navigate('/vendor-dashboard');
-    }, 600);
+    } else {
+      setIsSubmitting(false);
+      setError('Invalid Vendor Passcode or Unapproved Registration. Please use credentials sent in approval email.');
+    }
   };
-
   const fillDemoLogin = () => {
     setIdentity('HP-EMP-025');
     setPassword('Vendor@2026');
