@@ -283,16 +283,47 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
   const [errors, setErrors] = useState({});
 
-  /* Category / Role Mode Detection */
-  const role = (formData.primaryRole || '').toLowerCase();
-  const categorySchema = CATEGORY_SCHEMAS[role] || CATEGORY_SCHEMAS['vendor'];
+  /* Category / Role Mode Mapping */
+  const CAT_TO_SCHEMA_MAP = {
+    consultants: 'architect',
+    architect: 'architect',
+    civil: 'contractor',
+    contractor: 'contractor',
+    mep: 'contractor',
+    suppliers: 'material_supplier',
+    material_supplier: 'material_supplier',
+    equipment: 'machine_rental_provider',
+    machine_rental_provider: 'machine_rental_provider',
+    site_services: 'contractor',
+    civil_engineer: 'civil_engineer',
+    freelancer: 'freelancer',
+    surveyor: 'surveyor',
+    transporter: 'transporter',
+    fire: 'contractor',
+    soil: 'civil_engineer',
+    solar: 'contractor',
+  };
+
+  const currentCatKey = (formData.category || category || '').toLowerCase();
+  const currentRoleKey = (formData.primaryRole || '').toLowerCase();
+  const activeSchemaKey = CAT_TO_SCHEMA_MAP[currentCatKey] || (CATEGORY_SCHEMAS[currentCatKey] ? currentCatKey : (CAT_TO_SCHEMA_MAP[currentRoleKey] || currentRoleKey || 'vendor'));
+
+  const categorySchema = CATEGORY_SCHEMAS[activeSchemaKey] || CATEGORY_SCHEMAS['vendor'];
+  const role = activeSchemaKey;
   const isSoleProp = formData.entityType === 'sole_proprietor';
   const isFreelanceMode = ['freelancer', 'architect', 'civil_engineer', 'surveyor', 'financer', 'property_dealer'].includes(role) || isSoleProp;
   const isSupplierMode  = ['material_supplier', 'transporter', 'machine_rental_provider', 'fruits_vegetables'].includes(role);
   const isContractorMode = !isFreelanceMode && !isSupplierMode;
 
   useEffect(() => {
-    if (category) setFormData(prev => ({ ...prev, category }));
+    if (category) {
+      const mappedRole = CAT_TO_SCHEMA_MAP[category.toLowerCase()] || category;
+      setFormData(prev => ({
+        ...prev,
+        category: category,
+        primaryRole: mappedRole
+      }));
+    }
   }, [category]);
 
   const handleChange = (e) => {
