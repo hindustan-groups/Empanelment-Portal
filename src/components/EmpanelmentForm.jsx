@@ -1364,93 +1364,88 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
               </div>
 
-              {/* ── QUOTED RATE CARD SECTION ── */}
-              <div style={{ marginBottom: '1.75rem', borderRadius: 16, border: '1.5px solid #D1FAE5', overflow: 'hidden', background: '#FFFFFF' }}>
-                {/* Section Title Bar */}
-                <div style={{ background: 'linear-gradient(90deg,#047857,#065F46)', padding: '0.9rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <span style={{ fontSize: '1.1rem' }}>📐</span>
-                  <div>
-                    <div style={{ fontWeight: 900, color: '#FFFFFF', fontSize: '0.92rem' }}>Your Quoted Execution Rate Card (Per Sq. Ft.)</div>
-                    <div style={{ fontSize: '0.72rem', color: '#6EE7B7', marginTop: 2 }}>
-                      Ye aapka kaam ka rate hai — Hindustan Projects is rate par aapse kaam karwane ka nirnay karta hai. Optional hai, lekin fill karne se fast approval milta hai.
+              {/* ── QUOTED BUA/CPA RATE CARD SECTION (Only for Construction / EPC Contractors & Engineers) ── */}
+              {['contractor', 'civil_engineer', 'vendor'].includes(role) && (
+                <div style={{ marginBottom: '1.75rem', borderRadius: 16, border: '1.5px solid #D1FAE5', overflow: 'hidden', background: '#FFFFFF' }}>
+                  {/* Section Title Bar */}
+                  <div style={{ background: 'linear-gradient(90deg,#047857,#065F46)', padding: '0.9rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <span style={{ fontSize: '1.1rem' }}>📐</span>
+                    <div>
+                      <div style={{ fontWeight: 900, color: '#FFFFFF', fontSize: '0.92rem' }}>Your Quoted Execution Rate Card (Per Sq. Ft.)</div>
+                      <div style={{ fontSize: '0.72rem', color: '#6EE7B7', marginTop: 2 }}>
+                        Ye aapka civil construction execution rate hai — Hindustan Projects is rate par aapse kaam karwane ka nirnay karta hai.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '1.1rem 1.25rem' }}>
+                    {/* What is BUA / CPA explanation */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+                      <div style={{ padding: '0.85rem', borderRadius: 12, background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
+                        <div style={{ fontWeight: 900, fontSize: '0.8rem', color: '#065F46', marginBottom: 4 }}>🏢 BUA — Built-Up Area Rate (₹/sq ft)</div>
+                        <div style={{ fontSize: '0.73rem', color: '#047857', lineHeight: 1.5 }}>
+                          <strong>BUA matlab:</strong> Floor ka total covered area — jisme walls, columns, lobby sab aata hai. Residential buildings, offices, hotels ke liye.
+                        </div>
+                      </div>
+                      <div style={{ padding: '0.85rem', borderRadius: 12, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                        <div style={{ fontWeight: 900, fontSize: '0.8rem', color: '#065F46', marginBottom: 4 }}>🏗️ CPA — Carpet / Plot Area Rate (₹/sq ft)</div>
+                        <div style={{ fontSize: '0.73rem', color: '#047857', lineHeight: 1.5 }}>
+                          <strong>CPA matlab:</strong> Sirf usable floor area (bina walls ke). Industrial sheds, godowns, open plot ke liye.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+                      {[
+                        {
+                          name: 'buaRate',
+                          label: 'BUA Rate — Built-Up Area',
+                          icon: '🏢',
+                          unit: '₹ / sq ft',
+                          placeholder: 'e.g. 1800',
+                          hint: 'Aapka construction execution rate per sq ft (total covered area).',
+                          color: '#047857'
+                        },
+                        {
+                          name: 'cpaRate',
+                          label: 'CPA Rate — Carpet / Plot Area',
+                          icon: '🏗️',
+                          unit: '₹ / sq ft',
+                          placeholder: 'e.g. 1200',
+                          hint: 'Usable floor / carpet area ka rate.',
+                          color: '#065F46'
+                        },
+                      ].map(f => (
+                        <div key={f.name} style={{ padding: '0.85rem', borderRadius: 12, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 900, color: f.color, marginBottom: 6 }}>
+                            {f.icon} {f.label}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #86EFAC', borderRadius: 8, overflow: 'hidden', background: 'white' }}>
+                            <span style={{ padding: '0.5rem 0.6rem', background: '#DCFCE7', color: f.color, fontWeight: 900, fontSize: '0.85rem', borderRight: '1px solid #86EFAC', flexShrink: 0 }}>₹</span>
+                            <input
+                              type="number"
+                              name={f.name}
+                              value={formData[f.name]}
+                              onChange={handleChange}
+                              placeholder={f.placeholder}
+                              min="0"
+                              style={{ border: 'none', outline: 'none', padding: '0.5rem 0.6rem', fontSize: '0.9rem', fontWeight: 700, color: '#0F172A', width: '100%', background: 'transparent' }}
+                            />
+                            <span style={{ padding: '0.5rem 0.6rem', background: '#F0FDF4', color: '#64748B', fontWeight: 700, fontSize: '0.7rem', borderLeft: '1px solid #BBF7D0', flexShrink: 0 }}>/ sq ft</span>
+                          </div>
+                          <div style={{ fontSize: '0.68rem', color: '#6B7280', marginTop: 5, lineHeight: 1.4 }}>{f.hint}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
+              )}
 
-                <div style={{ padding: '1.1rem 1.25rem' }}>
-                  {/* What is BUA / CPA explanation */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-                    <div style={{ padding: '0.85rem', borderRadius: 12, background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
-                      <div style={{ fontWeight: 900, fontSize: '0.8rem', color: '#065F46', marginBottom: 4 }}>🏢 BUA — Built-Up Area Rate (₹/sq ft)</div>
-                      <div style={{ fontSize: '0.73rem', color: '#047857', lineHeight: 1.5 }}>
-                        <strong>BUA matlab:</strong> Floor ka total covered area — jisme walls, columns, lobby sab aata hai. Residential buildings, offices, hotels ke liye use hota hai.
-                        <br/><strong>Example:</strong> Ek 1000 sq ft flat banane ka aapka rate ₹1800/sq ft hai → BUA Rate = <strong>1800</strong>
-                      </div>
-                    </div>
-                    <div style={{ padding: '0.85rem', borderRadius: 12, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-                      <div style={{ fontWeight: 900, fontSize: '0.8rem', color: '#065F46', marginBottom: 4 }}>🏗️ CPA — Carpet / Plot Area Rate (₹/sq ft)</div>
-                      <div style={{ fontSize: '0.73rem', color: '#047857', lineHeight: 1.5 }}>
-                        <strong>CPA matlab:</strong> Sirf usable floor area (bina walls ke). Alag buildings me alag hota hai. Industrial sheds, godowns, open plot ke liye.
-                        <br/><strong>Example:</strong> Plot area 1000 sq ft ka rate ₹1200/sq ft → CPA Rate = <strong>1200</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
-                    {[
-                      {
-                        name: 'buaRate',
-                        label: 'BUA Rate — Built-Up Area',
-                        icon: '🏢',
-                        unit: '₹ / sq ft',
-                        placeholder: 'e.g. 1800',
-                        hint: 'Aapka construction execution rate per sq ft (total covered area). Residential, commercial, offices ke liye.',
-                        color: '#047857'
-                      },
-                      {
-                        name: 'cpaRate',
-                        label: 'CPA Rate — Carpet / Plot Area',
-                        icon: '🏗️',
-                        unit: '₹ / sq ft',
-                        placeholder: 'e.g. 1200',
-                        hint: 'Usable floor / carpet area ka rate. Sirf actual usable space count hota hai. Industrial, warehouses ke liye.',
-                        color: '#065F46'
-                      },
-                    ].map(f => (
-                      <div key={f.name} style={{ padding: '0.85rem', borderRadius: 12, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 900, color: f.color, marginBottom: 6 }}>
-                          {f.icon} {f.label}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #86EFAC', borderRadius: 8, overflow: 'hidden', background: 'white' }}>
-                          <span style={{ padding: '0.5rem 0.6rem', background: '#DCFCE7', color: f.color, fontWeight: 900, fontSize: '0.85rem', borderRight: '1px solid #86EFAC', flexShrink: 0 }}>₹</span>
-                          <input
-                            type="number"
-                            name={f.name}
-                            value={formData[f.name]}
-                            onChange={handleChange}
-                            placeholder={f.placeholder}
-                            min="0"
-                            style={{ border: 'none', outline: 'none', padding: '0.5rem 0.6rem', fontSize: '0.9rem', fontWeight: 700, color: '#0F172A', width: '100%', background: 'transparent' }}
-                          />
-                          <span style={{ padding: '0.5rem 0.6rem', background: '#F0FDF4', color: '#64748B', fontWeight: 700, fontSize: '0.7rem', borderLeft: '1px solid #BBF7D0', flexShrink: 0 }}>/ sq ft</span>
-                        </div>
-                        <div style={{ fontSize: '0.68rem', color: '#6B7280', marginTop: 5, lineHeight: 1.4 }}>{f.hint}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div style={{ marginTop: '0.75rem', padding: '0.6rem 0.9rem', borderRadius: 8, background: '#FEF9C3', border: '1px solid #FDE68A', fontSize: '0.73rem', fontWeight: 700, color: '#92400E', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <span>💡</span>
-                    <span>Agar aap sirf consultancy ya supply ka kaam karte hain (construction nahi) to ye dono fields blank chhod sakte hain.</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Equipment Checklist — corporate only */}
-              {!isSoleProp && (
+              {/* Heavy Machinery Checklist (Only for Contractors, Equipment Rentals & Engineers) */}
+              {['contractor', 'machine_rental_provider', 'civil_engineer'].includes(role) && (
                 <div style={{ marginBottom: '1.75rem', padding: '1rem 1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.65rem' }}>
-                    Machinery & Software Inventory (Optional):
+                    Heavy Machinery & Equipment Inventory (Optional):
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.6rem' }}>
                     {[

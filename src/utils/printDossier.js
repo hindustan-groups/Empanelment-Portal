@@ -723,12 +723,14 @@ function buildDossierHTML({ trackingId, formData }) {
         <td class="label">Entity Classification</td>
         <td class="val">${fv(entityType)}</td>
       </tr>
+      ${(formData?.ownerName || formData?.owner_name) ? `
       <tr>
         <td class="label">Company Owner / Promoter</td>
         <td class="val">${fv(formData?.ownerName || formData?.owner_name)}</td>
         <td class="label">Owner Contact Detail</td>
         <td class="val">${fv(formData?.ownerContact || formData?.owner_contact)}</td>
       </tr>
+      ` : ''}
       <tr>
         <td class="label">Authorized Signatory</td>
         <td class="val">${fv(formData?.contactName)}${formData?.designation ? ` &nbsp;<em style="color:${HP_MUTED}">(${formData.designation})</em>` : ''}</td>
@@ -845,20 +847,26 @@ function buildDossierHTML({ trackingId, formData }) {
         <td class="label">Machinery Capacity</td>
         <td class="val">${fv(formData?.machineryDetails || 'Standard Plant &amp; Tools')}</td>
       </tr>
+      ${formData?.basicRates ? `
       <tr>
         <td class="label">Basic Rates Quotation</td>
         <td class="val" colspan="3">${fv(formData?.basicRates)}</td>
       </tr>
+      ` : ''}
+      ${(formData?.buaRate || formData?.cpaRate) ? `
       <tr>
         <td class="label">BUA Execution Rate</td>
         <td class="val">${fv(formData?.buaRate ? `₹ ${formData.buaRate} / sq ft` : null)}</td>
         <td class="label">CPA Plot Execution Rate</td>
         <td class="val">${fv(formData?.cpaRate ? `₹ ${formData.cpaRate} / sq ft` : null)}</td>
       </tr>
+      ` : ''}
+      ${formData?.skillsDetails ? `
       <tr>
         <td class="label">Skills &amp; Specifications</td>
         <td class="val" colspan="3">${fv(formData?.skillsDetails)}</td>
       </tr>
+      ` : ''}
     </table>
 
     <!-- SECTION 4: DOCUMENT CHECKLIST ROSTER -->
