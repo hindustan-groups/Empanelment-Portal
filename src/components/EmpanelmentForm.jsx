@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import SecurityCaptcha from './SecurityCaptcha';
 import DigitalSignature from './DigitalSignature';
-import GstVerifier from './GstVerifier';
 import { CATEGORY_SCHEMAS } from '../config/categoryFieldsConfig';
 import { API_BASE_URL } from '../config/api';
 
@@ -1198,11 +1197,6 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     placeholder={formData.gstExempt ? 'EXEMPTED – not required' : 'e.g. 08AAAAA0000A1Z5 (Optional)'}
                     upper disabled={formData.gstExempt} error={errors.gstin} />
                 </FieldGroup>
-
-                {/* Instant Statutory GSTIN Portal Lookup & Verifier */}
-                <div style={{ gridColumn: '1 / -1', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
-                  <GstVerifier onGstVerified={handleGstVerified} />
-                </div>
 
                 <FieldGroup label="10-Digit PAN Card" required error={errors.pan}>
                   <Input name="pan" value={formData.pan} onChange={handleChange}
