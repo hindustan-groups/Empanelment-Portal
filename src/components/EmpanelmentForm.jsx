@@ -772,123 +772,45 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
         {/* ── Form Body ── */}
         <form onSubmit={handleSubmit} className="form-body">
-
-          {/* ════════════════════ STEP 1 ════════════════════ */}
           {currentStep === 1 && (
             <div>
               <div className="step-header">
                 <h3 className="step-header-title">
-                  {isSoleProp
-                    ? <><UserCheck style={{ width: 20, height: 20, color: '#0047AB' }} /> <span>Your Personal Professional Profile</span></>
-                    : <><Building style={{ width: 20, height: 20, color: '#0047AB' }} /> <span>Corporate Firm Profile & Scope</span></>
-                  }
+                  {categorySchema ? (
+                    <>
+                      <span style={{ fontSize: '1.3rem' }}>{categorySchema.label.split(' ')[0]}</span>
+                      <span>{categorySchema.label} Empanelment Filing</span>
+                    </>
+                  ) : (
+                    isSoleProp
+                      ? <><UserCheck style={{ width: 20, height: 20, color: '#0047AB' }} /> <span>Your Personal Professional Profile</span></>
+                      : <><Building style={{ width: 20, height: 20, color: '#0047AB' }} /> <span>Corporate Firm Profile & Scope</span></>
+                  )}
                 </h3>
                 <p className="step-header-sub">
-                  {isSoleProp
-                    ? 'Fill in your personal details — company name is not needed. Just your name, contact, and professional scope.'
-                    : 'Enter your official corporate registration details, discipline scope, and primary contact.'
+                  {categorySchema
+                    ? `Fill in your ${categorySchema.label} registration details. The entire form dynamically adapts specifically for ${categorySchema.label}.`
+                    : 'Select your entity category below to start your empanelment application.'
                   }
                 </p>
               </div>
 
               <div className="form-grid-2">
 
-                {/* ── Personal / Contact Name ── */}
+                {/* ── 🌟 STEP 1 TOP FIELD: Empanel Entity (Main Category Selection) ── */}
                 <FieldGroup
-                  label={isSoleProp ? 'Your Full Name' : 'Lead Contact / Director Name'}
-                  required
-                  error={errors.contactName}
-                  style={{ gridColumn: isSoleProp ? '1 / -1' : undefined }}
-                >
-                  <Input name="contactName" value={formData.contactName} onChange={handleChange}
-                    placeholder={isSoleProp ? 'e.g. Rajesh Kumar Sharma' : 'e.g. Mr. Anil Verma (Managing Director)'}
-                    error={errors.contactName} />
-                </FieldGroup>
-
-                {/* ── Company Name (corporate only) ── */}
-                {!isSoleProp && (
-                  <FieldGroup label="Registered Firm / Company Name" required error={errors.companyName}>
-                    <Input name="companyName" value={formData.companyName} onChange={handleChange}
-                      placeholder="e.g. M/S Apex Infra Pvt Ltd" error={errors.companyName} />
-                  </FieldGroup>
-                )}
-
-                {/* ── Designation ── */}
-                <FieldGroup
-                  label={isSoleProp ? 'Your Designation / Title' : 'Director Designation'}
-                  optional
-                >
-                  <Input name="designation" value={formData.designation} onChange={handleChange}
-                    placeholder={isSoleProp ? 'e.g. Freelance Architect / Self-Employed' : 'e.g. Managing Director / CEO'} />
-                </FieldGroup>
-
-                {/* ── Email ── */}
-                <FieldGroup label="Email Address" required error={errors.email}>
-                  <Input name="email" type="email" value={formData.email} onChange={handleChange}
-                    placeholder="e.g. contact@studio.com" error={errors.email} />
-                </FieldGroup>
-
-                {/* ── Phone ── */}
-                <FieldGroup label="Mobile Number" required error={errors.phone}>
-                  <Input name="phone" type="tel" value={formData.phone} onChange={handleChange}
-                    placeholder="+91 98765 43210" error={errors.phone} />
-                </FieldGroup>
-
-                {/* ── Alt Phone (optional) ── */}
-                <FieldGroup label="Alternate Number" optional>
-                  <Input name="altPhone" type="tel" value={formData.altPhone} onChange={handleChange}
-                    placeholder="Office / WhatsApp number" />
-                </FieldGroup>
-
-                {/* ── Blood Group (For Official Vendor ID Card) ── */}
-                <FieldGroup label="Blood Group (For Official Smart ID Card)" optional>
-                  <select name="bloodGroup" value={formData.bloodGroup || 'B+'} onChange={handleChange} className="form-input">
-                    {['B+', 'A+', 'O+', 'AB+', 'B-', 'A-', 'O-', 'AB-'].map(bg => (
-                      <option key={bg} value={bg}>{bg}</option>
-                    ))}
-                  </select>
-                </FieldGroup>
-
-                {/* ── Passport Size Photo Upload (For Official Vendor ID Card) ── */}
-                <FieldGroup label="Passport Size Photo (For Smart ID Card Badge)" optional hint="Upload clear front-facing passport photo (PNG/JPG up to 5MB)">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setFormData(prev => ({ ...prev, passportPhoto: reader.result }));
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                      className="form-input"
-                      style={{ padding: '0.4rem' }}
-                    />
-                    {formData.passportPhoto && (
-                      <div style={{ width: 44, height: 50, borderRadius: 6, overflow: 'hidden', border: '2px solid #0047AB', flexShrink: 0 }}>
-                        <img src={formData.passportPhoto} alt="ID Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    )}
-                  </div>
-                </FieldGroup>
-
-                {/* ── Main Category: Empanel Entity (Manager's 13 Categories) ── */}
-                <FieldGroup
-                  label="Empanel Entity (Main Category)"
+                  label="1. Empanel Entity (Select Main Category) *"
                   required
                   error={errors.primaryRole}
-                  hint="Select your primary empanelment entity classification"
+                  hint="Select your entity classification — form fields adapt dynamically"
                   style={{ gridColumn: '1 / -1' }}
                 >
                   <select
                     name="primaryRole"
-                    value={formData.primaryRole}
+                    value={formData.primaryRole || formData.category || 'vendor'}
                     onChange={handleChange}
                     className={`form-input${errors.primaryRole ? ' error' : ''}`}
+                    style={{ fontSize: '0.95rem', fontWeight: 800, padding: '0.75rem', borderColor: '#0047AB', background: '#F8FAFC' }}
                   >
                     {DISCIPLINE_ROLES.map(role => (
                       <option key={role.code} value={role.code}>{role.label}</option>
@@ -897,43 +819,26 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   {errors.primaryRole && <span className="error-text">{errors.primaryRole}</span>}
                 </FieldGroup>
 
-                {/* ── Specialization (Text Input replacing Sub-Category dropdown) ── */}
-                <FieldGroup
-                  label="Specialization"
-                  required
-                  error={errors.specialization}
-                  hint="Type your specific core specialization or domain expertise"
-                  style={{ gridColumn: '1 / -1' }}
-                >
-                  <Input
-                    name="specialization"
-                    value={formData.specialization}
-                    onChange={handleChange}
-                    placeholder="e.g. Structural Audit, Ready Mix Concrete, Heavy Crane Operator, Organic Farm Produce..."
-                    error={errors.specialization}
-                  />
-                </FieldGroup>
-
                 {/* ── 🌟 DYNAMIC CATEGORY STATUTORY & CUSTOM REQUIREMENTS CARD ── */}
                 {categorySchema && (
                   <div style={{
                     gridColumn: '1 / -1',
-                    marginTop: '0.5rem',
+                    marginTop: '0.25rem',
                     marginBottom: '0.75rem',
                     padding: '1.25rem',
                     borderRadius: 14,
-                    background: 'linear-gradient(135deg, rgba(0,71,171,0.05) 0%, rgba(11,27,61,0.02) 100%)',
-                    border: '1.5px solid rgba(0, 71, 171, 0.25)',
-                    boxShadow: '0 4px 14px rgba(0, 71, 171, 0.06)'
+                    background: 'linear-gradient(135deg, rgba(0,71,171,0.06) 0%, rgba(16,185,129,0.04) 100%)',
+                    border: '2px solid rgba(0, 71, 171, 0.3)',
+                    boxShadow: '0 4px 16px rgba(0, 71, 171, 0.08)'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', borderBottom: '1px dashed rgba(0,71,171,0.2)', paddingBottom: '0.65rem' }}>
-                      <span style={{ fontSize: '1.25rem' }}>🏛️</span>
+                      <span style={{ fontSize: '1.35rem' }}>{categorySchema.label.split(' ')[0]}</span>
                       <div>
                         <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: '#0047AB' }}>
-                          Statutory License & Category Credentials — {categorySchema.label}
+                          Category Statutory Credentials — {categorySchema.label}
                         </h4>
                         <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', fontWeight: 600, marginTop: 2 }}>
-                          Tailored requirements as per Indian statutory guidelines for {categorySchema.label} empanelment.
+                          Mandatory statutory inputs required specifically for {categorySchema.label} empanelment.
                         </div>
                       </div>
                     </div>
@@ -992,6 +897,105 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     </div>
                   </div>
                 )}
+
+                {/* ── Personal / Contact Name ── */}
+                <FieldGroup
+                  label={isSoleProp ? 'Your Full Name' : 'Lead Contact / Director Name'}
+                  required
+                  error={errors.contactName}
+                  style={{ gridColumn: isSoleProp ? '1 / -1' : undefined }}
+                >
+                  <Input name="contactName" value={formData.contactName} onChange={handleChange}
+                    placeholder={isSoleProp ? 'e.g. Rajesh Kumar Sharma' : 'e.g. Mr. Anil Verma (Managing Director)'}
+                    error={errors.contactName} />
+                </FieldGroup>
+
+                {/* ── Company Name (corporate only) ── */}
+                {!isSoleProp && (
+                  <FieldGroup label="Registered Firm / Company Name" required error={errors.companyName}>
+                    <Input name="companyName" value={formData.companyName} onChange={handleChange}
+                      placeholder="e.g. M/S Apex Infra Pvt Ltd" error={errors.companyName} />
+                  </FieldGroup>
+                )}
+
+                {/* ── Designation ── */}
+                <FieldGroup
+                  label={isSoleProp ? 'Your Designation / Title' : 'Director Designation'}
+                  optional
+                >
+                  <Input name="designation" value={formData.designation} onChange={handleChange}
+                    placeholder={isSoleProp ? 'e.g. Freelance Architect / Self-Employed' : 'e.g. Managing Director / CEO'} />
+                </FieldGroup>
+
+                {/* ── Specialization ── */}
+                <FieldGroup
+                  label="Core Domain Specialization"
+                  required
+                  error={errors.specialization}
+                  hint="Type your specific core domain expertise"
+                >
+                  <Input
+                    name="specialization"
+                    value={formData.specialization}
+                    onChange={handleChange}
+                    placeholder="e.g. Structural Design, Heavy Transport, Fresh Produce, Project Funding..."
+                    error={errors.specialization}
+                  />
+                </FieldGroup>
+
+                {/* ── Email ── */}
+                <FieldGroup label="Email Address" required error={errors.email}>
+                  <Input name="email" type="email" value={formData.email} onChange={handleChange}
+                    placeholder="e.g. contact@studio.com" error={errors.email} />
+                </FieldGroup>
+
+                {/* ── Phone ── */}
+                <FieldGroup label="Mobile Number" required error={errors.phone}>
+                  <Input name="phone" type="tel" value={formData.phone} onChange={handleChange}
+                    placeholder="+91 98765 43210" error={errors.phone} />
+                </FieldGroup>
+
+                {/* ── Alt Phone (optional) ── */}
+                <FieldGroup label="Alternate Number" optional>
+                  <Input name="altPhone" type="tel" value={formData.altPhone} onChange={handleChange}
+                    placeholder="Office / WhatsApp number" />
+                </FieldGroup>
+
+                {/* ── Blood Group (For Official Vendor ID Card) ── */}
+                <FieldGroup label="Blood Group (For Official Smart ID Card)" optional>
+                  <select name="bloodGroup" value={formData.bloodGroup || 'B+'} onChange={handleChange} className="form-input">
+                    {['B+', 'A+', 'O+', 'AB+', 'B-', 'A-', 'O-', 'AB-'].map(bg => (
+                      <option key={bg} value={bg}>{bg}</option>
+                    ))}
+                  </select>
+                </FieldGroup>
+
+                {/* ── Passport Size Photo Upload (For Official Vendor ID Card) ── */}
+                <FieldGroup label="Passport Size Photo (For Smart ID Card Badge)" optional hint="Upload clear front-facing passport photo (PNG/JPG up to 5MB)">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFormData(prev => ({ ...prev, passportPhoto: reader.result }));
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="form-input"
+                      style={{ padding: '0.4rem' }}
+                    />
+                    {formData.passportPhoto && (
+                      <div style={{ width: 44, height: 50, borderRadius: 6, overflow: 'hidden', border: '2px solid #0047AB', flexShrink: 0 }}>
+                        <img src={formData.passportPhoto} alt="ID Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    )}
+                  </div>
+                </FieldGroup>
 
                 {/* ── Team Size ── */}
                 <FieldGroup label="Team Size" optional>
