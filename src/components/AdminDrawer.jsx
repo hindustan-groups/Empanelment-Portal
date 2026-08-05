@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, RefreshCw, Database, Download, CheckCircle, Clock, ExternalLink } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 export default function AdminDrawer({ isOpen, onClose }) {
   const [vendors, setVendors] = useState([]);
@@ -13,7 +14,7 @@ export default function AdminDrawer({ isOpen, onClose }) {
 
   const fetchVendors = async () => {
     setLoading(true);
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL;
 
     try {
       const response = await fetch(`${backendUrl}/api/empanelment/admin/applications`);

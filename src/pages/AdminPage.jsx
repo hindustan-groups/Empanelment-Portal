@@ -7,6 +7,7 @@ import VendorDossierA4Modal from '../components/VendorDossierA4Modal';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
 import AdminDrawer from '../components/AdminDrawer';
+import { API_BASE_URL, ADMIN_API_KEY } from '../config/api';
 import {
   Database, RefreshCw, LogOut, ShieldCheck, Search,
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3,
@@ -221,8 +222,8 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   /* ── Vendor CRUD ── */
   const fetchVendors = async () => {
     setLoading(true);
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-    const adminKey = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+    const backendUrl = API_BASE_URL;
+    const adminKey = ADMIN_API_KEY;
     const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
 
     const seedApps = [
@@ -255,8 +256,8 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const ceoSigned = isApproved;
     const ceoDate = isApproved ? new Date().toLocaleDateString('en-IN') : null;
 
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-    const adminKey = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+    const backendUrl = API_BASE_URL;
+    const adminKey = ADMIN_API_KEY;
     try {
       await fetch(`${backendUrl}/api/empanelment/admin/status`, {
         method: 'PATCH',
