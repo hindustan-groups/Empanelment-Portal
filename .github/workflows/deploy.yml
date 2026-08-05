@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -17,7 +18,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST || '187.127.142.137' }}
           username: ${{ secrets.VPS_USERNAME || 'root' }}
-          password: ${{ secrets.VPS_PASSWORD }}
+          password: ${{ secrets.VPS_PASSWORD || secrets.Empanlement || secrets.Empanelment }}
           port: 22
           script: |
             echo "🚀 Starting Automatic Deployment on VPS..."
