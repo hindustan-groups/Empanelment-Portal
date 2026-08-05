@@ -373,8 +373,8 @@ function renderDocumentAttachmentsHTML(formData, trackingId) {
     { title: 'Aadhaar Card (National Identity & Address Proof)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc'], docType: 'Mandatory UIDAI National Identity Proof' },
     { title: 'Cancelled Bank Cheque Copy', keys: ['bankDoc', 'bank_doc'], docType: 'Verified Bank Account & RTGS Payout Proof' },
     { title: 'GST REG-06 Registration Certificate', keys: ['gstDoc', 'gst_doc'], docType: 'CBIC Statutory GST Compliance Registration' },
-    { title: 'Technical Work Portfolio & Equipment Catalog', keys: ['portfolioDoc', 'portfolio_doc'], docType: 'Technical Capability Roster & Inventory Catalog' },
-    { title: 'Past Work Experience & Completion Certificates', keys: ['expDoc', 'exp_doc'], docType: 'CPWD / Corporate Work Order Execution Proof' }
+    { title: 'Past Work Experience & Completion Certificates', keys: ['expDoc', 'exp_doc'], docType: 'CPWD / Corporate Work Order Execution Proof' },
+    { title: 'Technical Work Portfolio & Multi-Page Equipment Catalog', keys: ['portfolioDoc', 'portfolio_doc', 'tradeLicenseDoc', 'dealershipCertDoc', 'coaCertificateDoc', 'charteredCertDoc', 'degreeDoc', 'experienceCertDoc'], docType: 'FINAL ANNEXURE — Technical Capability Roster & Multi-Page Catalog' }
   ];
 
   // ONLY include documents that were ACTUALLY uploaded by the applicant
