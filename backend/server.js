@@ -856,6 +856,15 @@ app.patch('/api/tickets/:id/reply', adminAuthMiddleware, (req, res) => {
 // ─────────────────────────────────────────────────────────────────
 // GITHUB AUTO-DEPLOYMENT WEBHOOK ROUTE (Auto-Deploy on Push)
 // ─────────────────────────────────────────────────────────────────
+app.get('/api/deploy-webhook', (req, res) => {
+  res.json({
+    success: true,
+    status: 'ACTIVE',
+    service: 'Hindustan Projects Auto-Deployment Webhook',
+    message: 'Webhook endpoint active ✅ GitHub push events (POST requests) will automatically pull master code and restart server.'
+  });
+});
+
 app.post('/api/deploy-webhook', (req, res) => {
   const { exec } = require('child_process');
   console.log('🔄 GitHub Push Webhook Triggered: Auto-deploying latest master code...');
