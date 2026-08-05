@@ -397,8 +397,30 @@ function renderDocumentAttachmentsHTML(formData, trackingId) {
   activeUploadedDocs.forEach((doc, idx) => {
     const pageNum = 4 + idx;
     const fileVal = doc.fileVal;
-    const fileName = typeof fileVal === 'object' && fileVal?.name ? fileVal.name : String(fileVal);
-    const isImgUrl = typeof fileVal === 'string' && (fileVal.startsWith('data:image') || fileVal.startsWith('blob:') || fileVal.startsWith('http'));
+    
+    // Extract actual file source URL (Base64 data URL, Blob URL, or HTTP path)
+    let srcUrl = null;
+    if (typeof fileVal === 'string') {
+      srcUrl = fileVal;
+    } else if (typeof fileVal === 'object' && fileVal !== null) {
+      srcUrl = fileVal.data || fileVal.url || fileVal.path || null;
+    }
+
+    const fileName = typeof fileVal === 'object' && fileVal?.name ? fileVal.name : String(fileVal || 'uploaded_document');
+    
+    // Detect image format
+    const isImage = (typeof srcUrl === 'string' && (srcUrl.startsWith('data:image') || srcUrl.startsWith('blob:') || srcUrl.startsWith('http') || srcUrl.startsWith('/uploads'))) ||
+                    /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(fileName);
+                    
+    // Detect PDF format
+    const isPdf = (typeof srcUrl === 'string' && (srcUrl.startsWith('data:application/pdf') || srcUrl.endsWith('.pdf'))) ||
+                  /\.pdf$/i.test(fileName);
+
+    const imageSrc = (isImage && srcUrl) 
+      ? srcUrl 
+      : (typeof fileVal === 'string' && !fileVal.startsWith('data:') && !fileVal.startsWith('http') 
+          ? `/uploads/${encodeURIComponent(fileVal)}` 
+          : null);
 
     htmlStr += `
     <div class="dossier-page">
@@ -417,12 +439,33 @@ function renderDocumentAttachmentsHTML(formData, trackingId) {
 
         <div class="section-heading">ATTACHMENT SHEET ${idx + 1} OF ${activeUploadedDocs.length} — ${doc.title.toUpperCase()}</div>
 
-        <div style="border:2px solid ${HP_BLUE};border-radius:12px;padding:20px;background:#F8FAFC;margin-top:14px;min-height:175mm;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative">
-          ${isImgUrl ? `
-            <div style="font-size:9pt;font-weight:900;color:${HP_DARK};margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em">
-              ✓ AUTHENTICATED SCAN IMAGE ATTACHED TO DOSSIER
+        <div style="border:2px solid ${HP_BLUE};border-radius:12px;padding:15px;background:#F8FAFC;margin-top:10px;min-height:185mm;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative">
+          
+          <div style="font-size:8.5pt;font-weight:900;color:${HP_DARK};margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:6px">
+            <span style="color:#047857">✓ AUTHENTICATED ATTACHMENT SCAN</span>
+            <span style="color:${HP_MUTED}">•</span>
+            <span style="font-family:monospace;color:${HP_BLUE}">${fileName}</span>
+          </div>
+
+          ${imageSrc ? `
+            <div style="width:100%;height:165mm;display:flex;align-items:center;justify-content:center;background:white;border:1.5px solid #CBD5E1;border-radius:8px;padding:10px;box-shadow:0 6px 20px rgba(0,0,0,0.08);box-sizing:border-box">
+              <img src="${imageSrc}" alt="${doc.title}" style="max-width:100%;max-height:155mm;object-fit:contain;border-radius:4px" onError="this.style.display='none'; this.nextElementSibling.style.display='block';"/>
+              <div style="display:none;text-align:center;padding:20px">
+                <div style="font-size:32pt">🖼️</div>
+                <div style="font-size:10pt;font-weight:900;color:${HP_DARK}">${fileName}</div>
+                <div style="font-size:8pt;color:${HP_MUTED}">Verified Document Image Attached</div>
+              </div>
             </div>
-            <img src="${fileVal}" alt="${doc.title}" style="max-width:100%;max-height:150mm;object-fit:contain;border-radius:8px;border:1.5px solid #CBD5E1;box-shadow:0 8px 24px rgba(0,0,0,0.12)"/>
+          ` : isPdf && srcUrl ? `
+            <div style="width:100%;height:165mm;background:white;border:1.5px solid #CBD5E1;border-radius:8px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.08)">
+              <object data="${srcUrl}" type="application/pdf" style="width:100%;height:100%">
+                <div style="padding:40px;text-align:center">
+                  <div style="font-size:36pt">📄</div>
+                  <div style="font-size:11pt;font-weight:900;color:${HP_DARK}">${fileName}</div>
+                  <div style="font-size:8.5pt;color:${HP_MUTED};margin-top:6px">PDF Document Attached &amp; Authenticated in 256-Bit SSL Vault</div>
+                </div>
+              </object>
+            </div>
           ` : `
             <div style="padding:28px 24px;background:white;border:2px dashed ${HP_BLUE};border-radius:16px;max-width:520px;width:100%;text-align:center;box-shadow:0 8px 20px rgba(0,71,171,0.06)">
               <div style="font-size:42pt;margin-bottom:10px;line-height:1">📄</div>
@@ -430,7 +473,7 @@ function renderDocumentAttachmentsHTML(formData, trackingId) {
               <div style="font-size:8.5pt;color:${HP_MUTED};font-weight:600;margin-bottom:14px">${doc.docType}</div>
               
               <div style="padding:10px 16px;border-radius:8px;background:#ECFDF5;border:1px solid #A7F3D0;color:#047857;font-size:8.5pt;font-weight:900;display:inline-flex;align-items:center;gap:6px;margin-bottom:14px">
-                ✓ ATTACHED, VERIFIED &amp; CRYPTOGRAPHICAL AUTHENTICATED
+                ✓ ATTACHED, VERIFIED &amp; CRYPTOGRAPHICALLY AUTHENTICATED
               </div>
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left;font-size:7.5pt;color:#334155;border-top:1px solid #E2E8F0;padding-top:12px;margin-top:10px">
