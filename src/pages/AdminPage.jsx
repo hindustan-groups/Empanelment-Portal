@@ -232,10 +232,11 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        const combined = [...localApps, ...data.data];
-        // Deduplicate by tracking_id
-        const unique = Array.from(new Map(combined.map(item => [item.tracking_id, item])).values());
-        setVendors(unique);
+        // VPS Database is primary source of truth (placed FIRST)
+        const dbTrackIds = new Set(data.data.map(d => d.tracking_id));
+        const localOnly = localApps.filter(a => !dbTrackIds.has(a.tracking_id));
+        const merged = [...data.data, ...localOnly];
+        setVendors(merged);
         setLoading(false);
         return;
       }
@@ -243,9 +244,8 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend API connection pending:', err);
     }
 
-    // Clean fallback with zero dummy seed data
-    const unique = Array.from(new Map(localApps.map(item => [item.tracking_id, item])).values());
-    setVendors(unique);
+    // Fallback if backend API offline
+    setVendors(localApps);
     setLoading(false);
   };
 
