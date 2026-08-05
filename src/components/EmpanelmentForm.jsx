@@ -997,34 +997,75 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   </div>
                 </FieldGroup>
 
-                {/* ── Team Size ── */}
-                <FieldGroup label="Team Size" optional>
-                  <select name="teamSize" value={formData.teamSize || '1-5 Members'} onChange={handleChange} className="form-input">
-                    {['1-5 Members', '5-20 Members', '20-50 Members', '50-100 Members', '100+ Workforce'].map(ts => (
-                      <option key={ts} value={ts}>{ts}</option>
-                    ))}
-                  </select>
-                </FieldGroup>
+                {/* ── Freelancer / Sole Proprietor Specific Tailored Fields ── */}
+                {isSoleProp ? (
+                  <>
+                    <FieldGroup label="Daily / Monthly Consultancy Rate (₹)" optional hint="Estimated billing rate for freelance engagement">
+                      <Input
+                        name="dailyRate"
+                        value={formData.dailyRate || ''}
+                        onChange={handleChange}
+                        placeholder="e.g. ₹3,500 / Day or ₹45,000 / Month"
+                      />
+                    </FieldGroup>
 
-                {/* ── Company Owner / Promoter Name ── */}
-                <FieldGroup label="Company Owner / Promoter Name" optional>
-                  <Input
-                    name="ownerName"
-                    value={formData.ownerName}
-                    onChange={handleChange}
-                    placeholder="e.g. Mr. Ramesh Gupta (Promoter / Founder)"
-                  />
-                </FieldGroup>
+                    <FieldGroup label="Online Portfolio / BeHance / LinkedIn Link" optional hint="Link to past projects, designs or work samples">
+                      <Input
+                        name="portfolioUrl"
+                        value={formData.portfolioUrl || ''}
+                        onChange={handleChange}
+                        placeholder="e.g. https://linkedin.com/in/profile or https://behance.net/work"
+                      />
+                    </FieldGroup>
 
-                {/* ── Company Owner Contact Detail ── */}
-                <FieldGroup label="Company Owner Contact Detail" optional>
-                  <Input
-                    name="ownerContact"
-                    value={formData.ownerContact}
-                    onChange={handleChange}
-                    placeholder="e.g. +91 9876543210 / owner@company.com"
-                  />
-                </FieldGroup>
+                    <FieldGroup label="Project Availability & Notice Period" optional>
+                      <select name="availability" value={formData.availability || 'Immediate (Within 48 Hrs)'} onChange={handleChange} className="form-input">
+                        <option value="Immediate (Within 48 Hrs)">Immediate (Within 48 Hrs)</option>
+                        <option value="Within 7 Days">Within 7 Days</option>
+                        <option value="15 Days Notice">15 Days Notice</option>
+                        <option value="Part-Time / Weekend Basis">Part-Time / Weekend Basis</option>
+                      </select>
+                    </FieldGroup>
+
+                    <FieldGroup label="Major Past Client / Project References" optional hint="Names of past companies or projects handled">
+                      <Input
+                        name="clientReferences"
+                        value={formData.clientReferences || ''}
+                        onChange={handleChange}
+                        placeholder="e.g. Larsen & Toubro, Tata Projects, DLF City..."
+                      />
+                    </FieldGroup>
+                  </>
+                ) : (
+                  /* ── Corporate Only Owner & Team Size Fields ── */
+                  <>
+                    <FieldGroup label="Total Corporate Team Size" optional>
+                      <select name="teamSize" value={formData.teamSize || '1-5 Members'} onChange={handleChange} className="form-input">
+                        {['1-5 Members', '5-20 Members', '20-50 Members', '50-100 Members', '100+ Workforce'].map(ts => (
+                          <option key={ts} value={ts}>{ts}</option>
+                        ))}
+                      </select>
+                    </FieldGroup>
+
+                    <FieldGroup label="Company Owner / Promoter Name" optional>
+                      <Input
+                        name="ownerName"
+                        value={formData.ownerName || ''}
+                        onChange={handleChange}
+                        placeholder="e.g. Mr. Ramesh Gupta (Promoter / Founder)"
+                      />
+                    </FieldGroup>
+
+                    <FieldGroup label="Company Owner Contact Detail" optional>
+                      <Input
+                        name="ownerContact"
+                        value={formData.ownerContact || ''}
+                        onChange={handleChange}
+                        placeholder="e.g. +91 9876543210 / owner@company.com"
+                      />
+                    </FieldGroup>
+                  </>
+                )}
 
                 {/* ── Corporate-only fields ── */}
                 {!isSoleProp && (
