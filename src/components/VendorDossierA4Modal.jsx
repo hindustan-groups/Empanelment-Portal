@@ -108,10 +108,15 @@ function DocCard({ label, docType, fileVal, index }) {
                 <iframe src={fileVal} title={label} style={{ width: '100%', height: 480, border: 'none', borderRadius: 8, background: 'white' }} />
               )}
               {isHttpURL && (
-                <div style={{ textAlign: 'center' }}>
+                <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
+                  {fileVal.match(/\.(jpg|jpeg|png|webp)($|\?)/i) ? (
+                    <img src={fileVal} alt={label} style={{ maxWidth: '100%', maxHeight: 400, objectFit: 'contain', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', display: 'block', margin: '0 auto 0.75rem' }} />
+                  ) : (
+                    <iframe src={fileVal} title={label} style={{ width: '100%', height: 420, border: 'none', borderRadius: 8, background: 'white', marginBottom: '0.75rem' }} />
+                  )}
                   <a href={fileVal} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.2rem', background: '#0047AB', color: 'white', borderRadius: 10, fontWeight: 800, fontSize: '0.8rem', textDecoration: 'none' }}>
-                    <Download style={{ width: 15, height: 15 }} /> Open Document
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.25rem', background: 'linear-gradient(135deg, #0047AB 0%, #3B82F6 100%)', color: 'white', borderRadius: 10, fontWeight: 800, fontSize: '0.8rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,71,171,0.3)' }}>
+                    <Download style={{ width: 15, height: 15 }} /> <span>Open / Download High-Res Document (Cloudinary Vault)</span>
                   </a>
                 </div>
               )}

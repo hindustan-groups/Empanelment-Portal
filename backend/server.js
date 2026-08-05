@@ -80,7 +80,71 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB File Limit
+
+// ─── 5.1 CLOUDINARY FILE STORAGE & RATE LIMITER ─────────────────
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'xskfr3wu',
+  api_key: process.env.CLOUDINARY_API_KEY || '234897422674247',
+  api_secret: process.env.CLOUDINARY_API_SECRET || '3yFqCiSQbcD9YaWasIDDK142kl4'
+});
+
+const uploadRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 Minutes
+  max: 20, // Max 20 file uploads per IP per 15 minutes
+  message: { success: false, error: 'File upload rate limit reached (max 20 uploads per 15 minutes). Please try again shortly.' }
+});
+
+async function uploadFileToCloudinary(filePath, mimetype) {
+  try {
+    const resourceType = mimetype === 'application/pdf' ? 'raw' : 'auto';
+    const res = await cloudinary.uploader.upload(filePath, {
+      folder: 'hipro_empanelment_docs',
+      resource_type: resourceType,
+      use_filename: true,
+      unique_filename: true
+    });
+    if (fs.existsSync(filePath)) {
+      try { fs.unlinkSync(filePath); } catch {}
+    }
+    return res.secure_url;
+  } catch (err) {
+    console.error('Cloudinary upload error:', err);
+    return null;
+  }
+}
+
+// Direct Cloudinary Upload Endpoint
+app.post('/api/empanelment/upload-cloud', uploadRateLimiter, upload.single('document'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No file provided or file format invalid.' });
+    }
+
+    if (req.file.size > 5 * 1024 * 1024) {
+      if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      return res.status(400).json({ success: false, error: 'File size exceeds maximum allowed 5 MB limit!' });
+    }
+
+    const secureUrl = await uploadFileToCloudinary(req.file.path, req.file.mimetype);
+    if (!secureUrl) {
+      return res.status(500).json({ success: false, error: 'Cloudinary cloud upload failed.' });
+    }
+
+    res.json({
+      success: true,
+      url: secureUrl,
+      fileName: req.file.originalname
+    });
+  } catch (err) {
+    if (req.file && fs.existsSync(req.file.path)) {
+      try { fs.unlinkSync(req.file.path); } catch {}
+    }
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // ─── 6. SQLITE DATABASE ──────────────────────────────────────────
 const dbPath = path.join(__dirname, 'empanelment.db');
@@ -333,16 +397,39 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
+    // Process and Upload Document files to Cloudinary Storage
+    let gstDocUrl = typeof data.gstDoc === 'string' ? data.gstDoc : (data.gstDocUrl || null);
+    let panDocUrl = typeof data.panDoc === 'string' ? data.panDoc : (data.panDocUrl || null);
+    let bankDocUrl = typeof data.bankDoc === 'string' ? data.bankDoc : (data.bankDocUrl || null);
+    let expDocUrl = typeof data.expDoc === 'string' ? data.expDoc : (data.expDocUrl || null);
+
+    if (files.gstDoc && files.gstDoc[0]) {
+      const cUrl = await uploadFileToCloudinary(files.gstDoc[0].path, files.gstDoc[0].mimetype);
+      gstDocUrl = cUrl || files.gstDoc[0].filename;
+    }
+    if (files.panDoc && files.panDoc[0]) {
+      const cUrl = await uploadFileToCloudinary(files.panDoc[0].path, files.panDoc[0].mimetype);
+      panDocUrl = cUrl || files.panDoc[0].filename;
+    }
+    if (files.bankDoc && files.bankDoc[0]) {
+      const cUrl = await uploadFileToCloudinary(files.bankDoc[0].path, files.bankDoc[0].mimetype);
+      bankDocUrl = cUrl || files.bankDoc[0].filename;
+    }
+    if (files.expDoc && files.expDoc[0]) {
+      const cUrl = await uploadFileToCloudinary(files.expDoc[0].path, files.expDoc[0].mimetype);
+      expDocUrl = cUrl || files.expDoc[0].filename;
+    }
+
     const params = [
       trackingId, hashSignature, data.category, data.primaryRole || null, data.specialization || null, data.skillsDetails || null, data.teamSize || null,
       data.companyName || data.ownerName || data.contactName, data.entityType || null, data.estYear || null, data.ownerName || null, data.ownerContact || null,
       data.contactName, data.designation || null, data.email, data.phone, data.address || null, data.city || null, data.state || null, data.pincode || null,
       data.gstin || 'EXEMPT', data.pan, data.aadharNo || data.aadhar_no || null, data.msmeNo || null, data.bankAccount || null, data.bankName || null, data.ifsc || null,
       data.turnover2023 || data.turnover_2023 || '0', data.turnover2024 || data.turnover_2024 || '0', data.turnover2025 || data.turnover_2025 || '0', data.largestOrder || null, data.existingEmpanels || null,
-      files.gstDoc ? files.gstDoc[0].filename : null,
-      files.panDoc ? files.panDoc[0].filename : null,
-      files.bankDoc ? files.bankDoc[0].filename : null,
-      files.expDoc ? files.expDoc[0].filename : null,
+      gstDocUrl,
+      panDocUrl,
+      bankDocUrl,
+      expDocUrl,
       data.signatoryName || data.contactName, data.signature_data || data.signature || null, data.passport_photo || null,
       categorySpecificDataJson, clientIp, submittedAt
     ];
