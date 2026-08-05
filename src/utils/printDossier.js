@@ -499,57 +499,127 @@ function renderDocumentAttachmentsHTML(formData, trackingId) {
 
 // ── Category / Role Mode Detector ──────────────────────────────────────────────
 export function getEmpanelmentMode(formData) {
+  const cat = String(formData?.category || '').toLowerCase();
   const role = String(formData?.primaryRole || formData?.primary_role || '').toLowerCase();
   const entity = String(formData?.entityType || formData?.entity_type || '').toLowerCase();
 
-  const isFreelanceRole = ['freelancer', 'architect', 'civil_engineer', 'surveyor', 'financer', 'property_dealer'].includes(role) || entity === 'sole_proprietor';
-  const isSupplierRole  = ['material_supplier', 'transporter', 'machine_rental_provider', 'fruits_vegetables'].includes(role);
+  const activeCategory = cat || role;
 
-  if (isFreelanceRole) {
+  if (activeCategory === 'architect') {
     return {
-      mode: 'FREELANCER',
-      bannerTitle: 'INDIVIDUAL CONSULTANT & FREELANCER EMPANELMENT DOSSIER',
-      sec1Title: '§ 1 — INDIVIDUAL CONSULTANT & PROFESSIONAL SPECIALIZATION PROFILE',
-      rulesTitle: '📋 HINDUSTAN PROJECTS — INDIVIDUAL CONSULTANT & PROFESSIONAL CODE OF CONDUCT',
+      mode: 'ARCHITECT',
+      bannerTitle: '🏛️ ARCHITECT & DESIGN CONSULTANT EMPANELMENT DOSSIER',
+      sec1Title: '§ 1 — ARCHITECTURAL PRACTICE & COA CREDENTIALS PROFILE',
+      rulesTitle: '📋 HINDUSTAN PROJECTS — ARCHITECTURAL CONSULTANT CODE OF CONDUCT',
       rules: [
-        'Audit SLA: Fast-track 24–48 hours document audit for individual consultants & freelancers.',
-        'Smart PVC Badge: Approved individual consultants carry PVC Smart ID Card for site visit clearance.',
-        'Zero Corruption: CVC compliance — Zero tolerance for fake degree certificates or misrepresentation.',
-        'Professional Integrity: Direct engagement based on verified technical expertise & portfolio.',
-        'Work Orders: Written Consultant Engagement Letter prior to commencement of any design / site service.',
-        'Direct Payout: 7-Day RTGS direct bank payout upon milestone deliverable / report sign-off.',
-        'Quality Standards: Individual professional certifications (COA / IEI / NABL) verified prior to empanelment.',
-        'Tax Compliance: PAN & TDS (194J / 194C) deducted as per Income Tax Act regulations.',
-        'Fee Structure: Professional fee billing based on agreed day/hourly rate card or milestone lump sum.',
-        'Intellectual Property: CAD drawings, BIM models & technical designs created belong to Hindustan Projects.',
-        'Confidentiality: Project site specifications, GFC drawings & commercial data strictly confidential.',
-        'Site Safety: Compliance with site safety protocols during field surveys & site inspections.',
-        'Performance Index: Client & Project Manager feedback score evaluated after each assignment.',
+        'COA Mandate: Valid Council of Architecture (COA) registration & active council standing mandatory.',
+        'Audit SLA: Fast-track 24–48 hours document audit for registered architectural consultants.',
+        'GFC Drawings: All Good-for-Construction (GFC) drawings must carry COA seal & digital stamp.',
+        'Zero Corruption: CVC compliance — Zero tolerance for misrepresentation of past project credentials.',
+        'CAD & BIM IP: CAD drawings & BIM 360 models created for Hindustan Projects remain corporate IP.',
+        'Work Orders: Written Architect Engagement Letter required prior to commencement of design phase.',
+        'Direct Payout: 7-Day RTGS payout upon approval of architectural schematic & GFC milestones.',
+        'Site Inspection: Mandatory site visits for structural alignment verification during casting.',
+        'Confidentiality: Project master plans & GFC structural data strictly confidential under IT Act.',
+        'Fee Structure: Billing as per agreed percentage of project cost or milestone lump sum.',
         'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
       ]
     };
   }
 
-  if (isSupplierRole) {
+  if (activeCategory === 'transporter') {
+    return {
+      mode: 'TRANSPORTER',
+      bannerTitle: '🚛 LOGISTICS & COMMERCIAL TRANSPORTER EMPANELMENT DOSSIER',
+      sec1Title: '§ 1 — FLEET SIZE, RTO PERMITS & LOGISTICS CAPABILITY PROFILE',
+      rulesTitle: '📋 HINDUSTAN PROJECTS — TRANSPORTER & LOGISTICS CODE OF CONDUCT',
+      rules: [
+        'RTO Permits: Valid Goods Carriage Permit & Commercial RTO fitness mandatory for all fleet trucks.',
+        'GPS Fleet Tracking: Active GPS tracking mandatory for transit verification of high-value loads.',
+        'Gate Pass QR: Drivers issued QR-code site entry gate passes for material drop-off clearance.',
+        'Weighbridge SLA: Site weighbridge slip signed by Site Engineer mandatory for freight bill claims.',
+        'Audit SLA: 48-Hour document verification by Material Control & Freight Logistics Desk.',
+        'Transit Insurance: Full transit insurance mandatory for heavy equipment & steel freight transport.',
+        'Payment SLA: 7-Day RTGS freight payout turnaround following GRN sign-off.',
+        'Confidentiality: Project material delivery destinations strictly confidential under IT Act 2000.',
+        'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
+      ]
+    };
+  }
+
+  if (activeCategory === 'fruits_vegetables') {
+    return {
+      mode: 'FRUITS_VEGETABLES',
+      bannerTitle: '🍎 PERISHABLES & FOOD SUPPLIER EMPANELMENT DOSSIER',
+      sec1Title: '§ 1 — FSSAI HYGIENE & FOOD SUPPLY CHAIN CAPABILITY PROFILE',
+      rulesTitle: '📋 HINDUSTAN PROJECTS — PERISHABLE FOOD SUPPLIER CODE OF CONDUCT',
+      rules: [
+        'FSSAI Mandate: Valid FSSAI license & hygiene compliance certificate mandatory for supply.',
+        'Cold Storage SLA: Temperature-controlled transit mandatory for fresh perishable consignments.',
+        'Quality Inspection: 100% freshness & quality audit conducted at site mess/kitchen receiving bay.',
+        'Rejection Guarantee: Immediate 4-hour replacement guarantee for damaged or spoiled perishables.',
+        'Daily Supply SLA: On-time early morning delivery (by 07:00 AM) to worker camp kitchens.',
+        'Payment SLA: Weekly 7-day RTGS payout cycle against verified daily mess receiving slips.',
+        'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
+      ]
+    };
+  }
+
+  if (activeCategory === 'financer') {
+    return {
+      mode: 'FINANCER',
+      bannerTitle: '🏦 FINANCER & NBFC CAPITAL PARTNER DOSSIER',
+      sec1Title: '§ 1 — FINANCIAL CAPACITY & LENDING LICENSE PROFILE',
+      rulesTitle: '📋 HINDUSTAN PROJECTS — FINANCIAL CAPITAL PARTNER CODE OF CONDUCT',
+      rules: [
+        'RBI Mandate: Valid RBI NBFC License / Scheduled Bank authorization mandatory.',
+        'Capital Allocation: Pre-approved credit limit commitment for EPC project working capital.',
+        'Zero Hidden Charges: 100% transparent interest rate card with zero hidden processing fees.',
+        'Audit SLA: 48-Hour fast-track disbursement against certified project milestone completion.',
+        'Confidentiality: Corporate financial balance sheets strictly confidential under IT Act 2000.',
+        'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
+      ]
+    };
+  }
+
+  if (activeCategory === 'material_supplier') {
     return {
       mode: 'SUPPLIER',
-      bannerTitle: 'MATERIAL SUPPLIER & LOGISTICS VENDOR DOSSIER',
+      bannerTitle: '📦 MATERIAL SUPPLIER & MANUFACTURER DOSSIER',
       sec1Title: '§ 1 — MATERIAL SUPPLIER & LOGISTICS FLEET PROFILE',
-      rulesTitle: '📋 HINDUSTAN PROJECTS — MATERIAL SUPPLIER & LOGISTICS CODE OF CONDUCT',
+      rulesTitle: '📋 HINDUSTAN PROJECTS — MATERIAL SUPPLIER CODE OF CONDUCT',
       rules: [
         'Audit SLA: 48–72 Hours document audit by Corporate Procurement & Material Control Committee.',
-        'Gate Pass QR: Transporter & delivery trucks issued QR-code site entry gate passes.',
-        'Zero Corruption: CVC compliance — Zero tolerance for short supply, adulteration or substandard goods.',
+        'Gate Pass QR: Delivery trucks issued QR-code site entry gate passes.',
+        'Zero Corruption: CVC compliance — Zero tolerance for short supply or substandard goods.',
         'Quality Assurance: Mandatory NABL / ISI / BIS test reports submitted with every consignment.',
         'Purchase Orders: Goods delivered strictly against official Hindustan Projects PO.',
         'Weighbridge SLA: Site weighbridge slip signed by Project Engineer required for bill claim.',
         'Payment SLA: 7-Day RTGS payout turnaround after GRN (Goods Receipt Note) generation.',
+        'Replacement Guarantee: 24-hour rejection replacement guarantee for defective materials.',
         'Tax Compliance: GST E-Invoice mandatory for billing > ₹5L with GSTR-2B input match.',
-        'Replacement Guarantee: 24-hour rejection replacement guarantee for defective/damaged materials.',
-        'Yard Storage: Allocated site unloading yard & utility points provided at project location.',
-        'Transit Safety: Materials transported with proper tarping & hazardous goods compliance.',
-        'Confidentiality: Project site locations & quantity estimates strictly confidential under IT Act.',
-        'Quarterly Rating: Delivery SLA & material quality score evaluated quarterly.',
+        'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
+      ]
+    };
+  }
+
+  const isFreelanceRole = ['freelancer', 'civil_engineer', 'surveyor', 'property_dealer'].includes(activeCategory) || entity === 'sole_proprietor';
+
+  if (isFreelanceRole) {
+    return {
+      mode: 'FREELANCER',
+      bannerTitle: '👤 INDIVIDUAL CONSULTANT & FREELANCER DOSSIER',
+      sec1Title: '§ 1 — INDIVIDUAL CONSULTANT & PROFESSIONAL SPECIALIZATION PROFILE',
+      rulesTitle: '📋 HINDUSTAN PROJECTS — INDIVIDUAL CONSULTANT CODE OF CONDUCT',
+      rules: [
+        'Audit SLA: Fast-track 24–48 hours document audit for individual consultants & freelancers.',
+        'Smart PVC Badge: Approved individual consultants carry PVC Smart ID Card for site clearance.',
+        'Zero Corruption: CVC compliance — Zero tolerance for fake degree certificates or fraud.',
+        'Professional Integrity: Direct engagement based on verified technical expertise & portfolio.',
+        'Work Orders: Written Consultant Engagement Letter prior to commencement of any service.',
+        'Direct Payout: 7-Day RTGS direct bank payout upon milestone deliverable / report sign-off.',
+        'Tax Compliance: PAN & TDS (194J / 194C) deducted as per Income Tax Act regulations.',
+        'Intellectual Property: Technical reports & survey data created belong to Hindustan Projects.',
         'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
       ]
     };
@@ -557,9 +627,9 @@ export function getEmpanelmentMode(formData) {
 
   return {
     mode: 'CONTRACTOR',
-    bannerTitle: 'CORPORATE CONTRACTOR & TURNKEY EXECUTION DOSSIER',
+    bannerTitle: '🏗️ CORPORATE CONTRACTOR & TURNKEY EXECUTION DOSSIER',
     sec1Title: '§ 1 — APPLICANT ORGANIZATION & SPECIALIZATION PROFILE',
-    rulesTitle: '📋 HINDUSTAN PROJECTS — COMPREHENSIVE VENDOR & CORPORATE CODE OF CONDUCT',
+    rulesTitle: '📋 HINDUSTAN PROJECTS — COMPREHENSIVE VENDOR CODE OF CONDUCT',
     rules: [
       'Audit SLA: 48–72 hours document audit by Corporate Procurement Committee & CEO Office.',
       'Smart PVC Access: Approved vendors carry PVC Smart Card for site QR gate access.',
@@ -570,10 +640,6 @@ export function getEmpanelmentMode(formData) {
       'Material Testing: ISI/BIS certified materials mandatory with NABL lab test report before site use.',
       'Billing & Tax: GST E-Invoice mandatory for bills > ₹5L with GSTR-2B input credit match.',
       'Defect Liability: 5% retention per bill. 12-month DLP from completion certificate date.',
-      'Site Facilities: Hindustan Projects provides material yard storage & site utility points.',
-      'Sub-Contracting: Sub-contracting without prior written approval strictly prohibited.',
-      'Confidentiality: GFC drawings & site BIM data strictly confidential under IT Act 2000.',
-      'Performance Score: Quarterly vendor rating (<60% score triggers automatic de-listing).',
       'Dispute Jurisdiction: Subject to arbitration under Act 1996 in Bhilwara, Rajasthan.'
     ]
   };
