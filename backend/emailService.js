@@ -10,34 +10,27 @@ const templates = require('./emailTemplates');
 
 // ─── CREATE TRANSPORTER (Gmail SMTP) ────────────────────────────
 const createTransporter = () => {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,       // e.g. empanelment@hindustanprojects.in
-      pass: process.env.EMAIL_APP_PASS,   // Gmail App Password (16-char)
-    },
-    tls: {
-      rejectUnauthorized: false
-    }
-  });
-};
+  const user = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
+  const pass = process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx';
 
-// ─── BASE MAIL OPTIONS ───────────────────────────────────────────
-// Uses alias email (empanelment@hindustanprojects.in) as the FROM address
-// so recipients see the professional company email, not the raw Gmail.
-// ALIAS_EMAIL = empanelment@hindustanprojects.in (must be verified in Gmail → Settings → Send mail as)
-// EMAIL_USER  = your actual Gmail that has the alias set up
-const SENDER_ADDRESS = process.env.ALIAS_EMAIL || process.env.EMAIL_USER;
-const baseMailOptions = {
-  from: `"Hindustan Projects — Empanelment Cell" <${SENDER_ADDRESS}>`,
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Port 465 SSL for VPS
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false }
+  });
 };
 
 // ─── SEND EMAIL HELPER ───────────────────────────────────────────
 const sendEmail = async (to, templateResult) => {
   try {
+    const user = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
+    const sender = process.env.ALIAS_EMAIL || user;
     const transporter = createTransporter();
+
     const info = await transporter.sendMail({
-      ...baseMailOptions,
+      from: `"Hindustan Projects — Empanelment Cell" <${sender}>`,
       to,
       subject: templateResult.subject,
       html: templateResult.html,

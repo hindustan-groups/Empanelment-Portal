@@ -1023,7 +1023,7 @@ export function printDossier(trackingId, formData) {
 
   // Desktop Strategy: Hidden iframe with explicit 210mm x 297mm bounds
   const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;top:0;left:0;width:210mm;height:297mm;border:none;visibility:hidden;z-index:-9999';
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:none;opacity:0;pointer-events:none;z-index:9999';
   document.body.appendChild(iframe);
 
   const doc = iframe.contentWindow.document;
