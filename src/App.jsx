@@ -139,15 +139,6 @@ function MainAppLayout() {
       submitted_at: new Date().toISOString()
     };
 
-    // Save to localStorage hipro_vps_applications
-    try {
-      const existing = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-      const updated = [newApplication, ...existing];
-      localStorage.setItem('hipro_vps_applications', JSON.stringify(updated));
-    } catch (err) {
-      console.warn('Failed to save application to local storage:', err);
-    }
-
     setSubmittedId(trackingCode);
     setLastSubmittedData({ ...formData, tracking_id: trackingCode, submitted_at: newApplication.submitted_at });
     setIsSuccessOpen(true);

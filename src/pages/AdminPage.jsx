@@ -224,7 +224,11 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     setLoading(true);
     const backendUrl = API_BASE_URL;
     const adminKey = ADMIN_API_KEY;
-    const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+
+    // Clear stale local browser cache keys
+    try {
+      localStorage.removeItem('hipro_vps_applications');
+    } catch {}
 
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`, {
@@ -232,11 +236,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        // VPS Database is primary source of truth (placed FIRST)
-        const dbTrackIds = new Set(data.data.map(d => d.tracking_id));
-        const localOnly = localApps.filter(a => !dbTrackIds.has(a.tracking_id));
-        const merged = [...data.data, ...localOnly];
-        setVendors(merged);
+        setVendors(data.data);
         setLoading(false);
         return;
       }
@@ -244,8 +244,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend API connection pending:', err);
     }
 
-    // Fallback if backend API offline
-    setVendors(localApps);
+    setVendors([]);
     setLoading(false);
   };
 
