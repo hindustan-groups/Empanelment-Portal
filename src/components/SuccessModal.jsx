@@ -4,6 +4,7 @@ import { CheckCircle2, Copy, Search, ShieldCheck, Printer, Check, FileText, Aler
 import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import { printDossier } from '../utils/printDossier';
+import { CATEGORY_SCHEMAS } from '../config/categoryFieldsConfig';
 
 export default function SuccessModal({ isOpen, trackingId, formData, onClose }) {
   const navigate = useNavigate();
@@ -195,6 +196,54 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
             ))}
           </tbody>
         </table>
+
+        {/* § 1.5 — CATEGORY-SPECIFIC STATUTORY CREDENTIALS */}
+        {(() => {
+          const categoryKey = formData?.category || 'vendor';
+          const catSchema = CATEGORY_SCHEMAS[categoryKey] || CATEGORY_SCHEMAS.vendor;
+          const statKey = catSchema.statutoryLicenseKey;
+          const statLabel = catSchema.statutoryLicenseLabel;
+          const statVal = formData?.[statKey] || (categoryKey === 'architect' ? formData?.coaRegNo : null);
+
+          if (statVal || (catSchema.customFields && catSchema.customFields.some(cf => formData?.[cf.name]))) {
+            return (
+              <>
+                <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#047857', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#ECFDF5', borderLeft: '4px solid #10B981', borderRadius: '0 6px 6px 0', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span>{catSchema.label} — Category Statutory Licenses &amp; Specifications</span>
+                </div>
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '0.9rem', fontSize: '0.82rem' }}>
+                  <tbody>
+                    {statVal && (
+                      <tr>
+                        <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '35%', fontSize: '0.77rem', color: '#0F172A' }}>
+                          {statLabel}
+                        </td>
+                        <td colSpan={3} style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 800, color: '#0047AB' }}>
+                          {statVal}
+                        </td>
+                      </tr>
+                    )}
+                    {catSchema.customFields && catSchema.customFields.map((cf) => {
+                      const val = formData?.[cf.name];
+                      if (val === undefined || val === null || val === '') return null;
+                      return (
+                        <tr key={cf.name}>
+                          <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '35%', fontSize: '0.77rem', color: '#0F172A' }}>
+                            {cf.label}
+                          </td>
+                          <td colSpan={3} style={{ border: '1px solid #E2E8F0', padding: '5px 8px' }}>
+                            {cf.type === 'boolean' ? (val ? '✅ Verified & Compliant' : '❌ Not Available') : String(val)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </>
+            );
+          }
+          return null;
+        })()}
 
         {/* § 2 — TAX & BANKING */}
         <div style={{ fontSize: '0.78rem', fontWeight: 900, color: BLUE, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#EFF6FF', borderLeft: `4px solid ${BLUE}`, borderRadius: '0 6px 6px 0' }}>

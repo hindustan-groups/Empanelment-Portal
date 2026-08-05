@@ -1017,10 +1017,18 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 {/* ── Corporate-only fields ── */}
                 {!isSoleProp && (
                   <>
-                    <FieldGroup label="COA Reg No / MCA CIN Number" optional
-                      hint="As per Council of Architecture / Ministry of Corporate Affairs">
-                      <Input name="coaRegNo" value={formData.coaRegNo} onChange={handleChange}
-                        placeholder="e.g. CA/2018/84920 or U45201RJ2012PTC038" upper />
+                    <FieldGroup 
+                      label={formData.category === 'architect' ? 'COA Registration Number' : 'MCA CIN / Incorporation Reg Number'} 
+                      optional
+                      hint={formData.category === 'architect' ? 'As per Council of Architecture India' : 'As per Ministry of Corporate Affairs (MCA) / Registrar of Companies'}
+                    >
+                      <Input 
+                        name={formData.category === 'architect' ? 'coaRegNo' : 'mcaCinNo'} 
+                        value={formData.category === 'architect' ? formData.coaRegNo : (formData.mcaCinNo || '')} 
+                        onChange={handleChange}
+                        placeholder={formData.category === 'architect' ? 'e.g. CA/2018/84920' : 'e.g. U45201RJ2012PTC038'} 
+                        upper 
+                      />
                     </FieldGroup>
 
                     <FieldGroup label="Year of Establishment" optional>
