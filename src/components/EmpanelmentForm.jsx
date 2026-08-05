@@ -676,15 +676,10 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               <div className="form-header-tag">🏛️ Official Empanelment Registration • {progress}% Completed</div>
               <h2 className="form-header-title">Hindustan Projects Vendor Empanelment Portal</h2>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <button type="button" onClick={handleAutoFill} className="btn-draft" style={{ background: '#F59E0B', borderColor: '#D97706', color: '#FFFFFF', fontWeight: 800 }}>
-                ⚡ Auto-Fill Test Data
-              </button>
-              <button type="button" onClick={handleSaveDraft} className="btn-draft">
-                <Save style={{ width: 14, height: 14 }} />
-                <span>{savedDraft ? '✓ Draft Saved' : 'Save Draft'}</span>
-              </button>
-            </div>
+            <button type="button" onClick={handleSaveDraft} className="btn-draft">
+              <Save style={{ width: 14, height: 14 }} />
+              <span>{savedDraft ? '✓ Draft Saved' : 'Save Draft'}</span>
+            </button>
           </div>
 
           {/* Entity Type Switcher — shown outside banner as white readable card */}
