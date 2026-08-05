@@ -47,7 +47,7 @@ app.use('/api/', apiLimiter);
 app.use(cors({
   origin: true,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-admin-key']
 }));
 
 app.use(express.json({ limit: '1mb' }));
