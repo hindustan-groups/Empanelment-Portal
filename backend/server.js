@@ -338,7 +338,7 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
       data.companyName || data.ownerName || data.contactName, data.entityType || null, data.estYear || null, data.ownerName || null, data.ownerContact || null,
       data.contactName, data.designation || null, data.email, data.phone, data.address || null, data.city || null, data.state || null, data.pincode || null,
       data.gstin || 'EXEMPT', data.pan, data.aadharNo || data.aadhar_no || null, data.msmeNo || null, data.bankAccount || null, data.bankName || null, data.ifsc || null,
-      data.turnover2023 || null, data.turnover2024 || null, data.turnover2025 || null, data.largestOrder || null, data.existingEmpanels || null,
+      data.turnover2023 || data.turnover_2023 || '0', data.turnover2024 || data.turnover_2024 || '0', data.turnover2025 || data.turnover_2025 || '0', data.largestOrder || null, data.existingEmpanels || null,
       files.gstDoc ? files.gstDoc[0].filename : null,
       files.panDoc ? files.panDoc[0].filename : null,
       files.bankDoc ? files.bankDoc[0].filename : null,
