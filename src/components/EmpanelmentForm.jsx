@@ -297,7 +297,15 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    if (name === 'primaryRole' || name === 'category') {
+      setFormData(prev => ({
+        ...prev,
+        category: value,
+        primaryRole: value
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    }
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
   };
 
