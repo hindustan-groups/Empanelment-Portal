@@ -90,7 +90,7 @@ function MainAppLayout() {
     let trackingCode = customTrackingId;
 
     if (!trackingCode) {
-      const currentCounter = parseInt(localStorage.getItem('hipro_emp_counter') || '25', 10);
+      const currentCounter = parseInt(localStorage.getItem('hipro_emp_counter') || '27', 10);
       const formattedNum = currentCounter < 100 ? currentCounter.toString().padStart(3, '0') : currentCounter.toString();
       trackingCode = `HP-EMP-${formattedNum}`;
       localStorage.setItem('hipro_emp_counter', (currentCounter + 1).toString());

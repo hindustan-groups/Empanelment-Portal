@@ -354,9 +354,17 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
     const files = req.files || {};
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
 
-    // Generate Tracking ID & SHA-256 Hash
-    const seqNum = Math.floor(100000 + Math.random() * 900000);
-    const trackingId = `HP-EMP-${seqNum}`;
+    // Generate Sequential Tracking ID (HP-EMP-027, HP-EMP-028...) or use client ID
+    let trackingId = data.trackingId || data.tracking_id || data.customTrackingId;
+    if (!trackingId) {
+      const countRow = await new Promise((resolve) => {
+        db.get(`SELECT COUNT(*) as count FROM vendors`, [], (err, row) => resolve(row));
+      });
+      const nextNum = (countRow && countRow.count ? countRow.count : 0) + 27;
+      const formattedNum = nextNum < 100 ? nextNum.toString().padStart(3, '0') : nextNum.toString();
+      trackingId = `HP-EMP-${formattedNum}`;
+    }
+
     const hashData = `${trackingId}-${data.companyName}-${data.gstin}-${Date.now()}`;
     const hashSignature = crypto.createHash('sha256').update(hashData).digest('hex');
     const submittedAt = new Date().toISOString();
