@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react';
 import SecurityCaptcha from '../components/SecurityCaptcha';
+import { API_BASE_URL } from '../config/api';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -55,7 +56,7 @@ export default function ContactPage() {
     }
 
     setIsSending(true);
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'http://187.127.142.137:5000' : 'http://localhost:5000');
 
     try {
       // Attempt backend API call

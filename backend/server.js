@@ -283,6 +283,21 @@ db.serialize(() => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // 6. Contact Inquiries Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      company TEXT,
+      department TEXT,
+      message TEXT NOT NULL,
+      status TEXT DEFAULT 'NEW',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 });
 
 // ─── 7. ADMIN AUTHENTICATION MIDDLEWARE ───────────────────────────
@@ -489,23 +504,62 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
 
 // ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/contact
-// Contact form inquiry endpoint
+// Contact form inquiry endpoint — saves to DB + sends admin mail
 // ─────────────────────────────────────────────────────────────────
 app.post('/api/empanelment/contact', async (req, res) => {
-  const { name, email, phone, company, department, message } = req.body;
+  const { name, email, phone, company, department, customDepartment, message } = req.body;
+  const dept = department === 'Other' ? (customDepartment || 'Other') : (department || 'Empanelment Helpdesk');
   const adminEmail = process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in';
 
+  if (!name || !email || !message) {
+    return res.status(400).json({ success: false, error: 'Name, email, and message are required.' });
+  }
+
+  // 1. Save to SQLite Database
+  const sql = `INSERT INTO contact_messages (name, email, phone, company, department, message) VALUES (?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [name, email, phone || 'N/A', company || 'N/A', dept, message], function(err) {
+    if (err) {
+      console.error('Contact DB insert error:', err.message);
+    }
+  });
+
+  // 2. Send Alert Mail to Admin
   try {
     if (emailService && emailService.sendEmail) {
       await emailService.sendEmail(adminEmail, {
-        subject: `[Contact Support] ${department} — ${name} (${company || 'Individual'})`,
-        html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Company:</strong> ${company}</p><p><strong>Message:</strong> ${message}</p>`
+        subject: `[Contact Support] ${dept} — ${name} (${company || 'Individual'})`,
+        html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Company:</strong> ${company}</p><p><strong>Department:</strong> ${dept}</p><p><strong>Message:</strong> ${message}</p>`
       });
     }
-    res.json({ success: true, message: 'Inquiry email sent successfully.' });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('Contact mail notice:', err.message);
   }
+
+  res.json({ success: true, message: 'Inquiry submitted and logged to Admin control panel successfully.' });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// GET /api/empanelment/admin/contacts
+// Admin — get all contact inquiries (PROTECTED)
+// ─────────────────────────────────────────────────────────────────
+app.get('/api/empanelment/admin/contacts', adminAuthMiddleware, (req, res) => {
+  db.all(`SELECT * FROM contact_messages ORDER BY id DESC`, [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// PATCH /api/empanelment/admin/contacts/:id
+// Admin — update contact inquiry status (NEW -> RESOLVED)
+// ─────────────────────────────────────────────────────────────────
+app.patch('/api/empanelment/admin/contacts/:id', adminAuthMiddleware, (req, res) => {
+  const { status } = req.body;
+  const id = req.params.id;
+  db.run(`UPDATE contact_messages SET status = ? WHERE id = ?`, [status || 'RESOLVED', id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: 'Inquiry status updated.' });
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────

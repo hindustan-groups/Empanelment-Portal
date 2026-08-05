@@ -202,6 +202,40 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     ];
   });
 
+  /* Contact Inquiries State */
+  const [contactMessages, setContactMessages] = useState([]);
+  const [selectedContactMsg, setSelectedContactMsg] = useState(null);
+
+  const fetchContactMessages = async () => {
+    const backendUrl = API_BASE_URL;
+    const adminKey = ADMIN_API_KEY;
+    try {
+      const res = await fetch(`${backendUrl}/api/empanelment/admin/contacts`, {
+        headers: { 'x-admin-key': adminKey }
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setContactMessages(data.data);
+      }
+    } catch (err) {
+      console.warn('Contacts fetch notice:', err);
+    }
+  };
+
+  const handleToggleContactStatus = async (id, currentStatus) => {
+    const newStatus = currentStatus === 'NEW' ? 'RESOLVED' : 'NEW';
+    const backendUrl = API_BASE_URL;
+    const adminKey = ADMIN_API_KEY;
+    try {
+      await fetch(`${backendUrl}/api/empanelment/admin/contacts/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        body: JSON.stringify({ status: newStatus })
+      });
+    } catch {}
+    setContactMessages(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
+  };
+
   /* Security */
   const [adminPassword, setAdminPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -217,6 +251,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   useEffect(() => {
     if (!isAuthenticated) { navigate('/admin-login'); return; }
     fetchVendors();
+    fetchContactMessages();
   }, [isAuthenticated, navigate]);
 
   /* ── Vendor CRUD ── */
@@ -497,6 +532,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const TABS = [
     { id: 'applications',     label: `Applications (${totalApps})`,          icon: Database },
+    { id: 'contact_messages', label: `📩 Contact Inquiries (${contactMessages.length})`, icon: Mail },
     { id: 'contracts',        label: 'Contracts & Work Orders',              icon: FileSignature },
     { id: 'analytics',        label: '📊 Analytics & Intelligence',          icon: Activity },
     { id: 'payout_approvals', label: '💰 RA Bills & RTGS Releases',          icon: DollarSign },
@@ -1050,6 +1086,91 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ════════════════ TAB: CONTACT INQUIRIES ════════════════ */}
+        {activeTab === 'contact_messages' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>📩 Website Contact Form Inquiries</h3>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Messages submitted by vendors, clients, and partners via the public Contact Support page.
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', borderRadius: 8, background: '#FEF3C7', color: '#B45309', fontWeight: 800 }}>
+                  {contactMessages.filter(c => c.status === 'NEW').length} New / Unresolved
+                </span>
+                <button onClick={fetchContactMessages} className="btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.78rem' }}>
+                  <span>Refresh List</span>
+                </button>
+              </div>
+            </div>
+
+            {contactMessages.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem 1.5rem', background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-color)' }}>
+                <Mail style={{ width: 40, height: 40, color: '#94A3B8', marginBottom: '0.75rem' }} />
+                <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A' }}>No Contact Messages Logged Yet</h4>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4 }}>Any inquiry submitted on the Contact Us page will automatically appear here in real-time.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                {contactMessages.map((msg) => (
+                  <div key={msg.id} style={{
+                    padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)',
+                    border: msg.status === 'NEW' ? '1.5px solid #F59E0B' : '1px solid var(--border-color)',
+                    boxShadow: msg.status === 'NEW' ? '0 4px 15px rgba(245,158,11,0.1)' : 'none'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: 4 }}>
+                          <span style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A' }}>{msg.name}</span>
+                          {msg.company && msg.company !== 'N/A' && (
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', background: '#F1F5F9', padding: '0.1rem 0.5rem', borderRadius: 6 }}>
+                              🏢 {msg.company}
+                            </span>
+                          )}
+                          <span style={{
+                            fontSize: '0.72rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6,
+                            background: msg.status === 'NEW' ? '#FEF3C7' : '#D1FAE5',
+                            color: msg.status === 'NEW' ? '#B45309' : '#047857'
+                          }}>
+                            {msg.status === 'NEW' ? 'NEW INQUIRY' : 'RESOLVED'}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                          <span>📧 <a href={`mailto:${msg.email}`} style={{ color: '#0047AB', fontWeight: 700 }}>{msg.email}</a></span>
+                          <span>📞 <a href={`tel:${msg.phone}`} style={{ color: '#0F172A', fontWeight: 700 }}>{msg.phone}</a></span>
+                          <span>🏛️ Dept: <strong>{msg.department || 'General'}</strong></span>
+                          <span>📅 Received: <strong>{msg.created_at ? new Date(msg.created_at).toLocaleString('en-GB') : 'Just now'}</strong></span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleToggleContactStatus(msg.id, msg.status)}
+                        style={{
+                          padding: '0.4rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                          background: msg.status === 'NEW' ? '#047857' : '#F1F5F9',
+                          color: msg.status === 'NEW' ? '#FFFFFF' : '#475569',
+                          border: 'none'
+                        }}
+                      >
+                        {msg.status === 'NEW' ? '✓ Mark as Resolved' : '↩ Reopen Inquiry'}
+                      </button>
+                    </div>
+
+                    <div style={{
+                      padding: '0.9rem 1.1rem', borderRadius: 10, background: '#FFFFFF',
+                      border: '1px solid #E2E8F0', fontSize: '0.85rem', color: '#1E293B', lineHeight: 1.6, whiteSpace: 'pre-wrap'
+                    }}>
+                      {msg.message}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
