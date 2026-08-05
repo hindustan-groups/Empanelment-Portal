@@ -774,6 +774,38 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         <form onSubmit={handleSubmit} className="form-body">
           {currentStep === 1 && (
             <div>
+              {/* ── 🌟 CATEGORY HERO BANNER ── */}
+              {categorySchema && (
+                <div style={{
+                  background: 'linear-gradient(135deg, #0B1B3D 0%, #0047AB 100%)',
+                  color: 'white',
+                  padding: '1.25rem 1.5rem',
+                  borderRadius: 16,
+                  marginBottom: '1.5rem',
+                  boxShadow: '0 8px 24px rgba(0, 71, 171, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
+                }}>
+                  <div>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#93C5FD' }}>
+                      OFFICIAL EMPANELMENT PORTAL MODE
+                    </div>
+                    <h2 style={{ margin: '0.2rem 0', fontSize: '1.2rem', fontWeight: 900, color: '#FFFFFF' }}>
+                      {categorySchema.portalTitle}
+                    </h2>
+                    <p style={{ margin: 0, fontSize: '0.78rem', color: '#DBEAFE', opacity: 0.9 }}>
+                      {categorySchema.portalSubtitle}
+                    </p>
+                  </div>
+                  <div style={{ padding: '0.4rem 0.85rem', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', borderRadius: 10, fontSize: '0.8rem', fontWeight: 900, border: '1px solid rgba(255,255,255,0.3)', whiteSpace: 'nowrap' }}>
+                    {categorySchema.label}
+                  </div>
+                </div>
+              )}
+
               <div className="step-header">
                 <h3 className="step-header-title">
                   {categorySchema ? (
@@ -912,9 +944,9 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
                 {/* ── Company Name (corporate only) ── */}
                 {!isSoleProp && (
-                  <FieldGroup label="Registered Firm / Company Name" required error={errors.companyName}>
+                  <FieldGroup label={categorySchema?.entityNameLabel || "Registered Firm / Company Name"} required error={errors.companyName}>
                     <Input name="companyName" value={formData.companyName} onChange={handleChange}
-                      placeholder="e.g. M/S Apex Infra Pvt Ltd" error={errors.companyName} />
+                      placeholder={categorySchema?.entityNamePlaceholder || "e.g. M/S Apex Infra Pvt Ltd"} error={errors.companyName} />
                   </FieldGroup>
                 )}
 
@@ -1216,6 +1248,50 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   </div>
                 </div>
 
+                {/* ── 🌟 DYNAMIC CATEGORY TECHNICAL & OPERATIONAL CREDENTIALS ── */}
+                {categorySchema?.step2TechnicalFields && categorySchema.step2TechnicalFields.length > 0 && (
+                  <div style={{
+                    gridColumn: '1 / -1',
+                    marginTop: '1.25rem',
+                    padding: '1.25rem',
+                    borderRadius: 16,
+                    background: 'linear-gradient(135deg, rgba(0,71,171,0.04) 0%, rgba(59,130,246,0.03) 100%)',
+                    border: '1.5px solid #0047AB',
+                    boxShadow: '0 4px 16px rgba(0,71,171,0.06)'
+                  }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px dashed #CBD5E1', paddingBottom: '0.6rem' }}>
+                      <span style={{ fontSize: '1.2rem' }}>⚡</span>
+                      <span>Category Technical & Operational Specs — {categorySchema.label}</span>
+                    </div>
+                    <div className="form-grid-2">
+                      {categorySchema.step2TechnicalFields.map(tf => (
+                        <FieldGroup key={tf.name} label={tf.label} required={tf.required} error={errors[tf.name]}>
+                          {tf.type === 'select' ? (
+                            <select name={tf.name} value={formData[tf.name] || ''} onChange={handleChange} className="form-input">
+                              <option value="">– Select Option –</option>
+                              {tf.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
+                          ) : tf.type === 'boolean' ? (
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', paddingTop: '0.4rem', fontSize: '0.85rem', fontWeight: 700 }}>
+                              <input type="checkbox" name={tf.name} checked={!!formData[tf.name]} onChange={handleChange} style={{ width: 18, height: 18, accentColor: '#0047AB' }} />
+                              <span>Yes / Available & Compliant</span>
+                            </label>
+                          ) : (
+                            <Input
+                              name={tf.name}
+                              type={tf.type === 'number' ? 'number' : tf.type === 'date' ? 'date' : 'text'}
+                              value={formData[tf.name] || ''}
+                              onChange={handleChange}
+                              placeholder={tf.placeholder || `Enter ${tf.label}`}
+                              error={errors[tf.name]}
+                            />
+                          )}
+                        </FieldGroup>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
           )}
@@ -1417,9 +1493,38 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                 </div>
               </div>
 
+              {/* ── 🌟 DYNAMIC CATEGORY COMMERCIAL CAPACITY METRICS ── */}
+              {categorySchema?.step3CommercialFields && categorySchema.step3CommercialFields.length > 0 && (
+                <div style={{ marginBottom: '1.75rem', padding: '1.1rem 1.25rem', borderRadius: 16, background: '#EFF6FF', border: '1.5px solid #3B82F6' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#1E40AF', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span>📊 Commercial & Capacity Terms ({categorySchema.label})</span>
+                  </div>
+                  <div className="form-grid-2">
+                    {categorySchema.step3CommercialFields.map(cf => (
+                      <FieldGroup key={cf.name} label={cf.label} optional>
+                        {cf.type === 'select' ? (
+                          <select name={cf.name} value={formData[cf.name] || ''} onChange={handleChange} className="form-input">
+                            <option value="">– Select Option –</option>
+                            {cf.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                          </select>
+                        ) : (
+                          <Input
+                            name={cf.name}
+                            type={cf.type === 'number' ? 'number' : 'text'}
+                            value={formData[cf.name] || ''}
+                            onChange={handleChange}
+                            placeholder={cf.placeholder || `Enter ${cf.label}`}
+                          />
+                        )}
+                      </FieldGroup>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Document Uploads Header */}
               <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.85rem', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span>Identity, Statutory & Portfolio Document Uploads:</span>
+                <span>Identity, Statutory & Category Specific Document Uploads:</span>
               </div>
 
               <div className="form-grid-2">
@@ -1431,6 +1536,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   ['portfolioDoc',   'Catalogue / Portfolio (PDF Upload)', '.pdf',                false, 'Official Company Profile, Product Catalogue, Service Brochure, or Work Portfolio PDF document.'],
                   ['gstDoc',         'GST REG-06 Certificate',           '.pdf,.jpg,.png,.jpeg', false, 'Official 3-page GST Registration Certificate issued by CBIC. Required to verify active GST tax status.'],
                   ['expDoc',         isSoleProp ? 'Work Experience Certificate' : 'CAD Portfolio / Work Orders', '.pdf,.jpg,.png,.jpeg', false, 'Past Work Completion Certificates, Purchase Orders or CAD Portfolio. Helps fast-track Class-A tier rating.'],
+                  ...(categorySchema?.requiredDocs ? categorySchema.requiredDocs.map(rd => [rd.key, rd.label, rd.accept, rd.required, rd.hint]) : [])
                 ].map(([field, label, accept, isRequired, helpText]) => {
                   const doc = formData[field];
                   const hasErr = Boolean(errors[field]);
