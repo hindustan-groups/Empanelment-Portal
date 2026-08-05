@@ -65,6 +65,34 @@ runTest('GSTIN: Optional / Non-GST EXEMPT status handling', () => {
   assert.strictEqual(isExempt, true);
 });
 
+// ── 4. 13 CATEGORY CONFIG SCHEMAS AUDIT ──
+import { CATEGORY_SCHEMAS } from '../src/config/categoryFieldsConfig.js';
+
+runTest('Config: Exactly 13 entity types should be defined', () => {
+  const keys = Object.keys(CATEGORY_SCHEMAS);
+  assert.strictEqual(keys.length, 13);
+});
+
+runTest('Config: Architect role should require COA Registration Number', () => {
+  assert.strictEqual(CATEGORY_SCHEMAS.architect.statutoryLicenseKey, 'coaRegNo');
+  assert.strictEqual(CATEGORY_SCHEMAS.architect.statutoryLicenseRequired, true);
+});
+
+runTest('Config: Fruits & Vegetables role should require FSSAI License Number', () => {
+  assert.strictEqual(CATEGORY_SCHEMAS.fruits_vegetables.statutoryLicenseKey, 'fssaiLicenseNo');
+  assert.strictEqual(CATEGORY_SCHEMAS.fruits_vegetables.statutoryLicenseRequired, true);
+});
+
+runTest('Config: Transporter role should require Goods Carriage Permit Number', () => {
+  assert.strictEqual(CATEGORY_SCHEMAS.transporter.statutoryLicenseKey, 'goodsCarriagePermitNo');
+  assert.strictEqual(CATEGORY_SCHEMAS.transporter.statutoryLicenseRequired, true);
+});
+
+runTest('Config: Financer role should require RBI NBFC License Number', () => {
+  assert.strictEqual(CATEGORY_SCHEMAS.financer.statutoryLicenseKey, 'rbiNbfcLicenseNo');
+  assert.strictEqual(CATEGORY_SCHEMAS.financer.statutoryLicenseRequired, true);
+});
+
 console.log(`\n====================================================`);
 console.log(`📊 TEST RESULTS: ${passed}/${total} PASSED`);
 console.log(`====================================================\n`);

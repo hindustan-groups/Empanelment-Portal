@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { ShieldCheck, FileText, CheckCircle2, AlertTriangle, Building2, Award, HardHat, FileCheck2, Scale, DollarSign, ArrowRight, HelpCircle, ChevronDown, ChevronUp, Lock, FilePlus, Download, Zap, RefreshCw, Layers } from 'lucide-react';
+import { ShieldCheck, FileText, CheckCircle2, AlertTriangle, Building2, Award, HardHat, FileCheck2, Scale, DollarSign, ArrowRight, HelpCircle, ChevronDown, ChevronUp, Lock, FilePlus, Download, Zap, RefreshCw, Layers, Calculator, Grid } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import EligibilityCalculator from '../components/EligibilityCalculator';
+import CategoryMatrixModal from '../components/CategoryMatrixModal';
 
 export default function GuidelinesPage() {
   const navigate = useNavigate();
   const [activeSubTab, setActiveSubTab] = useState('policy'); // 'policy' | 'nbc_matrix' | 'commercial_terms' | 'legal_cvc'
   const [openFaq, setOpenFaq] = useState(null);
+  const [showMatrixModal, setShowMatrixModal] = useState(false);
 
   const toggleFaq = (idx) => {
     setOpenFaq(openFaq === idx ? null : idx);
@@ -38,7 +41,14 @@ export default function GuidelinesPage() {
             </div>
           </div>
 
-          <div>
+          <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center' }}>
+            <button
+              onClick={() => setShowMatrixModal(true)}
+              style={{ padding: '0.65rem 1.1rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', background: 'rgba(0,71,171,0.08)', color: '#0047AB', border: '1px solid rgba(0,71,171,0.2)' }}
+            >
+              <Grid style={{ width: 16, height: 16 }} />
+              <span>Category Matrix</span>
+            </button>
             <button
               onClick={() => navigate('/apply')}
               className="btn-accent"
@@ -315,6 +325,16 @@ export default function GuidelinesPage() {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Embedded Interactive Financial Eligibility Calculator */}
+        <div style={{ marginTop: '2.5rem' }}>
+          <EligibilityCalculator />
+        </div>
+
+        {/* Modal for 13 Category Statutory Matrix */}
+        {showMatrixModal && (
+          <CategoryMatrixModal onClose={() => setShowMatrixModal(false)} />
         )}
 
       </div>

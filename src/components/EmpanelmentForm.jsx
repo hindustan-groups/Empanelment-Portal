@@ -6,7 +6,9 @@ import {
 } from 'lucide-react';
 import SecurityCaptcha from './SecurityCaptcha';
 import DigitalSignature from './DigitalSignature';
+import GstVerifier from './GstVerifier';
 import { CATEGORY_SCHEMAS } from '../config/categoryFieldsConfig';
+import { API_BASE_URL } from '../config/api';
 
 /* ─── Static Data ─────────────────────────────────────────────────── */
 const ENTITY_TYPES = [
@@ -551,7 +553,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     e.preventDefault();
     if (!validate(4)) return;
     setIsSubmitting(true);
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL;
     try {
       const fd = new FormData();
       const payload = {
@@ -1103,6 +1105,11 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     placeholder={formData.gstExempt ? 'EXEMPTED – not required' : 'e.g. 08AAAAA0000A1Z5 (Optional)'}
                     upper disabled={formData.gstExempt} error={errors.gstin} />
                 </FieldGroup>
+
+                {/* Instant Statutory GSTIN Portal Lookup & Verifier */}
+                <div style={{ gridColumn: '1 / -1', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
+                  <GstVerifier onGstVerified={handleGstVerified} />
+                </div>
 
                 <FieldGroup label="10-Digit PAN Card" required error={errors.pan}>
                   <Input name="pan" value={formData.pan} onChange={handleChange}

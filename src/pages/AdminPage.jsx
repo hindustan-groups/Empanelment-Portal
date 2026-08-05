@@ -6,6 +6,7 @@ import ContractManager from '../components/ContractManager';
 import VendorDossierA4Modal from '../components/VendorDossierA4Modal';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
+import AdminDrawer from '../components/AdminDrawer';
 import {
   Database, RefreshCw, LogOut, ShieldCheck, Search,
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3,
@@ -136,6 +137,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [rejectReason, setRejectReason] = useState('');
   const [missingDetails, setMissingDetails] = useState('');
   const [adminNote, setAdminNote] = useState('');
+  const [showDrawer, setShowDrawer] = useState(false);
 
   const [filterRole, setFilterRole] = useState('all');
 
@@ -552,6 +554,10 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.38rem 0.8rem', borderRadius: 8, color: '#CBD5E1', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', textDecoration: 'none', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>
                 <ExternalLink style={{ width: 13, height: 13 }} /> Main Site
               </a>
+              <button onClick={() => setShowDrawer(true)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.38rem 0.8rem', borderRadius: 8, color: '#60A5FA', background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.3)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <Settings style={{ width: 13, height: 13 }} /> Settings
+              </button>
               <button onClick={handleExportCSV}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.38rem 0.8rem', borderRadius: 8, color: '#6EE7B7', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 <Download style={{ width: 13, height: 13 }} /> Export CSV
@@ -1611,6 +1617,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             </div>
           </div>
         )}
+
+        {/* Executive Admin System Drawer */}
+        <AdminDrawer open={showDrawer} onClose={() => setShowDrawer(false)} />
 
       </div>
     </div>
