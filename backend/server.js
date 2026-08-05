@@ -160,7 +160,8 @@ db.serialize(() => {
       { name: 'owner_contact', type: 'TEXT' },
       { name: 'aadhar_no', type: 'TEXT' },
       { name: 'signature_data', type: 'TEXT' },
-      { name: 'passport_photo', type: 'TEXT' }
+      { name: 'passport_photo', type: 'TEXT' },
+      { name: 'category_specific_data', type: 'TEXT' }
     ];
 
     missingCols.forEach(col => {
@@ -298,6 +299,28 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
     const hashSignature = crypto.createHash('sha256').update(hashData).digest('hex');
     const submittedAt = new Date().toISOString();
 
+    // Extract statutory & category-specific custom fields
+    const categorySpecificData = {};
+    const statutoryKeys = [
+      'coaRegNo', 'coaValidityYear', 'cadSoftwareUsed', 'ieiCharteredRegNo', 'degreeSpec', 'structuralAuditorNo',
+      'professionalCertId', 'pastExperienceYears', 'portfolioUrl', 'clientReferences', 'municipalSurveyorLicenseNo',
+      'surveyEquipmentOwned', 'calibrationValidDate', 'bisNablAccreditationNo', 'dailySupplyCapacityTons', 'quarryMiningPermitNo',
+      'pwdContractorLicenseNo', 'contractorGrade', 'labourLicenseNo', 'epfEsicRegNo', 'reraAgentRegNo', 'reraValidityYear',
+      'operationalCities', 'mcaCinNo', 'moaRegistrationNo', 'authorizedSignatoryRole', 'rbiNbfcLicenseNo', 'maxFundingCapacityCr',
+      'lendingCategory', 'rtoCommercialRentalNo', 'fleetCount', 'equipmentTypesOwned', 'rtoFitnessValidYear', 'goodsCarriagePermitNo',
+      'heavyFleetCount', 'transitInsurancePolicyNo', 'fssaiLicenseNo', 'fssaiExpiryDate', 'apmcMandiRegNo', 'hasColdStorageFacility',
+      'tradeLicenseNo', 'dealerCertNo', 'brandTieups'
+    ];
+    statutoryKeys.forEach(k => {
+      if (data[k] !== undefined && data[k] !== null && data[k] !== '') {
+        categorySpecificData[k] = data[k];
+      }
+    });
+
+    const categorySpecificDataJson = Object.keys(categorySpecificData).length > 0
+      ? JSON.stringify(categorySpecificData)
+      : null;
+
     const query = `
       INSERT INTO vendors (
         tracking_id, hash_signature, category, primary_role, specialization, skills_details, team_size,
@@ -306,8 +329,8 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
         gstin, pan, aadhar_no, msme_no, bank_account, bank_name, ifsc,
         turnover_2023, turnover_2024, turnover_2025, largest_order, existing_empanels,
         gst_doc, pan_doc, bank_doc, exp_doc, signatory_name, signature_data, passport_photo,
-        ip_address, submitted_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        category_specific_data, ip_address, submitted_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const params = [
@@ -321,7 +344,7 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
       files.bankDoc ? files.bankDoc[0].filename : null,
       files.expDoc ? files.expDoc[0].filename : null,
       data.signatoryName || data.contactName, data.signature_data || data.signature || null, data.passport_photo || null,
-      clientIp, submittedAt
+      categorySpecificDataJson, clientIp, submittedAt
     ];
 
     db.run(query, params, async function(err) {
@@ -424,12 +447,28 @@ app.get('/api/empanelment/status/:trackingId', (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────
 // GET /api/empanelment/admin/applications
-// Admin — get all applications (PROTECTED)
+// Admin — get all applications (PROTECTED & JSON PARSED)
 // ─────────────────────────────────────────────────────────────────
 app.get('/api/empanelment/admin/applications', adminAuthMiddleware, (req, res) => {
   db.all(`SELECT * FROM vendors ORDER BY id DESC`, [], (err, rows) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ success: true, count: rows.length, data: rows });
+    const parsed = rows.map(r => {
+      let parsedCategoryData = null;
+      if (r.category_specific_data) {
+        try {
+          parsedCategoryData = typeof r.category_specific_data === 'string'
+            ? JSON.parse(r.category_specific_data)
+            : r.category_specific_data;
+        } catch {
+          parsedCategoryData = null;
+        }
+      }
+      return {
+        ...r,
+        category_specific_data: parsedCategoryData
+      };
+    });
+    res.json({ success: true, count: parsed.length, data: parsed });
   });
 });
 

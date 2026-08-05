@@ -308,11 +308,28 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem' }}>
               <InfoRow label="GSTIN" value={vendor.gstin} mono />
               <InfoRow label="PAN Card No." value={vendor.pan} mono />
+              <InfoRow label="Aadhaar No." value={vendor.aadhar_no || vendor.aadharNo} mono />
               <InfoRow label="MSME Reg. No." value={vendor.msme_no} mono />
               <InfoRow label="Bank Name" value={vendor.bank_name} />
               <InfoRow label="Account Number" value={vendor.bank_account} mono />
               <InfoRow label="IFSC Code" value={vendor.ifsc} mono />
             </div>
+
+            {/* Statutory & Category-Specific Details */}
+            {vendor.category_specific_data && typeof vendor.category_specific_data === 'object' && Object.keys(vendor.category_specific_data).length > 0 && (
+              <>
+                <SectionHead icon={ShieldCheck} title="Statutory & Category Credentials" color="#F472B6" />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem' }}>
+                  {Object.entries(vendor.category_specific_data).map(([k, v]) => (
+                    <InfoRow
+                      key={k}
+                      label={k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      value={typeof v === 'boolean' ? (v ? '✓ Available & Compliant' : '✗ Not Available') : String(v)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
 
             <SectionHead icon={DollarSign} title="Financial Capacity" color="#34D399" />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.5rem', margin: '0.5rem 0 0.75rem' }}>

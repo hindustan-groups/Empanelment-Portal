@@ -667,6 +667,25 @@ function buildDossierHTML({ trackingId, formData }) {
       </tr>
     </table>
 
+    ${(() => {
+      const categoryData = typeof formData?.category_specific_data === 'string'
+        ? JSON.parse(formData.category_specific_data)
+        : (formData?.category_specific_data || null);
+      if (categoryData && typeof categoryData === 'object' && Object.keys(categoryData).length > 0) {
+        const rows = Object.entries(categoryData).map(([k, v]) => `
+          <tr>
+            <td class="label">${k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
+            <td class="val" colspan="3">${typeof v === 'boolean' ? (v ? '✓ Compliant' : '✗ Not Available') : (v || '—')}</td>
+          </tr>
+        `).join('');
+        return `
+          <div class="section-heading">§ 2.5 — CATEGORY STATUTORY LICENSES &amp; CREDENTIALS</div>
+          <table class="dt">${rows}</table>
+        `;
+      }
+      return '';
+    })()}
+
     <!-- VERIFICATION BADGE STRIP -->
     <div class="badge-strip">
       <div class="badge-item">🔒 SSL ENCRYPTED SYSTEM<strong>256-Bit Vault Protection</strong></div>

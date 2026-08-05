@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import SecurityCaptcha from './SecurityCaptcha';
 import DigitalSignature from './DigitalSignature';
+import { CATEGORY_SCHEMAS } from '../config/categoryFieldsConfig';
 
 /* ─── Static Data ─────────────────────────────────────────────────── */
 const ENTITY_TYPES = [
@@ -282,6 +283,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
   /* Category / Role Mode Detection */
   const role = (formData.primaryRole || '').toLowerCase();
+  const categorySchema = CATEGORY_SCHEMAS[role] || CATEGORY_SCHEMAS['vendor'];
   const isSoleProp = formData.entityType === 'sole_proprietor';
   const isFreelanceMode = ['freelancer', 'architect', 'civil_engineer', 'surveyor', 'financer', 'property_dealer'].includes(role) || isSoleProp;
   const isSupplierMode  = ['material_supplier', 'transporter', 'machine_rental_provider', 'fruits_vegetables'].includes(role);
@@ -418,6 +420,27 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
       if (formData.entityType === 'other' && !(formData.otherEntityType || '').trim()) {
         e.otherEntityType = 'Please specify your entity type';
+      }
+
+      // Dynamic Category Statutory License & Custom Field Validation
+      if (categorySchema) {
+        const statutoryKey = categorySchema.statutoryLicenseKey;
+        if (categorySchema.statutoryLicenseRequired && statutoryKey) {
+          const val = (formData[statutoryKey] || '').trim();
+          if (!val) {
+            e[statutoryKey] = `${categorySchema.statutoryLicenseLabel} is MANDATORY for ${categorySchema.label} empanelment!`;
+          }
+        }
+        if (categorySchema.customFields) {
+          categorySchema.customFields.forEach(cf => {
+            if (cf.required) {
+              const cfVal = String(formData[cf.name] || '').trim();
+              if (!cfVal) {
+                e[cf.name] = `${cf.label} is required!`;
+              }
+            }
+          });
+        }
       }
 
       const pincode = (formData.pincode || '').trim();
@@ -880,6 +903,85 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     error={errors.specialization}
                   />
                 </FieldGroup>
+
+                {/* ── 🌟 DYNAMIC CATEGORY STATUTORY & CUSTOM REQUIREMENTS CARD ── */}
+                {categorySchema && (
+                  <div style={{
+                    gridColumn: '1 / -1',
+                    marginTop: '0.5rem',
+                    marginBottom: '0.75rem',
+                    padding: '1.25rem',
+                    borderRadius: 14,
+                    background: 'linear-gradient(135deg, rgba(0,71,171,0.05) 0%, rgba(11,27,61,0.02) 100%)',
+                    border: '1.5px solid rgba(0, 71, 171, 0.25)',
+                    boxShadow: '0 4px 14px rgba(0, 71, 171, 0.06)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', borderBottom: '1px dashed rgba(0,71,171,0.2)', paddingBottom: '0.65rem' }}>
+                      <span style={{ fontSize: '1.25rem' }}>🏛️</span>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: '#0047AB' }}>
+                          Statutory License & Category Credentials — {categorySchema.label}
+                        </h4>
+                        <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', fontWeight: 600, marginTop: 2 }}>
+                          Tailored requirements as per Indian statutory guidelines for {categorySchema.label} empanelment.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="form-grid-2">
+                      {/* Statutory License Field */}
+                      {categorySchema.statutoryLicenseKey && (
+                        <FieldGroup
+                          label={categorySchema.statutoryLicenseLabel}
+                          required={categorySchema.statutoryLicenseRequired}
+                          error={errors[categorySchema.statutoryLicenseKey]}
+                          style={{ gridColumn: '1 / -1' }}
+                        >
+                          <Input
+                            name={categorySchema.statutoryLicenseKey}
+                            value={formData[categorySchema.statutoryLicenseKey] || ''}
+                            onChange={handleChange}
+                            placeholder={`Enter official ${categorySchema.statutoryLicenseLabel}`}
+                            upper
+                            error={errors[categorySchema.statutoryLicenseKey]}
+                          />
+                        </FieldGroup>
+                      )}
+
+                      {/* Custom Fields */}
+                      {categorySchema.customFields && categorySchema.customFields.map(cf => (
+                        <FieldGroup
+                          key={cf.name}
+                          label={cf.label}
+                          required={cf.required}
+                          error={errors[cf.name]}
+                        >
+                          {cf.type === 'boolean' ? (
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', paddingTop: '0.5rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-color)' }}>
+                              <input
+                                type="checkbox"
+                                name={cf.name}
+                                checked={!!formData[cf.name]}
+                                onChange={handleChange}
+                                style={{ width: 18, height: 18, accentColor: '#0047AB' }}
+                              />
+                              <span>Yes, Facility / Equipment Available & Compliant</span>
+                            </label>
+                          ) : (
+                            <Input
+                              name={cf.name}
+                              type={cf.type === 'number' ? 'number' : cf.type === 'date' ? 'date' : 'text'}
+                              value={formData[cf.name] || ''}
+                              onChange={handleChange}
+                              placeholder={`Enter ${cf.label}`}
+                              error={errors[cf.name]}
+                            />
+                          )}
+                        </FieldGroup>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* ── Team Size ── */}
                 <FieldGroup label="Team Size" optional>

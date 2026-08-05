@@ -137,6 +137,8 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [missingDetails, setMissingDetails] = useState('');
   const [adminNote, setAdminNote] = useState('');
 
+  const [filterRole, setFilterRole] = useState('all');
+
   /* Categories */
   const [categories, setCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
@@ -483,7 +485,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const matchSearch = (v.company_name || '').toLowerCase().includes(s) || (v.tracking_id || '').toLowerCase().includes(s) || (v.gstin || '').toLowerCase().includes(s) || (v.email || '').toLowerCase().includes(s) || (v.contact_name || '').toLowerCase().includes(s);
     const matchCat = filterCategory === 'all' || v.category === filterCategory;
     const matchStatus = filterStatus === 'all' || v.status === filterStatus;
-    return matchSearch && matchCat && matchStatus;
+    const rVal = (v.primary_role || v.primaryRole || '').toLowerCase();
+    const matchRole = filterRole === 'all' || rVal.includes(filterRole.toLowerCase());
+    return matchSearch && matchCat && matchStatus && matchRole;
   });
 
   const totalApps    = vendors.length;
@@ -752,8 +756,25 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 <Search style={{ width: 16, height: 16, color: 'var(--text-muted)', position: 'absolute', left: 12, top: 14 }} />
               </div>
 
+              <select value={filterRole} onChange={e => setFilterRole(e.target.value)} className="form-input" style={{ flex: 1, minWidth: 180 }}>
+                <option value="all">🌐 All Entity Types (13 Categories)</option>
+                <option value="vendor">🏢 Vendor</option>
+                <option value="architect">📐 Architect</option>
+                <option value="civil_engineer">🏗️ Civil Engineer</option>
+                <option value="freelancer">👤 Freelancer</option>
+                <option value="surveyor">📐 Surveyor</option>
+                <option value="material_supplier">🚚 Material Supplier</option>
+                <option value="contractor">👷 Contractor</option>
+                <option value="property_dealer">🏠 Property Dealer</option>
+                <option value="business_associate">🤝 Business Associate</option>
+                <option value="financer">💼 Financer</option>
+                <option value="machine_rental_provider">🚜 Machine Rental Provider</option>
+                <option value="transporter">🚛 Transporter</option>
+                <option value="fruits_vegetables">🍎 Fruits &amp; Vegetables</option>
+              </select>
+
               <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="form-input" style={{ flex: 1, minWidth: 160 }}>
-                <option value="all">All Categories</option>
+                <option value="all">All Trade Lines</option>
                 {categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
               </select>
 
