@@ -1054,7 +1054,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                  🟢 SYSTEM ONLINE • BUILD VERSION: 2026.08.06-v4b23 (DIRECT REAL DATA MODE)
+                  🟢 SYSTEM ONLINE • BUILD VERSION: 2026.08.06-v5-EXECUTIVE-LIVE
                 </div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', margin: '0.2rem 0' }}>
                   Live VPS SQLite Database Inspector
@@ -1069,7 +1069,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   style={{ padding: '0.65rem 1.2rem', borderRadius: 10, background: '#0047AB', color: 'white', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 14px rgba(0,71,171,0.25)' }}
                 >
                   <RefreshCw style={{ width: 16, height: 16 }} className={loading ? 'animate-spin' : ''} />
-                  <span>Sync DB Live ({vendors.length} Rows)</span>
+                  <span>Sync DB Live ({filteredVendors.length} Rows)</span>
                 </button>
                 <button
                   onClick={handleClearAllVendors}
@@ -1085,7 +1085,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ padding: '1.15rem', borderRadius: 16, background: '#0047AB0A', border: '2px solid #0047AB' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase' }}>SQLITE DB ROWS</div>
-                <div style={{ fontSize: '1.9rem', fontWeight: 900, color: '#0F172A', margin: '0.2rem 0' }}>{vendors.length} Applications</div>
+                <div style={{ fontSize: '1.9rem', fontWeight: 900, color: '#0F172A', margin: '0.2rem 0' }}>{filteredVendors.length} Applications</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Active database rows in vendors table</div>
               </div>
               <div style={{ padding: '1.15rem', borderRadius: 16, background: '#10B9810A', border: '2px solid #10B981' }}>
@@ -1102,8 +1102,8 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
             {/* Table of Live DB Vendors */}
             <div style={{ overflowX: 'auto', background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-color)', padding: '1.25rem' }}>
-              <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.95rem', fontWeight: 800, color: '#0F172A' }}>Live SQLite Database Records ({vendors.length}):</h4>
-              {vendors.length === 0 ? (
+              <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.95rem', fontWeight: 800, color: '#0F172A' }}>Live SQLite Database Records ({filteredVendors.length}):</h4>
+              {filteredVendors.length === 0 ? (
                 <div style={{ padding: '2.5rem', textAlign: 'center', color: '#10B981', background: '#10B9810D', borderRadius: 14, border: '2px dashed #10B981' }}>
                   <CheckCircle2 style={{ width: 36, height: 36, margin: '0 auto 0.5rem auto', color: '#10B981' }} />
                   <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#047857' }}>DATABASE IS 100% CLEAN & FRESH (0 APPLICATIONS)</div>
@@ -1122,8 +1122,8 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {vendors.map(v => (
-                      <tr key={getAppId(v)} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    {filteredVendors.map(v => (
+                      <tr key={getAppId(v)} className="admin-table-row" style={{ borderBottom: '1px solid var(--border-color)' }}>
                         <td style={{ padding: '0.75rem', fontWeight: 800, color: '#0047AB' }}>{getAppId(v)}</td>
                         <td style={{ padding: '0.75rem', fontWeight: 700 }}>{v.company_name}</td>
                         <td style={{ padding: '0.75rem' }}>{v.contact_name}</td>
