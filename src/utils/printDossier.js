@@ -995,42 +995,76 @@ function buildDossierHTML({ trackingId, formData }) {
 <!-- ════════════════════════════════════════════════════ -->
 ${renderDocumentAttachmentsHTML(formData, trackingId)}
 
+<script>
+  (function() {
+    function triggerPrint() {
+      try {
+        window.focus();
+        window.print();
+      } catch (e) {}
+    }
+    if (document.readyState === 'complete') {
+      setTimeout(triggerPrint, 300);
+    } else {
+      window.addEventListener('load', function() {
+        setTimeout(triggerPrint, 300);
+      });
+    }
+  })();
+</script>
+
 </body>
 </html>`;
 }
 
 // ── Main Export: printDossier(trackingId, formData) ───────────────────────────
-export function printDossier(trackingId, formData) {
+export function printDossier(arg1, arg2) {
+  let trackingId = arg1;
+  let formData = arg2;
+
+  // Flexible Parameter Resolution
+  if (typeof arg1 === 'object' && arg1 !== null && !arg2) {
+    formData = arg1;
+    trackingId = arg1.trackingId || arg1.tracking_id || arg1.id || 'HP-EMP-001';
+  } else if (!formData && typeof arg1 === 'string') {
+    trackingId = arg1;
+    formData = { tracking_id: arg1 };
+  }
+
+  if (!trackingId && formData) {
+    trackingId = formData.trackingId || formData.tracking_id || formData.id || 'HP-EMP-001';
+  }
+
   const html = buildDossierHTML({ trackingId, formData });
 
-  const isMobileOrTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth <= 1024);
-
-  if (isMobileOrTablet) {
-    // Mobile/Tablet Strategy: Open a clean popup window containing ONLY the isolated dossier HTML
-    const printWin = window.open('', '_blank');
+  // 1. Try Window Open Print Strategy (Works seamlessly on Desktop & Mobile)
+  try {
+    const printWin = window.open('', '_blank', 'width=950,height=1000,scrollbars=yes,resizable=yes');
     if (printWin) {
       printWin.document.open();
       printWin.document.write(html);
       printWin.document.close();
-      printWin.onload = () => {
-        setTimeout(() => {
-          printWin.focus();
-          printWin.print();
-        }, 500);
-      };
       setTimeout(() => {
         try {
           printWin.focus();
           printWin.print();
-        } catch(e) {}
-      }, 1200);
+        } catch (e) {}
+      }, 500);
       return;
     }
+  } catch (err) {
+    console.warn('Window open print fallback engaged:', err);
   }
 
-  // Desktop Strategy: Hidden iframe with explicit 210mm x 297mm bounds
+  // 2. Fallback Iframe Print Strategy if popup was blocked
+  const existingFrame = document.getElementById('hipro-print-frame');
+  if (existingFrame) {
+    try { document.body.removeChild(existingFrame); } catch(e) {}
+  }
+
   const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:none;opacity:0;pointer-events:none;z-index:9999';
+  iframe.id = 'hipro-print-frame';
+  iframe.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:white;z-index:999999;border:none;visibility:visible';
   document.body.appendChild(iframe);
 
   const doc = iframe.contentWindow.document;
@@ -1038,23 +1072,17 @@ export function printDossier(trackingId, formData) {
   doc.write(html);
   doc.close();
 
-  // Wait for fonts/images to load then print
-  iframe.contentWindow.onload = () => {
-    setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      setTimeout(() => document.body.removeChild(iframe), 2500);
-    }, 600);
-  };
-
-  // Fallback if onload already fired
-  setTimeout(() => {
+  const printIframe = () => {
     try {
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
-    } catch(e) { /* already printed */ }
+    } catch (e) {}
     setTimeout(() => {
       try { document.body.removeChild(iframe); } catch(e) {}
-    }, 2500);
-  }, 1800);
+    }, 4000);
+  };
+
+  iframe.contentWindow.onload = () => setTimeout(printIframe, 400);
+  setTimeout(printIframe, 1200);
 }
+

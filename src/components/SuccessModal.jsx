@@ -32,10 +32,8 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
 
   const handlePrint = () => {
     setPrinting(true);
-    setTimeout(() => {
-      printDossier(trackingId, formData);
-      setTimeout(() => setPrinting(false), 2000);
-    }, 200);
+    printDossier(trackingId, formData);
+    setTimeout(() => setPrinting(false), 2000);
   };
 
   const handleTrackDirect = () => {
