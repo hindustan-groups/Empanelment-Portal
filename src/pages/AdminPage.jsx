@@ -40,6 +40,14 @@ const DEFAULT_SITE_CONFIG = {
   heroTitleBlue:          'Hindustan',
   heroTitleRed:           'Projects',
   heroSubtitle:           'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants. Fast-track technical & financial verification for active project tenders.',
+  aboutHeroTitle:         'Building Infrastructure, Architecture & Engineering Excellence Across India',
+  aboutHeroSubtitle:      'Hindustan Projects is a premier multi-disciplinary conglomerate specializing in Large-scale Infrastructure Execution, Architectural Design, Civil Construction, MEP/HVAC Contracting, and Integrated Digital Solutions.',
+  aboutExperienceYears:   '25+ Years',
+  aboutProjectsCompleted: '150+ Infrastructure Packages',
+  contactHeading:         'Get in Touch with Hindustan Projects Procurement Nodal Desk',
+  contactSubheading:      'Have queries regarding vendor empanelment eligibility, document resubmission, or active tender bidding? Reach out to our official procurement desk.',
+  privacyOfficerEmail:    'empanelment@hindustanprojects.in',
+  privacyLastUpdated:     'August 2026',
   processingFee:          '5000',
   gstRate:                '18',
   msmeWaiverActive:       true,
@@ -1459,6 +1467,33 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   <div>
                     <label className="form-label" style={{ fontWeight: 800 }}>Hero Subtitle Paragraph</label>
                     <textarea value={siteConfig.heroSubtitle || ''} onChange={e => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })} className="form-input" style={{ minHeight: 80, resize: 'vertical' }} placeholder="Direct online empanelment portal for Vendors, Contractors..." />
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. About Us Page Content CMS */}
+              <div style={{ padding: '1.35rem 1.5rem', borderRadius: 16, background: 'var(--bg-surface)', border: '1px solid var(--border-color)', boxShadow: '0 4px 16px rgba(0,0,0,0.02)' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0047AB', marginBottom: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Building2 style={{ width: 17, height: 17 }} /> 3. About Us Page Title, Mission & Experience Stats
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div>
+                    <label className="form-label" style={{ fontWeight: 800 }}>About Us Banner Heading Title</label>
+                    <input type="text" value={siteConfig.aboutHeroTitle || ''} onChange={e => setSiteConfig({ ...siteConfig, aboutHeroTitle: e.target.value })} className="form-input" placeholder="Building Infrastructure, Architecture & Engineering Excellence Across India" />
+                  </div>
+                  <div>
+                    <label className="form-label" style={{ fontWeight: 800 }}>About Us Overview Paragraph</label>
+                    <textarea value={siteConfig.aboutHeroSubtitle || ''} onChange={e => setSiteConfig({ ...siteConfig, aboutHeroSubtitle: e.target.value })} className="form-input" style={{ minHeight: 80, resize: 'vertical' }} placeholder="Hindustan Projects is a premier multi-disciplinary conglomerate..." />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <label className="form-label" style={{ fontWeight: 800 }}>Corporate Industry Experience Badge</label>
+                      <input type="text" value={siteConfig.aboutExperienceYears || ''} onChange={e => setSiteConfig({ ...siteConfig, aboutExperienceYears: e.target.value })} className="form-input" placeholder="25+ Years" />
+                    </div>
+                    <div>
+                      <label className="form-label" style={{ fontWeight: 800 }}>Completed Projects Counter Badge</label>
+                      <input type="text" value={siteConfig.aboutProjectsCompleted || ''} onChange={e => setSiteConfig({ ...siteConfig, aboutProjectsCompleted: e.target.value })} className="form-input" placeholder="150+ Infrastructure Packages" />
+                    </div>
                   </div>
                 </div>
               </div>

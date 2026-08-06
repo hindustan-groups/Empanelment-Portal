@@ -133,7 +133,12 @@ export default function ContactPage() {
                 <MapPin style={{ width: 16, height: 16, color: '#ED1C24', marginTop: 3, flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: '#0F172A' }}>Address:</strong><br />
-                  Bhopal Ganj, Bhilwara - 311001, Rajasthan, India
+                  {(() => {
+                    try {
+                      const cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+                      return cfg.corporateAddress || 'Bhopal Ganj, Bhilwara - 311001, Rajasthan, India';
+                    } catch { return 'Bhopal Ganj, Bhilwara - 311001, Rajasthan, India'; }
+                  })()}
                 </div>
               </div>
 
@@ -141,7 +146,13 @@ export default function ContactPage() {
                 <Phone style={{ width: 16, height: 16, color: '#0047AB', flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: '#0F172A' }}>Helpline Phone:</strong>{' '}
-                  <a href="tel:+917597000601" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>+91 7597000601</a>
+                  {(() => {
+                    try {
+                      const cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+                      const p = cfg.helplinePhone || '+91 7597000601';
+                      return <a href={`tel:${p.replace(/\s+/g, '')}`} style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>{p}</a>;
+                    } catch { return <a href="tel:+917597000601" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>+91 7597000601</a>; }
+                  })()}
                 </div>
               </div>
 
@@ -149,14 +160,26 @@ export default function ContactPage() {
                 <Mail style={{ width: 16, height: 16, color: '#ED1C24', flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: '#0F172A' }}>Email:</strong>{' '}
-                  <a href="mailto:empanelment@hindustanprojects.in" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>empanelment@hindustanprojects.in</a>
+                  {(() => {
+                    try {
+                      const cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+                      const e = cfg.corporateEmail || 'empanelment@hindustanprojects.in';
+                      return <a href={`mailto:${e}`} style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>{e}</a>;
+                    } catch { return <a href="mailto:empanelment@hindustanprojects.in" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>empanelment@hindustanprojects.in</a>; }
+                  })()}
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                 <Clock style={{ width: 16, height: 16, color: '#F59E0B', flexShrink: 0 }} />
                 <div>
-                  <strong style={{ color: '#0F172A' }}>Support Hours:</strong> Monday – Saturday: 09:00 AM – 06:00 PM IST
+                  <strong style={{ color: '#0F172A' }}>Support Hours:</strong>{' '}
+                  {(() => {
+                    try {
+                      const cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+                      return cfg.supportHours || 'Monday – Saturday: 09:00 AM – 06:00 PM IST';
+                    } catch { return 'Monday – Saturday: 09:00 AM – 06:00 PM IST'; }
+                  })()}
                 </div>
               </div>
             </div>

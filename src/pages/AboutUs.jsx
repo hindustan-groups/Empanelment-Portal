@@ -3,6 +3,14 @@ import { Link } from 'react-router-dom';
 import { Building2, ShieldCheck, Award, Users, CheckCircle2, ArrowRight, Compass, Target, HardHat, Cpu } from 'lucide-react';
 
 export default function AboutUs() {
+  let siteConfig = {};
+  try {
+    siteConfig = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+  } catch (e) {}
+
+  const aboutHeroTitle = siteConfig.aboutHeroTitle || 'Building Infrastructure, Architecture & Engineering Excellence Across India';
+  const aboutHeroSubtitle = siteConfig.aboutHeroSubtitle || 'Hindustan Projects is a premier multi-disciplinary conglomerate specializing in Large-scale Infrastructure Execution, Architectural Design, Civil Construction, MEP/HVAC Contracting, and Integrated Digital Solutions.';
+
   return (
     <div className="about-page" style={{ padding: '2.5rem 1.5rem', maxWidth: 1240, margin: '0 auto' }}>
       
@@ -29,11 +37,11 @@ export default function AboutUs() {
           </span>
 
           <h1 style={{ fontSize: '2.4rem', fontWeight: 900, lineHeight: 1.25, margin: 0, letterSpacing: '-0.02em' }}>
-            Building Infrastructure, Architecture & Engineering Excellence Across India
+            {aboutHeroTitle}
           </h1>
 
           <p style={{ fontSize: '1.05rem', color: '#94A3B8', marginTop: '1.25rem', lineHeight: 1.65, fontWeight: 500 }}>
-            Hindustan Projects is a premier multi-disciplinary conglomerate specializing in Large-scale Infrastructure Execution, Architectural Design, Civil Construction, MEP/HVAC Contracting, and Integrated Digital Solutions with Marketing.
+            {aboutHeroSubtitle}
           </p>
 
           <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', flexWrap: 'wrap' }}>
