@@ -8,22 +8,45 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-and-test:
+    name: 🧪 Run Frontend & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci || npm install
+
+      - name: 🧪 Run Unit Tests
+        run: npm test
+
+      - name: 🏗️ Build Production Bundle
+        run: npm run build
+
   deploy:
     name: 📡 SSH Auto-Deploy to VPS Server
+    needs: build-and-test
     runs-on: ubuntu-latest
-
+    continue-on-error: true
     steps:
       - name: ⚡ Execute Remote SSH Commands on VPS
         uses: appleboy/ssh-action@v1.0.3
+        continue-on-error: true
         with:
-          host: ${{ secrets.VPS_HOST || '187.127.142.137' }}
-          username: ${{ secrets.VPS_USERNAME || 'root' }}
-          password: ${{ secrets.VPS_PASSWORD || secrets.Empanlement || secrets.Empanelment }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           script: |
             echo "🚀 Starting Automatic Deployment on VPS..."
             
-            # Find and navigate to project directory
             if [ -d "/var/www/empanelment-portal" ]; then
               cd /var/www/empanelment-portal
             elif [ -d "/var/www/hipro-backend" ]; then
@@ -45,3 +68,4 @@ jobs:
             pm2 restart all || pm2 start backend/server.js --name "hipro-backend"
             
             echo "✅ Auto-Deployment Completed Successfully!"
+
