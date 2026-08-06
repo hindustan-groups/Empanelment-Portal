@@ -145,6 +145,67 @@ export default function TendersPage() {
 
       {/* Tenders Grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '3rem' }}>
+
+        {/* ── Empty State ── */}
+        {filteredTenders.length === 0 && (
+          <div style={{
+            textAlign: 'center', padding: '4rem 2rem',
+            backgroundColor: '#FFFFFF', borderRadius: 24,
+            border: '1.5px dashed #CBD5E1',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+          }}>
+            {/* Icon */}
+            <div style={{
+              width: 80, height: 80, borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(0,71,171,0.08) 0%, rgba(0,71,171,0.03) 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 1.25rem auto',
+              border: '1.5px solid rgba(0,71,171,0.12)'
+            }}>
+              <span style={{ fontSize: '2.2rem' }}>📋</span>
+            </div>
+
+            {/* Heading */}
+            <h3 style={{
+              fontSize: '1.25rem', fontWeight: 900, color: '#0F172A',
+              margin: '0 0 0.5rem 0'
+            }}>
+              No Active Tenders at the Moment
+            </h3>
+
+            {/* Subtext */}
+            <p style={{
+              fontSize: '0.88rem', color: '#64748B', lineHeight: 1.7,
+              maxWidth: 480, margin: '0 auto 1.75rem auto'
+            }}>
+              Hindustan Projects regularly floats new procurement tenders and EOI notices.<br />
+              <strong style={{ color: '#0047AB' }}>Empanel today</strong> to get priority notifications for upcoming civil, MEP, architecture, and supply tenders.
+            </p>
+
+            {/* CTAs */}
+            <div style={{ display: 'flex', gap: '0.85rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link
+                to="/apply"
+                className="btn-primary"
+                style={{ padding: '0.65rem 1.5rem', fontSize: '0.875rem', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}
+              >
+                <span>Apply for Empanelment</span>
+                <ArrowRight style={{ width: 15, height: 15 }} />
+              </Link>
+              <Link
+                to="/contact"
+                style={{
+                  padding: '0.65rem 1.5rem', fontSize: '0.875rem', fontWeight: 700, borderRadius: 12,
+                  border: '1.5px solid #CBD5E1', backgroundColor: '#F8FAFC', color: '#334155',
+                  display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none'
+                }}
+              >
+                <span>Contact Procurement Desk</span>
+              </Link>
+            </div>
+          </div>
+        )}
+
         {filteredTenders.map(tender => (
           <div key={tender.id} style={{
             backgroundColor: '#FFFFFF', borderRadius: 20, padding: '1.5rem 1.75rem',

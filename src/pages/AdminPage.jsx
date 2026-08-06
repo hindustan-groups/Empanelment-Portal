@@ -62,7 +62,13 @@ const DEFAULT_SITE_CONFIG = {
   helpdeskBannerSubtitle: 'Our Procurement Helpdesk is available Monday – Saturday (09:00 AM – 06:00 PM IST)',
   ongoingProjectsCount:   '10+',
   activePipelineValue:    '₹ 1 Cr+',
-  baseContractorCount:    '100+'
+  baseContractorCount:    '100+',
+  deptProcurementLabel:   'Procurement & Tenders Team',
+  deptProcurementEmail:   'tenders@hindustanprojects.in',
+  deptVerificationLabel:  'Vendor Verification Cell',
+  deptVerificationEmail:  'verify@hindustanprojects.in',
+  deptBillingLabel:       'Billing & Accounts Desk',
+  deptBillingEmail:       'accounts@hindustanprojects.in'
 };
 
 const MOCK_AUDIT_LOGS = [
@@ -1532,6 +1538,43 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label className="form-label" style={{ fontWeight: 800 }}>Corporate Headquarters Address</label>
                     <input type="text" value={siteConfig.corporateAddress || ''} onChange={e => setSiteConfig({ ...siteConfig, corporateAddress: e.target.value })} className="form-input" placeholder="Bhopal Ganj, Bhilwara - 311001, Rajasthan, India" />
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label className="form-label" style={{ fontWeight: 800 }}>Support Hours</label>
+                    <input type="text" value={siteConfig.supportHours || ''} onChange={e => setSiteConfig({ ...siteConfig, supportHours: e.target.value })} className="form-input" placeholder="Mon – Sat: 09:00 AM – 06:00 PM IST" />
+                  </div>
+                </div>
+
+                {/* Departmental Routing Contacts */}
+                <div style={{ marginTop: '1rem', padding: '1rem 1.25rem', borderRadius: 12, background: 'rgba(0,71,171,0.04)', border: '1.5px dashed rgba(0,71,171,0.2)' }}>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0047AB', marginBottom: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    📂 Departmental Routing Contacts
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem' }}>
+                    <div>
+                      <label className="form-label" style={{ fontWeight: 800 }}>Procurement Team — Label</label>
+                      <input type="text" value={siteConfig.deptProcurementLabel || ''} onChange={e => setSiteConfig({ ...siteConfig, deptProcurementLabel: e.target.value })} className="form-input" placeholder="Procurement & Tenders Team" />
+                    </div>
+                    <div>
+                      <label className="form-label" style={{ fontWeight: 800 }}>Procurement Team — Email</label>
+                      <input type="email" value={siteConfig.deptProcurementEmail || ''} onChange={e => setSiteConfig({ ...siteConfig, deptProcurementEmail: e.target.value })} className="form-input" placeholder="tenders@hindustanprojects.in" />
+                    </div>
+                    <div>
+                      <label className="form-label" style={{ fontWeight: 800 }}>Vendor Verification — Label</label>
+                      <input type="text" value={siteConfig.deptVerificationLabel || ''} onChange={e => setSiteConfig({ ...siteConfig, deptVerificationLabel: e.target.value })} className="form-input" placeholder="Vendor Verification Cell" />
+                    </div>
+                    <div>
+                      <label className="form-label" style={{ fontWeight: 800 }}>Vendor Verification — Email</label>
+                      <input type="email" value={siteConfig.deptVerificationEmail || ''} onChange={e => setSiteConfig({ ...siteConfig, deptVerificationEmail: e.target.value })} className="form-input" placeholder="verify@hindustanprojects.in" />
+                    </div>
+                    <div>
+                      <label className="form-label" style={{ fontWeight: 800 }}>Billing & Accounts — Label</label>
+                      <input type="text" value={siteConfig.deptBillingLabel || ''} onChange={e => setSiteConfig({ ...siteConfig, deptBillingLabel: e.target.value })} className="form-input" placeholder="Billing & Accounts Desk" />
+                    </div>
+                    <div>
+                      <label className="form-label" style={{ fontWeight: 800 }}>Billing & Accounts — Email</label>
+                      <input type="email" value={siteConfig.deptBillingEmail || ''} onChange={e => setSiteConfig({ ...siteConfig, deptBillingEmail: e.target.value })} className="form-input" placeholder="accounts@hindustanprojects.in" />
+                    </div>
                   </div>
                 </div>
               </div>
