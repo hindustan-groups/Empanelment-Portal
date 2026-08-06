@@ -36,7 +36,7 @@ flowchart TD
 | **Database** | SQLite3 (`backend/empanelment.db`) | Relational database storing vendors, tickets, invoices, contact inquiries, tenders, and work orders. |
 | **Storage** | Cloudinary Cloud API + VPS Storage | Secure vault for GST certificates, PAN cards, Bank cancelled cheques, experience letters, and photos. |
 | **Emails** | Nodemailer (Gmail SMTP - Port 465 SSL) | Transactional email delivery engine with 5 automated HTML email templates. |
-| **Deployment** | GitHub Actions + Linux VPS (PM2 + Nginx) | Automated CI/CD pushing code to VPS `187.127.142.137` on `git push origin master`. |
+| **Deployment** | GitHub Actions + Linux VPS (PM2 + Nginx) | Automated CI/CD pushing code to VPS `` on `git push origin master`. |
 
 ---
 
