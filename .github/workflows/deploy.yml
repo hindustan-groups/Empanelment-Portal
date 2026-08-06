@@ -56,13 +56,24 @@ jobs:
             fi
             
             echo "📥 Pulling latest code from GitHub master..."
-            git pull origin master
+            git pull origin master --rebase || git pull origin master
             
             echo "📦 Installing Dependencies..."
             npm install
             
             echo "🏗️ Building Frontend Production Assets..."
             npm run build
+
+            echo "📂 Syncing Dist Build to Nginx / Web Root..."
+            if [ -d "/var/www/html" ]; then
+              cp -rf dist/* /var/www/html/ 2>/dev/null || true
+            fi
+            if [ -d "/var/www/empanelment.hindustanprojects.in" ]; then
+              cp -rf dist/* /var/www/empanelment.hindustanprojects.in/ 2>/dev/null || true
+            fi
+            if [ -d "/var/www/html/empanelment" ]; then
+              cp -rf dist/* /var/www/html/empanelment/ 2>/dev/null || true
+            fi
             
             echo "⚙️ Restarting PM2 Backend Server..."
             pm2 restart all || pm2 start backend/server.js --name "hipro-backend"
