@@ -217,22 +217,23 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       }
     } catch {}
 
-    // Skip API call on live server domain to avoid 404 network console entry
-    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    // Only call API on live server (not localhost — local backend doesn't support admin endpoints)
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
       return;
     }
 
-    const backendUrl = API_BASE_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL || '';
     const adminKey = ADMIN_API_KEY;
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/contacts`, {
         headers: { 'x-admin-key': adminKey }
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && Array.isArray(data.data)) {
-          setContactMessages(data.data);
-        }
+      if (!res.ok) return;
+      const text = await res.text();
+      if (!text || text.trim() === 'PRO FEATURE ONLY') return; // gracefully skip
+      const data = JSON.parse(text);
+      if (data.success && Array.isArray(data.data)) {
+        setContactMessages(data.data);
       }
     } catch {}
   };
@@ -283,20 +284,29 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const fetchVendors = async () => {
     setLoading(true);
-    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
-    const adminKey = ADMIN_API_KEY;
+
+    // On localhost, local backend doesn't support admin endpoints — skip API call silently
+    const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+    const backendUrl = isLocal ? '' : (API_BASE_URL || '');
 
     let apiData = [];
-    try {
-      const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`, {
-        headers: { 'x-admin-key': adminKey }
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        apiData = data.data;
+    if (!isLocal) {
+      try {
+        const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`, {
+          headers: { 'x-admin-key': ADMIN_API_KEY }
+        });
+        if (res.ok) {
+          const text = await res.text();
+          if (text && text.trim() !== 'PRO FEATURE ONLY') {
+            const data = JSON.parse(text);
+            if (data.success && Array.isArray(data.data)) {
+              apiData = data.data;
+            }
+          }
+        }
+      } catch (err) {
+        // silently ignore — no noisy console error
       }
-    } catch (err) {
-      console.warn('Backend API connection notice, local fallback:', err);
     }
 
     // Read deleted IDs blacklist from localStorage
