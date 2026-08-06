@@ -4,7 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/start-all.js",
+    "start": "node scripts/start-all.js",
+    "server": "node backend/server.js",
+    "vite": "vite",
     "build": "vite build",
     "test": "node test/validators.test.js",
     "lint": "oxlint",

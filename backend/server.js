@@ -83,13 +83,17 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB File Limit
 
 // ─── 5.1 CLOUDINARY FILE STORAGE & RATE LIMITER ─────────────────
-const cloudinary = require('cloudinary').v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'xskfr3wu',
-  api_key: process.env.CLOUDINARY_API_KEY || '234897422674247',
-  api_secret: process.env.CLOUDINARY_API_SECRET || '3yFqCiSQbcD9YaWasIDDK142kl4'
-});
+let cloudinary = null;
+try {
+  cloudinary = require('cloudinary').v2;
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'xskfr3wu',
+    api_key: process.env.CLOUDINARY_API_KEY || '234897422674247',
+    api_secret: process.env.CLOUDINARY_API_SECRET || '3yFqCiSQbcD9YaWasIDDK142kl4'
+  });
+} catch (err) {
+  console.warn('Cloudinary notice:', err.message);
+}
 
 const uploadRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 Minutes
@@ -98,6 +102,7 @@ const uploadRateLimiter = rateLimit({
 });
 
 async function uploadFileToCloudinary(filePath, mimetype) {
+  if (!cloudinary) return null;
   try {
     const resourceType = mimetype === 'application/pdf' ? 'raw' : 'auto';
     const res = await cloudinary.uploader.upload(filePath, {
