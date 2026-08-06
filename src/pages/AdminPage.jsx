@@ -607,15 +607,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const TABS = [
     { id: 'applications',     label: `Applications (${totalApps})`,          icon: Database },
-    { id: 'db_inspector',     label: `🔴 LIVE DB INSPECTOR (${totalApps})`, icon: ShieldCheck },
-    { id: 'contact_messages', label: `📩 Contact Inquiries (${contactMessages.length})`, icon: Mail },
-    { id: 'analytics',        label: '📊 Analytics & Intelligence',          icon: Activity },
-    { id: 'payout_approvals', label: '💰 RA Bills & RTGS Releases',          icon: DollarSign },
-    { id: 'support_tickets',  label: '💬 Vendor Support Tickets',            icon: MessageSquare },
-    { id: 'site_cms',         label: 'Website CMS',                          icon: Settings },
-    { id: 'categories',       label: `Categories (${categories.length})`,    icon: Layers },
-    { id: 'tenders',          label: `Tenders (${tenders.length})`,          icon: FileText },
-    { id: 'security',         label: 'Security & Logs',                      icon: Lock },
+    { id: 'db_inspector',     label: `Live DB Inspector (${totalApps})`,     icon: ShieldCheck },
+    { id: 'contact_messages', label: `Contact Inquiries (${contactMessages.length})`, icon: Mail },
+    { id: 'analytics',        label: 'Analytics & Intelligence',             icon: Activity },
+    { id: 'payout_approvals', label: 'RA Bills & RTGS Releases',             icon: DollarSign },
+    { id: 'support_tickets',  label: 'Vendor Support Tickets',               icon: MessageSquare },
+    { id: 'site_cms',         label: 'Website CMS',                             icon: Settings },
+    { id: 'categories',       label: `Categories (${categories.length})`,       icon: Layers },
+    { id: 'tenders',          label: `Tenders (${tenders.length})`,             icon: FileText },
+    { id: 'security',         label: 'Security & Logs',                         icon: Lock },
   ];
 
   return (
