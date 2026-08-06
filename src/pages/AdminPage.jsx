@@ -609,7 +609,6 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     { id: 'applications',     label: `Applications (${totalApps})`,          icon: Database },
     { id: 'db_inspector',     label: `Live DB Inspector (${totalApps})`,     icon: ShieldCheck },
     { id: 'contact_messages', label: `Contact Inquiries (${contactMessages.length})`, icon: Mail },
-    { id: 'analytics',        label: 'Analytics & Intelligence',             icon: Activity },
     { id: 'payout_approvals', label: 'RA Bills & RTGS Releases',             icon: DollarSign },
     { id: 'support_tickets',  label: 'Vendor Support Tickets',               icon: MessageSquare },
     { id: 'site_cms',         label: 'Website CMS',                             icon: Settings },
@@ -1150,63 +1149,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
 
 
-        {/* ════════════════ TAB 3: ANALYTICS & INTELLIGENCE ════════════════ */}
-        {activeTab === 'analytics' && (
-          <div>
-            <div style={{ marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Activity style={{ width: 20, height: 20, color: '#0047AB' }} />
-                <span>Executive Procurement & Financial Capacity Radar:</span>
-              </h3>
-              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                Real-time financial capacity and regional contractor distribution across active project tenders.
-              </p>
-            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase' }}>Combined Vendor Turnover</div>
-                <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0F172A', marginTop: 4 }}>₹ 1,240 Crores</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>Verified 3-Year Balance Sheet Capacity</div>
-              </div>
-
-              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#047857', textTransform: 'uppercase' }}>Class-A Prime Contractors</div>
-                <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#047857', marginTop: 4 }}>34 Enterprise Entities</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>Eligible for Pan-India EPC Packages</div>
-              </div>
-
-              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#F59E0B', textTransform: 'uppercase' }}>Verification Speed</div>
-                <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#B45309', marginTop: 4 }}>1.8 Days Average</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>Financial Committee Audit SLAs</div>
-              </div>
-            </div>
-
-            {/* Regional State Breakdown */}
-            <div style={{ padding: '1.5rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-              <h4 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A', marginBottom: '1rem' }}>Regional State-wise Contractor Base:</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {[
-                  { state: 'Rajasthan (Jaipur, Udaipur, Bhilwara)', pct: 42, count: '52 Contractors' },
-                  { state: 'Haryana & Delhi NCR (Gurgaon, Noida, Delhi)', pct: 28, count: '35 Contractors' },
-                  { state: 'Gujarat & Maharashtra (Ahmedabad, Mumbai)', pct: 18, count: '22 Contractors' },
-                  { state: 'Other Pan-India States', pct: 12, count: '15 Contractors' },
-                ].map((st, idx) => (
-                  <div key={idx}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 800, marginBottom: 2 }}>
-                      <span>{st.state}</span>
-                      <span style={{ color: '#0047AB' }}>{st.pct}% ({st.count})</span>
-                    </div>
-                    <div style={{ height: 8, borderRadius: 99, backgroundColor: 'var(--border-color)', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${st.pct}%`, backgroundColor: '#0047AB', borderRadius: 99 }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ════════════════ TAB 4: RA BILLS & RTGS PAYOUT RELEASES ════════════════ */}
         {activeTab === 'payout_approvals' && (
