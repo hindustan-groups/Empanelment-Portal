@@ -253,35 +253,28 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
     const adminKey = ADMIN_API_KEY;
 
-    let apiData = [];
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`, {
         headers: { 'x-admin-key': adminKey }
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        apiData = data.data;
+        // Direct Database Records — PURE LIVE DATA (No browser cache mixing!)
+        setVendors(data.data);
+        setLoading(false);
+        return;
       }
     } catch (err) {
-      console.warn('Backend API connection notice:', err);
+      console.warn('Backend API connection notice, local fallback:', err);
     }
 
-    // Merge API applications with locally submitted applications
-    let localData = [];
+    // Fallback ONLY if backend server is completely offline
     try {
-      localData = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-    } catch (e) {}
-
-    const combined = [...apiData];
-    localData.forEach(locApp => {
-      const locId = getAppId(locApp);
-      const exists = combined.some(a => getAppId(a) === locId || (a.gstin && locApp.gstin && a.gstin === locApp.gstin));
-      if (!exists) {
-        combined.unshift(locApp);
-      }
-    });
-
-    setVendors(combined);
+      const localData = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      setVendors(localData);
+    } catch (e) {
+      setVendors([]);
+    }
     setLoading(false);
   };
 
@@ -407,11 +400,10 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     }
 
     try {
-      const allIds = vendors.map(v => getAppId(v)).filter(Boolean);
-      const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
-      const merged = Array.from(new Set([...deleted, ...allIds]));
-      localStorage.setItem('hipro_deleted_applications', JSON.stringify(merged));
       localStorage.removeItem('hipro_vps_applications');
+      localStorage.removeItem('hipro_applications');
+      localStorage.removeItem('hipro_approved_vendors');
+      localStorage.removeItem('hipro_deleted_applications');
     } catch (e) {}
 
     setVendors([]);
