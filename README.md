@@ -2,7 +2,7 @@
 ## 📘 Official Architecture, Developer & Maintenance Guide
 
 > **Live Subdomain**: `https://empanel.hindustanprojects.in`  
-> **Production VPS Server**: `187.127.142.137` (Ubuntu Linux)  
+> **Production VPS Server**: ` (Ubuntu Linux)  
 > **GitHub Repository**: `https://github.com/hindustan-groups/Empanelment-Portal.git`  
 > **Main Branch**: `master`
 
