@@ -557,6 +557,25 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       // silently ignore
     }
 
+    // Read local applications submitted on client
+    let localData = [];
+    try {
+      localData = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+    } catch (e) {}
+
+    // Combine local data and API data (API data takes precedence if same ID)
+    const combinedMap = new Map();
+    localData.forEach(v => {
+      const id = getAppId(v);
+      if (id) combinedMap.set(id, v);
+    });
+    apiData.forEach(v => {
+      const id = getAppId(v);
+      if (id) combinedMap.set(id, v);
+    });
+
+    const combinedList = Array.from(combinedMap.values());
+
     // Read deleted IDs blacklist from localStorage
     let deletedIds = [];
     try {
@@ -564,7 +583,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     } catch (e) {}
 
     // Filter out deleted/archived IDs permanently!
-    const cleanVendors = apiData.filter(v => {
+    const cleanVendors = combinedList.filter(v => {
       const id = getAppId(v);
       const isArchived = (v.status || '').toLowerCase().includes('archived') || (v.status || '').toLowerCase().includes('deleted');
       return id && !deletedIds.includes(id) && !isArchived;
