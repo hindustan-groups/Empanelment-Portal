@@ -195,23 +195,32 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [selectedContactMsg, setSelectedContactMsg] = useState(null);
 
   const fetchContactMessages = async () => {
-    const backendUrl = API_BASE_URL;
+    // Read local contact messages state by default
+    try {
+      const stored = JSON.parse(localStorage.getItem('hipro_contact_messages') || '[]');
+      if (Array.isArray(stored) && stored.length > 0) {
+        setContactMessages(stored);
+      }
+    } catch {}
+
+    // Skip API call on live server domain to avoid 404 network console entry
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      return;
+    }
+
+    const backendUrl = API_BASE_URL || 'http://localhost:5000';
     const adminKey = ADMIN_API_KEY;
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/contacts`, {
         headers: { 'x-admin-key': adminKey }
       });
-      if (!res.ok) {
-        setContactMessages([]);
-        return;
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setContactMessages(data.data);
+        }
       }
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        setContactMessages(data.data);
-      }
-    } catch (err) {
-      setContactMessages([]);
-    }
+    } catch {}
   };
 
   const handleToggleContactStatus = async (id, currentStatus) => {
