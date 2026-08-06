@@ -637,7 +637,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     const t1 = setTimeout(() => setSubmitStageText('🔐 Generating SHA-256 Signature...'), 400);
     const t2 = setTimeout(() => setSubmitStageText('📡 Transmitting to Live VPS Database...'), 900);
 
-    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'http://187.127.142.137:5000' : 'http://localhost:5000');
+    const backendUrl = API_BASE_URL;
     
     const payload = {
       ...formData,

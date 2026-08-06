@@ -28,7 +28,7 @@ export default function VendorLoginPage() {
 
     setIsSubmitting(true);
 
-    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'http://187.127.142.137:5000' : 'http://localhost:5000');
+    const backendUrl = API_BASE_URL;
 
     // 1. Try Live VPS Backend Login First
     try {

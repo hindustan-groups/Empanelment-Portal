@@ -26,7 +26,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
     if (lockoutTime > 0) return;
     setErrorMsg('');
 
-    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'http://187.127.142.137:5000' : 'http://localhost:5000');
+    const backendUrl = API_BASE_URL;
 
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/login`, {

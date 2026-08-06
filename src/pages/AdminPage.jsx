@@ -537,27 +537,24 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     setLoading(true);
 
     // On localhost, local backend doesn't support admin endpoints — skip API call silently
-    const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-    const backendUrl = isLocal ? '' : (API_BASE_URL || '');
+    const backendUrl = API_BASE_URL;
 
     let apiData = [];
-    if (!isLocal) {
-      try {
-        const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`, {
-          headers: { 'x-admin-key': ADMIN_API_KEY }
-        });
-        if (res.ok) {
-          const text = await res.text();
-          if (text && text.trim() !== 'PRO FEATURE ONLY') {
-            const data = JSON.parse(text);
-            if (data.success && Array.isArray(data.data)) {
-              apiData = data.data;
-            }
+    try {
+      const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`, {
+        headers: { 'x-admin-key': ADMIN_API_KEY }
+      });
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.trim() !== 'PRO FEATURE ONLY') {
+          const data = JSON.parse(text);
+          if (data.success && Array.isArray(data.data)) {
+            apiData = data.data;
           }
         }
-      } catch (err) {
-        // silently ignore — no noisy console error
       }
+    } catch (err) {
+      // silently ignore
     }
 
     // Read deleted IDs blacklist from localStorage

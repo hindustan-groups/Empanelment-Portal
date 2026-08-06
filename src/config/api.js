@@ -13,7 +13,9 @@ const isLocalHost = typeof window !== 'undefined' && (
   window.location.port === '5173'
 );
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (isLocalHost ? 'http://localhost:5000' : '');
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL !== undefined 
+  ? import.meta.env.VITE_API_BASE_URL 
+  : (isLocalHost ? 'http://localhost:5000' : '');
 
 export const ADMIN_API_KEY = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
 

@@ -129,7 +129,7 @@ export default function TrackPage() {
     setNotFound(false);
     setResult(null);
 
-    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'http://187.127.142.137:5000' : 'http://localhost:5000');
+    const backendUrl = API_BASE_URL;
 
     let foundData = null;
 
