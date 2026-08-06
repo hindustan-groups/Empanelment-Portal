@@ -239,6 +239,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   useEffect(() => {
     if (!isAuthenticated) { navigate('/admin-login'); return; }
+    // Purge old local storage cache keys to stop demo data from appearing
+    try {
+      localStorage.removeItem('hipro_vps_applications');
+      localStorage.removeItem('hipro_applications');
+      localStorage.removeItem('hipro_approved_vendors');
+      localStorage.removeItem('hipro_deleted_applications');
+    } catch (e) {}
     fetchVendors();
     fetchContactMessages();
   }, [isAuthenticated, navigate]);
@@ -268,13 +275,8 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend API connection notice, local fallback:', err);
     }
 
-    // Fallback ONLY if backend server is completely offline
-    try {
-      const localData = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-      setVendors(localData);
-    } catch (e) {
-      setVendors([]);
-    }
+    // If API fails or backend offline, set vendors to [] (No demo fallbacks!)
+    setVendors([]);
     setLoading(false);
   };
 
