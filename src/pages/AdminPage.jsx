@@ -402,13 +402,17 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     }
 
     try {
-      localStorage.removeItem('hipro_vps_applications');
-      localStorage.removeItem('hipro_applications');
-      localStorage.removeItem('hipro_approved_vendors');
-      localStorage.removeItem('hipro_deleted_applications');
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('hipro_') && key !== 'hipro_admin_session' && key !== 'hipro_admin_session_expiry' && key !== 'hipro_admin_email') {
+          localStorage.removeItem(key);
+        }
+      });
+      sessionStorage.clear();
     } catch (e) {}
 
     setVendors([]);
+    setSelectedVendor(null);
+    setShowDossierModal(false);
   };
 
   /* ── Email Action Handler: Approve / Reject / Resubmit ── */
