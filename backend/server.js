@@ -382,6 +382,71 @@ app.post('/api/empanelment/admin/login', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/admin/send-test-email
+// Admin sends a live test email to verify SMTP is working
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+  if (adminKey !== expectedKey) {
+    return res.status(403).json({ success: false, error: 'Unauthorized' });
+  }
+
+  const { to } = req.body;
+  if (!to || !to.includes('@')) {
+    return res.status(400).json({ success: false, error: 'Valid recipient email required' });
+  }
+
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com',
+        pass: process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx'
+      },
+      tls: { rejectUnauthorized: false }
+    });
+
+    const info = await transporter.sendMail({
+      from: `"Hindustan Projects Portal" <${process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com'}>`,
+      to,
+      subject: 'Test Email — Hindustan Projects Empanelment Portal ✅',
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0">
+          <div style="background:#0047AB;color:white;padding:20px 28px">
+            <h2 style="margin:0;font-size:20px">Hindustan Projects</h2>
+            <p style="margin:4px 0 0;opacity:.85;font-size:13px">Empanelment Portal — Email System Test</p>
+          </div>
+          <div style="background:white;padding:28px">
+            <h3 style="color:#0047AB;margin-top:0">Email System Working!</h3>
+            <p style="color:#334155">Yeh ek <strong>test email</strong> hai Admin Security tab se bheja gaya.</p>
+            <p style="color:#334155">SMTP Gmail system <strong>100% active aur working</strong> hai.</p>
+            <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:14px;margin:16px 0">
+              <p style="margin:0;color:#166534;font-weight:bold">Gmail SMTP Port 465 SSL - ACTIVE</p>
+              <p style="margin:4px 0 0;color:#166534;font-size:13px">hindustanprojects0.2@gmail.com</p>
+            </div>
+            <hr style="border:none;border-top:1px solid #E2E8F0">
+            <p style="color:#64748B;font-size:12px;margin:0">
+              Sent: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST<br>
+              Hindustan Projects Admin Panel
+            </p>
+          </div>
+        </div>
+      `
+    });
+
+    console.log('Test email sent to ' + to + ' | ' + info.messageId);
+    return res.json({ success: true, messageId: info.messageId, to });
+  } catch (err) {
+    console.error('Test email failed:', err.message);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/vendor/login
 // Vendor Login — checks vendor record & approval status in SQLite DB
 // ─────────────────────────────────────────────────────────────────
