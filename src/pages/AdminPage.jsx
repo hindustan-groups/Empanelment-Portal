@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
 import SecurityCaptcha from '../components/SecurityCaptcha';
+import ContractManager from '../components/ContractManager';
 import VendorDossierA4Modal from '../components/VendorDossierA4Modal';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
@@ -609,6 +610,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     { id: 'applications',     label: `Applications (${totalApps})`,          icon: Database },
     { id: 'db_inspector',     label: `🔴 LIVE DB INSPECTOR (${totalApps})`, icon: ShieldCheck },
     { id: 'contact_messages', label: `📩 Contact Inquiries (${contactMessages.length})`, icon: Mail },
+    { id: 'contracts',        label: 'Contracts & Work Orders',              icon: FileSignature },
     { id: 'analytics',        label: '📊 Analytics & Intelligence',          icon: Activity },
     { id: 'payout_approvals', label: '💰 RA Bills & RTGS Releases',          icon: DollarSign },
     { id: 'support_tickets',  label: '💬 Vendor Support Tickets',            icon: MessageSquare },
@@ -1144,6 +1146,11 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
               )}
             </div>
           </div>
+        )}
+
+        {/* ════════════════ TAB: CONTRACTS & WORK ORDERS ════════════════ */}
+        {activeTab === 'contracts' && (
+          <ContractManager selectedVendor={selectedVendor} />
         )}
 
 
