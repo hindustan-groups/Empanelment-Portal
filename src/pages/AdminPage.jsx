@@ -13,7 +13,7 @@ import {
   Download, Eye, CheckCircle2, XCircle, Clock, Trash2, Edit3,
   Printer, FileText, Building2, CreditCard, DollarSign, MapPin,
   User, AlertTriangle, FileCheck2, UserCheck, ExternalLink,
-  PlusCircle, Layers, Lock, MessageSquare, Settings, Save,
+  PlusCircle, Layers, Lock, MessageSquare, Settings, Save, Mail,
   Key, ToggleLeft, ToggleRight, Bell, ChevronDown, ChevronUp, X, FileSignature, Activity, Send, Check
 } from 'lucide-react';
 
