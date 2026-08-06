@@ -617,15 +617,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const rejectedApps = vendors.filter(v => v.status === 'Rejected').length;
 
   const TABS = [
-    { id: 'applications',     label: `Applications (${totalApps})`,          icon: Database },
-    { id: 'db_inspector',     label: `Live DB Inspector (${totalApps})`,     icon: ShieldCheck },
-    { id: 'contact_messages', label: `Contact Inquiries (${contactMessages.length})`, icon: Mail },
-    { id: 'payout_approvals', label: 'RA Bills & RTGS Releases',             icon: DollarSign },
-    { id: 'support_tickets',  label: 'Vendor Support Tickets',               icon: MessageSquare },
-    { id: 'site_cms',         label: 'Website CMS',                             icon: Settings },
-    { id: 'categories',       label: `Categories (${categories.length})`,       icon: Layers },
-    { id: 'tenders',          label: `Tenders (${tenders.length})`,             icon: FileText },
-    { id: 'security',         label: 'Security & Logs',                         icon: Lock },
+    { id: 'applications',     label: 'Applications',          count: totalApps,              icon: Database },
+    { id: 'db_inspector',     label: 'Live DB Inspector',     count: totalApps,              icon: ShieldCheck },
+    { id: 'contact_messages', label: 'Contact Inquiries',     count: contactMessages.length, icon: Mail },
+    { id: 'payout_approvals', label: 'RA Bills & RTGS Releases',                             icon: DollarSign },
+    { id: 'support_tickets',  label: 'Vendor Support Tickets',                               icon: MessageSquare },
+    { id: 'site_cms',         label: 'Website CMS',                                          icon: Settings },
+    { id: 'categories',       label: 'Categories',            count: categories.length,      icon: Layers },
+    { id: 'tenders',          label: 'Tenders',               count: tenders.length,         icon: FileText },
+    { id: 'security',         label: 'Security & Logs',                                      icon: Lock },
   ];
 
   return (
@@ -752,24 +752,44 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
         </div>
 
-        {/* ── Navigation Tabs ── */}
-        <div style={{ display: 'flex', gap: '0.45rem', marginBottom: '1.75rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.65rem', overflowX: 'auto' }}>
+        {/* ── Executive Glassmorphic Navigation Tabs ── */}
+        <div style={{ 
+          display: 'flex', gap: '0.45rem', marginBottom: '1.75rem', 
+          background: 'var(--bg-surface)', padding: '0.45rem', borderRadius: 16,
+          border: '1px solid var(--border-color)', overflowX: 'auto',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+        }}>
           {TABS.map(tab => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
             return (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              <button 
+                key={tab.id} 
+                onClick={() => setActiveTab(tab.id)}
                 style={{ 
-                  display: 'inline-flex', alignItems: 'center', gap: '0.45rem', 
-                  padding: '0.6rem 1.05rem', borderRadius: '12px', 
-                  fontSize: '0.825rem', fontWeight: active ? 900 : 700, 
-                  cursor: 'pointer', whiteSpace: 'nowrap', border: active ? '2px solid #0047AB' : '1px solid var(--border-color)', 
-                  background: active ? '#0047AB' : 'var(--bg-surface)', 
-                  color: active ? 'white' : 'var(--text-secondary)', 
-                  boxShadow: active ? '0 4px 14px rgba(0,71,171,0.25)' : 'none', 
-                  transition: 'all 0.18s' 
-                }}>
-                <Icon style={{ width: 15, height: 15, color: active ? 'white' : '#0047AB' }} />{tab.label}
+                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem', 
+                  padding: '0.65rem 1.15rem', borderRadius: '12px', 
+                  fontSize: '0.825rem', fontWeight: active ? 800 : 700, 
+                  cursor: 'pointer', whiteSpace: 'nowrap',
+                  border: active ? '1px solid #0047AB' : '1px solid transparent', 
+                  background: active ? 'linear-gradient(135deg, #0047AB 0%, #002D6B 100%)' : 'transparent', 
+                  color: active ? '#FFFFFF' : 'var(--text-secondary)', 
+                  boxShadow: active ? '0 4px 14px rgba(0,71,171,0.3)' : 'none', 
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
+                }}
+              >
+                <Icon style={{ width: 16, height: 16, color: active ? '#FFFFFF' : '#0047AB' }} />
+                <span>{tab.label}</span>
+                {tab.count !== undefined && (
+                  <span style={{ 
+                    padding: '0.12rem 0.55rem', borderRadius: 99, 
+                    backgroundColor: active ? 'rgba(255,255,255,0.22)' : 'rgba(0,71,171,0.1)', 
+                    color: active ? '#FFFFFF' : '#0047AB', 
+                    fontSize: '0.72rem', fontWeight: 900 
+                  }}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             );
           })}
