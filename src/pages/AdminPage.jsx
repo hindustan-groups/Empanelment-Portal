@@ -353,9 +353,16 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const adminKey = ADMIN_API_KEY;
 
     try {
+      // Primary HTTP DELETE call
       await fetch(`${backendUrl}/api/empanelment/admin/applications/${trackingId}`, {
         method: 'DELETE',
         headers: { 'x-admin-key': adminKey }
+      });
+      // Secondary HTTP POST fallback call (Bypasses Nginx static DELETE restrictions)
+      await fetch(`${backendUrl}/api/empanelment/admin/delete-vendor`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        body: JSON.stringify({ trackingId })
       });
     } catch (e) {
       console.warn('Backend delete notice:', e);
@@ -396,6 +403,10 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       await fetch(`${backendUrl}/api/empanelment/admin/clear-all`, {
         method: 'DELETE',
         headers: { 'x-admin-key': adminKey }
+      });
+      await fetch(`${backendUrl}/api/empanelment/admin/clear-all-vendors`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey }
       });
     } catch (e) {
       console.warn('Backend clear all notice:', e);

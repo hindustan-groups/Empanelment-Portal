@@ -889,7 +889,7 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
 });
 
 // ─────────────────────────────────────────────────────────────────
-// DELETE /api/empanelment/admin/applications/:trackingId
+// DELETE & POST /api/empanelment/admin/applications/:trackingId & delete-vendor
 // Admin — Delete application permanently from SQLite database
 // ─────────────────────────────────────────────────────────────────
 app.delete('/api/empanelment/admin/applications/:trackingId', adminAuthMiddleware, (req, res) => {
@@ -898,17 +898,36 @@ app.delete('/api/empanelment/admin/applications/:trackingId', adminAuthMiddlewar
     return res.status(400).json({ success: false, error: 'Tracking ID is required.' });
   }
 
-  db.run(`DELETE FROM vendors WHERE tracking_id = ?`, [trackingId], function(err) {
+  db.run(`DELETE FROM vendors WHERE tracking_id = ? OR id = ?`, [trackingId, trackingId], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: `Vendor application ${trackingId} permanently deleted.` });
+  });
+});
+
+app.post('/api/empanelment/admin/delete-vendor', adminAuthMiddleware, (req, res) => {
+  const trackingId = req.body?.trackingId || req.query?.trackingId;
+  if (!trackingId) {
+    return res.status(400).json({ success: false, error: 'Tracking ID is required.' });
+  }
+
+  db.run(`DELETE FROM vendors WHERE tracking_id = ? OR id = ?`, [trackingId, trackingId], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, message: `Vendor application ${trackingId} permanently deleted.` });
   });
 });
 
 // ─────────────────────────────────────────────────────────────────
-// DELETE /api/empanelment/admin/clear-all
+// DELETE & POST /api/empanelment/admin/clear-all & clear-all-vendors
 // Admin — wipe all vendor applications permanently from SQLite database
 // ─────────────────────────────────────────────────────────────────
 app.delete('/api/empanelment/admin/clear-all', adminAuthMiddleware, (req, res) => {
+  db.run(`DELETE FROM vendors`, [], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: `All vendor applications permanently cleared.` });
+  });
+});
+
+app.post('/api/empanelment/admin/clear-all-vendors', adminAuthMiddleware, (req, res) => {
   db.run(`DELETE FROM vendors`, [], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, message: `All vendor applications permanently cleared.` });
