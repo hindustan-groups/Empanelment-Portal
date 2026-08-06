@@ -649,8 +649,8 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             {/* Left: System Status */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block', boxShadow: '0 0 8px #10B981' }} />
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#6EE7B7', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Systems Online</span>
+                <span className="pulse-dot-online" />
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#6EE7B7', letterSpacing: '0.12em', textTransform: 'uppercase' }}>SYSTEMS ONLINE</span>
               </div>
               <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.15)' }} />
               <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 600 }}>
@@ -964,7 +964,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                     </tr>
                   ) : (
                     filteredVendors.map(v => (
-                      <tr key={v.tracking_id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <tr key={v.tracking_id} className="admin-table-row" style={{ borderBottom: '1px solid var(--border-color)' }}>
                         <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontWeight: 800, color: '#0047AB' }}>
                           {v.tracking_id}
                         </td>
