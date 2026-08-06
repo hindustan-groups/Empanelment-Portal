@@ -364,6 +364,10 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
         body: JSON.stringify({ trackingId })
       });
+      // Tertiary HTTP GET fallback call (Guaranteed execution on all web servers)
+      await fetch(`${backendUrl}/api/empanelment/admin/delete-row/${encodeURIComponent(trackingId)}`, {
+        headers: { 'x-admin-key': adminKey }
+      });
     } catch (e) {
       console.warn('Backend delete notice:', e);
     }
@@ -407,6 +411,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       await fetch(`${backendUrl}/api/empanelment/admin/clear-all-vendors`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey }
+      });
+      await fetch(`${backendUrl}/api/empanelment/admin/force-purge-all`, {
+        headers: { 'x-admin-key': adminKey }
       });
     } catch (e) {
       console.warn('Backend clear all notice:', e);

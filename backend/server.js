@@ -930,7 +930,24 @@ app.delete('/api/empanelment/admin/clear-all', adminAuthMiddleware, (req, res) =
 app.post('/api/empanelment/admin/clear-all-vendors', adminAuthMiddleware, (req, res) => {
   db.run(`DELETE FROM vendors`, [], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
+    db.run(`DELETE FROM sqlite_sequence WHERE name='vendors'`, [], () => {});
     res.json({ success: true, message: `All vendor applications permanently cleared.` });
+  });
+});
+
+app.get('/api/empanelment/admin/force-purge-all', adminAuthMiddleware, (req, res) => {
+  db.run(`DELETE FROM vendors`, [], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    db.run(`DELETE FROM sqlite_sequence WHERE name='vendors'`, [], () => {});
+    res.json({ success: true, message: `All vendor applications permanently purged from VPS SQLite database.` });
+  });
+});
+
+app.get('/api/empanelment/admin/delete-row/:trackingId', adminAuthMiddleware, (req, res) => {
+  const { trackingId } = req.params;
+  db.run(`DELETE FROM vendors WHERE tracking_id = ? OR id = ? OR company_name = ?`, [trackingId, trackingId, trackingId], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: `Vendor application ${trackingId} permanently deleted.` });
   });
 });
 
