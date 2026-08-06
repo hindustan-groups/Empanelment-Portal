@@ -201,12 +201,16 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/contacts`, {
         headers: { 'x-admin-key': adminKey }
       });
+      if (!res.ok) {
+        setContactMessages([]);
+        return;
+      }
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setContactMessages(data.data);
       }
     } catch (err) {
-      console.warn('Contacts fetch notice:', err);
+      setContactMessages([]);
     }
   };
 
@@ -271,6 +275,12 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     } catch (err) {
       console.warn('Backend API connection notice, local fallback:', err);
     }
+
+    // Read deleted IDs blacklist from localStorage
+    let deletedIds = [];
+    try {
+      deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
+    } catch (e) {}
 
     // Filter out deleted/archived IDs permanently!
     const cleanVendors = apiData.filter(v => {
