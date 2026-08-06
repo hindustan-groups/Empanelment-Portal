@@ -353,6 +353,37 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     handleUpdateStatus(selectedVendor.tracking_id, selectedVendor.status, selectedVendor.current_stage, adminRemark);
   };
 
+  const handleDeleteVendor = async (trackingId, companyName) => {
+    if (!window.confirm(`Are you sure you want to permanently delete application ${trackingId} (${companyName || 'Vendor'})?`)) return;
+
+    const backendUrl = API_BASE_URL;
+    const adminKey = ADMIN_API_KEY;
+
+    try {
+      await fetch(`${backendUrl}/api/empanelment/admin/applications/${trackingId}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': adminKey }
+      });
+    } catch (e) {
+      console.warn('Backend delete notice:', e);
+    }
+
+    // Remove from vendors state
+    setVendors(prev => prev.filter(v => v.tracking_id !== trackingId));
+
+    // Remove from local storage
+    try {
+      const userApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      const updatedUserApps = userApps.filter(v => v.tracking_id !== trackingId);
+      localStorage.setItem('hipro_vps_applications', JSON.stringify(updatedUserApps));
+    } catch (e) {}
+
+    if (selectedVendor?.tracking_id === trackingId) {
+      setSelectedVendor(null);
+      setShowDossierModal(false);
+    }
+  };
+
   /* ── Email Action Handler: Approve / Reject / Resubmit ── */
   const handleEmailAction = async (actionType) => {
     if (!selectedVendor) return;
@@ -401,20 +432,6 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       setShowApproveModal(false); setShowRejectModal(false); setShowResubmitModal(false);
       setRejectReason(''); setMissingDetails(''); setAdminNote(''); setEmailActionResult(null);
     }, 2500);
-  };
-
-  const handleDeleteVendor = async (trackingId) => {
-    if (!window.confirm(`Permanently archive application ${trackingId}?`)) return;
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-    const adminKey = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
-    try {
-      await fetch(`${backendUrl}/api/empanelment/admin/delete/${trackingId}`, {
-        method: 'DELETE',
-        headers: { 'x-admin-key': adminKey }
-      });
-    } catch { /* local */ }
-    setVendors(prev => prev.filter(v => v.tracking_id !== trackingId));
-    if (selectedVendor?.tracking_id === trackingId) setSelectedVendor(null);
   };
 
   /* ── Invoice Payout Handlers ── */
@@ -917,6 +934,14 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                             >
                               <UserCheck style={{ width: 13, height: 13 }} />
                               <span>🪪 ID Card</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteVendor(v.tracking_id, v.company_name)}
+                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: 8, background: '#991b1b', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 700 }}
+                              title="Permanently Delete Application"
+                            >
+                              <Trash2 style={{ width: 13, height: 13 }} />
+                              <span>🗑️ Delete</span>
                             </button>
                           </div>
                         </td>
