@@ -393,6 +393,18 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     }
   };
 
+  const handleClearAllVendors = () => {
+    if (!window.confirm('⚠️ Are you sure you want to clear ALL cached vendor applications? This cannot be undone.')) return;
+    const allIds = vendors.map(v => v.tracking_id);
+    try {
+      const deleted = JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]');
+      const merged = Array.from(new Set([...deleted, ...allIds]));
+      localStorage.setItem('hipro_deleted_applications', JSON.stringify(merged));
+      localStorage.removeItem('hipro_vps_applications');
+    } catch (e) {}
+    setVendors([]);
+  };
+
   /* ── Email Action Handler: Approve / Reject / Resubmit ── */
   const handleEmailAction = async (actionType) => {
     if (!selectedVendor) return;
