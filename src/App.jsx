@@ -151,7 +151,7 @@ function MainAppLayout() {
       
       {/* Show Public Header ONLY when not in standalone software portal */}
       {!isStandalonePortal && (
-        <Header />
+        <Header isDark={isDark} toggleTheme={toggleTheme} />
       )}
 
       {/* Main Route Content */}
