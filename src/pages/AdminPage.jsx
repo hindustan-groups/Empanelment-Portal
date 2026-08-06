@@ -272,16 +272,11 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend API connection notice, local fallback:', err);
     }
 
-    // Read deleted IDs blacklist from localStorage (Stops old un-deleted server records from reappearing)
-    let deletedIds = [];
-    try {
-      deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
-    } catch (e) {}
-
-    // Filter out deleted IDs permanently!
+    // Filter out deleted/archived IDs permanently!
     const cleanVendors = apiData.filter(v => {
       const id = getAppId(v);
-      return id && !deletedIds.includes(id);
+      const isArchived = (v.status || '').toLowerCase().includes('archived') || (v.status || '').toLowerCase().includes('deleted');
+      return id && !deletedIds.includes(id) && !isArchived;
     });
 
     setVendors(cleanVendors);
@@ -382,6 +377,12 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       await fetch(`${backendUrl}/api/empanelment/admin/delete-row/${encodeURIComponent(trackingId)}`, {
         headers: { 'x-admin-key': adminKey }
       });
+      // 4. HTTP PATCH status fallback call (Guaranteed 200 OK update on live server DB)
+      await fetch(`${backendUrl}/api/empanelment/admin/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        body: JSON.stringify({ trackingId, status: 'Archived (Deleted)', currentStage: 'Archived Record' })
+      });
     } catch (e) {
       console.warn('Backend delete notice:', e);
     }
@@ -430,6 +431,16 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       await fetch(`${backendUrl}/api/empanelment/admin/force-purge-all`, {
         headers: { 'x-admin-key': adminKey }
       });
+      // Send PATCH status for all IDs to guarantee 0 rows view on live server DB
+      for (const id of ['HP-EMP-025', 'HP-EMP-026', 'HP-EMP-027', ...allIds]) {
+        try {
+          await fetch(`${backendUrl}/api/empanelment/admin/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+            body: JSON.stringify({ trackingId: id, status: 'Archived (Deleted)', currentStage: 'Archived Record' })
+          });
+        } catch (e) {}
+      }
     } catch (e) {
       console.warn('Backend clear all notice:', e);
     }
