@@ -236,7 +236,7 @@ npm run dev
 
 ## 🐙 Git & Auto-Deploy Guide
 
-This repository is connected to **GitHub Actions Auto-Deploy** targeting the Linux VPS (`187.127.142.137`).
+This repository is connected to **GitHub Actions Auto-Deploy** targeting the Linux VPS (``).
 
 ### To deploy any code update:
 
@@ -254,7 +254,7 @@ git push origin master
 
 ### What happens automatically:
 1. Code pushes to GitHub `master` branch.
-2. GitHub Actions CI/CD runner triggers SSH connection to VPS `187.127.142.137`.
+2. GitHub Actions CI/CD runner triggers SSH connection to VPS ``.
 3. VPS runs `git pull`, `npm run build`, and `pm2 restart all`.
 4. Changes go live on `https://empanel.hindustanprojects.in` within **20-30 seconds**.
 
