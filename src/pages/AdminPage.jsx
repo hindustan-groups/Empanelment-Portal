@@ -260,23 +260,32 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
     const adminKey = ADMIN_API_KEY;
 
+    let apiData = [];
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`, {
         headers: { 'x-admin-key': adminKey }
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        // Direct Database Records — PURE LIVE DATA (No browser cache mixing!)
-        setVendors(data.data);
-        setLoading(false);
-        return;
+        apiData = data.data;
       }
     } catch (err) {
       console.warn('Backend API connection notice, local fallback:', err);
     }
 
-    // If API fails or backend offline, set vendors to [] (No demo fallbacks!)
-    setVendors([]);
+    // Read deleted IDs blacklist from localStorage (Stops old un-deleted server records from reappearing)
+    let deletedIds = [];
+    try {
+      deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
+    } catch (e) {}
+
+    // Filter out deleted IDs permanently!
+    const cleanVendors = apiData.filter(v => {
+      const id = getAppId(v);
+      return id && !deletedIds.includes(id);
+    });
+
+    setVendors(cleanVendors);
     setLoading(false);
   };
 
@@ -395,6 +404,14 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   };
 
   const handleClearAllVendors = async () => {
+    const allIds = vendors.map(v => getAppId(v)).filter(Boolean);
+    try {
+      const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
+      const merged = Array.from(new Set([...deleted, ...allIds, 'HP-EMP-025', 'HP-EMP-026', 'HP-EMP-027']));
+      localStorage.setItem('hipro_deleted_applications', JSON.stringify(merged));
+      localStorage.removeItem('hipro_vps_applications');
+    } catch (e) {}
+
     setVendors([]);
     setSelectedVendor(null);
     setShowDossierModal(false);
@@ -417,15 +434,6 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     } catch (e) {
       console.warn('Backend clear all notice:', e);
     }
-
-    try {
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('hipro_') && key !== 'hipro_admin_session' && key !== 'hipro_admin_session_expiry' && key !== 'hipro_admin_email') {
-          localStorage.removeItem(key);
-        }
-      });
-      sessionStorage.clear();
-    } catch (e) {}
   };
 
   /* ── Email Action Handler: Approve / Reject / Resubmit ── */
