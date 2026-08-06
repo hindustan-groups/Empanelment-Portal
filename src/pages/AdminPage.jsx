@@ -254,6 +254,11 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     fetchContactMessages();
   }, [isAuthenticated, navigate]);
 
+  const getAppId = (v) => {
+    if (!v) return '';
+    return String(v.tracking_id || v.trackingId || v.id || '').trim();
+  };
+
   const fetchVendors = async () => {
     setLoading(true);
     const backendUrl = API_BASE_URL;
@@ -272,6 +277,12 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend API connection notice:', err);
     }
 
+    // Read deleted IDs blacklist (convert all to string)
+    let deletedIds = [];
+    try {
+      deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
+    } catch (e) {}
+
     // Merge API applications with locally submitted applications
     let localData = [];
     try {
@@ -280,13 +291,20 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
     const combined = [...apiData];
     localData.forEach(locApp => {
-      const exists = combined.some(a => a.tracking_id === locApp.tracking_id || (a.gstin && locApp.gstin && a.gstin === locApp.gstin));
+      const locId = getAppId(locApp);
+      const exists = combined.some(a => getAppId(a) === locId || (a.gstin && locApp.gstin && a.gstin === locApp.gstin));
       if (!exists) {
         combined.unshift(locApp);
       }
     });
 
-    setVendors(combined);
+    // STRICT FILTERING: Exclude any application whose ID is in deletedIds
+    const cleanVendors = combined.filter(v => {
+      const id = getAppId(v);
+      return id && !deletedIds.includes(id);
+    });
+
+    setVendors(cleanVendors);
     setLoading(false);
   };
 
@@ -309,13 +327,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     } catch { /* local fallback */ }
 
     setVendors(prev => {
-      const updated = prev.map(v => v.tracking_id === trackingId
+      const updated = prev.map(v => getAppId(v) === String(trackingId).trim()
         ? { ...v, status: newStatus, current_stage: stage, admin_remarks: remark !== undefined ? remark : v.admin_remarks, ceo_signed: ceoSigned, ceo_signed_date: ceoDate }
         : v
       );
       // Persist to local storage as well
       const userApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-      const updatedUserApps = userApps.map(v => v.tracking_id === trackingId
+      const updatedUserApps = userApps.map(v => getAppId(v) === String(trackingId).trim()
         ? { ...v, status: newStatus, current_stage: stage, admin_remarks: remark !== undefined ? remark : v.admin_remarks, ceo_signed: ceoSigned, ceo_signed_date: ceoDate }
         : v
       );
@@ -323,7 +341,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
       // Also update session if active vendor is viewing
       const activeSession = JSON.parse(localStorage.getItem('hipro_vendor_session') || '{}');
-      if (activeSession.tracking_id === trackingId) {
+      if (getAppId(activeSession) === String(trackingId).trim()) {
         localStorage.setItem('hipro_vendor_session', JSON.stringify({
           ...activeSession,
           status: newStatus,
@@ -336,7 +354,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       return updated;
     });
 
-    if (selectedVendor?.tracking_id === trackingId) {
+    if (getAppId(selectedVendor) === String(trackingId).trim()) {
       setSelectedVendor(prev => ({
         ...prev,
         status: newStatus,
@@ -350,10 +368,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const handleSaveRemark = () => {
     if (!selectedVendor) return;
-    handleUpdateStatus(selectedVendor.tracking_id, selectedVendor.status, selectedVendor.current_stage, adminRemark);
+    handleUpdateStatus(getAppId(selectedVendor), selectedVendor.status, selectedVendor.current_stage, adminRemark);
   };
 
-  const handleDeleteVendor = async (trackingId, companyName) => {
+  const handleDeleteVendor = async (targetId, companyName) => {
+    const trackingId = String(targetId || '').trim();
+    if (!trackingId) return;
+
     if (!window.confirm(`Are you sure you want to permanently delete application ${trackingId} (${companyName || 'Vendor'})?`)) return;
 
     const backendUrl = API_BASE_URL;
@@ -368,9 +389,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend delete notice:', e);
     }
 
-    // 1. Add to deleted IDs blacklist so refresh NEVER brings it back!
+    // 1. Add to deleted IDs blacklist as String
     try {
-      const deleted = JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]');
+      const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
       if (!deleted.includes(trackingId)) {
         deleted.push(trackingId);
         localStorage.setItem('hipro_deleted_applications', JSON.stringify(deleted));
@@ -380,14 +401,14 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     // 2. Remove from local storage array
     try {
       const userApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-      const updatedUserApps = userApps.filter(v => v.tracking_id !== trackingId);
+      const updatedUserApps = userApps.filter(v => getAppId(v) !== trackingId);
       localStorage.setItem('hipro_vps_applications', JSON.stringify(updatedUserApps));
     } catch (e) {}
 
     // 3. Remove from vendors state immediately
-    setVendors(prev => prev.filter(v => v.tracking_id !== trackingId));
+    setVendors(prev => prev.filter(v => getAppId(v) !== trackingId));
 
-    if (selectedVendor?.tracking_id === trackingId) {
+    if (getAppId(selectedVendor) === trackingId) {
       setSelectedVendor(null);
       setShowDossierModal(false);
     }
@@ -395,9 +416,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const handleClearAllVendors = () => {
     if (!window.confirm('⚠️ Are you sure you want to clear ALL cached vendor applications? This cannot be undone.')) return;
-    const allIds = vendors.map(v => v.tracking_id);
+    const allIds = vendors.map(v => getAppId(v)).filter(Boolean);
     try {
-      const deleted = JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]');
+      const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
       const merged = Array.from(new Set([...deleted, ...allIds]));
       localStorage.setItem('hipro_deleted_applications', JSON.stringify(merged));
       localStorage.removeItem('hipro_vps_applications');
