@@ -905,14 +905,13 @@ app.delete('/api/empanelment/admin/applications/:trackingId', adminAuthMiddlewar
 });
 
 // ─────────────────────────────────────────────────────────────────
-// DELETE /api/empanelment/admin/delete/:trackingId
-// Admin — delete an application (PROTECTED)
+// DELETE /api/empanelment/admin/clear-all
+// Admin — wipe all vendor applications permanently from SQLite database
 // ─────────────────────────────────────────────────────────────────
-app.delete('/api/empanelment/admin/delete/:trackingId', adminAuthMiddleware, (req, res) => {
-  const trackingId = req.params.trackingId;
-  db.run(`DELETE FROM vendors WHERE tracking_id = ?`, [trackingId], function(err) {
+app.delete('/api/empanelment/admin/clear-all', adminAuthMiddleware, (req, res) => {
+  db.run(`DELETE FROM vendors`, [], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ success: true, message: `Application ${trackingId} deleted successfully.` });
+    res.json({ success: true, message: `All vendor applications permanently cleared.` });
   });
 });
 

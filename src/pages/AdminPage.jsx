@@ -354,7 +354,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
     if (!window.confirm(`Are you sure you want to permanently delete application ${trackingId} (${companyName || 'Vendor'})?`)) return;
 
-    const backendUrl = API_BASE_URL;
+    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
     const adminKey = ADMIN_API_KEY;
 
     try {
@@ -366,20 +366,20 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend delete notice:', e);
     }
 
-    // 1. Add to deleted IDs blacklist as String
+    // 1. Remove from local storage array
+    try {
+      const userApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      const updatedUserApps = userApps.filter(v => getAppId(v) !== trackingId);
+      localStorage.setItem('hipro_vps_applications', JSON.stringify(updatedUserApps));
+    } catch (e) {}
+
+    // 2. Add to deleted blacklist
     try {
       const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
       if (!deleted.includes(trackingId)) {
         deleted.push(trackingId);
         localStorage.setItem('hipro_deleted_applications', JSON.stringify(deleted));
       }
-    } catch (e) {}
-
-    // 2. Remove from local storage array
-    try {
-      const userApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-      const updatedUserApps = userApps.filter(v => getAppId(v) !== trackingId);
-      localStorage.setItem('hipro_vps_applications', JSON.stringify(updatedUserApps));
     } catch (e) {}
 
     // 3. Remove from vendors state immediately
@@ -391,15 +391,29 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     }
   };
 
-  const handleClearAllVendors = () => {
-    if (!window.confirm('⚠️ Are you sure you want to clear ALL cached vendor applications? This cannot be undone.')) return;
-    const allIds = vendors.map(v => getAppId(v)).filter(Boolean);
+  const handleClearAllVendors = async () => {
+    if (!window.confirm('⚠️ Are you sure you want to clear ALL vendor applications permanently? This cannot be undone.')) return;
+
+    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
+    const adminKey = ADMIN_API_KEY;
+
     try {
+      await fetch(`${backendUrl}/api/empanelment/admin/clear-all`, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': adminKey }
+      });
+    } catch (e) {
+      console.warn('Backend clear all notice:', e);
+    }
+
+    try {
+      const allIds = vendors.map(v => getAppId(v)).filter(Boolean);
       const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
       const merged = Array.from(new Set([...deleted, ...allIds]));
       localStorage.setItem('hipro_deleted_applications', JSON.stringify(merged));
       localStorage.removeItem('hipro_vps_applications');
     } catch (e) {}
+
     setVendors([]);
   };
 
