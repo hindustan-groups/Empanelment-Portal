@@ -660,15 +660,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const rejectedApps = vendors.filter(v => v.status === 'Rejected').length;
 
   const TABS = [
-    { id: 'applications',     label: 'Applications',          count: totalApps,              icon: Database },
-    { id: 'db_inspector',     label: 'Live DB Inspector',     count: totalApps,              icon: ShieldCheck },
-    { id: 'contact_messages', label: 'Contact Inquiries',     count: contactMessages.length, icon: Mail },
-    { id: 'payout_approvals', label: 'RA Bills & RTGS Releases',                             icon: DollarSign },
-    { id: 'support_tickets',  label: 'Vendor Support Tickets',                               icon: MessageSquare },
-    { id: 'site_cms',         label: 'Website CMS',                                          icon: Settings },
-    { id: 'categories',       label: 'Categories',            count: categories.length,      icon: Layers },
-    { id: 'tenders',          label: 'Tenders',               count: tenders.length,         icon: FileText },
-    { id: 'security',         label: 'Security & Logs',                                      icon: Lock },
+    { id: 'applications',     label: 'Applications',            count: totalApps,              icon: Database,      color: '#0047AB', bg: 'rgba(0,71,171,0.1)' },
+    { id: 'db_inspector',     label: 'Live DB Inspector',       count: totalApps,              icon: ShieldCheck,   color: '#047857', bg: 'rgba(4,120,87,0.1)' },
+    { id: 'contact_messages', label: 'Contact Inquiries',       count: contactMessages.length, icon: Mail,          color: '#7C3AED', bg: 'rgba(124,58,237,0.1)' },
+    { id: 'payout_approvals', label: 'RA Bills & RTGS',                                        icon: DollarSign,    color: '#D97706', bg: 'rgba(217,119,6,0.1)' },
+    { id: 'support_tickets',  label: 'Support Tickets',                                        icon: MessageSquare, color: '#0891B2', bg: 'rgba(8,145,178,0.1)' },
+    { id: 'site_cms',         label: 'Website CMS',                                            icon: Settings,      color: '#6366F1', bg: 'rgba(99,102,241,0.1)' },
+    { id: 'categories',       label: 'Categories',              count: categories.length,      icon: Layers,        color: '#059669', bg: 'rgba(5,150,105,0.1)' },
+    { id: 'tenders',          label: 'Tenders',                 count: tenders.length,         icon: FileText,      color: '#DC2626', bg: 'rgba(220,38,38,0.1)' },
+    { id: 'security',         label: 'Security & Logs',                                        icon: Lock,          color: '#475569', bg: 'rgba(71,85,105,0.1)' },
   ];
 
   return (
@@ -795,47 +795,111 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
         </div>
 
-        {/* ── Executive Glassmorphic Navigation Tabs ── */}
-        <div style={{ 
-          display: 'flex', gap: '0.45rem', marginBottom: '1.75rem', 
-          background: 'var(--bg-surface)', padding: '0.45rem', borderRadius: 16,
-          border: '1px solid var(--border-color)', overflowX: 'auto',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+        {/* ══════════ Premium Admin Navigation Tabs ══════════ */}
+        <div style={{
+          marginBottom: '1.75rem',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 18,
+          padding: '0.5rem',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          overflowX: 'auto',
         }}>
-          {TABS.map(tab => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button 
-                key={tab.id} 
-                onClick={() => setActiveTab(tab.id)}
-                style={{ 
-                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem', 
-                  padding: '0.65rem 1.15rem', borderRadius: '12px', 
-                  fontSize: '0.825rem', fontWeight: active ? 800 : 700, 
-                  cursor: 'pointer', whiteSpace: 'nowrap',
-                  border: active ? '1px solid #0047AB' : '1px solid transparent', 
-                  background: active ? 'linear-gradient(135deg, #0047AB 0%, #002D6B 100%)' : 'transparent', 
-                  color: active ? '#FFFFFF' : 'var(--text-secondary)', 
-                  boxShadow: active ? '0 4px 14px rgba(0,71,171,0.3)' : 'none', 
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
-                }}
-              >
-                <Icon style={{ width: 16, height: 16, color: active ? '#FFFFFF' : '#0047AB' }} />
-                <span>{tab.label}</span>
-                {tab.count !== undefined && (
-                  <span style={{ 
-                    padding: '0.12rem 0.55rem', borderRadius: 99, 
-                    backgroundColor: active ? 'rgba(255,255,255,0.22)' : 'rgba(0,71,171,0.1)', 
-                    color: active ? '#FFFFFF' : '#0047AB', 
-                    fontSize: '0.72rem', fontWeight: 900 
+          <div style={{ display: 'flex', gap: '0.3rem', minWidth: 'max-content' }}>
+            {TABS.map(tab => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    position: 'relative',
+                    display: 'inline-flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    padding: '0.7rem 1.1rem 0.6rem',
+                    borderRadius: 13,
+                    border: 'none',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    minWidth: 90,
+                    background: active
+                      ? `linear-gradient(145deg, ${tab.color}18 0%, ${tab.color}08 100%)`
+                      : 'transparent',
+                    outline: active ? `1.5px solid ${tab.color}30` : '1.5px solid transparent',
+                    transition: 'all 0.18s cubic-bezier(0.4,0,0.2,1)',
+                    transform: active ? 'translateY(-1px)' : 'translateY(0)',
+                    boxShadow: active ? `0 4px 16px ${tab.color}20` : 'none',
+                  }}
+                  onMouseEnter={e => {
+                    if (!active) {
+                      e.currentTarget.style.background = `${tab.color}0A`;
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!active) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }
+                  }}
+                >
+                  {/* Active bottom indicator bar */}
+                  {active && (
+                    <span style={{
+                      position: 'absolute', bottom: 0, left: '20%', right: '20%',
+                      height: 3, borderRadius: 99,
+                      background: `linear-gradient(90deg, ${tab.color}, ${tab.color}88)`,
+                      boxShadow: `0 0 8px ${tab.color}60`,
+                    }} />
+                  )}
+
+                  {/* Icon + Count row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    {/* Icon bubble */}
+                    <span style={{
+                      width: 28, height: 28, borderRadius: 8,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: active ? tab.color : tab.bg,
+                      flexShrink: 0,
+                      transition: 'background 0.18s',
+                    }}>
+                      <Icon style={{ width: 14, height: 14, color: active ? '#fff' : tab.color }} />
+                    </span>
+
+                    {/* Count badge */}
+                    {tab.count !== undefined && (
+                      <span style={{
+                        fontSize: '0.68rem', fontWeight: 900,
+                        padding: '0.1rem 0.42rem', borderRadius: 99,
+                        background: active ? tab.color : tab.bg,
+                        color: active ? '#fff' : tab.color,
+                        lineHeight: 1.6,
+                        border: active ? 'none' : `1px solid ${tab.color}30`,
+                      }}>
+                        {tab.count}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Label */}
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: active ? 800 : 600,
+                    color: active ? tab.color : 'var(--text-secondary)',
+                    letterSpacing: active ? '0.01em' : '0',
+                    transition: 'color 0.18s',
+                    lineHeight: 1.2,
+                    textAlign: 'center',
                   }}>
-                    {tab.count}
+                    {tab.label}
                   </span>
-                )}
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* ════════════════ TAB 1: APPLICATIONS LIST & DOSSIER AUDIT ════════════════ */}
