@@ -946,34 +946,37 @@ function buildDossierHTML({ trackingId, formData }) {
         do hereby solemnly affirm that all details submitted in this Empanelment Dossier are true and correct. I/We agree to abide by all the Rules, Policy Guidelines, and Code of Conduct of Hindustan Projects.
       </div>
 
-      <div class="sig-row">
-        <div>
+      <div class="sig-row" style="display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-top:15px">
+        
+        <!-- Left: Vendor Signature -->
+        <div style="flex:1;text-align:left">
+          ${(formData?.signature || formData?.signature_data) ? `
+            <div style="font-size:7pt;font-weight:900;color:${HP_BLUE};margin-bottom:3px">DIGITAL VENDOR E-SIGNATURE</div>
+            <img src="${formData.signature || formData.signature_data}" alt="Vendor Signature" style="height:42px;max-width:140px;object-fit:contain;display:block;margin-bottom:4px"/>
+          ` : ''}
           <div class="sig-line"></div>
           <div class="sig-label">Authorized Signatory (Vendor)</div>
           <div class="sig-name">${formData?.signatoryName || formData?.contactName || '___________________________'}</div>
           <div class="sig-date">Date: ${filingDate}</div>
         </div>
 
-        ${formData?.signature ? `
-        <div class="sig-img-box">
-          <div class="sig-img-label">Digital Seal / E-Signature</div>
-          <img src="${formData.signature}" alt="Digital Signature" style="height:45px;max-width:150px;object-fit:contain;display:block"/>
-        </div>` : (formData?.adminSeal ? `
-        <div class="sig-img-box">
-          <div class="sig-img-label">OFFICIAL COMPANY SEAL</div>
-          <img src="${formData.adminSeal}" alt="Official Seal" style="height:55px;max-width:120px;object-fit:contain;display:block;margin:0 auto"/>
-        </div>` : `
-        <div class="sig-img-box" style="padding:6px 12px">
-          <div class="sig-img-label">OFFICIAL STAMP</div>
-          <div style="font-size:7pt;font-weight:900;color:${HP_MUTED}">STAMP &amp; SEAL</div>
-        </div>`)}
+        <!-- Middle: Official Corporate Seal / Stamp -->
+        <div style="flex:1;text-align:center">
+          <div style="font-size:7pt;font-weight:900;color:${HP_RED};margin-bottom:3px">OFFICIAL CORPORATE SEAL</div>
+          <img src="${formData?.adminSeal || formData?.companySeal || '/hipro-watermark-seal.jpg'}" alt="Official Corporate Seal" style="height:55px;max-width:110px;object-fit:contain;display:block;margin:0 auto 4px auto"/>
+          <div style="font-size:7pt;font-weight:800;color:${HP_TEXT}">HINDUSTAN PROJECTS BHILWARA HQ</div>
+        </div>
 
-        <div>
+        <!-- Right: For Hindustan Projects + CEO Signature -->
+        <div style="flex:1;text-align:right">
+          <div style="font-size:7pt;font-weight:900;color:#047857;margin-bottom:3px">CEO &amp; PROCUREMENT AUTHORIZATION</div>
+          <img src="${formData?.ceoSignature || '/ceo-signature-clean.png'}" alt="CEO Signature" style="height:42px;max-width:140px;object-fit:contain;display:block;margin:0 0 4px auto"/>
           <div class="sig-line"></div>
           <div class="sig-label">For Hindustan Projects</div>
-          <div class="sig-name">${formData?.adminSigned ? (formData?.adminCeoName || 'Empanelment Committee') : 'Empanelment Committee'}</div>
-          <div class="sig-date">${formData?.adminSigned ? (formData?.adminOfficerName || 'Procurement Officer') : 'Bhilwara HQ'}</div>
+          <div class="sig-name">${formData?.adminSigned ? (formData?.adminCeoName || 'Authorized Signatory (CEO Office)') : 'Authorized Signatory (CEO Office)'}</div>
+          <div class="sig-date">${formData?.adminSigned ? (formData?.adminOfficerName || 'Procurement Officer') : 'Bhilwara Corporate HQ'}</div>
         </div>
+
       </div>
 
       ${formData?.adminSigned ? `

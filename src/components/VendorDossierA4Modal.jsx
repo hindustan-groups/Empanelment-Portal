@@ -362,6 +362,50 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
               <InfoRow label="Hash Signature" value={vendor.hash_signature} mono />
             </div>
 
+            <SectionHead icon={FileCheck2} title="Signatures & Corporate Seal Authorization" color="#60A5FA" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem', margin: '0.65rem 0 1rem 0' }}>
+              {/* 1. Vendor E-Signature */}
+              <div style={{ padding: '0.85rem', background: '#1E293B', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', marginBottom: 6 }}>
+                  Vendor Digital Signature
+                </div>
+                {vendor.signature_data || vendor.signature ? (
+                  <img src={vendor.signature_data || vendor.signature} alt="Vendor Signature" style={{ height: 45, maxWidth: '100%', objectFit: 'contain', background: 'white', borderRadius: 6, padding: 4 }} />
+                ) : (
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontStyle: 'italic', padding: '0.5rem' }}>Signed Digitally via SSL</div>
+                )}
+                <div style={{ fontSize: '0.7rem', color: '#94A3B8', marginTop: 6, fontWeight: 700 }}>
+                  {vendor.signatory_name || vendor.contact_name || 'Authorized Signatory'}
+                </div>
+              </div>
+
+              {/* 2. Official Corporate Seal */}
+              <div style={{ padding: '0.85rem', background: '#1E293B', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#FBBF24', textTransform: 'uppercase', marginBottom: 6 }}>
+                  Official Corporate Seal
+                </div>
+                {sealImage || vendor.adminSeal || vendor.companySeal ? (
+                  <img src={sealImage || vendor.adminSeal || vendor.companySeal} alt="Official Seal" style={{ height: 50, maxWidth: '100%', objectFit: 'contain', background: 'white', borderRadius: 6, padding: 4 }} />
+                ) : (
+                  <img src="/hipro-watermark-seal.jpg" alt="Official Seal" style={{ height: 50, maxWidth: '100%', objectFit: 'contain', borderRadius: 6 }} />
+                )}
+                <div style={{ fontSize: '0.7rem', color: '#94A3B8', marginTop: 6, fontWeight: 700 }}>
+                  Hindustan Projects Seal
+                </div>
+              </div>
+
+              {/* 3. CEO Authorization Signature */}
+              <div style={{ padding: '0.85rem', background: '#1E293B', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#34D399', textTransform: 'uppercase', marginBottom: 6 }}>
+                  CEO / Committee Authorization
+                </div>
+                <img src="/ceo-signature-clean.png" alt="CEO Signature" style={{ height: 45, maxWidth: '100%', objectFit: 'contain', filter: 'brightness(1.2)' }} />
+                <div style={{ fontSize: '0.7rem', color: '#34D399', marginTop: 6, fontWeight: 700 }}>
+                  {ceoName || 'Authorized Signatory (CEO Office)'}
+                </div>
+              </div>
+            </div>
+
             {(adminRemark || vendor.admin_remarks) && (
               <>
                 <SectionHead icon={FileCheck2} title="Admin Remarks" color="#F472B6" />
