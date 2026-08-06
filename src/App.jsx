@@ -113,6 +113,13 @@ function MainAppLayout() {
       trackingCode = `HP-EMP-${formattedNum}`;
     }
 
+    // Ensure newly assigned trackingCode is removed from deleted blacklist so Admin loads it cleanly!
+    try {
+      const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim().toUpperCase());
+      const updatedDeleted = deleted.filter(id => id !== trackingCode.toUpperCase());
+      localStorage.setItem('hipro_deleted_applications', JSON.stringify(updatedDeleted));
+    } catch (e) {}
+
     const newApplication = {
       id: Date.now(),
       tracking_id: trackingCode,

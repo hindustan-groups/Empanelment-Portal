@@ -837,6 +837,29 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
               })}
 
               <button
+                onClick={() => {
+                  fetchVendors();
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: 99,
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  border: '1.5px solid #0047AB',
+                  backgroundColor: 'rgba(0,71,171,0.08)',
+                  color: '#0047AB',
+                  marginLeft: 'auto'
+                }}
+                title="Fetch latest applications from Live VPS Database"
+              >
+                <span>🔄 Sync Live Database</span>
+              </button>
+
+              <button
                 onClick={handleClearAllVendors}
                 style={{
                   display: 'inline-flex',
@@ -849,8 +872,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   cursor: 'pointer',
                   border: '1.5px solid #dc2626',
                   backgroundColor: '#fef2f2',
-                  color: '#dc2626',
-                  marginLeft: 'auto'
+                  color: '#dc2626'
                 }}
                 title="Wipe all demo / cached applications permanently"
               >
