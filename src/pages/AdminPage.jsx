@@ -250,7 +250,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const fetchVendors = async () => {
     setLoading(true);
-    const backendUrl = API_BASE_URL;
+    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
     const adminKey = ADMIN_API_KEY;
 
     let apiData = [];
@@ -265,12 +265,6 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     } catch (err) {
       console.warn('Backend API connection notice:', err);
     }
-
-    // Read deleted IDs blacklist (convert all to string)
-    let deletedIds = [];
-    try {
-      deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
-    } catch (e) {}
 
     // Merge API applications with locally submitted applications
     let localData = [];
@@ -287,13 +281,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       }
     });
 
-    // STRICT FILTERING: Exclude any application whose ID is in deletedIds
-    const cleanVendors = combined.filter(v => {
-      const id = getAppId(v);
-      return id && !deletedIds.includes(id);
-    });
-
-    setVendors(cleanVendors);
+    setVendors(combined);
     setLoading(false);
   };
 
