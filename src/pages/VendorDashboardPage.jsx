@@ -35,23 +35,19 @@ export default function VendorDashboardPage() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           return parsed.map(t => ({
-            ref: t.id || t.ref || 'HP-TND-2026-101',
+            ref: t.id || t.code || t.ref || 'HP-TND-2026-101',
             title: t.title || 'Tender Notice',
             val: t.estimatedCost || t.val || '₹ 5.00 Crore',
             location: t.location || 'Rajasthan Site',
-            end: t.dueDate || t.end || '15 Aug 2026',
+            end: t.deadline || t.dueDate || t.end || '15 Aug 2026',
             scope: t.eligibility || t.scope || 'Empanelled vendor bidding opportunity.'
           }));
         }
       } catch {}
     }
-    return [
-      { ref: 'HP-TND-2026-101', title: 'Jaipur Commercial Tower — Turnkey Civil & Structural Package', val: '₹ 14.50 Crores', location: 'Jaipur, Rajasthan', end: '08 Aug 2026', scope: 'Complete RCC superstructure, basement waterproofing, and structural steel fabrication.' },
-      { ref: 'HP-TND-2026-102', title: 'Bhilwara Industrial Park — High-Tension Electrical & Substation Installation', val: '₹ 3.80 Crores', location: 'Bhilwara, Rajasthan', end: '12 Aug 2026', scope: '11kV Substation installation, HT cable laying, transformer commissioning, and panel board setup.' },
-      { ref: 'HP-TND-2026-103', title: 'Luxury Residential Township — BIM Architectural & HVAC Consultancy', val: '₹ 1.20 Crores', location: 'Udaipur, Rajasthan', end: '15 Aug 2026', scope: 'Revit 3D BIM modeling, VRF HVAC layout design, fire safety NOC documentation.' }
-    ];
+    return [];
   });
 
   /* Invoices & Payouts State */
@@ -60,28 +56,20 @@ export default function VendorDashboardPage() {
   const [invoiceSubmitted, setInvoiceSubmitted] = useState(false);
   const [vendorInvoices, setVendorInvoices] = useState(() => {
     const saved = localStorage.getItem('hipro_vendor_invoices');
-    return saved ? JSON.parse(saved) : [
-      { id: 'INV-2026-881', milestone: 'Milestone 1: Concept & Initial Setup Sign-Off', tranche: '30% Tranche', amt: '₹ 4,35,000', status: 'RELEASED via RTGS', ref: 'RTGS-HDFC280726-99120', date: '28 Jul 2026' },
-      { id: 'INV-2026-894', milestone: 'Milestone 2: GFC Drawings & Material Inspection', tranche: '50% Tranche', amt: '₹ 7,25,000', status: 'IN AUDIT VERIFICATION', ref: 'AUDIT-PENDING-STAGE2', date: '05 Aug 2026' }
-    ];
+    return saved ? JSON.parse(saved) : [];
   });
 
   /* Site Gate Passes State */
   const [sitePasses, setSitePasses] = useState(() => {
     const saved = localStorage.getItem('hipro_vendor_site_passes');
-    return saved ? JSON.parse(saved) : [
-      { passCode: 'HP-PASS-2026-8812', visitorName: 'Ramesh Kumar (Site Supervisor)', workerCount: '15', vehicleNo: 'RJ 06 GB 1234', validityDays: '1 Day', siteLocation: 'Jaipur Commercial Tower (B+G+18)', date: '01 Aug 2026', validTill: '02 Aug 2026 23:59 IST' }
-    ];
+    return saved ? JSON.parse(saved) : [];
   });
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [ticketForm, setTicketForm] = useState({ category: 'Construction Site Gate Pass Request', query: '' });
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
   const [vendorTickets, setVendorTickets] = useState(() => {
     const saved = localStorage.getItem('hipro_vendor_tickets');
-    return saved ? JSON.parse(saved) : [
-      { ticket: 'TCK-99201', subject: 'Construction Site Entry Gate Pass Request (Jaipur Tower)', status: 'RESOLVED', date: '27 Jul 2026' },
-      { ticket: 'TCK-99145', subject: 'GFC Structural Drawing Revision R1 Clarification Request', status: 'IN PROGRESS', date: '28 Jul 2026' }
-    ];
+    return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {

@@ -161,11 +161,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   /* Tenders */
   const [tenders, setTenders] = useState(() => {
     const saved = localStorage.getItem('hipro_tenders');
-    return saved ? JSON.parse(saved) : [
-      { id: 1, code: 'HP-TND-2026-081', title: 'EPC Civil & Structural Work – Commercial Tower (B+G+18)', category: 'civil',      location: 'Jaipur, Rajasthan',    estimatedCost: '₹ 45.0 Crores', deadline: '2026-08-15', status: 'OPEN FOR BIDDING' },
-      { id: 2, code: 'HP-TND-2026-094', title: 'MEP, HVAC & Chiller Plant Commissioning',                  category: 'mep',       location: 'Gurgaon, Haryana',     estimatedCost: '₹ 12.5 Crores', deadline: '2026-08-20', status: 'OPEN FOR BIDDING' },
-      { id: 3, code: 'HP-TND-2026-105', title: 'TMT Fe550D Steel & Cement Bulk Supply',                    category: 'suppliers', location: 'Pan-India Sites',      estimatedCost: '₹ 8.0 Crores',  deadline: '2026-08-30', status: 'OPEN FOR BIDDING' },
-    ];
+    return saved ? JSON.parse(saved) : [];
   });
   const [editingTender, setEditingTender] = useState(null);
   const [showAddTenderModal, setShowAddTenderModal] = useState(false);
@@ -177,14 +173,10 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       } catch {}
     }
-    return [
-      { id: 'INV-2026-881', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', milestone: 'Milestone 1: Concept Signoff', amt: '₹ 4,35,000', date: '2026-07-28', status: 'RELEASED', rtgsRef: 'RTGS-HDFC280726-99120' },
-      { id: 'INV-2026-894', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', milestone: 'Milestone 2: GFC Structural Drawings', amt: '₹ 7,25,000', date: '2026-07-29', status: 'PENDING AUDIT', rtgsRef: 'PENDING' },
-      { id: 'INV-2026-902', vendor: 'Hindustan Electro-Mechanical', trackingId: 'HP-EMP-026', milestone: 'Milestone 1: Substation Design', amt: '₹ 3,80,000', date: '2026-07-29', status: 'PENDING AUDIT', rtgsRef: 'PENDING' }
-    ];
+    return [];
   });
 
   /* Support Tickets State */
@@ -193,13 +185,10 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       } catch {}
     }
-    return [
-      { id: 'TCK-99201', vendor: 'Apex Infrastructure Pvt Ltd', trackingId: 'HP-EMP-025', subject: 'Construction Site Entry Gate Pass Request (Jaipur Tower)', category: 'Gate Pass', status: 'RESOLVED', date: '2026-07-27' },
-      { id: 'TCK-99145', vendor: 'Hindustan Electro-Mechanical', trackingId: 'HP-EMP-026', subject: 'GFC Structural Drawing Revision R1 Clarification Request', category: 'Drawing Clarification', status: 'IN PROGRESS', date: '2026-07-28' }
-    ];
+    return [];
   });
 
   /* Contact Inquiries State */
@@ -241,7 +230,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMsg, setPasswordMsg] = useState('');
-  const [auditLogs] = useState(MOCK_AUDIT_LOGS);
+  const [auditLogs] = useState([]);
 
   /* Sync to localStorage */
   useEffect(() => { localStorage.setItem('hipro_custom_categories', JSON.stringify(categories)); }, [categories]);
