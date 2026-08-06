@@ -254,32 +254,39 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     fetchContactMessages();
   }, [isAuthenticated, navigate]);
 
-  /* ── Vendor CRUD ── */
   const fetchVendors = async () => {
     setLoading(true);
     const backendUrl = API_BASE_URL;
     const adminKey = ADMIN_API_KEY;
 
-    // Clear stale local browser cache keys
-    try {
-      localStorage.removeItem('hipro_vps_applications');
-    } catch {}
-
+    let apiData = [];
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/applications`, {
         headers: { 'x-admin-key': adminKey }
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        setVendors(data.data);
-        setLoading(false);
-        return;
+        apiData = data.data;
       }
     } catch (err) {
-      console.warn('Backend API connection pending:', err);
+      console.warn('Backend API connection notice:', err);
     }
 
-    setVendors([]);
+    // Merge API applications with locally submitted applications
+    let localData = [];
+    try {
+      localData = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+    } catch (e) {}
+
+    const combined = [...apiData];
+    localData.forEach(locApp => {
+      const exists = combined.some(a => a.tracking_id === locApp.tracking_id || (a.gstin && locApp.gstin && a.gstin === locApp.gstin));
+      if (!exists) {
+        combined.unshift(locApp);
+      }
+    });
+
+    setVendors(combined);
     setLoading(false);
   };
 

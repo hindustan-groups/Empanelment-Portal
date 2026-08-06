@@ -141,6 +141,16 @@ function MainAppLayout() {
       submitted_at: new Date().toISOString()
     };
 
+    // Save newly submitted application to localStorage for Admin & Track portals
+    try {
+      const existing = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      const filtered = existing.filter(a => a.tracking_id !== trackingCode && a.gstin !== newApplication.gstin);
+      const updated = [newApplication, ...filtered];
+      localStorage.setItem('hipro_vps_applications', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Error saving submitted application to local storage:', e);
+    }
+
     setSubmittedId(trackingCode);
     setLastSubmittedData({ ...formData, tracking_id: trackingCode, submitted_at: newApplication.submitted_at });
     setIsSuccessOpen(true);
