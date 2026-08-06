@@ -133,6 +133,12 @@ export default function TrackPage() {
 
     let foundData = null;
 
+    // Check if trackingId was deleted by Procurement Admin
+    let deletedIds = [];
+    try {
+      deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
+    } catch (e) {}
+
     // 1. Query Live VPS Backend API First (Real Database Records)
     try {
       const response = await fetch(`${backendUrl}/api/empanelment/status/${encodeURIComponent(query)}`);
@@ -150,14 +156,15 @@ export default function TrackPage() {
     if (!foundData) {
       try {
         const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-        const match = localApps.find(app => 
-          (app.tracking_id && app.tracking_id.toLowerCase() === query.toLowerCase()) ||
-          (app.gstin && app.gstin.toLowerCase() === query.toLowerCase()) ||
-          (app.phone && app.phone.includes(query)) ||
-          (app.email && app.email.toLowerCase() === query.toLowerCase()) ||
-          (app.contactName && app.contactName.toLowerCase().includes(query.toLowerCase())) ||
-          (app.companyName && app.companyName.toLowerCase().includes(query.toLowerCase()))
-        );
+        const match = localApps.find(app => {
+          const tid = String(app.tracking_id || app.trackingId || app.id || '').toLowerCase();
+          const gstin = String(app.gstin || '').toLowerCase();
+          const phone = String(app.phone || '');
+          const email = String(app.email || '').toLowerCase();
+          const name = String(app.company_name || app.companyName || app.contact_name || app.contactName || '').toLowerCase();
+          const q = query.toLowerCase();
+          return tid === q || gstin === q || phone.includes(query) || email === q || name.includes(q);
+        });
         if (match) foundData = match;
       } catch (err) {
         console.warn('Local apps check error:', err);
@@ -168,27 +175,30 @@ export default function TrackPage() {
     if (!foundData) {
       try {
         const approved = JSON.parse(localStorage.getItem('hipro_approved_vendors') || '[]');
-        const matchApproved = approved.find(app => 
-          (app.tracking_id && app.tracking_id.toLowerCase() === query.toLowerCase()) ||
-          (app.gstin && app.gstin.toLowerCase() === query.toLowerCase()) ||
-          (app.phone && app.phone.includes(query)) ||
-          (app.email && app.email.toLowerCase() === query.toLowerCase()) ||
-          (app.company_name && app.company_name.toLowerCase().includes(query.toLowerCase()))
-        );
+        const matchApproved = approved.find(app => {
+          const tid = String(app.tracking_id || app.trackingId || app.id || '').toLowerCase();
+          const gstin = String(app.gstin || '').toLowerCase();
+          const phone = String(app.phone || '');
+          const email = String(app.email || '').toLowerCase();
+          const name = String(app.company_name || app.companyName || '').toLowerCase();
+          const q = query.toLowerCase();
+          return tid === q || gstin === q || phone.includes(query) || email === q || name.includes(q);
+        });
         if (matchApproved) foundData = matchApproved;
       } catch (err) {
         console.warn('Approved check error:', err);
       }
     }
 
-    if (!foundData) {
+    const trackingId = String(foundData?.tracking_id || foundData?.trackingId || foundData?.id || query.toUpperCase()).trim();
+
+    if (!foundData || deletedIds.includes(trackingId)) {
       setNotFound(true);
       setLoading(false);
       return;
     }
 
     // Extract Real Data Fields
-    const trackingId = foundData.tracking_id || foundData.trackingId || foundData.id || query.toUpperCase();
     const companyName = foundData.company_name || foundData.companyName || foundData.contact_name || foundData.contactName || 'Applicant Entity';
     const gstin = foundData.gstin || (foundData.gstExempt ? 'EXEMPT / NO GST' : 'GST PENDING');
     const category = (foundData.category || foundData.primary_role || 'CIVIL & STRUCTURAL').toUpperCase();
