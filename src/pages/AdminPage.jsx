@@ -673,7 +673,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.38rem 0.8rem', borderRadius: 8, color: '#CBD5E1', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', textDecoration: 'none', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s' }}>
                 <ExternalLink style={{ width: 13, height: 13 }} /> Main Site
               </a>
-              <button onClick={() => setShowDrawer(true)}
+              <button onClick={() => { setActiveTab('site_cms'); setShowDrawer(true); }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, padding: '0.38rem 0.8rem', borderRadius: 8, color: '#60A5FA', background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.3)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 <Settings style={{ width: 13, height: 13 }} /> Settings
               </button>
@@ -1944,7 +1944,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         )}
 
         {/* Executive Admin System Drawer */}
-        <AdminDrawer open={showDrawer} onClose={() => setShowDrawer(false)} />
+        <AdminDrawer isOpen={showDrawer} onClose={() => setShowDrawer(false)} />
 
       </div>
     </div>
