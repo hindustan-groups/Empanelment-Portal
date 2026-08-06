@@ -368,15 +368,24 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend delete notice:', e);
     }
 
-    // Remove from vendors state
-    setVendors(prev => prev.filter(v => v.tracking_id !== trackingId));
+    // 1. Add to deleted IDs blacklist so refresh NEVER brings it back!
+    try {
+      const deleted = JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]');
+      if (!deleted.includes(trackingId)) {
+        deleted.push(trackingId);
+        localStorage.setItem('hipro_deleted_applications', JSON.stringify(deleted));
+      }
+    } catch (e) {}
 
-    // Remove from local storage
+    // 2. Remove from local storage array
     try {
       const userApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
       const updatedUserApps = userApps.filter(v => v.tracking_id !== trackingId);
       localStorage.setItem('hipro_vps_applications', JSON.stringify(updatedUserApps));
     } catch (e) {}
+
+    // 3. Remove from vendors state immediately
+    setVendors(prev => prev.filter(v => v.tracking_id !== trackingId));
 
     if (selectedVendor?.tracking_id === trackingId) {
       setSelectedVendor(null);
@@ -804,6 +813,27 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   </button>
                 );
               })}
+
+              <button
+                onClick={handleClearAllVendors}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: 99,
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  border: '1.5px solid #dc2626',
+                  backgroundColor: '#fef2f2',
+                  color: '#dc2626',
+                  marginLeft: 'auto'
+                }}
+                title="Wipe all demo / cached applications permanently"
+              >
+                <span>🧹 Clear All Applications</span>
+              </button>
             </div>
 
             {/* Filter & Search Bar */}
