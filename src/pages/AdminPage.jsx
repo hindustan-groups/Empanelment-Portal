@@ -347,24 +347,30 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const trackingId = String(targetId || '').trim();
     if (!trackingId) return;
 
-    if (!window.confirm(`Are you sure you want to permanently delete application ${trackingId} (${companyName || 'Vendor'})?`)) return;
+    // Instant state update for 0ms visual removal
+    setVendors(prev => prev.filter(v => getAppId(v) !== trackingId));
+
+    if (getAppId(selectedVendor) === trackingId) {
+      setSelectedVendor(null);
+      setShowDossierModal(false);
+    }
 
     const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
     const adminKey = ADMIN_API_KEY;
 
     try {
-      // Primary HTTP DELETE call
+      // 1. HTTP DELETE call
       await fetch(`${backendUrl}/api/empanelment/admin/applications/${trackingId}`, {
         method: 'DELETE',
         headers: { 'x-admin-key': adminKey }
       });
-      // Secondary HTTP POST fallback call (Bypasses Nginx static DELETE restrictions)
+      // 2. HTTP POST fallback call
       await fetch(`${backendUrl}/api/empanelment/admin/delete-vendor`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
         body: JSON.stringify({ trackingId })
       });
-      // Tertiary HTTP GET fallback call (Guaranteed execution on all web servers)
+      // 3. HTTP GET fallback call
       await fetch(`${backendUrl}/api/empanelment/admin/delete-row/${encodeURIComponent(trackingId)}`, {
         headers: { 'x-admin-key': adminKey }
       });
@@ -372,14 +378,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend delete notice:', e);
     }
 
-    // 1. Remove from local storage array
+    // Clear local storage arrays
     try {
       const userApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
       const updatedUserApps = userApps.filter(v => getAppId(v) !== trackingId);
       localStorage.setItem('hipro_vps_applications', JSON.stringify(updatedUserApps));
     } catch (e) {}
 
-    // 2. Add to deleted blacklist
     try {
       const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
       if (!deleted.includes(trackingId)) {
@@ -387,18 +392,12 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         localStorage.setItem('hipro_deleted_applications', JSON.stringify(deleted));
       }
     } catch (e) {}
-
-    // 3. Remove from vendors state immediately
-    setVendors(prev => prev.filter(v => getAppId(v) !== trackingId));
-
-    if (getAppId(selectedVendor) === trackingId) {
-      setSelectedVendor(null);
-      setShowDossierModal(false);
-    }
   };
 
   const handleClearAllVendors = async () => {
-    if (!window.confirm('⚠️ Are you sure you want to clear ALL vendor applications permanently? This cannot be undone.')) return;
+    setVendors([]);
+    setSelectedVendor(null);
+    setShowDossierModal(false);
 
     const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
     const adminKey = ADMIN_API_KEY;
@@ -427,10 +426,6 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       });
       sessionStorage.clear();
     } catch (e) {}
-
-    setVendors([]);
-    setSelectedVendor(null);
-    setShowDossierModal(false);
   };
 
   /* ── Email Action Handler: Approve / Reject / Resubmit ── */
