@@ -420,7 +420,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     if (!selectedVendor) return;
     setEmailActionLoading(true);
     setEmailActionResult(null);
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
     try {
       let status, stage, body;
       if (actionType === 'approve') {

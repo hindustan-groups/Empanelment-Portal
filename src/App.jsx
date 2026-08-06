@@ -90,10 +90,27 @@ function MainAppLayout() {
     let trackingCode = customTrackingId;
 
     if (!trackingCode) {
-      const currentCounter = parseInt(localStorage.getItem('hipro_emp_counter') || '27', 10);
-      const formattedNum = currentCounter < 100 ? currentCounter.toString().padStart(3, '0') : currentCounter.toString();
+      let localApps = [];
+      let deletedIds = [];
+      try { localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]'); } catch (e) {}
+      try { deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim().toUpperCase()); } catch (e) {}
+
+      const usedNumbers = new Set();
+      localApps.forEach(app => {
+        const tid = String(app.tracking_id || app.trackingId || app.id || '').toUpperCase();
+        if (tid.startsWith('HP-EMP-') && !deletedIds.includes(tid)) {
+          const num = parseInt(tid.replace('HP-EMP-', ''), 10);
+          if (!isNaN(num)) usedNumbers.add(num);
+        }
+      });
+
+      let candidate = 25;
+      while (usedNumbers.has(candidate)) {
+        candidate++;
+      }
+
+      const formattedNum = candidate < 100 ? candidate.toString().padStart(3, '0') : candidate.toString();
       trackingCode = `HP-EMP-${formattedNum}`;
-      localStorage.setItem('hipro_emp_counter', (currentCounter + 1).toString());
     }
 
     const newApplication = {

@@ -490,14 +490,28 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
     const files = req.files || {};
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
 
-    // Generate Sequential Tracking ID starting at HP-EMP-025
+    // Generate Sequential Tracking ID starting at HP-EMP-025 (Reusing lowest available number >= 25)
     let trackingId = data.trackingId || data.tracking_id || data.customTrackingId;
     if (!trackingId) {
-      const countRow = await new Promise((resolve) => {
-        db.get(`SELECT COUNT(*) as count FROM vendors`, [], (err, row) => resolve(row));
+      const rows = await new Promise((resolve) => {
+        db.all(`SELECT tracking_id FROM vendors`, [], (err, r) => resolve(r || []));
       });
-      const nextNum = (countRow && countRow.count ? countRow.count : 0) + 25;
-      const formattedNum = nextNum < 100 ? nextNum.toString().padStart(3, '0') : nextNum.toString();
+
+      const usedNumbers = new Set();
+      rows.forEach(r => {
+        const tid = String(r.tracking_id || '').toUpperCase();
+        if (tid.startsWith('HP-EMP-')) {
+          const num = parseInt(tid.replace('HP-EMP-', ''), 10);
+          if (!isNaN(num)) usedNumbers.add(num);
+        }
+      });
+
+      let candidate = 25;
+      while (usedNumbers.has(candidate)) {
+        candidate++;
+      }
+
+      const formattedNum = candidate < 100 ? candidate.toString().padStart(3, '0') : candidate.toString();
       trackingId = `HP-EMP-${formattedNum}`;
     }
 
