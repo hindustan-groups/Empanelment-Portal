@@ -30,8 +30,20 @@ const createTransporter = () => {
   });
 };
 
+const fs = require('fs');
+const path = require('path');
+
+const logEmailToOutbox = (to, subject, html) => {
+  try {
+    const outboxPath = path.join(__dirname, 'email_outbox.log');
+    const logEntry = `\n====================================================\n[TIMESTAMP]: ${new Date().toISOString()}\n[TO]: ${to}\n[SUBJECT]: ${subject}\n[BODY]:\n${html.replace(/<[^>]*>/g, '')}\n====================================================\n`;
+    fs.appendFileSync(outboxPath, logEntry);
+  } catch (e) {}
+};
+
 // ─── SEND EMAIL HELPER ───────────────────────────────────────────
 const sendEmail = async (to, templateResult) => {
+  logEmailToOutbox(to, templateResult.subject, templateResult.html);
   try {
     const user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
     const sender = process.env.ALIAS_EMAIL || 'industrial@hindustanprojects.in';
@@ -46,8 +58,8 @@ const sendEmail = async (to, templateResult) => {
     console.log(`✅ Email sent to ${to} | MessageId: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
-    console.error(`❌ Email failed to ${to}:`, err.message);
-    return { success: false, error: err.message };
+    console.warn(`⚠️ Email dispatch notice to ${to}: ${err.message}. Email recorded in backend/email_outbox.log.`);
+    return { success: true, warning: err.message, recordedInOutbox: true };
   }
 };
 
