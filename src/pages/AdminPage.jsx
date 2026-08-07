@@ -459,6 +459,67 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [contactMessages, setContactMessages] = useState([]);
   const [selectedContactMsg, setSelectedContactMsg] = useState(null);
 
+  /* Contact Reply Modal State */
+  const [replyModalData, setReplyModalData] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [replySubject, setReplySubject] = useState('');
+  const [replySending, setReplySending] = useState(false);
+  const [replyStatusMsg, setReplyStatusMsg] = useState('');
+
+  const handleOpenReplyModal = (msg) => {
+    setReplyModalData(msg);
+    setReplySubject(`Re: [Support Inquiry] Dept: ${msg.department || 'Empanelment Desk'} — Hindustan Projects`);
+    setReplyText(`Dear ${msg.name || 'Valued Applicant'},\n\nThank you for reaching out to the Hindustan Projects Empanelment Committee.\n\n[Write your official reply message here]\n\nWarm regards,\nProcurement & Support Desk\nHindustan Projects Limited`);
+    setReplyStatusMsg('');
+  };
+
+  const handleSendContactReply = async (e) => {
+    if (e) e.preventDefault();
+    if (!replyModalData || !replyText.trim()) return;
+
+    setReplySending(true);
+    setReplyStatusMsg('');
+
+    const backendUrl = API_BASE_URL;
+    const adminKey = ADMIN_API_KEY;
+
+    try {
+      const res = await fetch(`${backendUrl}/api/empanelment/admin/reply-contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        body: JSON.stringify({
+          contactId: replyModalData.id,
+          to: replyModalData.email,
+          name: replyModalData.name,
+          subject: replySubject,
+          message: replyText
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReplyStatusMsg(`✅ Email sent successfully to ${replyModalData.email}!`);
+        // Update contact status to RESOLVED in state & localStorage
+        setContactMessages(prev => {
+          const updated = prev.map(c => c.id === replyModalData.id ? { ...c, status: 'RESOLVED' } : c);
+          try {
+            localStorage.setItem('hipro_contact_submissions', JSON.stringify(updated));
+          } catch {}
+          return updated;
+        });
+        setTimeout(() => {
+          setReplyModalData(null);
+          setReplySending(false);
+        }, 1800);
+      } else {
+        setReplyStatusMsg(`❌ Failed to send email: ${data.error || 'Unknown error'}`);
+        setReplySending(false);
+      }
+    } catch (err) {
+      setReplyStatusMsg('❌ Failed to connect to email backend server.');
+      setReplySending(false);
+    }
+  };
+
   const fetchContactMessages = async () => {
     // Read local contact messages state by default
     try {
@@ -1729,17 +1790,32 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => handleToggleContactStatus(msg.id, msg.status)}
-                        style={{
-                          padding: '0.4rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
-                          background: msg.status === 'NEW' ? '#047857' : '#F1F5F9',
-                          color: msg.status === 'NEW' ? '#FFFFFF' : '#475569',
-                          border: 'none'
-                        }}
-                      >
-                        {msg.status === 'NEW' ? '✓ Mark as Resolved' : '↩ Reopen Inquiry'}
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenReplyModal(msg)}
+                          style={{
+                            padding: '0.4rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                            background: '#0047AB', color: '#FFFFFF', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.35rem'
+                          }}
+                        >
+                          <Mail style={{ width: 14, height: 14 }} />
+                          <span>Reply via Email</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleContactStatus(msg.id, msg.status)}
+                          style={{
+                            padding: '0.4rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                            background: msg.status === 'NEW' ? '#047857' : '#F1F5F9',
+                            color: msg.status === 'NEW' ? '#FFFFFF' : '#475569',
+                            border: 'none'
+                          }}
+                        >
+                          {msg.status === 'NEW' ? '✓ Mark as Resolved' : '↩ Reopen Inquiry'}
+                        </button>
+                      </div>
                     </div>
 
                     <div style={{
@@ -2433,6 +2509,121 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Contact Support Reply Email Modal */}
+        {replyModalData && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+          }}>
+            <div style={{
+              width: '100%', maxWidth: 560, backgroundColor: '#FFFFFF', borderRadius: 20,
+              padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid #E2E8F0'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Mail style={{ width: 22, height: 22, color: '#0047AB' }} />
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+                    Reply to {replyModalData.name}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setReplyModalData(null)}
+                  style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#64748B' }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSendContactReply} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                    Recipient Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={replyModalData.email}
+                    disabled
+                    style={{
+                      width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10,
+                      border: '1px solid #CBD5E1', background: '#F8FAFC', color: '#0047AB', fontWeight: 700, boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                    Email Subject Line
+                  </label>
+                  <input
+                    type="text"
+                    value={replySubject}
+                    onChange={e => setReplySubject(e.target.value)}
+                    required
+                    style={{
+                      width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10,
+                      border: '1.5px solid #CBD5E1', background: '#FFFFFF', color: '#0F172A', boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                    Official Reply Message
+                  </label>
+                  <textarea
+                    value={replyText}
+                    onChange={e => setReplyText(e.target.value)}
+                    rows={6}
+                    required
+                    style={{
+                      width: '100%', padding: '0.75rem 0.85rem', fontSize: '0.85rem', borderRadius: 10,
+                      border: '1.5px solid #CBD5E1', background: '#FFFFFF', color: '#0F172A', lineHeight: 1.5, boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                {replyStatusMsg && (
+                  <div style={{
+                    padding: '0.75rem 1rem', borderRadius: 10, fontSize: '0.8rem', fontWeight: 800,
+                    backgroundColor: replyStatusMsg.startsWith('✅') ? '#ECFDF5' : '#FEF2F2',
+                    color: replyStatusMsg.startsWith('✅') ? '#047857' : '#991B1B',
+                    border: replyStatusMsg.startsWith('✅') ? '1px solid #10B981' : '1px solid #FCA5A5'
+                  }}>
+                    {replyStatusMsg}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setReplyModalData(null)}
+                    style={{
+                      padding: '0.65rem 1.2rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10,
+                      border: '1px solid #CBD5E1', background: '#FFFFFF', color: '#475569', cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={replySending}
+                    style={{
+                      padding: '0.65rem 1.4rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10,
+                      border: 'none', background: 'linear-gradient(135deg, #0047AB 0%, #002D62 100%)', color: '#FFFFFF',
+                      cursor: replySending ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
+                      opacity: replySending ? 0.7 : 1
+                    }}
+                  >
+                    <Mail style={{ width: 16, height: 16 }} />
+                    <span>{replySending ? 'Sending Reply...' : '🚀 Send Reply Email'}</span>
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
