@@ -1395,6 +1395,21 @@ app.post('/api/deploy-webhook', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────
+// STATIC FRONTEND SERVING & SPA FALLBACK (VPS PRODUCTION)
+// ─────────────────────────────────────────────────────────────────
+const distPath = path.join(__dirname, '../dist');
+if (fs.existsSync(distPath)) {
+  console.log(`📦 Serving React SPA Production Build from: ${distPath}`);
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
 // START SERVER
 // ─────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
@@ -1404,3 +1419,4 @@ app.listen(PORT, () => {
   console.log(`👤 Admin Alert Email: ${process.env.ADMIN_EMAIL || 'NOT CONFIGURED — Set in .env'}`);
   console.log(`====================================================`);
 });
+

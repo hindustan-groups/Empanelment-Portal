@@ -15,16 +15,16 @@ export const getApiBaseUrl = () => {
   const protocol = window.location.protocol;
   const port = window.location.port;
 
-  // Direct IP access or Vite Dev Server (e.g., http://187.127.142.137:5173 or localhost:5173)
-  if (port === '5173' || (hostname !== 'localhost' && hostname !== '127.0.0.1' && /^\d+\.\d+\.\d+\.\d+$/.test(hostname))) {
+  // Running via Vite Dev Server (e.g., http://localhost:5173)
+  if (port === '5173') {
     return `${protocol}//${hostname}:5000`;
   }
   
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000';
+    return port === '5000' ? '' : 'http://localhost:5000';
   }
 
-  // Relative path for Production domain (e.g. empanelment.hindustanprojects.in)
+  // Production VPS (Domain or direct IP access via Express/Nginx)
   return '';
 };
 

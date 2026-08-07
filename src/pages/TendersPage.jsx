@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Download, Calendar, ArrowRight, Filter, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 const DUMMY_TENDERS = [
   {
@@ -58,7 +59,7 @@ export default function TendersPage() {
 
   React.useEffect(() => {
     const fetchTenders = async () => {
-      const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const backendUrl = API_BASE_URL;
       try {
         const res = await fetch(`${backendUrl}/api/tenders`);
         const data = await res.json();

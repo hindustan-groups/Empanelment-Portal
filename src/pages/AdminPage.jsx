@@ -765,7 +765,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       setShowDossierModal(false);
     }
 
-    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
+    const backendUrl = API_BASE_URL;
     const adminKey = ADMIN_API_KEY;
 
     try {
@@ -823,7 +823,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     setSelectedVendor(null);
     setShowDossierModal(false);
 
-    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
+    const backendUrl = API_BASE_URL;
     const adminKey = ADMIN_API_KEY;
 
     try {
@@ -858,7 +858,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     if (!selectedVendor) return;
     setEmailActionLoading(true);
     setEmailActionResult(null);
-    const backendUrl = API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
+    const backendUrl = API_BASE_URL;
     try {
       let status, stage, body;
       if (actionType === 'approve') {
@@ -1465,13 +1465,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                     </tr>
                   ) : (
                     filteredVendors.map(v => (
-                      <tr key={v.tracking_id} className="admin-table-row" style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <tr key={getAppId(v)} className="admin-table-row" style={{ borderBottom: '1px solid var(--border-color)' }}>
                         <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontWeight: 800, color: '#0047AB' }}>
-                          {v.tracking_id}
+                          {getAppId(v)}
                         </td>
                         <td style={{ padding: '0.85rem 1rem' }}>
-                          <div style={{ fontWeight: 800, color: '#0F172A' }}>{v.company_name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.contact_name} • {v.phone}</div>
+                          <div style={{ fontWeight: 800, color: '#0F172A' }}>{v.company_name || v.companyName}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{v.contact_name || v.contactName} • {v.phone}</div>
                         </td>
                         <td style={{ padding: '0.85rem 1rem' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: 6, backgroundColor: 'rgba(0,71,171,0.08)', color: '#0047AB' }}>
@@ -1531,7 +1531,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                               <span>🪪 ID Card</span>
                             </button>
                             <button
-                              onClick={() => handleDeleteVendor(v.tracking_id, v.company_name)}
+                              onClick={() => handleDeleteVendor(getAppId(v), v.company_name || v.companyName)}
                               style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderRadius: 8, background: '#991b1b', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 700 }}
                               title="Permanently Delete Application"
                             >

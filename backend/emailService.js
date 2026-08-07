@@ -8,13 +8,18 @@
 const nodemailer = require('nodemailer');
 const templates = require('./emailTemplates');
 
-// ─── CREATE TRANSPORTER (Hostinger Domain SMTP) ─────────────────
+// ─── CREATE TRANSPORTER (Hostinger Domain SMTP: industrial@hindustanprojects.in) ───
 const createTransporter = () => {
-  const host = process.env.SMTP_HOST || 'smtp.hostinger.com';
-  const port = parseInt(process.env.SMTP_PORT || '465', 10);
-  const secure = port === 465;
   const user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
   const pass = process.env.EMAIL_APP_PASS || '';
+
+  let host = process.env.SMTP_HOST;
+  if (!host) {
+    host = user.endsWith('@gmail.com') ? 'smtp.gmail.com' : 'smtp.hostinger.com';
+  }
+
+  const port = parseInt(process.env.SMTP_PORT || '465', 10);
+  const secure = port === 465;
 
   return nodemailer.createTransport({
     host,

@@ -982,6 +982,19 @@ body {
     align-items: flex-start !important;
     gap: 0.75rem !important;
   }
+
+  .form-actions {
+    flex-direction: column-reverse !important;
+    gap: 0.85rem !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .form-actions button, .btn-submit-app {
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-content: center !important;
+  }
 }
 
 /* Small Smartphones (max-width: 480px) */

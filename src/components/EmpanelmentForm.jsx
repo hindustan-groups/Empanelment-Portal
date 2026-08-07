@@ -1832,61 +1832,48 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
             {currentStep < totalSteps
               ? <button type="button" onClick={handleNext} className="btn-primary"><span>Continue</span><ChevronRight style={{ width: 16, height: 16 }} /></button>
               : (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', width: '100%', maxWidth: 380 }}>
                   <button
                     type="submit"
                     disabled={isSubmitting}
+                    className="btn-submit-app"
                     style={{
-                      padding: '0.95rem 2.5rem',
+                      padding: '0.95rem 2.2rem',
                       borderRadius: 14,
                       background: isSubmitting
                         ? 'linear-gradient(135deg, #0B1B3D 0%, #0047AB 50%, #047857 100%)'
-                        : 'linear-gradient(135deg, #0047AB 0%, #0B1B3D 60%, #0047AB 100%)',
+                        : 'linear-gradient(135deg, #0047AB 0%, #0B1B3D 100%)',
                       color: '#FFFFFF',
-                      fontWeight: 900,
-                      fontSize: '0.98rem',
-                      letterSpacing: '0.03em',
-                      border: '2px solid rgba(255, 255, 255, 0.25)',
-                      boxShadow: isSubmitting
-                        ? '0 0 25px rgba(16, 185, 129, 0.5)'
-                        : '0 12px 35px rgba(0, 71, 171, 0.4), 0 4px 15px rgba(11, 27, 61, 0.3)',
+                      fontWeight: 800,
+                      fontSize: '0.96rem',
+                      border: 'none',
+                      boxShadow: '0 8px 24px rgba(0, 71, 171, 0.35)',
                       cursor: isSubmitting ? 'not-allowed' : 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '0.75rem',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      position: 'relative',
-                      overflow: 'hidden'
+                      justifyContent: 'center',
+                      gap: '0.6rem',
+                      width: '100%',
+                      maxWidth: '380px',
+                      transition: 'all 0.3s ease'
                     }}
                   >
-                    {/* Animated Shimmer Line */}
-                    <div style={{
-                      position: 'absolute', top: 0, left: '-100%', width: '50%', height: '100%',
-                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)',
-                      animation: 'shimmer 2.5s infinite'
-                    }} />
-
                     {isSubmitting ? (
                       <>
-                        <Loader2 style={{ width: 22, height: 22, color: '#6EE7B7' }} className="animate-spin" />
-                        <span style={{ color: '#FFFFFF', fontWeight: 900 }}>{submitStageText}</span>
+                        <Loader2 style={{ width: 20, height: 20, color: '#FFFFFF' }} className="animate-spin" />
+                        <span>Submitting Application...</span>
                       </>
                     ) : (
                       <>
-                        <div style={{
-                          width: 28, height: 28, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)',
-                          border: '1.5px solid #6EE7B7', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                        }}>
-                          <ShieldCheck style={{ width: 17, height: 17, color: '#6EE7B7' }} />
-                        </div>
-                        <span>Submit Official Registration</span>
-                        <ChevronRight style={{ width: 18, height: 18, color: '#93C5FD' }} />
+                        <ShieldCheck style={{ width: 20, height: 20, color: '#FFFFFF' }} />
+                        <span>Submit Empanelment Application</span>
+                        <ChevronRight style={{ width: 18, height: 18, color: '#FFFFFF' }} />
                       </>
                     )}
                   </button>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10B981', boxShadow: '0 0 8px #10B981' }} />
-                    <span>256-Bit SSL Encrypted • Instant VPS SHA-256 Tracking Code</span>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#10B981' }} />
+                    <span>256-Bit SSL Encrypted & Secured</span>
                   </div>
                 </div>
               )
