@@ -188,22 +188,37 @@ export default function ContactPage() {
             <h4 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A', marginTop: 0, marginBottom: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Departmental Routing Contacts
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.825rem' }}>
-              <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
-                <div style={{ fontWeight: 800, color: '#0047AB' }}>Procurement & Tenders Team</div>
-                <div style={{ color: '#64748B' }}>tenders@hindustanprojects.in</div>
-              </div>
+            {(() => {
+              let cfg = {};
+              try {
+                cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+              } catch {}
+              const pLabel = cfg.deptProcurementLabel || 'Procurement & Tenders Team';
+              const pEmail = cfg.deptProcurementEmail || 'tenders@hindustanprojects.in';
+              const vLabel = cfg.deptVerificationLabel || 'Vendor Verification Cell';
+              const vEmail = cfg.deptVerificationEmail || 'verify@hindustanprojects.in';
+              const bLabel = cfg.deptBillingLabel || 'Billing & Accounts Desk';
+              const bEmail = cfg.deptBillingEmail || 'accounts@hindustanprojects.in';
 
-              <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
-                <div style={{ fontWeight: 800, color: '#047857' }}>Vendor Verification Cell</div>
-                <div style={{ color: '#64748B' }}>verify@hindustanprojects.in</div>
-              </div>
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.825rem' }}>
+                  <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontWeight: 800, color: '#0047AB' }}>{pLabel}</div>
+                    <div style={{ color: '#64748B' }}>{pEmail}</div>
+                  </div>
 
-              <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
-                <div style={{ fontWeight: 800, color: '#ED1C24' }}>Billing & Accounts Desk</div>
-                <div style={{ color: '#64748B' }}>accounts@hindustanprojects.in</div>
-              </div>
-            </div>
+                  <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontWeight: 800, color: '#047857' }}>{vLabel}</div>
+                    <div style={{ color: '#64748B' }}>{vEmail}</div>
+                  </div>
+
+                  <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontWeight: 800, color: '#ED1C24' }}>{bLabel}</div>
+                    <div style={{ color: '#64748B' }}>{bEmail}</div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
         </div>
