@@ -367,7 +367,7 @@ export default function TrackPage() {
                 <span>Submit New Application</span>
               </Link>
               
-              <a href="mailto:empanelment@hindustanprojects.in" className="btn-secondary" style={{ flex: 1, justifyContent: 'center', padding: '0.65rem 1rem' }}>
+              <a href="mailto:industrial@hindustanprojects.in" className="btn-secondary" style={{ flex: 1, justifyContent: 'center', padding: '0.65rem 1rem' }}>
                 <PhoneCall style={{ width: 16, height: 16, color: '#0047AB' }} />
                 <span>Contact Procurement Officer (+91-7597000601)</span>
               </a>
@@ -495,7 +495,7 @@ export default function TrackPage() {
             <Mail style={{ width: 18, height: 18, color: '#ED1C24' }} />
             <div>
               <strong style={{ display: 'block', color: '#0F172A' }}>Corporate Email</strong>
-              <span style={{ color: 'var(--text-muted)' }}>empanelment@hindustanprojects.in</span>
+              <span style={{ color: 'var(--text-muted)' }}>industrial@hindustanprojects.in</span>
             </div>
           </div>
 

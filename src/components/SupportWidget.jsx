@@ -6,7 +6,7 @@ export default function SupportWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [siteConfig, setSiteConfig] = useState({
     helplinePhone: '+91 7597000601',
-    corporateEmail: 'empanelment@hindustanprojects.in',
+    corporateEmail: 'industrial@hindustanprojects.in',
     corporateAddress: 'Bhopal Ganj, Bhilwara - 311001, Rajasthan'
   });
 
@@ -98,7 +98,7 @@ export default function SupportWidget() {
             </a>
 
             <a
-              href="mailto:empanelment@hindustanprojects.in"
+              href="mailto:industrial@hindustanprojects.in"
               style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 0.85rem', borderRadius: 12, backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', textDecoration: 'none', color: '#0F172A', fontWeight: 700 }}
             >
               <div style={{ padding: '0.45rem', borderRadius: 8, backgroundColor: 'rgba(237, 28, 36, 0.1)', color: '#ED1C24' }}>
@@ -106,7 +106,7 @@ export default function SupportWidget() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '0.725rem', color: '#64748B', fontWeight: 600 }}>Official Email</div>
-                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24' }}>empanelment@hindustanprojects.in</div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ED1C24' }}>industrial@hindustanprojects.in</div>
               </div>
             </a>
 

@@ -161,9 +161,9 @@ export default function ContactPage() {
                   {(() => {
                     try {
                       const cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
-                      const e = cfg.corporateEmail || 'empanelment@hindustanprojects.in';
+                      const e = cfg.corporateEmail || 'industrial@hindustanprojects.in';
                       return <a href={`mailto:${e}`} style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>{e}</a>;
-                    } catch { return <a href="mailto:empanelment@hindustanprojects.in" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>empanelment@hindustanprojects.in</a>; }
+                    } catch { return <a href="mailto:industrial@hindustanprojects.in" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>industrial@hindustanprojects.in</a>; }
                   })()}
                 </div>
               </div>

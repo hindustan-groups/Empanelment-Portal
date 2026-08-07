@@ -7,7 +7,7 @@ const DEFAULT_SITE_CONFIG = {
   companyTitle: 'Hindustan Projects',
   subdomainPill: 'www.empanelment.hindustanprojects.in',
   helplinePhone: '+91 7597000601',
-  corporateEmail: 'empanelment@hindustanprojects.in'
+  corporateEmail: 'industrial@hindustanprojects.in'
 };
 
 export default function Header() {

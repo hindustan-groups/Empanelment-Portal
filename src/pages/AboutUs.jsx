@@ -155,7 +155,7 @@ export default function AboutUs() {
                 <tr>
                   <td style={{ padding: '8px 0', fontWeight: 700, verticalAlign: 'top' }}>Corporate Email</td>
                   <td style={{ padding: '8px 0', fontWeight: 900, color: '#ED1C24', wordBreak: 'break-all' }}>
-                    <a href="mailto:empanelment@hindustanprojects.in" style={{ color: '#ED1C24', textDecoration: 'none' }}>empanelment@hindustanprojects.in</a>
+                    <a href="mailto:industrial@hindustanprojects.in" style={{ color: '#ED1C24', textDecoration: 'none' }}>industrial@hindustanprojects.in</a>
                   </td>
                 </tr>
                 <tr>

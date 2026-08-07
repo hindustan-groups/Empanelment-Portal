@@ -87,7 +87,7 @@ export default class ErrorBoundary extends React.Component {
             🏠 Return to Home Page
           </button>
           <p style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '1rem' }}>
-            If this keeps happening, contact support at empanelment@hindustanprojects.in
+            If this keeps happening, contact support at industrial@hindustanprojects.in
           </p>
         </div>
       );

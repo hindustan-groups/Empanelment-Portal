@@ -1585,7 +1585,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
               </div>
               <div style={{ padding: '1.15rem', borderRadius: 16, background: '#10B9810A', border: '2px solid #10B981' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>API HEALTH STATUS</div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#10B981', margin: '0.4rem 0' }}>PORT 5000 ONLINE</div>
+                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#10B981', margin: '0.4rem 0' }}>PORT 9000 ONLINE</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Express Server & Nodemailer Active</div>
               </div>
               <div style={{ padding: '1.15rem', borderRadius: 16, background: '#F59E0B0A', border: '2px solid #F59E0B' }}>

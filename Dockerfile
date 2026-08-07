@@ -27,10 +27,10 @@ COPY --from=frontend-builder /app/dist ./dist
 # Create persistent storage directories
 RUN mkdir -p /app/backend/uploads
 
-EXPOSE 5000
+EXPOSE 9000
 
 ENV NODE_ENV=production
-ENV PORT=5000
+ENV PORT=9000
 
 WORKDIR /app/backend
 CMD ["node", "server.js"]

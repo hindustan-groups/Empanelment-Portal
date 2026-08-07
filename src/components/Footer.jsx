@@ -7,7 +7,7 @@ const DEFAULT_SITE_CONFIG = {
   companyTitle:           'Hindustan Projects',
   subdomainPill:          'www.empanelment.hindustanprojects.in',
   helplinePhone:          '+91 7597000601',
-  corporateEmail:         'empanelment@hindustanprojects.in',
+  corporateEmail:         'industrial@hindustanprojects.in',
   corporateAddress:       'Bhopal Ganj, Bhilwara - 311001, Rajasthan, India',
   footerCopyright:        '© 2026 Hindustan Projects. All Rights Reserved.',
   footerAboutText:        'Official Vendor & Contractor Empanelment Portal of Hindustan Projects. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.',
@@ -141,7 +141,7 @@ export default function Footer() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <Mail style={{ width: 14, height: 14, color: '#ED1C24', flexShrink: 0 }} />
-                <span>{siteConfig.corporateEmail || 'empanelment@hindustanprojects.in'}</span>
+                <span>{siteConfig.corporateEmail || 'industrial@hindustanprojects.in'}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <Phone style={{ width: 14, height: 14, color: '#0047AB', flexShrink: 0 }} />

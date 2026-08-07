@@ -69,7 +69,7 @@ export default function PrivacyPage() {
             6. Data Protection Officer Contact
           </h3>
           <p style={{ margin: 0 }}>
-            For privacy inquiries or data update requests, contact our Nodal Security Officer at <strong>empanelment@hindustanprojects.in</strong> or call <strong>+91 7597000601</strong> (Mon–Sat, 09:00 AM – 06:00 PM IST).
+            For privacy inquiries or data update requests, contact our Nodal Security Officer at <strong>industrial@hindustanprojects.in</strong> or call <strong>+91 7597000601</strong> (Mon–Sat, 09:00 AM – 06:00 PM IST).
           </p>
         </section>
 

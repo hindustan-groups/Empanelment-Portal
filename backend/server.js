@@ -20,7 +20,7 @@ require('dotenv').config();
 const emailService = require('./emailService');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 9000;
 
 // ─── 1. SECURITY HEADERS ────────────────────────────────────────
 app.use(helmet({
