@@ -216,7 +216,7 @@ ${emailHeader()}
     <!-- TRACK STATUS CTA -->
     <tr>
       <td style="padding:12px 36px 28px 36px;text-align:center;">
-        <a href="https://hindustanprojects.in/track" style="background:linear-gradient(135deg,#c8102e,#a50d25);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
+        <a href="https://empanelment.hindustanprojects.in/track" style="background:linear-gradient(135deg,#c8102e,#a50d25);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
           🔍 TRACK YOUR APPLICATION STATUS
         </a>
       </td>
@@ -289,7 +289,7 @@ ${emailHeader()}
     <!-- ADMIN LOGIN CTA -->
     <tr>
       <td style="padding:0 36px 28px 36px;text-align:center;">
-        <a href="https://hindustanprojects.in/admin" style="background:linear-gradient(135deg,#1a3a6b,#0a1628);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
+        <a href="https://empanelment.hindustanprojects.in/admin" style="background:linear-gradient(135deg,#1a3a6b,#0a1628);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
           🔐 OPEN ADMIN PANEL
         </a>
       </td>
@@ -354,7 +354,7 @@ ${emailHeader()}
             <tr>
               <td style="padding:8px 0 0 0;border-top:1px solid rgba(255,255,255,0.1);">
                 <div style="font-size:10px;color:#8ab4d8;letter-spacing:1px;text-transform:uppercase;">Portal URL</div>
-                <div style="font-size:13px;font-weight:700;color:#60a5fa;margin-top:4px;">https://hindustanprojects.in/vendor-login</div>
+                <div style="font-size:13px;font-weight:700;color:#60a5fa;margin-top:4px;">https://empanelment.hindustanprojects.in/vendor-login</div>
               </td>
             </tr>
           </table>
@@ -377,7 +377,7 @@ ${emailHeader()}
     <!-- CTA -->
     <tr>
       <td style="padding:16px 36px 28px 36px;text-align:center;">
-        <a href="https://hindustanprojects.in/vendor-login" style="background:linear-gradient(135deg,#16a34a,#15803d);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
+        <a href="https://empanelment.hindustanprojects.in/vendor-login" style="background:linear-gradient(135deg,#16a34a,#15803d);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
           🚀 LOGIN TO VENDOR PORTAL
         </a>
       </td>

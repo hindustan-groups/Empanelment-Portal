@@ -83,7 +83,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB File Limit
+const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB File Limit
 
 // ─── 5.1 CLOUDINARY FILE STORAGE & RATE LIMITER ─────────────────
 let cloudinary = null;
@@ -131,9 +131,9 @@ app.post('/api/empanelment/upload-cloud', uploadRateLimiter, upload.single('docu
       return res.status(400).json({ success: false, error: 'No file provided or file format invalid.' });
     }
 
-    if (req.file.size > 5 * 1024 * 1024) {
+    if (req.file.size > 10 * 1024 * 1024) {
       if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-      return res.status(400).json({ success: false, error: 'File size exceeds maximum allowed 5 MB limit!' });
+      return res.status(400).json({ success: false, error: 'File size exceeds maximum allowed 10 MB limit!' });
     }
 
     const secureUrl = await uploadFileToCloudinary(req.file.path, req.file.mimetype);

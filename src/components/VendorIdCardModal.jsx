@@ -3,47 +3,34 @@ import { X, Printer, ShieldCheck, Edit3, Lock, Check } from 'lucide-react';
 import { printCard } from '../utils/printCard';
 
 export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin = false, onPhotoUpdate }) {
+  const [editMode, setEditMode] = useState(false);
+  const [cardData, setCardData] = useState({});
+
+  useEffect(() => {
+    if (!vendorData) return;
+    const getPhoto = (data) => {
+      if (!data) return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+      return data.passportPhoto || data.photo_url || data.photoUrl || data.photo || data.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+    };
+
+    setCardData({
+      name: vendorData.contactName || vendorData.contact_name || vendorData.company_name || vendorData.name || 'MOHMMAD DILSHAN',
+      designation: vendorData.designation || vendorData.primary_role || vendorData.category || 'Empanelled Vendor Signatory',
+      vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
+      department: vendorData.department || vendorData.category || vendorData.primary_role || 'Procurement & Contracting',
+      bloodGroup: vendorData.bloodGroup || vendorData.blood_group || 'N/A (Verified Vendor)',
+      photoUrl: getPhoto(vendorData),
+      address: vendorData.corporateAddress || vendorData.address || 'Bhilwara - 311001, Rajasthan, India',
+      phone: vendorData.helplinePhone || vendorData.phone || '+91 7597000601',
+      email: vendorData.corporateEmail || vendorData.email || 'industrial@hindustanprojects.in',
+      website: 'www.empanelment.hindustanprojects.in'
+    });
+  }, [vendorData]);
+
   if (!isOpen || !vendorData) return null;
 
   // Determine if vendor empanelment status is APPROVED
   const isApproved = vendorData.status === 'APPROVED' || vendorData.isApproved !== false || String(vendorData.status).includes('Approved');
-
-  const getPhoto = (data) => {
-    if (!data) return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
-    return data.passportPhoto || data.photo_url || data.photoUrl || data.photo || data.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
-  };
-
-  // Auto-populated ID Card fields directly from verified empanelment data
-  const defaultCardData = {
-    name: vendorData.contactName || vendorData.contact_name || vendorData.company_name || vendorData.name || 'MOHMMAD DILSHAN',
-    designation: vendorData.designation || vendorData.primary_role || vendorData.category || 'Empanelled Vendor',
-    vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
-    department: vendorData.department || vendorData.category || vendorData.primary_role || 'Procurement & Engineering',
-    bloodGroup: vendorData.bloodGroup || vendorData.blood_group || 'B+',
-    photoUrl: getPhoto(vendorData),
-    address: vendorData.corporateAddress || vendorData.address || 'Bhilwara - 311001, Rajasthan, India',
-    phone: vendorData.helplinePhone || vendorData.phone || '+91 7597000601',
-    email: vendorData.corporateEmail || vendorData.email || 'info@hindustanprojects.in',
-    website: 'hindustanprojects.in'
-  };
-
-  const [editMode, setEditMode] = useState(false);
-  const [cardData, setCardData] = useState(defaultCardData);
-
-  useEffect(() => {
-    setCardData({
-      name: vendorData.contactName || vendorData.contact_name || vendorData.company_name || vendorData.name || 'MOHMMAD DILSHAN',
-      designation: vendorData.designation || vendorData.primary_role || vendorData.category || 'Empanelled Vendor',
-      vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
-      department: vendorData.department || vendorData.category || vendorData.primary_role || 'Procurement & Engineering',
-      bloodGroup: vendorData.bloodGroup || vendorData.blood_group || 'B+',
-      photoUrl: getPhoto(vendorData),
-      address: vendorData.corporateAddress || vendorData.address || 'Bhilwara - 311001, Rajasthan, India',
-      phone: vendorData.helplinePhone || vendorData.phone || '+91 7597000601',
-      email: vendorData.corporateEmail || vendorData.email || 'info@hindustanprojects.in',
-      website: 'hindustanprojects.in'
-    });
-  }, [vendorData]);
 
   const handleFieldChange = (field, value) => {
     setCardData(prev => ({ ...prev, [field]: value }));
