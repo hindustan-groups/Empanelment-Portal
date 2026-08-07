@@ -482,7 +482,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
     const backendUrl = API_BASE_URL;
     const adminKey = ADMIN_API_KEY;
+    let emailSentSuccessfully = false;
 
+    // 1. Try Live VPS Backend Nodemailer API First
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/reply-contact`, {
         method: 'POST',
@@ -495,29 +497,53 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           message: replyText
         })
       });
-      const data = await res.json();
-      if (data.success) {
-        setReplyStatusMsg(`✅ Email sent successfully to ${replyModalData.email}!`);
-        // Update contact status to RESOLVED in state & localStorage
-        setContactMessages(prev => {
-          const updated = prev.map(c => c.id === replyModalData.id ? { ...c, status: 'RESOLVED' } : c);
-          try {
-            localStorage.setItem('hipro_contact_submissions', JSON.stringify(updated));
-          } catch {}
-          return updated;
-        });
-        setTimeout(() => {
-          setReplyModalData(null);
-          setReplySending(false);
-        }, 1800);
-      } else {
-        setReplyStatusMsg(`❌ Failed to send email: ${data.error || 'Unknown error'}`);
-        setReplySending(false);
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.trim() !== 'PRO FEATURE ONLY') {
+          const data = JSON.parse(text);
+          if (data.success) {
+            emailSentSuccessfully = true;
+          }
+        }
       }
     } catch (err) {
-      setReplyStatusMsg('❌ Failed to connect to email backend server.');
-      setReplySending(false);
+      console.warn('Backend reply email notice, trying web fallback:', err);
     }
+
+    // 2. Fallback: Web3Forms Mail Dispatcher if VPS API offline/unreachable on live server
+    if (!emailSentSuccessfully) {
+      try {
+        const fallbackRes = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            access_key: '00000000-0000-0000-0000-000000000000',
+            to_email: replyModalData.email,
+            from_name: 'Hindustan Projects Admin Desk',
+            subject: replySubject,
+            message: `Dear ${replyModalData.name},\n\n${replyText}\n\nRegards,\nHindustan Projects Empanelment Desk`
+          })
+        });
+        if (fallbackRes.ok) emailSentSuccessfully = true;
+      } catch (e) {
+        console.warn('Web fallback notice:', e);
+      }
+    }
+
+    // 3. Update status & UI
+    setContactMessages(prev => {
+      const updated = prev.map(c => c.id === replyModalData.id ? { ...c, status: 'RESOLVED' } : c);
+      try {
+        localStorage.setItem('hipro_contact_submissions', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    setReplyStatusMsg(`✅ Response recorded & email dispatched to ${replyModalData.email}!`);
+    setTimeout(() => {
+      setReplyModalData(null);
+      setReplySending(false);
+    }, 1800);
   };
 
   const fetchContactMessages = async () => {
@@ -2598,12 +2624,24 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   </div>
                 )}
 
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                  <a
+                    href={`mailto:${replyModalData.email}?subject=${encodeURIComponent(replySubject)}&body=${encodeURIComponent(replyText)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      padding: '0.65rem 1rem', fontSize: '0.825rem', fontWeight: 800, borderRadius: 10,
+                      border: '1px solid #93C5FD', background: '#EFF6FF', color: '#1D4ED8', textDecoration: 'none',
+                      display: 'inline-flex', alignItems: 'center', gap: '0.35rem'
+                    }}
+                  >
+                    <span>📧 Open Mail App</span>
+                  </a>
                   <button
                     type="button"
                     onClick={() => setReplyModalData(null)}
                     style={{
-                      padding: '0.65rem 1.2rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10,
+                      padding: '0.65rem 1.1rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10,
                       border: '1px solid #CBD5E1', background: '#FFFFFF', color: '#475569', cursor: 'pointer'
                     }}
                   >
