@@ -244,7 +244,10 @@ db.serialize(() => {
       { name: 'aadhar_no', type: 'TEXT' },
       { name: 'signature_data', type: 'TEXT' },
       { name: 'passport_photo', type: 'TEXT' },
-      { name: 'category_specific_data', type: 'TEXT' }
+      { name: 'category_specific_data', type: 'TEXT' },
+      { name: 'admin_remarks', type: 'TEXT' },
+      { name: 'ceo_signed', type: 'BOOLEAN' },
+      { name: 'ceo_signed_date', type: 'TEXT' }
     ];
 
     missingCols.forEach(col => {
@@ -1027,11 +1030,14 @@ app.get('/api/empanelment/admin/applications', adminAuthMiddleware, (req, res) =
 // Triggers appropriate email to vendor
 // ─────────────────────────────────────────────────────────────────
 app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res) => {
-  const { trackingId, status, currentStage, rejectionReason, missingDetails, adminNote } = req.body;
+  const { trackingId, status, currentStage, rejectionReason, missingDetails, adminNote, adminRemark, admin_remarks, ceoSigned, ceoDate } = req.body;
 
   if (!trackingId || !status) {
     return res.status(400).json({ success: false, error: 'Tracking ID and Status are required.' });
   }
+
+  const remarks = adminRemark || admin_remarks || '';
+  const isApprovedStatus = (status || '').toLowerCase().includes('approved');
 
   // Fetch vendor details for email
   db.get(`SELECT * FROM vendors WHERE tracking_id = ?`, [trackingId], async (err, vendor) => {
@@ -1041,14 +1047,15 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
 
     let updateQuery, updateParams;
 
-    // ── APPROVED ──────────────────────────────────────────────
-    if (status === 'Approved') {
-      // Generate a simple temporary password
-      const tempPassword = 'HP@' + Math.random().toString(36).slice(2, 8).toUpperCase();
-      const approvedAt = new Date().toISOString();
+    // ── APPROVED (Handles 'Approved', 'Approved Class-A', etc.) ───────────────
+    if (isApprovedStatus) {
+      // Generate a simple temporary password if not set
+      const tempPassword = vendor.login_password || ('HP@' + Math.random().toString(36).slice(2, 8).toUpperCase());
+      const approvedAt = vendor.approved_at || new Date().toISOString();
+      const signedDate = ceoDate || new Date().toLocaleDateString('en-IN');
 
-      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, login_password = ?, approved_at = ? WHERE tracking_id = ?`;
-      updateParams = [status, currentStage || 'CEO Final Approval', tempPassword, approvedAt, trackingId];
+      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, login_password = ?, approved_at = ?, admin_remarks = ?, ceo_signed = ?, ceo_signed_date = ? WHERE tracking_id = ?`;
+      updateParams = [status, currentStage || 'CEO Final Approval', tempPassword, approvedAt, remarks || vendor.admin_remarks || '', 1, signedDate, trackingId];
 
       db.run(updateQuery, updateParams, async function(dbErr) {
         if (dbErr) return res.status(500).json({ success: false, error: dbErr.message });
@@ -1071,9 +1078,9 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
       });
 
     // ── RESUBMISSION REQUIRED ──────────────────────────────────
-    } else if (status === 'Resubmission Required') {
-      updateQuery = `UPDATE vendors SET status = ?, current_stage = ? WHERE tracking_id = ?`;
-      updateParams = [status, currentStage || 'Document Re-verification', trackingId];
+    } else if (status === 'Resubmission Required' || status === 'Clarification Required') {
+      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, admin_remarks = ? WHERE tracking_id = ?`;
+      updateParams = [status, currentStage || 'Document Re-verification', remarks || vendor.admin_remarks || '', trackingId];
 
       db.run(updateQuery, updateParams, async function(dbErr) {
         if (dbErr) return res.status(500).json({ success: false, error: dbErr.message });
@@ -1096,8 +1103,8 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
 
     // ── REJECTED ───────────────────────────────────────────────
     } else if (status === 'Rejected') {
-      updateQuery = `UPDATE vendors SET status = ?, current_stage = ? WHERE tracking_id = ?`;
-      updateParams = [status, currentStage || 'Application Closed', trackingId];
+      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, admin_remarks = ? WHERE tracking_id = ?`;
+      updateParams = [status, currentStage || 'Application Closed', remarks || vendor.admin_remarks || '', trackingId];
 
       db.run(updateQuery, updateParams, async function(dbErr) {
         if (dbErr) return res.status(500).json({ success: false, error: dbErr.message });
@@ -1119,8 +1126,8 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
 
     // ── OTHER STATUS UPDATE ────────────────────────────────────
     } else {
-      updateQuery = `UPDATE vendors SET status = ?, current_stage = ? WHERE tracking_id = ?`;
-      updateParams = [status, currentStage || vendor.current_stage, trackingId];
+      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, admin_remarks = ? WHERE tracking_id = ?`;
+      updateParams = [status, currentStage || vendor.current_stage, remarks || vendor.admin_remarks || '', trackingId];
 
       db.run(updateQuery, updateParams, function(dbErr) {
         if (dbErr) return res.status(500).json({ success: false, error: dbErr.message });

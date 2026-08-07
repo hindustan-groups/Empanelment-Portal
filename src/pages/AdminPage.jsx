@@ -651,15 +651,18 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       localData = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
     } catch (e) {}
 
-    // Combine local data and API data (API data takes precedence if same ID)
+    // Combine API data and local data (local updates take precedence to prevent state resetting)
     const combinedMap = new Map();
-    localData.forEach(v => {
-      const id = getAppId(v);
-      if (id) combinedMap.set(id, v);
-    });
     apiData.forEach(v => {
       const id = getAppId(v);
       if (id) combinedMap.set(id, v);
+    });
+    localData.forEach(v => {
+      const id = getAppId(v);
+      if (id) {
+        const existingApi = combinedMap.get(id) || {};
+        combinedMap.set(id, { ...existingApi, ...v });
+      }
     });
 
     const combinedList = Array.from(combinedMap.values());
