@@ -611,6 +611,16 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     if (!isAuthenticated) { navigate('/admin-login'); return; }
     fetchVendors();
     fetchContactMessages();
+
+    // Hydrate siteConfig from VPS Database on mount so Admin Panel starts with live DB config!
+    fetch(`${API_BASE_URL}/api/empanelment/public/site-config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && data.data && Object.keys(data.data).length > 0) {
+          setSiteConfig(prev => ({ ...prev, ...data.data }));
+        }
+      })
+      .catch(() => {});
   }, [isAuthenticated, navigate]);
 
   const getAppId = (v) => {
@@ -648,17 +658,23 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       localData = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
     } catch (e) {}
 
-    // Combine API data and local data (local updates take precedence to prevent state resetting)
+    // Combine local data and API data — API data (SQLite DB) takes precedence for real fields!
     const combinedMap = new Map();
-    apiData.forEach(v => {
+    localData.forEach(v => {
       const id = getAppId(v);
       if (id) combinedMap.set(id, v);
     });
-    localData.forEach(v => {
+    apiData.forEach(v => {
       const id = getAppId(v);
       if (id) {
-        const existingApi = combinedMap.get(id) || {};
-        combinedMap.set(id, { ...existingApi, ...v });
+        const existingLocal = combinedMap.get(id) || {};
+        combinedMap.set(id, {
+          ...existingLocal,
+          ...v,
+          status: v.status || existingLocal.status || 'Under Verification',
+          current_stage: v.current_stage || existingLocal.current_stage || 'Committee Review',
+          admin_remarks: v.admin_remarks !== undefined && v.admin_remarks !== null ? v.admin_remarks : existingLocal.admin_remarks
+        });
       }
     });
 
