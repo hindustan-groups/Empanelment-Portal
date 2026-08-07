@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import Logo from './Logo';
 import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, Lock, Award, Clock, ArrowRight, Building2 } from 'lucide-react';
 
+import { API_BASE_URL } from '../config/api';
+
 const DEFAULT_SITE_CONFIG = {
   companyTitle:           'Hindustan Projects',
   subdomainPill:          'www.empanelment.hindustanprojects.in',
@@ -41,6 +43,20 @@ export default function Footer() {
         console.warn('Failed to parse site config:', err);
       }
     }
+
+    // Fetch live CMS site config from VPS Database so Mobile & Desktop are 100% in sync!
+    fetch(`${API_BASE_URL}/api/empanelment/public/site-config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && data.data && Object.keys(data.data).length > 0) {
+          setSiteConfig(prev => {
+            const merged = { ...prev, ...data.data };
+            try { localStorage.setItem('hipro_site_config', JSON.stringify(merged)); } catch (e) {}
+            return merged;
+          });
+        }
+      })
+      .catch(() => {});
   }, []);
 
   return (

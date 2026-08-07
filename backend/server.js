@@ -231,6 +231,13 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS site_config (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    )
+  `);
+
   // 2. Safe Auto-Migration: check if columns are missing or if table needs schema update
   db.all(`PRAGMA table_info(vendors)`, [], (err, columns) => {
     if (err || !columns) return;
@@ -947,6 +954,44 @@ app.patch('/api/empanelment/admin/contacts/:id', adminAuthMiddleware, (req, res)
   db.run(`UPDATE contact_messages SET status = ? WHERE id = ?`, [status || 'RESOLVED', id], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, message: 'Inquiry status updated.' });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// GET & POST /api/empanelment/public/site-config & /admin/site-config
+// CMS Site Configurator endpoints for Real-Time Sync across all devices (Mobile & Desktop)
+// ─────────────────────────────────────────────────────────────────
+app.get('/api/empanelment/public/site-config', (req, res) => {
+  db.all(`SELECT key, value FROM site_config`, [], (err, rows) => {
+    if (err || !rows) return res.json({ success: true, data: {} });
+    const config = {};
+    rows.forEach(r => {
+      try {
+        config[r.key] = JSON.parse(r.value);
+      } catch {
+        config[r.key] = r.value;
+      }
+    });
+    res.json({ success: true, data: config });
+  });
+});
+
+app.post('/api/empanelment/admin/site-config', adminAuthMiddleware, (req, res) => {
+  const { siteConfig } = req.body;
+  if (!siteConfig || typeof siteConfig !== 'object') {
+    return res.status(400).json({ success: false, error: 'Invalid siteConfig object.' });
+  }
+
+  const stmt = db.prepare(`INSERT INTO site_config (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`);
+  db.serialize(() => {
+    Object.keys(siteConfig).forEach(key => {
+      const val = typeof siteConfig[key] === 'object' ? JSON.stringify(siteConfig[key]) : String(siteConfig[key]);
+      stmt.run(key, val);
+    });
+    stmt.finalize(err => {
+      if (err) return res.status(500).json({ success: false, error: err.message });
+      res.json({ success: true, message: 'Site Configuration saved permanently to VPS Database.' });
+    });
   });
 });
 

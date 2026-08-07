@@ -19,6 +19,21 @@ export default function ContactPage() {
     website_url_hp: '' // 🍯 Honeypot Trap field for anti-spambots
   });
 
+  const [siteConfig, setSiteConfig] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('hipro_site_config') || '{}'); } catch { return {}; }
+  });
+
+  React.useEffect(() => {
+    fetch(`${API_BASE_URL}/api/empanelment/public/site-config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && data.data && Object.keys(data.data).length > 0) {
+          setSiteConfig(prev => ({ ...prev, ...data.data }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const [isSending, setIsSending] = useState(false);
 
   const handleSubmit = async (e) => {

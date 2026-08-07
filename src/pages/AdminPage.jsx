@@ -963,10 +963,22 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     setTenders(prev => prev.filter(t => t.id !== id));
   };
 
-  /* ── Site CMS ── */
-  const handleSaveCMS = (e) => {
+  const handleSaveCMS = async (e) => {
     e.preventDefault();
     localStorage.setItem('hipro_site_config', JSON.stringify(siteConfig));
+    const backendUrl = API_BASE_URL;
+    try {
+      await fetch(`${backendUrl}/api/empanelment/admin/site-config`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': ADMIN_API_KEY
+        },
+        body: JSON.stringify({ siteConfig })
+      });
+    } catch (err) {
+      console.warn('API site config save notice:', err);
+    }
     setCmsSavedAlert(true);
     setTimeout(() => setCmsSavedAlert(false), 3500);
   };
