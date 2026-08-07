@@ -5,7 +5,7 @@ import { Lock, ShieldCheck, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { API_BASE_URL } from '../config/api';
 
 export default function AdminLoginPage({ onLoginSuccess }) {
-  const [adminId, setAdminId] = useState('admin@hindustanprojects.in');
+  const [adminId, setAdminId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -102,6 +102,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
               type="email"
               value={adminId}
               onChange={(e) => setAdminId(e.target.value)}
+              placeholder="e.g. admin@hindustanprojects.in"
               className="form-input"
               required
             />
@@ -126,9 +127,6 @@ export default function AdminLoginPage({ onLoginSuccess }) {
               >
                 {showPassword ? <EyeOff style={{ width: 16, height: 16 }} /> : <Eye style={{ width: 16, height: 16 }} />}
               </button>
-            </div>
-            <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-              Corporate Passcode: <strong>HindustanAdmin2026#</strong> (or <strong>admin123</strong>)
             </div>
           </div>
 
