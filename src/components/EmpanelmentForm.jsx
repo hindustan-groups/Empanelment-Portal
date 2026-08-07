@@ -678,6 +678,16 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     } catch (err) {
       console.warn('Backend submit notice:', err);
     } finally {
+      // Un-blacklist this ID if it was previously in deleted list
+      try {
+        const targetId = serverTrackingId || payload.tracking_id || payload.trackingId;
+        if (targetId) {
+          const deleted = JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]');
+          const cleanDeleted = deleted.filter(id => String(id).trim() !== String(targetId).trim());
+          localStorage.setItem('hipro_deleted_applications', JSON.stringify(cleanDeleted));
+        }
+      } catch (e) {}
+
       clearTimeout(t1);
       clearTimeout(t2);
       setIsSubmitting(false);

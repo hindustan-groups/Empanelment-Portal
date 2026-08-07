@@ -814,7 +814,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const allIds = vendors.map(v => getAppId(v)).filter(Boolean);
     try {
       const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
-      const merged = Array.from(new Set([...deleted, ...allIds, 'HP-EMP-025', 'HP-EMP-026', 'HP-EMP-027']));
+      const merged = Array.from(new Set([...deleted, ...allIds]));
       localStorage.setItem('hipro_deleted_applications', JSON.stringify(merged));
       localStorage.removeItem('hipro_vps_applications');
     } catch (e) {}
