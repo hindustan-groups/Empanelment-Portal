@@ -32,7 +32,7 @@ export const API_BASE_URL = getApiBaseUrl();
 
 export const ADMIN_API_KEY = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
 
-export const CORPORATE_EMAIL = 'empanelment@hindustanprojects.in';
+export const CORPORATE_EMAIL = 'industrial@hindustanprojects.in';
 
 export const HELPLINE_PHONE = '+91 75970 00601';
 

@@ -34,7 +34,7 @@ const DEFAULT_SITE_CONFIG = {
   companyTitle:           'Hindustan Projects',
   subdomainPill:          'www.empanelment.hindustanprojects.in',
   helplinePhone:          '+91 7597000601',
-  corporateEmail:         'empanelment@hindustanprojects.in',
+  corporateEmail:         'industrial@hindustanprojects.in',
   corporateAddress:       'Bhopal Ganj, Bhilwara - 311001, Rajasthan, India',
   heroBadge:              'Official Vendor & Contractor Registration FY 2026-27',
   heroTitleBlue:          'Hindustan',
@@ -46,7 +46,7 @@ const DEFAULT_SITE_CONFIG = {
   aboutProjectsCompleted: '150+ Infrastructure Packages',
   contactHeading:         'Get in Touch with Hindustan Projects Procurement Nodal Desk',
   contactSubheading:      'Have queries regarding vendor empanelment eligibility, document resubmission, or active tender bidding? Reach out to our official procurement desk.',
-  privacyOfficerEmail:    'empanelment@hindustanprojects.in',
+  privacyOfficerEmail:    'industrial@hindustanprojects.in',
   privacyLastUpdated:     'August 2026',
   processingFee:          '5000',
   gstRate:                '18',
@@ -1986,7 +1986,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   </div>
                   <div>
                     <label className="form-label" style={{ fontWeight: 800 }}>Support Email Address</label>
-                    <input type="text" value={siteConfig.corporateEmail || ''} onChange={e => setSiteConfig({ ...siteConfig, corporateEmail: e.target.value })} className="form-input" placeholder="empanelment@hindustanprojects.in" />
+                    <input type="text" value={siteConfig.corporateEmail || ''} onChange={e => setSiteConfig({ ...siteConfig, corporateEmail: e.target.value })} className="form-input" placeholder="industrial@hindustanprojects.in" />
                   </div>
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label className="form-label" style={{ fontWeight: 800 }}>Corporate Headquarters Address</label>

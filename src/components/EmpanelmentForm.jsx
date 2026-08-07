@@ -698,7 +698,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               access_key: '00000000-0000-0000-0000-000000000000',
               subject: `📩 New Empanelment Application Submitted — ${payload.companyName || payload.contactName}`,
               from_name: 'HiPRO Live Portal',
-              to_email: 'empanelment@hindustanprojects.in',
+              to_email: 'industrial@hindustanprojects.in',
               message: `New Vendor Application Submitted:\nCompany: ${payload.companyName}\nContact: ${payload.contactName}\nEmail: ${payload.email}\nPhone: ${payload.phone}\nCategory: ${payload.category}`
             })
           }).catch(() => {});

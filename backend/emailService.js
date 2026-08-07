@@ -61,7 +61,7 @@ const sendSubmissionConfirmation = async (vendorData) => {
  * 2️⃣ Send new application alert to Admin
  */
 const sendNewApplicationAlertToAdmin = async (vendorData) => {
-  const adminEmail = process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in';
+  const adminEmail = process.env.ADMIN_EMAIL || 'industrial@hindustanprojects.in';
   return await sendEmail(adminEmail, templates.newApplicationAlertToAdmin(vendorData));
 };
 

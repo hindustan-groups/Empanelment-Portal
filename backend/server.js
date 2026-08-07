@@ -496,7 +496,7 @@ app.post('/api/empanelment/contact', async (req, res) => {
 
       await transporter.sendMail({
         from: `"HiPRO Contact Desk" <${sender}>`,
-        to: process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in',
+        to: process.env.ADMIN_EMAIL || 'industrial@hindustanprojects.in',
         subject: `📩 Support Ticket [${dept}] — ${name} (${company || 'Individual'})`,
         html: `
           <div style="font-family:Arial,sans-serif;padding:20px;max-width:550px;border:1px solid #E2E8F0;border-radius:12px">
@@ -891,7 +891,7 @@ app.post('/api/empanelment/submit', submitLimiter, upload.any(), async (req, res
 app.post('/api/empanelment/contact', async (req, res) => {
   const { name, email, phone, company, department, customDepartment, message } = req.body;
   const dept = department === 'Other' ? (customDepartment || 'Other') : (department || 'Empanelment Helpdesk');
-  const adminEmail = process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in';
+  const adminEmail = process.env.ADMIN_EMAIL || 'industrial@hindustanprojects.in';
 
   if (!name || !email || !message) {
     return res.status(400).json({ success: false, error: 'Name, email, and message are required.' });
