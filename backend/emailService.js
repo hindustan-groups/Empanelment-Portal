@@ -8,15 +8,18 @@
 const nodemailer = require('nodemailer');
 const templates = require('./emailTemplates');
 
-// ─── CREATE TRANSPORTER (Gmail SMTP) ────────────────────────────
+// ─── CREATE TRANSPORTER (Gmail / Custom Domain SMTP) ─────────────
 const createTransporter = () => {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || '465', 10);
+  const secure = port === 465;
   const user = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
   const pass = process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx';
 
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Port 465 SSL for VPS
+    host,
+    port,
+    secure,
     auth: { user, pass },
     tls: { rejectUnauthorized: false }
   });

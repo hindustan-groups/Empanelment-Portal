@@ -395,6 +395,23 @@ app.post('/api/empanelment/admin/login', (req, res) => {
   }
 });
 
+const getTransporter = () => {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || '465', 10);
+  const secure = port === 465;
+  const user = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
+  const pass = process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx';
+
+  const nodemailer = require('nodemailer');
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false }
+  });
+};
+
 // ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/admin/send-test-email
 // Admin sends a live test email to verify SMTP is working
@@ -412,20 +429,12 @@ app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
   }
 
   try {
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com',
-        pass: process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx'
-      },
-      tls: { rejectUnauthorized: false }
-    });
+    const transporter = getTransporter();
+    const currentUser = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
+    const currentHost = process.env.SMTP_HOST || 'smtp.gmail.com';
 
     const info = await transporter.sendMail({
-      from: `"Hindustan Projects Portal" <${process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com'}>`,
+      from: `"Hindustan Projects Portal" <${currentUser}>`,
       to,
       subject: 'Test Email — Hindustan Projects Empanelment Portal ✅',
       html: `
@@ -437,10 +446,10 @@ app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
           <div style="background:white;padding:28px">
             <h3 style="color:#0047AB;margin-top:0">Email System Working!</h3>
             <p style="color:#334155">Yeh ek <strong>test email</strong> hai Admin Security tab se bheja gaya.</p>
-            <p style="color:#334155">SMTP Gmail system <strong>100% active aur working</strong> hai.</p>
+            <p style="color:#334155">SMTP system <strong>100% active aur working</strong> hai.</p>
             <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:14px;margin:16px 0">
-              <p style="margin:0;color:#166534;font-weight:bold">Gmail SMTP Port 465 SSL - ACTIVE</p>
-              <p style="margin:4px 0 0;color:#166534;font-size:13px">hindustanprojects0.2@gmail.com</p>
+              <p style="margin:0;color:#166534;font-weight:bold">SMTP Server: ${currentHost} - ACTIVE</p>
+              <p style="margin:4px 0 0;color:#166534;font-size:13px">Sender: ${currentUser}</p>
             </div>
             <hr style="border:none;border-top:1px solid #E2E8F0">
             <p style="color:#64748B;font-size:12px;margin:0">
@@ -451,7 +460,6 @@ app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
         </div>
       `
     });
-
     console.log('Test email sent to ' + to + ' | ' + info.messageId);
     return res.json({ success: true, messageId: info.messageId, to });
   } catch (err) {
@@ -481,20 +489,11 @@ app.post('/api/empanelment/contact', async (req, res) => {
 
     // Try sending alert email to corporate officer
     try {
-      const nodemailer = require('nodemailer');
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com',
-          pass: process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx'
-        },
-        tls: { rejectUnauthorized: false }
-      });
+      const transporter = getTransporter();
+      const currentUser = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
 
       await transporter.sendMail({
-        from: `"HiPRO Contact Desk" <${process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com'}>`,
+        from: `"HiPRO Contact Desk" <${currentUser}>`,
         to: process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in',
         subject: `📩 Support Ticket [${dept}] — ${name} (${company || 'Individual'})`,
         html: `
@@ -573,22 +572,12 @@ app.post('/api/empanelment/admin/reply-contact', async (req, res) => {
   }
 
   try {
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com',
-        pass: process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx'
-      },
-      tls: { rejectUnauthorized: false }
-    });
-
+    const transporter = getTransporter();
+    const currentUser = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
     const replySubject = subject || 'Response to your Inquiry — Hindustan Projects Empanelment Desk';
 
     const info = await transporter.sendMail({
-      from: `"Hindustan Projects — Officer Response" <${process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com'}>`,
+      from: `"Hindustan Projects — Officer Response" <${currentUser}>`,
       to,
       subject: replySubject,
       html: `
