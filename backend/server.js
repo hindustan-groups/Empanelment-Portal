@@ -430,11 +430,12 @@ app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
 
   try {
     const transporter = getTransporter();
-    const currentUser = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
-    const currentHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+    const currentUser = process.env.EMAIL_USER || 'info@hindustanprojects.in';
+    const sender = process.env.ALIAS_EMAIL || currentUser;
+    const currentHost = process.env.SMTP_HOST || 'smtp.hostinger.com';
 
     const info = await transporter.sendMail({
-      from: `"Hindustan Projects Portal" <${currentUser}>`,
+      from: `"Hindustan Projects Portal" <${sender}>`,
       to,
       subject: 'Test Email — Hindustan Projects Empanelment Portal ✅',
       html: `
@@ -490,10 +491,11 @@ app.post('/api/empanelment/contact', async (req, res) => {
     // Try sending alert email to corporate officer
     try {
       const transporter = getTransporter();
-      const currentUser = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
+      const currentUser = process.env.EMAIL_USER || 'info@hindustanprojects.in';
+      const sender = process.env.ALIAS_EMAIL || currentUser;
 
       await transporter.sendMail({
-        from: `"HiPRO Contact Desk" <${currentUser}>`,
+        from: `"HiPRO Contact Desk" <${sender}>`,
         to: process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in',
         subject: `📩 Support Ticket [${dept}] — ${name} (${company || 'Individual'})`,
         html: `
@@ -573,11 +575,12 @@ app.post('/api/empanelment/admin/reply-contact', async (req, res) => {
 
   try {
     const transporter = getTransporter();
-    const currentUser = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
+    const currentUser = process.env.EMAIL_USER || 'info@hindustanprojects.in';
+    const sender = process.env.ALIAS_EMAIL || currentUser;
     const replySubject = subject || 'Response to your Inquiry — Hindustan Projects Empanelment Desk';
 
     const info = await transporter.sendMail({
-      from: `"Hindustan Projects — Officer Response" <${currentUser}>`,
+      from: `"Hindustan Projects — Officer Response" <${sender}>`,
       to,
       subject: replySubject,
       html: `
