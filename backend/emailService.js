@@ -8,13 +8,13 @@
 const nodemailer = require('nodemailer');
 const templates = require('./emailTemplates');
 
-// ─── CREATE TRANSPORTER (Gmail / Custom Domain SMTP) ─────────────
+// ─── CREATE TRANSPORTER (Hostinger Domain SMTP) ─────────────────
 const createTransporter = () => {
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const host = process.env.SMTP_HOST || 'smtp.hostinger.com';
   const port = parseInt(process.env.SMTP_PORT || '465', 10);
   const secure = port === 465;
-  const user = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
-  const pass = process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx';
+  const user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
+  const pass = process.env.EMAIL_APP_PASS || '';
 
   return nodemailer.createTransport({
     host,
@@ -28,8 +28,8 @@ const createTransporter = () => {
 // ─── SEND EMAIL HELPER ───────────────────────────────────────────
 const sendEmail = async (to, templateResult) => {
   try {
-    const user = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
-    const sender = process.env.ALIAS_EMAIL || user;
+    const user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
+    const sender = process.env.ALIAS_EMAIL || 'industrial@hindustanprojects.in';
     const transporter = createTransporter();
 
     const info = await transporter.sendMail({
