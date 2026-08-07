@@ -720,16 +720,18 @@ app.get('/api/health', (req, res) => {
 // POST /api/empanelment/submit
 // Submit application → save to DB → send 2 emails (vendor + admin)
 // ─────────────────────────────────────────────────────────────────
-app.post('/api/empanelment/submit', submitLimiter, upload.fields([
-  { name: 'gstDoc', maxCount: 1 },
-  { name: 'panDoc', maxCount: 1 },
-  { name: 'bankDoc', maxCount: 1 },
-  { name: 'expDoc', maxCount: 1 },
-]), async (req, res) => {
+app.post('/api/empanelment/submit', submitLimiter, upload.any(), async (req, res) => {
   try {
     const data = req.body;
-    const files = req.files || {};
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+
+    const getFile = (fieldName) => {
+      if (!req.files) return null;
+      if (Array.isArray(req.files)) {
+        return req.files.find(f => f.fieldname === fieldName) || null;
+      }
+      return (req.files[fieldName] && req.files[fieldName][0]) || null;
+    };
 
     // Generate Sequential Tracking ID starting at HP-EMP-025 (Reusing lowest available number >= 25)
     let trackingId = data.trackingId || data.tracking_id || data.customTrackingId;
@@ -800,21 +802,25 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
     let bankDocUrl = typeof data.bankDoc === 'string' ? data.bankDoc : (data.bankDocUrl || null);
     let expDocUrl = typeof data.expDoc === 'string' ? data.expDoc : (data.expDocUrl || null);
 
-    if (files.gstDoc && files.gstDoc[0]) {
-      const cUrl = await uploadFileToCloudinary(files.gstDoc[0].path, files.gstDoc[0].mimetype);
-      gstDocUrl = cUrl || files.gstDoc[0].filename;
+    const fGst = getFile('gstDoc');
+    if (fGst) {
+      const cUrl = await uploadFileToCloudinary(fGst.path, fGst.mimetype);
+      gstDocUrl = cUrl || fGst.filename;
     }
-    if (files.panDoc && files.panDoc[0]) {
-      const cUrl = await uploadFileToCloudinary(files.panDoc[0].path, files.panDoc[0].mimetype);
-      panDocUrl = cUrl || files.panDoc[0].filename;
+    const fPan = getFile('panDoc');
+    if (fPan) {
+      const cUrl = await uploadFileToCloudinary(fPan.path, fPan.mimetype);
+      panDocUrl = cUrl || fPan.filename;
     }
-    if (files.bankDoc && files.bankDoc[0]) {
-      const cUrl = await uploadFileToCloudinary(files.bankDoc[0].path, files.bankDoc[0].mimetype);
-      bankDocUrl = cUrl || files.bankDoc[0].filename;
+    const fBank = getFile('bankDoc');
+    if (fBank) {
+      const cUrl = await uploadFileToCloudinary(fBank.path, fBank.mimetype);
+      bankDocUrl = cUrl || fBank.filename;
     }
-    if (files.expDoc && files.expDoc[0]) {
-      const cUrl = await uploadFileToCloudinary(files.expDoc[0].path, files.expDoc[0].mimetype);
-      expDocUrl = cUrl || files.expDoc[0].filename;
+    const fExp = getFile('expDoc');
+    if (fExp) {
+      const cUrl = await uploadFileToCloudinary(fExp.path, fExp.mimetype);
+      expDocUrl = cUrl || fExp.filename;
     }
 
     const params = [
