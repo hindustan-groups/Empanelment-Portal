@@ -42,6 +42,22 @@ function MainAppLayout() {
   const [submittedId, setSubmittedId] = useState('');
   const [lastSubmittedData, setLastSubmittedData] = useState(null);
 
+  // Mobile & Browser Cache Sanitizer (Ensures Mobile devices get 100% updated data)
+  useEffect(() => {
+    const CURRENT_CONFIG_VERSION = 'v2026.2.5_industrial_vps9000';
+    const savedVersion = localStorage.getItem('hipro_config_version');
+    
+    if (savedVersion !== CURRENT_CONFIG_VERSION) {
+      try {
+        const rawConfig = localStorage.getItem('hipro_site_config');
+        if (rawConfig && (rawConfig.includes('empanelment@') || rawConfig.includes('5000'))) {
+          localStorage.removeItem('hipro_site_config');
+        }
+      } catch (e) {}
+      localStorage.setItem('hipro_config_version', CURRENT_CONFIG_VERSION);
+    }
+  }, []);
+
   // Standalone Software Portal check
   const isStandalonePortal = location.pathname.startsWith('/vendor-dashboard') || 
                              location.pathname.startsWith('/vendor-login') || 

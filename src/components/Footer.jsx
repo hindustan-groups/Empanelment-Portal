@@ -27,6 +27,9 @@ export default function Footer() {
       try {
         const parsed = JSON.parse(saved);
         // Sanitize if old stale data exists in local storage
+        if (parsed.corporateEmail && parsed.corporateEmail.includes('empanelment@')) {
+          delete parsed.corporateEmail;
+        }
         if (parsed.corporateAddress && parsed.corporateAddress.includes('Barakhamba')) {
           delete parsed.corporateAddress;
         }

@@ -18,7 +18,11 @@ export default function Header() {
     const saved = localStorage.getItem('hipro_site_config');
     if (saved) {
       try {
-        setSiteConfig(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (parsed.corporateEmail && parsed.corporateEmail.includes('empanelment@')) {
+          delete parsed.corporateEmail;
+        }
+        setSiteConfig({ ...DEFAULT_SITE_CONFIG, ...parsed });
       } catch (err) {
         console.warn('Failed to parse site config:', err);
       }
