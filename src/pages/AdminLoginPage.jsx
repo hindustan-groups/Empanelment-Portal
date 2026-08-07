@@ -121,7 +121,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
 
         {/* Logo Section */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <Logo height={44} transparent={true} style={{ marginBottom: '1.1rem' }} />
+          <Logo height={38} style={{ marginBottom: '1.1rem' }} />
           
           {/* Security Tag */}
           <div style={{
