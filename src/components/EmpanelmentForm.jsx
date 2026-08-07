@@ -676,7 +676,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         }
       }
     } catch (err) {
-      console.warn('Backend submit notice:', err);
+      console.warn('Backend submit notice, using backup:', err);
     } finally {
       // Un-blacklist this ID if it was previously in deleted list
       try {
@@ -687,6 +687,23 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
           localStorage.setItem('hipro_deleted_applications', JSON.stringify(cleanDeleted));
         }
       } catch (e) {}
+
+      // Backup client email alert if backend was unreachable on live server
+      if (!serverTrackingId) {
+        try {
+          fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+              access_key: '00000000-0000-0000-0000-000000000000',
+              subject: `📩 New Empanelment Application Submitted — ${payload.companyName || payload.contactName}`,
+              from_name: 'HiPRO Live Portal',
+              to_email: 'empanelment@hindustanprojects.in',
+              message: `New Vendor Application Submitted:\nCompany: ${payload.companyName}\nContact: ${payload.contactName}\nEmail: ${payload.email}\nPhone: ${payload.phone}\nCategory: ${payload.category}`
+            })
+          }).catch(() => {});
+        } catch (e) {}
+      }
 
       clearTimeout(t1);
       clearTimeout(t2);
