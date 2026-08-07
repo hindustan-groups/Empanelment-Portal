@@ -22,6 +22,9 @@ const emailService = require('./emailService');
 const app = express();
 const PORT = process.env.PORT || 9000;
 
+// Enable Nginx Reverse Proxy Trust (Prevents ERR_ERL_UNEXPECTED_X_FORWARDED_FOR behind Nginx)
+app.set('trust proxy', 1);
+
 // ─── 1. SECURITY HEADERS ────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: false,
