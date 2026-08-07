@@ -48,9 +48,6 @@ const DEFAULT_SITE_CONFIG = {
   contactSubheading:      'Have queries regarding vendor empanelment eligibility, document resubmission, or active tender bidding? Reach out to our official procurement desk.',
   privacyOfficerEmail:    'industrial@hindustanprojects.in',
   privacyLastUpdated:     'August 2026',
-  processingFee:          '5000',
-  gstRate:                '18',
-  msmeWaiverActive:       true,
   footerCopyright:        '© 2026 Hindustan Projects. All Rights Reserved. | www.empanelment.hindustanprojects.in',
   footerAboutText:        'Official Vendor & Contractor Empanelment Portal of Hindustan Projects. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.',
   mainWebsiteUrl:         'https://www.hindustanprojects.in',
@@ -2024,7 +2021,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                     </div>
                     <div>
                       <label className="form-label" style={{ fontWeight: 800 }}>Vendor Verification — Email</label>
-                      <input type="email" value={siteConfig.deptVerificationEmail || ''} onChange={e => setSiteConfig({ ...siteConfig, deptVerificationEmail: e.target.value })} className="form-input" placeholder="verify@hindustanprojects.in" />
+                      <input type="email" value={siteConfig.deptVerificationEmail || ''} onChange={e => setSiteConfig({ ...siteConfig, deptVerificationEmail: e.target.value })} className="form-input" placeholder="industrial@hindustanprojects.in" />
                     </div>
                     <div>
                       <label className="form-label" style={{ fontWeight: 800 }}>Billing & Accounts — Label</label>
@@ -2038,27 +2035,10 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 </div>
               </div>
 
-              {/* 5. Fees & Policy Settings */}
+              {/* 5. Footer & Legal Disclaimer */}
               <div style={{ padding: '1.35rem 1.5rem', borderRadius: 16, background: 'var(--bg-surface)', border: '1px solid var(--border-color)', boxShadow: '0 4px 16px rgba(0,0,0,0.02)' }}>
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0047AB', marginBottom: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <DollarSign style={{ width: 17, height: 17 }} /> 5. Empanelment Application Fee & Tax Settings
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 800 }}>Application Fee Amount (₹ INR)</label>
-                    <input type="text" value={siteConfig.processingFee || ''} onChange={e => setSiteConfig({ ...siteConfig, processingFee: e.target.value })} className="form-input" placeholder="5000" />
-                  </div>
-                  <div>
-                    <label className="form-label" style={{ fontWeight: 800 }}>GST Percentage Rate (%)</label>
-                    <input type="text" value={siteConfig.gstRate || ''} onChange={e => setSiteConfig({ ...siteConfig, gstRate: e.target.value })} className="form-input" placeholder="18" />
-                  </div>
-                </div>
-              </div>
-
-              {/* 6. Footer & Legal Disclaimer */}
-              <div style={{ padding: '1.35rem 1.5rem', borderRadius: 16, background: 'var(--bg-surface)', border: '1px solid var(--border-color)', boxShadow: '0 4px 16px rgba(0,0,0,0.02)' }}>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0047AB', marginBottom: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Lock style={{ width: 17, height: 17 }} /> 6. Footer About & Legal Copyright Statement
+                  <Lock style={{ width: 17, height: 17 }} /> 5. Footer About & Legal Copyright Statement
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div>
