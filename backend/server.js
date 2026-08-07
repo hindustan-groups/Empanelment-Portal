@@ -576,7 +576,7 @@ app.post('/api/empanelment/admin/reply-contact', async (req, res) => {
   try {
     const transporter = getTransporter();
     const currentUser = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-    const sender = process.env.ALIAS_EMAIL || currentUser;
+    const sender = process.env.ALIAS_EMAIL || 'industrial@hindustanprojects.in';
     const replySubject = subject || 'Response to your Inquiry — Hindustan Projects Empanelment Desk';
 
     const info = await transporter.sendMail({

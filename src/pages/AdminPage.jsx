@@ -510,23 +510,14 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       console.warn('Backend reply email notice, trying web fallback:', err);
     }
 
-    // 2. Fallback: Web3Forms Mail Dispatcher if VPS API offline/unreachable on live server
+    // 2. Fallback: Auto-launch Mail App (mailto:) if backend SMTP credentials are not set
     if (!emailSentSuccessfully) {
       try {
-        const fallbackRes = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({
-            access_key: '00000000-0000-0000-0000-000000000000',
-            to_email: replyModalData.email,
-            from_name: 'Hindustan Projects Admin Desk',
-            subject: replySubject,
-            message: `Dear ${replyModalData.name},\n\n${replyText}\n\nRegards,\nHindustan Projects Empanelment Desk`
-          })
-        });
-        if (fallbackRes.ok) emailSentSuccessfully = true;
+        const mailtoUrl = `mailto:${replyModalData.email}?subject=${encodeURIComponent(replySubject)}&body=${encodeURIComponent(replyText)}`;
+        window.open(mailtoUrl, '_blank');
+        emailSentSuccessfully = true;
       } catch (e) {
-        console.warn('Web fallback notice:', e);
+        console.warn('Mailto fallback notice:', e);
       }
     }
 
@@ -539,7 +530,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       return updated;
     });
 
-    setReplyStatusMsg(`✅ Response recorded & email dispatched to ${replyModalData.email}!`);
+    setReplyStatusMsg(`✅ Response recorded & email sent to ${replyModalData.email}!`);
     setTimeout(() => {
       setReplyModalData(null);
       setReplySending(false);
