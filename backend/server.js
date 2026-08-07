@@ -214,6 +214,20 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS contacts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT,
+      company TEXT,
+      department TEXT,
+      message TEXT NOT NULL,
+      status TEXT DEFAULT 'NEW',
+      submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // 2. Safe Auto-Migration: check if columns are missing or if table needs schema update
   db.all(`PRAGMA table_info(vendors)`, [], (err, columns) => {
     if (err || !columns) return;
@@ -444,6 +458,102 @@ app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
     console.error('Test email failed:', err.message);
     return res.status(500).json({ success: false, error: err.message });
   }
+});
+
+// ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/contact
+// Save contact support request to DB & send alert to Admin
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/contact', async (req, res) => {
+  const { name, email, phone, company, department, customDepartment, message } = req.body;
+  if (!name || !email || !message) {
+    return res.status(400).json({ success: false, error: 'Name, Email, and Message are required fields.' });
+  }
+
+  const dept = department === 'Other' ? (customDepartment || 'Other') : (department || 'General');
+
+  const sql = `INSERT INTO contacts (name, email, phone, company, department, message) VALUES (?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [name, email, phone || '', company || '', dept, message], async function(err) {
+    if (err) {
+      console.error('Contact save error:', err.message);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+
+    // Try sending alert email to corporate officer
+    try {
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com',
+          pass: process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx'
+        },
+        tls: { rejectUnauthorized: false }
+      });
+
+      await transporter.sendMail({
+        from: `"HiPRO Contact Desk" <${process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com'}>`,
+        to: process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in',
+        subject: `📩 Support Ticket [${dept}] — ${name} (${company || 'Individual'})`,
+        html: `
+          <div style="font-family:Arial,sans-serif;padding:20px;max-width:550px;border:1px solid #E2E8F0;border-radius:12px">
+            <h3 style="color:#0047AB;margin-top:0">New Online Support Inquiry</h3>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
+            <p><strong>Company:</strong> ${company || 'N/A'}</p>
+            <p><strong>Department:</strong> ${dept}</p>
+            <hr style="border:none;border-top:1px solid #E2E8F0;margin:15px 0">
+            <p><strong>Message:</strong></p>
+            <div style="background:#F8FAFC;padding:12px;border-radius:8px;border:1px solid #CBD5E1">${message}</div>
+          </div>
+        `
+      });
+    } catch (e) {
+      console.warn('Contact email dispatch notice:', e.message);
+    }
+
+    res.status(201).json({ success: true, id: this.lastID, message: 'Support request recorded successfully.' });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// GET /api/empanelment/admin/contacts
+// Admin fetches all contact support requests
+// ─────────────────────────────────────────────────────────────────
+app.get('/api/empanelment/admin/contacts', (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+  if (adminKey !== expectedKey) {
+    return res.status(403).json({ success: false, error: 'Unauthorized' });
+  }
+
+  db.all(`SELECT id, name, email, phone, company, department, message, status, submitted_at as time FROM contacts ORDER BY id DESC`, [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// PATCH /api/empanelment/admin/contacts/:id
+// Admin updates contact ticket status (NEW / RESOLVED)
+// ─────────────────────────────────────────────────────────────────
+app.patch('/api/empanelment/admin/contacts/:id', (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+  if (adminKey !== expectedKey) {
+    return res.status(403).json({ success: false, error: 'Unauthorized' });
+  }
+
+  const { id } = req.params;
+  const { status } = req.body;
+
+  db.run(`UPDATE contacts SET status = ? WHERE id = ?`, [status || 'RESOLVED', id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, updated: this.changes });
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────

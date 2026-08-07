@@ -468,25 +468,34 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       }
     } catch {}
 
-    // Only call API on live server (not localhost — local backend doesn't support admin endpoints)
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-      return;
-    }
-
-    const backendUrl = API_BASE_URL || '';
+    const backendUrl = API_BASE_URL;
     const adminKey = ADMIN_API_KEY;
+    let apiContacts = [];
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/contacts`, {
         headers: { 'x-admin-key': adminKey }
       });
-      if (!res.ok) return;
-      const text = await res.text();
-      if (!text || text.trim() === 'PRO FEATURE ONLY') return; // gracefully skip
-      const data = JSON.parse(text);
-      if (data.success && Array.isArray(data.data)) {
-        setContactMessages(data.data);
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.trim() !== 'PRO FEATURE ONLY') {
+          const data = JSON.parse(text);
+          if (data.success && Array.isArray(data.data)) {
+            apiContacts = data.data;
+          }
+        }
       }
     } catch {}
+
+    let localContacts = [];
+    try {
+      localContacts = JSON.parse(localStorage.getItem('hipro_contact_submissions') || '[]');
+    } catch {}
+
+    const map = new Map();
+    localContacts.forEach(c => { if (c && c.id) map.set(c.id, c); });
+    apiContacts.forEach(c => { if (c && c.id) map.set(c.id, c); });
+
+    setContactMessages(Array.from(map.values()));
   };
 
   const handleToggleContactStatus = async (id, currentStatus) => {
@@ -500,7 +509,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         body: JSON.stringify({ status: newStatus })
       });
     } catch {}
-    setContactMessages(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
+
+    // Update local state and localStorage
+    setContactMessages(prev => {
+      const updated = prev.map(c => c.id === id ? { ...c, status: newStatus } : c);
+      try {
+        localStorage.setItem('hipro_contact_submissions', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
   };
 
   /* Security */
@@ -517,13 +534,6 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   useEffect(() => {
     if (!isAuthenticated) { navigate('/admin-login'); return; }
-    // Purge old local storage cache keys to stop demo data from appearing
-    try {
-      localStorage.removeItem('hipro_vps_applications');
-      localStorage.removeItem('hipro_applications');
-      localStorage.removeItem('hipro_approved_vendors');
-      localStorage.removeItem('hipro_deleted_applications');
-    } catch (e) {}
     fetchVendors();
     fetchContactMessages();
   }, [isAuthenticated, navigate]);

@@ -55,6 +55,23 @@ export default function ContactPage() {
       return;
     }
 
+    const newSubmission = {
+      id: Date.now(),
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone || '',
+      company: formData.company || '',
+      department: formData.department === 'Other' ? formData.customDepartment : formData.department,
+      message: formData.message,
+      status: 'NEW',
+      time: new Date().toLocaleString('en-IN')
+    };
+
+    try {
+      const existing = JSON.parse(localStorage.getItem('hipro_contact_submissions') || '[]');
+      localStorage.setItem('hipro_contact_submissions', JSON.stringify([newSubmission, ...existing]));
+    } catch {}
+
     setIsSending(true);
     const backendUrl = API_BASE_URL;
 
@@ -69,26 +86,7 @@ export default function ContactPage() {
       if (data.success) {
         console.log('✅ Contact inquiry email sent via VPS backend');
       }
-    } catch {
-      // Fallback: Web3Forms free public mail dispatcher for static Vercel apps
-      try {
-        await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({
-            access_key: '00000000-0000-0000-0000-000000000000', // Public fallback key
-            subject: `[Empanelment Inquiry] ${formData.department} — ${formData.name}`,
-            from_name: formData.name,
-            to_email: 'empanelment@hindustanprojects.in',
-            company: formData.company,
-            email: formData.email,
-            phone: formData.phone,
-            department: formData.department === 'Other' ? formData.customDepartment : formData.department,
-            message: formData.message
-          })
-        });
-      } catch {}
-    }
+    } catch {}
 
     setIsSending(false);
     sessionStorage.setItem('hipro_last_contact_sub', Date.now().toString());
