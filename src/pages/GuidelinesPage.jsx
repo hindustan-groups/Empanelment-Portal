@@ -329,7 +329,7 @@ export default function GuidelinesPage() {
 
         {/* Embedded Interactive Financial Eligibility Calculator */}
         <div style={{ marginTop: '2.5rem' }}>
-          <EligibilityCalculator />
+          <EligibilityCalculator onApplyCategory={() => navigate('/apply')} />
         </div>
 
         {/* Modal for 13 Category Statutory Matrix */}
