@@ -501,121 +501,6 @@ app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────
-// GET /api/empanelment/admin/contacts
-// Admin fetches all contact support requests
-// ─────────────────────────────────────────────────────────────────
-app.get('/api/empanelment/admin/contacts', (req, res) => {
-  const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
-  const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
-  if (!adminKey || (adminKey !== expectedKey && adminKey !== 'hipro_admin_vps_key_99201')) {
-    return res.status(403).json({ success: false, error: 'Unauthorized' });
-  }
-
-  db.all(`SELECT id, name, email, phone, company, department, message, status, created_at as time FROM contact_messages ORDER BY id DESC`, [], (err, rows) => {
-    if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ success: true, count: rows.length, data: rows });
-  });
-});
-
-// ─────────────────────────────────────────────────────────────────
-// PATCH /api/empanelment/admin/contacts/:id
-// Admin updates contact ticket status (NEW / RESOLVED)
-// ─────────────────────────────────────────────────────────────────
-app.patch('/api/empanelment/admin/contacts/:id', (req, res) => {
-  const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
-  const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
-  if (!adminKey || (adminKey !== expectedKey && adminKey !== 'hipro_admin_vps_key_99201')) {
-    return res.status(403).json({ success: false, error: 'Unauthorized' });
-  }
-
-  const { id } = req.params;
-  const { status } = req.body;
-
-  db.run(`UPDATE contact_messages SET status = ? WHERE id = ?`, [status || 'RESOLVED', id], function(err) {
-    if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ success: true, updated: this.changes });
-  });
-});
-
-// ─────────────────────────────────────────────────────────────────
-// DELETE /api/empanelment/admin/contacts/:id
-// Admin deletes contact ticket permanently from SQLite DB
-// ─────────────────────────────────────────────────────────────────
-app.delete('/api/empanelment/admin/contacts/:id', (req, res) => {
-  const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
-  const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
-  if (!adminKey || (adminKey !== expectedKey && adminKey !== 'hipro_admin_vps_key_99201')) {
-    return res.status(403).json({ success: false, error: 'Unauthorized' });
-  }
-
-  const { id } = req.params;
-
-  db.run(`DELETE FROM contact_messages WHERE id = ? OR message_ref = ?`, [id, id], function(err) {
-    if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ success: true, message: `Contact message ${id} deleted successfully.`, deleted: this.changes });
-  });
-});
-
-// ─────────────────────────────────────────────────────────────────
-// POST /api/empanelment/admin/reply-contact
-// Admin replies directly to a contact inquiry via official email
-// ─────────────────────────────────────────────────────────────────
-app.post('/api/empanelment/admin/reply-contact', async (req, res) => {
-  const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
-  const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
-  if (!adminKey || (adminKey !== expectedKey && adminKey !== 'hipro_admin_vps_key_99201')) {
-    return res.status(403).json({ success: false, error: 'Unauthorized' });
-  }
-
-  const { contactId, to, name, subject, message } = req.body;
-  if (!to || !to.includes('@') || !message) {
-    return res.status(400).json({ success: false, error: 'Valid recipient email and reply message are required' });
-  }
-
-  try {
-    const transporter = getTransporter();
-    const currentUser = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-    const sender = process.env.ALIAS_EMAIL || 'industrial@hindustanprojects.in';
-    const replySubject = subject || 'Response to your Inquiry — Hindustan Projects Empanelment Desk';
-
-    const info = await transporter.sendMail({
-      from: `"Hindustan Projects — Officer Response" <${sender}>`,
-      to,
-      subject: replySubject,
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0">
-          <div style="background:#0047AB;color:white;padding:20px 28px">
-            <h2 style="margin:0;font-size:20px">Hindustan Projects</h2>
-            <p style="margin:4px 0 0;opacity:.85;font-size:13px">Official Response from Empanelment Support Desk</p>
-          </div>
-          <div style="background:white;padding:28px">
-            <p style="color:#334155;font-size:15px;margin-top:0">Dear <strong>${name || 'Valued User'}</strong>,</p>
-            <p style="color:#334155;font-size:14px">Regarding your support inquiry submitted to our portal:</p>
-            <div style="background:#F8FAFC;border-left:4px solid #0047AB;padding:14px 18px;margin:18px 0;border-radius:0 8px 8px 0;color:#1E293B;font-size:14px;line-height:1.6;white-space:pre-wrap">${message}</div>
-            <p style="color:#64748B;font-size:13px">If you have any further questions, feel free to reply to this email or visit our helpdesk.</p>
-            <hr style="border:none;border-top:1px solid #E2E8F0;margin:20px 0">
-            <p style="color:#94A3B8;font-size:12px;margin:0">
-              Warm regards,<br>
-              <strong>Procurement & Support Committee</strong><br>
-              Hindustan Projects Limited • <a href="https://www.empanelment.hindustanprojects.in" style="color:#0047AB">empanelment.hindustanprojects.in</a>
-            </p>
-          </div>
-        </div>
-      `
-    });
-
-    if (contactId) {
-      db.run(`UPDATE contact_messages SET status = 'RESOLVED' WHERE id = ?`, [contactId]);
-    }
-
-    console.log('✅ Admin reply email sent to ' + to + ' | ' + info.messageId);
-    return res.json({ success: true, messageId: info.messageId, to });
-  } catch (err) {
-    console.error('❌ Admin reply email failed:', err.message);
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
 
 // ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/vendor/login
@@ -702,16 +587,6 @@ app.post('/api/empanelment/vendor/login', (req, res) => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────
-// GET /api/tenders
-// Public API — Get active tenders list
-// ─────────────────────────────────────────────────────────────────
-app.get('/api/tenders', (req, res) => {
-  db.all(`SELECT * FROM tenders ORDER BY id DESC`, [], (err, rows) => {
-    if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ success: true, count: rows.length, data: rows });
-  });
-});
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -944,6 +819,48 @@ app.patch('/api/empanelment/admin/contacts/:id', adminAuthMiddleware, (req, res)
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, message: 'Inquiry status updated.' });
   });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// DELETE /api/empanelment/admin/contacts/:id
+// Admin — permanently delete a contact inquiry from SQLite DB
+// ─────────────────────────────────────────────────────────────────
+app.delete('/api/empanelment/admin/contacts/:id', adminAuthMiddleware, (req, res) => {
+  const id = req.params.id;
+  db.run(`DELETE FROM contact_messages WHERE id = ?`, [id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: `Contact inquiry #${id} permanently deleted.`, deleted: this.changes });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/admin/reply-contact
+// Admin replies directly to a contact inquiry via official email
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/admin/reply-contact', adminAuthMiddleware, async (req, res) => {
+  const { contactId, to, name, subject, message } = req.body;
+  if (!to || !to.includes('@') || !message) {
+    return res.status(400).json({ success: false, error: 'Valid recipient email and reply message are required' });
+  }
+  try {
+    const transporter = getTransporter();
+    const sender = process.env.ALIAS_EMAIL || 'industrial@hindustanprojects.in';
+    const replySubject = subject || 'Response to your Inquiry — Hindustan Projects Empanelment Desk';
+    const info = await transporter.sendMail({
+      from: `"Hindustan Projects — Officer Response" <${sender}>`,
+      to,
+      subject: replySubject,
+      html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0"><div style="background:#0047AB;color:white;padding:20px 28px"><h2 style="margin:0;font-size:20px">Hindustan Projects</h2><p style="margin:4px 0 0;opacity:.85;font-size:13px">Official Response from Empanelment Support Desk</p></div><div style="background:white;padding:28px"><p style="color:#334155;font-size:15px;margin-top:0">Dear <strong>${name || 'Valued User'}</strong>,</p><p style="color:#334155;font-size:14px">Regarding your support inquiry:</p><div style="background:#F8FAFC;border-left:4px solid #0047AB;padding:14px 18px;margin:18px 0;border-radius:0 8px 8px 0;color:#1E293B;font-size:14px;line-height:1.6;white-space:pre-wrap">${message}</div><p style="color:#94A3B8;font-size:12px">Warm regards,<br><strong>Procurement &amp; Support Committee</strong><br>Hindustan Projects Limited</p></div></div>`
+    });
+    if (contactId) {
+      db.run(`UPDATE contact_messages SET status = 'RESOLVED' WHERE id = ?`, [contactId]);
+    }
+    console.log('✅ Admin reply email sent to ' + to);
+    return res.json({ success: true, messageId: info.messageId, to });
+  } catch (err) {
+    console.error('❌ Admin reply email failed:', err.message);
+    return res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // ─────────────────────────────────────────────────────────────────
