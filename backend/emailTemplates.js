@@ -122,11 +122,17 @@ const infoBox = (label, value, icon = '') => `
 
 // ════════════════════════════════════════════════════════════════
 // EMAIL 1: VENDOR SUBMISSION CONFIRMATION
-// Sent to vendor after form is submitted
-// ════════════════════════════════════════════════════════════════
-const submissionConfirmationToVendor = ({ companyName, contactName, trackingId, hashSignature, category, submittedAt }) => ({
-  subject: `Application Received — Tracking ID: ${trackingId} | Hindustan Projects Empanelment`,
-  html: `
+const submissionConfirmationToVendor = (data = {}) => {
+  const companyName = data.company_name || data.companyName || 'Applicant Entity';
+  const contactName = data.contact_name || data.contactName || 'Authorized Signatory';
+  const trackingId = data.tracking_id || data.trackingId || 'HP-EMP-000000';
+  const hashSignature = data.hash_signature || data.hashSignature || '8f3a9e120bc741a8d1234';
+  const category = data.category || 'General';
+  const submittedAt = data.submitted_at || data.submittedAt || new Date().toISOString();
+
+  return {
+    subject: `Application Received — Tracking ID: ${trackingId} | Hindustan Projects Empanelment`,
+    html: `
 ${emailHeader()}
 
     <!-- SUBJECT BANNER -->
@@ -224,15 +230,27 @@ ${emailHeader()}
 
 ${emailFooter()}
   `
-});
+  };
+};
 
-// ════════════════════════════════════════════════════════════════
 // EMAIL 2: ADMIN NEW APPLICATION ALERT
-// Sent to admin when a new vendor submits the form
-// ════════════════════════════════════════════════════════════════
-const newApplicationAlertToAdmin = ({ companyName, contactName, trackingId, category, email, phone, city, state, gstin, pan, submittedAt, ipAddress }) => ({
-  subject: `🔔 NEW VENDOR APPLICATION — ${trackingId} | ${companyName} | Review Required`,
-  html: `
+const newApplicationAlertToAdmin = (data = {}) => {
+  const companyName = data.company_name || data.companyName || 'Applicant Entity';
+  const contactName = data.contact_name || data.contactName || 'Authorized Signatory';
+  const trackingId = data.tracking_id || data.trackingId || 'HP-EMP-000000';
+  const category = data.category || 'General';
+  const email = data.email || 'N/A';
+  const phone = data.phone || 'N/A';
+  const city = data.city || 'N/A';
+  const state = data.state || 'N/A';
+  const gstin = data.gstin || 'EXEMPT / NONE';
+  const pan = data.pan || 'N/A';
+  const submittedAt = data.submitted_at || data.submittedAt || new Date().toISOString();
+  const ipAddress = data.ip_address || data.ipAddress || 'N/A';
+
+  return {
+    subject: `🔔 NEW VENDOR APPLICATION — ${trackingId} | ${companyName} | Review Required`,
+    html: `
 ${emailHeader()}
 
     <!-- ALERT BANNER -->
@@ -297,15 +315,22 @@ ${emailHeader()}
 
 ${emailFooter()}
   `
-});
+  };
+};
 
 // ════════════════════════════════════════════════════════════════
 // EMAIL 3: VENDOR APPROVAL + LOGIN CREDENTIALS
-// Sent to vendor when admin approves the application
-// ════════════════════════════════════════════════════════════════
-const approvalWithCredentials = ({ companyName, contactName, trackingId, loginEmail, loginPassword, approvedAt }) => ({
-  subject: `✅ EMPANELMENT APPROVED — Your Vendor Portal Credentials | ${trackingId} | Hindustan Projects`,
-  html: `
+const approvalWithCredentials = (data = {}, customPassword) => {
+  const companyName = data.company_name || data.companyName || 'Empannelled Entity';
+  const contactName = data.contact_name || data.contactName || 'Authorized Signatory';
+  const trackingId = data.tracking_id || data.trackingId || 'HP-EMP-000000';
+  const loginEmail = data.email || data.loginEmail || 'vendor@hindustanprojects.in';
+  const loginPassword = customPassword || data.login_password || data.loginPassword || 'HiproVendor@2026';
+  const approvedAt = data.approved_at || data.approvedAt || new Date().toISOString();
+
+  return {
+    subject: `✅ EMPANELMENT APPROVED — Your Vendor Portal Credentials | ${trackingId} | Hindustan Projects`,
+    html: `
 ${emailHeader()}
 
     <!-- SUCCESS BANNER -->
@@ -385,15 +410,21 @@ ${emailHeader()}
 
 ${emailFooter()}
   `
-});
+  };
+};
 
 // ════════════════════════════════════════════════════════════════
 // EMAIL 4: ADMIN REQUESTS RE-SUBMISSION (Incomplete Documents)
-// Sent to vendor when admin finds incomplete/missing details
-// ════════════════════════════════════════════════════════════════
-const resubmissionRequest = ({ companyName, contactName, trackingId, missingDetails, adminNote }) => ({
-  subject: `⚠️ Action Required — Incomplete Documents | ${trackingId} | Hindustan Projects`,
-  html: `
+const resubmissionRequest = (data = {}, customDetails, customNote) => {
+  const companyName = data.company_name || data.companyName || 'Applicant Entity';
+  const contactName = data.contact_name || data.contactName || 'Authorized Signatory';
+  const trackingId = data.tracking_id || data.trackingId || 'HP-EMP-000000';
+  const missingDetails = customDetails || data.missing_details || data.missingDetails || '• Please update requested documents.';
+  const adminNote = customNote || data.admin_remarks || data.adminNote || '';
+
+  return {
+    subject: `⚠️ Action Required — Incomplete Documents | ${trackingId} | Hindustan Projects`,
+    html: `
 ${emailHeader()}
 
     <!-- WARNING BANNER -->
@@ -456,15 +487,20 @@ ${emailHeader()}
 
 ${emailFooter()}
   `
-});
+  };
+};
 
 // ════════════════════════════════════════════════════════════════
 // EMAIL 5: REJECTION NOTICE
-// Sent to vendor when application is formally rejected
-// ════════════════════════════════════════════════════════════════
-const rejectionNotice = ({ companyName, contactName, trackingId, rejectionReason }) => ({
-  subject: `Application Status Update — ${trackingId} | Hindustan Projects Empanelment`,
-  html: `
+const rejectionNotice = (data = {}, customReason) => {
+  const companyName = data.company_name || data.companyName || 'Applicant Entity';
+  const contactName = data.contact_name || data.contactName || 'Authorized Signatory';
+  const trackingId = data.tracking_id || data.trackingId || 'HP-EMP-000000';
+  const rejectionReason = customReason || data.admin_remarks || data.rejectionReason || 'Your application did not meet current empanelment eligibility guidelines.';
+
+  return {
+    subject: `Application Status Update — ${trackingId} | Hindustan Projects Empanelment`,
+    html: `
 ${emailHeader()}
 
     <!-- REJECTION BANNER -->
@@ -496,7 +532,7 @@ ${emailHeader()}
       <td style="padding:12px 36px;">
         <div style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Reason for Non-Approval</div>
         <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:18px 20px;">
-          <p style="margin:0;font-size:13px;color:#7f1d1d;line-height:1.8;">${rejectionReason || 'Your application did not meet the current empanelment criteria. Please contact our team for further clarification.'}</p>
+          <p style="margin:0;font-size:13px;color:#7f1d1d;line-height:1.8;">${rejectionReason}</p>
         </div>
       </td>
     </tr>
@@ -526,7 +562,8 @@ ${emailHeader()}
 
 ${emailFooter()}
   `
-});
+  };
+};
 
 module.exports = {
   submissionConfirmationToVendor,
