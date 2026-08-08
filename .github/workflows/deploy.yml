@@ -44,36 +44,40 @@ jobs:
           port: 22
           script: |
             echo "🚀 Starting Automatic Deployment on VPS..."
-            
-            if [ -d "/var/www/empanelment-portal" ]; then
-              cd /var/www/empanelment-portal
-            elif [ -d "/var/www/hipro-backend" ]; then
-              cd /var/www/hipro-backend
-            else
-              cd /var/www/*empanelment* 2>/dev/null || cd /var/www/$(ls /var/www | head -n 1)
+
+            # Find the correct project folder (handles any casing)
+            PROJECT_DIR=""
+            for dir in /var/www/Empanelment-Portal /var/www/empanelment-portal /var/www/hipro-empanelment; do
+              if [ -d "$dir" ]; then
+                PROJECT_DIR="$dir"
+                break
+              fi
+            done
+
+            if [ -z "$PROJECT_DIR" ]; then
+              echo "❌ ERROR: Project directory not found in /var/www/"
+              exit 1
             fi
-            
+
+            echo "📁 Using project directory: $PROJECT_DIR"
+            cd "$PROJECT_DIR"
+
             echo "📥 Pulling latest code from GitHub master..."
             git pull origin master --rebase || git pull origin master
-            
+
             echo "📦 Installing Dependencies..."
-            npm install
-            
+            npm install --production=false
+
             echo "🏗️ Building Frontend Production Assets..."
             npm run build
 
-            echo "📂 Syncing Dist Build to Nginx / Web Root..."
-            if [ -d "/var/www/html" ]; then
-              cp -rf dist/* /var/www/html/ 2>/dev/null || true
-            fi
-            if [ -d "/var/www/empanelment.hindustanprojects.in" ]; then
-              cp -rf dist/* /var/www/empanelment.hindustanprojects.in/ 2>/dev/null || true
-            fi
-            if [ -d "/var/www/html/empanelment" ]; then
-              cp -rf dist/* /var/www/html/empanelment/ 2>/dev/null || true
-            fi
-            
-            echo "⚙️ Restarting PM2 Backend Server..."
-            pm2 restart all || pm2 start backend/server.js --name "hipro-backend"
-            
+            echo "⚙️ Restarting ONLY this project's PM2 process..."
+            # Try specific names first — avoids restarting other VPS projects
+            pm2 restart hipro-empanelment-backend 2>/dev/null || \
+            pm2 restart hipro-backend 2>/dev/null || \
+            pm2 restart empanelment 2>/dev/null || \
+            pm2 start backend/server.js --name "hipro-empanelment-backend" --watch false
+
+            pm2 save
+
             echo "✅ Auto-Deployment Completed Successfully!"
