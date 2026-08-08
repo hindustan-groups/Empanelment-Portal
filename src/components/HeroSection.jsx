@@ -75,7 +75,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
 
         {/* Dynamic Hero Title */}
         <h1 className="hero-title">
-          Partner with <span className="text-blue">{siteConfig.heroTitleBlue || 'Hindustan'}</span> <span className="text-red">{siteConfig.heroTitleRed || 'Projects'}</span>
+          Partner with&nbsp;<span className="text-blue">{siteConfig.heroTitleBlue || 'Hindustan'}</span>&nbsp;<span className="text-red">{siteConfig.heroTitleRed || 'Projects'}</span>
         </h1>
         <p className="hero-subtitle">
           {siteConfig.heroSubtitle || 'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants.'}
