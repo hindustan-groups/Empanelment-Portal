@@ -211,8 +211,9 @@ export default function EligibilityCalculator({ onApplyCategory }) {
           <button 
             onClick={handleStartApplication} 
             className="btn-primary calculator-cta-btn"
+            style={{ padding: '0.85rem 1.5rem', fontSize: '0.9rem', borderRadius: 12, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', cursor: 'pointer' }}
           >
-            <span>Start Empanelment Under {tierBadge}</span>
+            <span>Apply as {tierBadge}</span>
             <ChevronRight style={{ width: 18, height: 18 }} />
           </button>
         </div>

@@ -63,9 +63,9 @@ export default function GuidelinesPage() {
         {/* 4 Master Navigation Modules */}
         <div className="guidelines-tab-grid">
           {[
-            { id: 'policy', label: '1. Tier Classification & Rating', icon: Building2 },
-            { id: 'nbc_matrix', label: '2. NBC Building Code Standards', icon: HardHat },
-            { id: 'commercial_terms', label: '3. Rates & 7-Day Payout SLA', icon: DollarSign },
+            { id: 'policy', label: '1. Tier Classification', icon: Building2 },
+            { id: 'nbc_matrix', label: '2. NBC Code Standards', icon: HardHat },
+            { id: 'commercial_terms', label: '3. Rates & Payout SLA', icon: DollarSign },
             { id: 'legal_cvc', label: '4. Legal Code & FAQs', icon: Scale },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -75,23 +75,24 @@ export default function GuidelinesPage() {
                 key={tab.id}
                 onClick={() => setActiveSubTab(tab.id)}
                 style={{
-                  padding: '0.85rem 1rem',
-                  borderRadius: 14,
-                  fontSize: '0.85rem',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: 12,
+                  fontSize: '0.825rem',
                   fontWeight: isActive ? 900 : 700,
                   cursor: 'pointer',
                   border: isActive ? '2px solid #0047AB' : '1px solid var(--border-color)',
                   background: isActive ? '#0047AB' : 'var(--bg-surface)',
                   color: isActive ? '#FFFFFF' : 'var(--text-primary)',
-                  boxShadow: isActive ? '0 4px 14px rgba(0, 71, 171, 0.25)' : 'none',
+                  boxShadow: isActive ? '0 4px 12px rgba(0, 71, 171, 0.2)' : 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem',
+                  gap: '0.45rem',
                   justifyContent: 'center',
-                  transition: 'all 0.18s ease'
+                  transition: 'all 0.18s ease',
+                  whiteSpace: 'nowrap'
                 }}
               >
-                <Icon style={{ width: 16, height: 16, color: isActive ? '#FFFFFF' : '#0047AB', flexShrink: 0 }} />
+                <Icon style={{ width: 15, height: 15, color: isActive ? '#FFFFFF' : '#0047AB', flexShrink: 0 }} />
                 <span>{tab.label}</span>
               </button>
             );
