@@ -161,6 +161,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
     console.error('Error connecting to SQLite database:', err.message);
   } else {
     console.log('🔒 Connected to Secure VPS SQLite Database at:', dbPath);
+    db.run('PRAGMA journal_mode=WAL;');
   }
 });
 
@@ -367,8 +368,7 @@ const adminAuthMiddleware = (req, res, next) => {
   if (adminKey && (adminKey === expectedKey || adminKey === 'hipro_admin_vps_key_99201')) {
     return next();
   }
-  // Allow authenticated admin requests
-  next();
+  return res.status(403).json({ success: false, error: 'Unauthorized: Invalid Admin API Key' });
 };
 
 // ════════════════════════════════════════════════════════════════

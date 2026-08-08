@@ -105,6 +105,7 @@ const sendRejectionNotice = async (vendorData) => {
 };
 
 module.exports = {
+  sendEmail,
   sendSubmissionConfirmation,
   sendNewApplicationAlertToAdmin,
   sendApprovalWithCredentials,

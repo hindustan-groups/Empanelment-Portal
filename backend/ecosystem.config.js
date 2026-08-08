@@ -1,4 +1,4 @@
-module = {
+module.exports = {
   apps: [{
     name: "hipro-empanelment-backend",
     script: "./server.js",
