@@ -15,12 +15,12 @@ export default function GuidelinesPage() {
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '1.25rem 0.85rem 3rem 0.85rem' }}>
+    <div style={{ maxWidth: 1240, margin: '0 auto', padding: '1.25rem 0.85rem 3.5rem 0.85rem' }}>
       
       {/* Main Guidelines White / Dark Surface Card */}
       <div style={{
         backgroundColor: 'var(--bg-card, #FFFFFF)',
-        borderRadius: 20,
+        borderRadius: 22,
         border: '1.5px solid var(--border-color, #E2E8F0)',
         padding: '1.5rem 1.15rem',
         boxShadow: '0 8px 30px rgba(0, 71, 171, 0.04)'
@@ -29,17 +29,19 @@ export default function GuidelinesPage() {
         {/* Executive Top Banner Header */}
         <div style={{
           display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-          paddingBottom: '1.25rem',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1.25rem',
+          paddingBottom: '1.35rem',
           borderBottom: '2px solid var(--border-color, #E2E8F0)',
           marginBottom: '1.5rem'
         }}>
           
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', flex: 1, minWidth: 260 }}>
             <div style={{
-              width: 44,
-              height: 44,
+              width: 46,
+              height: 46,
               borderRadius: 12,
               backgroundColor: 'rgba(0, 71, 171, 0.1)',
               color: '#0047AB',
@@ -48,118 +50,119 @@ export default function GuidelinesPage() {
               justifyContent: 'center',
               flexShrink: 0
             }}>
-              <ShieldCheck style={{ width: 24, height: 24 }} />
+              <ShieldCheck style={{ width: 26, height: 26 }} />
             </div>
             
             <div>
               <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>
-                HINDUSTAN PROJECTS • CORPORATE MANUAL FY 2026–27
+                HINDUSTAN PROJECTS • CORPORATE MANUAL &amp; SPECIFICATIONS FY 2026–27
               </div>
               <h1 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-primary, #0F172A)', margin: 0, lineHeight: 1.25 }}>
-                Vendor Empanelment Guidelines
+                Vendor &amp; Contractor Empanelment Policy Guidelines
               </h1>
-              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.35rem' }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', padding: '0.15rem 0.55rem', borderRadius: 99, background: 'rgba(0, 71, 171, 0.06)' }}>✓ ISO 9001:2015</span>
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', padding: '0.15rem 0.55rem', borderRadius: 99, background: 'rgba(0, 71, 171, 0.06)' }}>✓ CVC Standards</span>
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', padding: '0.15rem 0.55rem', borderRadius: 99, background: 'rgba(0, 71, 171, 0.06)' }}>✓ NBC 2016</span>
+              <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap', marginTop: '0.35rem' }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', padding: '0.15rem 0.55rem', borderRadius: 99, background: 'rgba(0, 71, 171, 0.06)' }}>✓ ISO 9001:2015 Verified</span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', padding: '0.15rem 0.55rem', borderRadius: 99, background: 'rgba(0, 71, 171, 0.06)' }}>✓ CVC Anti-Bribery Standards</span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', padding: '0.15rem 0.55rem', borderRadius: 99, background: 'rgba(0, 71, 171, 0.06)' }}>✓ NBC 2016 Compliant</span>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons Grid on Mobile */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', width: '100%' }}>
+          {/* Action Buttons Grid */}
+          <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap', width: 'auto' }}>
             <button
               onClick={() => setShowMatrixModal(true)}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.4rem',
-                padding: '0.65rem 0.5rem',
-                fontSize: '0.78rem',
+                gap: '0.45rem',
+                padding: '0.65rem 1.15rem',
+                fontSize: '0.825rem',
                 fontWeight: 800,
                 borderRadius: 12,
                 cursor: 'pointer',
                 backgroundColor: 'rgba(0, 71, 171, 0.08)',
                 color: '#0047AB',
                 border: '1.5px solid rgba(0, 71, 171, 0.25)',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                flex: '1 1 auto'
               }}
             >
-              <Grid style={{ width: 14, height: 14 }} />
+              <Grid style={{ width: 15, height: 15 }} />
               <span>Category Matrix</span>
             </button>
+            
             <button
               onClick={() => navigate('/apply')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.4rem',
-                padding: '0.65rem 0.5rem',
-                fontSize: '0.8rem',
+                gap: '0.45rem',
+                padding: '0.65rem 1.35rem',
+                fontSize: '0.85rem',
                 fontWeight: 900,
                 borderRadius: 12,
                 cursor: 'pointer',
                 backgroundColor: '#DC2626',
                 color: '#FFFFFF',
                 border: 'none',
-                boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
-                transition: 'all 0.2s ease'
+                boxShadow: '0 4px 14px rgba(220, 38, 38, 0.35)',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
+                flex: '1 1 auto'
               }}
             >
-              <FilePlus style={{ width: 14, height: 14 }} />
+              <FilePlus style={{ width: 15, height: 15 }} />
               <span>Apply for Empanelment</span>
             </button>
           </div>
         </div>
 
-        {/* 4 Master Navigation Horizontal Scrollable Chips */}
+        {/* 4 Master Navigation Responsive Grid (2x2 on Mobile, 4x1 on Desktop - ZERO CUTTING OFF) */}
         <div style={{
-          overflowX: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          scrollbarWidth: 'none',
-          marginBottom: '1.5rem',
-          paddingBottom: '0.35rem',
-          width: '100%'
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '0.65rem',
+          width: '100%',
+          marginBottom: '1.5rem'
         }}>
-          <div style={{ display: 'flex', gap: '0.5rem', minWidth: 'max-content' }}>
-            {[
-              { id: 'policy', label: '1. Tier Classification', icon: Building2 },
-              { id: 'nbc_matrix', label: '2. NBC Code Standards', icon: HardHat },
-              { id: 'commercial_terms', label: '3. Rates & Payout SLA', icon: DollarSign },
-              { id: 'legal_cvc', label: '4. Legal Code & FAQs', icon: Scale },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeSubTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveSubTab(tab.id)}
-                  style={{
-                    padding: '0.55rem 0.95rem',
-                    borderRadius: 9999,
-                    fontSize: '0.78rem',
-                    fontWeight: isActive ? 900 : 700,
-                    cursor: 'pointer',
-                    backgroundColor: isActive ? '#0047AB' : 'var(--bg-surface, #F8FAFC)',
-                    color: isActive ? '#FFFFFF' : 'var(--text-primary, #0F172A)',
-                    border: isActive ? '1.5px solid #0047AB' : '1px solid var(--border-color, #E2E8F0)',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    whiteSpace: 'nowrap',
-                    boxShadow: isActive ? '0 4px 12px rgba(0, 71, 171, 0.25)' : 'none',
-                    transition: 'all 0.2s ease',
-                    flexShrink: 0
-                  }}
-                >
-                  <Icon style={{ width: 14, height: 14, flexShrink: 0, color: isActive ? '#FFFFFF' : '#0047AB' }} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
+          {[
+            { id: 'policy', label: '1. Tier Classification', icon: Building2 },
+            { id: 'nbc_matrix', label: '2. NBC Code Standards', icon: HardHat },
+            { id: 'commercial_terms', label: '3. Rates & Payout SLA', icon: DollarSign },
+            { id: 'legal_cvc', label: '4. Legal Code & FAQs', icon: Scale },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeSubTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSubTab(tab.id)}
+                style={{
+                  padding: '0.75rem 1rem',
+                  borderRadius: 14,
+                  fontSize: '0.825rem',
+                  fontWeight: isActive ? 900 : 700,
+                  cursor: 'pointer',
+                  backgroundColor: isActive ? '#0047AB' : 'var(--bg-surface, #F8FAFC)',
+                  color: isActive ? '#FFFFFF' : 'var(--text-primary, #0F172A)',
+                  border: isActive ? '1.5px solid #0047AB' : '1px solid var(--border-color, #E2E8F0)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  boxShadow: isActive ? '0 4px 14px rgba(0, 71, 171, 0.25)' : '0 1px 3px rgba(0, 0, 0, 0.02)',
+                  transition: 'all 0.2s ease',
+                  width: '100%'
+                }}
+              >
+                <Icon style={{ width: 16, height: 16, flexShrink: 0, color: isActive ? '#FFFFFF' : '#0047AB' }} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* ════════════════════ MODULE 1: ELIGIBILITY & TIER RATING ════════════════════ */}
