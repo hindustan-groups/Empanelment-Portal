@@ -1066,22 +1066,67 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   };
 
   /* ── Category CRUD ── */
+  const handleOpenAddCatModal = () => {
+    setEditingCat(null);
+    setNewCat({ id: '', label: '', description: '', status: 'ACTIVE' });
+    setShowAddCatModal(true);
+  };
+
+  const handleOpenEditCatModal = (cat) => {
+    setEditingCat(cat);
+    setNewCat({ id: cat.id, label: cat.label, description: cat.description || '', status: cat.status || 'ACTIVE' });
+    setShowAddCatModal(true);
+  };
+
   const handleSaveCat = (e) => {
     e.preventDefault();
     if (!newCat.label.trim()) return;
-    const id = newCat.id.trim() || newCat.label.toLowerCase().replace(/[^a-z0-9]/g, '_');
-    setCategories(prev => [...prev, { id, label: newCat.label, description: newCat.description || 'Custom category' }]);
-    setNewCat({ id: '', label: '', description: '' });
+    const catId = newCat.id.trim() || newCat.label.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+    setCategories(prev => {
+      let updated;
+      if (editingCat) {
+        updated = prev.map(c => c.id === editingCat.id ? { ...c, id: catId, label: newCat.label, description: newCat.description, status: newCat.status || 'ACTIVE' } : c);
+      } else {
+        updated = [...prev, { id: catId, label: newCat.label, description: newCat.description || 'Empanelment Trade Line', status: newCat.status || 'ACTIVE' }];
+      }
+      try {
+        localStorage.setItem('hipro_custom_categories', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
     setShowAddCatModal(false);
+    setEditingCat(null);
+    setNewCat({ id: '', label: '', description: '', status: 'ACTIVE' });
   };
 
-  const handleUpdateCat = (idx, field, val) => {
-    setCategories(prev => prev.map((c, i) => i === idx ? { ...c, [field]: val } : c));
+  const handleToggleCatStatus = (id) => {
+    setCategories(prev => {
+      const updated = prev.map(c => {
+        if (c.id === id) {
+          const current = (c.status || 'ACTIVE').toUpperCase();
+          const nextStatus = current === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+          return { ...c, status: nextStatus };
+        }
+        return c;
+      });
+      try {
+        localStorage.setItem('hipro_custom_categories', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
   };
 
   const handleDeleteCat = (id) => {
-    if (!window.confirm(`Delete category "${id}"?`)) return;
-    setCategories(prev => prev.filter(c => c.id !== id));
+    if (!window.confirm(`Are you sure you want to delete category "${id}"?`)) return;
+    setCategories(prev => {
+      const updated = prev.filter(c => c.id !== id);
+      try {
+        localStorage.setItem('hipro_custom_categories', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
   };
 
 
@@ -2205,21 +2250,98 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Empanelment Categories Manager</h3>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Add, edit, or delete categories — changes appear live in the registration form</p>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Layers style={{ width: 20, height: 20, color: '#0047AB' }} />
+                  <span>Empanelment Categories Manager ({categories.length})</span>
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Add new trade categories, edit schemas, toggle registration status ON/OFF, or remove categories — changes update live across the registration portal.
+                </p>
               </div>
-              <button onClick={() => setShowAddCatModal(true)} className="btn-primary" style={{ padding: '0.6rem 1.25rem' }}>
-                <PlusCircle style={{ width: 15, height: 15 }} /><span>Add New Category</span>
+              <button onClick={handleOpenAddCatModal} className="btn-primary" style={{ padding: '0.6rem 1.35rem', fontSize: '0.825rem' }}>
+                <PlusCircle style={{ width: 15, height: 15 }} />
+                <span>+ Add New Category</span>
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {categories.map((c, idx) => (
-                <div key={c.id} style={{ padding: '1rem 1.25rem', borderRadius: 12, background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontWeight: 800, color: '#0047AB' }}>{c.label} (`{c.id}`)</div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{c.description}</div>
-                </div>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              {categories.map((c, idx) => {
+                const isActive = (c.status || 'ACTIVE').toUpperCase() === 'ACTIVE';
+
+                return (
+                  <div key={c.id || idx} style={{
+                    padding: '1.25rem 1.5rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)',
+                    border: isActive ? '1.5px solid #E2E8F0' : '1.5px solid #CBD5E1',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.02)', opacity: isActive ? 1 : 0.85
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div style={{ flex: 1, minWidth: 260 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: 4, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.08)', padding: '0.15rem 0.6rem', borderRadius: 6, fontFamily: 'monospace' }}>
+                            KEY: {c.id}
+                          </span>
+                          {isActive ? (
+                            <span style={{ fontSize: '0.72rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: '#D1FAE5', color: '#047857' }}>
+                              🟢 ACTIVE &amp; ON (OPEN IN REGISTRATION)
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '0.72rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: '#FEF2F2', color: '#DC2626' }}>
+                              🔴 INACTIVE &amp; OFF (DISABLED IN FORM)
+                            </span>
+                          )}
+                        </div>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0F172A', margin: '0 0 0.25rem 0' }}>{c.label}</h4>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>{c.description}</p>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleCatStatus(c.id)}
+                          style={{
+                            padding: '0.45rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                            backgroundColor: isActive ? '#FEF2F2' : '#ECFDF5',
+                            color: isActive ? '#DC2626' : '#047857',
+                            border: isActive ? '1px solid #FECACA' : '1px solid #A7F3D0',
+                            display: 'inline-flex', alignItems: 'center', gap: '0.35rem'
+                          }}
+                          title={isActive ? "Deactivate this category from registration form" : "Activate this category for registration form"}
+                        >
+                          {isActive ? <ToggleRight style={{ width: 14, height: 14 }} /> : <ToggleLeft style={{ width: 14, height: 14 }} />}
+                          <span>{isActive ? '⏸️ Turn OFF' : '⚡ Turn ON'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditCatModal(c)}
+                          style={{
+                            padding: '0.45rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                            backgroundColor: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE',
+                            display: 'inline-flex', alignItems: 'center', gap: '0.35rem'
+                          }}
+                        >
+                          <Edit3 style={{ width: 14, height: 14 }} />
+                          <span>Edit</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCat(c.id)}
+                          style={{
+                            padding: '0.45rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                            backgroundColor: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA',
+                            display: 'inline-flex', alignItems: 'center', gap: '0.35rem'
+                          }}
+                        >
+                          <Trash2 style={{ width: 14, height: 14 }} />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -3032,6 +3154,113 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   >
                     <Save style={{ width: 16, height: 16 }} />
                     <span>{editingTender ? 'Save Tender Changes' : '🚀 Publish Tender Now'}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Category Add / Edit Modal */}
+        {showAddCatModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+          }}>
+            <div style={{
+              width: '100%', maxWidth: 540, backgroundColor: '#FFFFFF', borderRadius: 20,
+              padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid #E2E8F0'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Layers style={{ width: 22, height: 22, color: '#0047AB' }} />
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+                    {editingCat ? 'Edit Empanelment Category' : 'Add New Empanelment Category'}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddCatModal(false)}
+                  style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#64748B' }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveCat} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                    Category Unique Schema Key / ID *
+                  </label>
+                  <input
+                    type="text"
+                    value={newCat.id}
+                    onChange={e => setNewCat({ ...newCat, id: e.target.value })}
+                    required
+                    placeholder="e.g. civil or mep or solar_contractor"
+                    style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                  />
+                  <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: 3 }}>
+                    Internal identifier used for dynamic field schemas (e.g. civil, architect, mep, suppliers)
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                    Category Public Display Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={newCat.label}
+                    onChange={e => setNewCat({ ...newCat, label: e.target.value })}
+                    required
+                    placeholder="e.g. Solar Energy & Renewable EPC Contractors"
+                    style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                    Category Description &amp; Scope Summary
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={newCat.description}
+                    onChange={e => setNewCat({ ...newCat, description: e.target.value })}
+                    placeholder="Describe scope of work, eligibility, or trade requirements..."
+                    style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                    Registration Status (ON / OFF)
+                  </label>
+                  <select
+                    value={newCat.status || 'ACTIVE'}
+                    onChange={e => setNewCat({ ...newCat, status: e.target.value })}
+                    style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box', fontWeight: 700 }}
+                  >
+                    <option value="ACTIVE">🟢 ACTIVE (Open in Registration Form - ON)</option>
+                    <option value="INACTIVE">🔴 INACTIVE (Disabled in Registration Form - OFF)</option>
+                  </select>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center', marginTop: '0.75rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCatModal(false)}
+                    style={{ padding: '0.65rem 1.1rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10, border: '1px solid #CBD5E1', background: '#FFFFFF', color: '#475569', cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{ padding: '0.65rem 1.5rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #0047AB 0%, #002D62 100%)', color: '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    <Save style={{ width: 16, height: 16 }} />
+                    <span>{editingCat ? 'Save Category Changes' : '🚀 Save New Category'}</span>
                   </button>
                 </div>
               </form>

@@ -202,7 +202,8 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [availableCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
     const list = saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
-    return list.some(c => c.id === 'other') ? list : [...list, { id: 'other', label: '✏️ Other – Specify Below' }];
+    const activeList = list.filter(c => (c.status || 'ACTIVE').toUpperCase() === 'ACTIVE');
+    return activeList.some(c => c.id === 'other') ? activeList : [...activeList, { id: 'other', label: '✏️ Other – Specify Below' }];
   });
 
   const [formData, setFormData] = useState({
