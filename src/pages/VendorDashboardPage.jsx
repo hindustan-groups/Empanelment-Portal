@@ -6,6 +6,7 @@ import VendorIdCardModal from '../components/VendorIdCardModal';
 import GatePassModal from '../components/GatePassModal';
 import Logo from '../components/Logo';
 import { getEmpanelmentMode } from '../utils/printDossier';
+import { API_BASE_URL } from '../config/api';
 
 export default function VendorDashboardPage() {
   const navigate = useNavigate();
@@ -29,26 +30,8 @@ export default function VendorDashboardPage() {
     return JSON.parse(localStorage.getItem('hipro_vendor_submitted_bids') || '[]');
   });
 
-  /* Live Tenders Synced from Admin Panel */
-  const [liveTenders, setLiveTenders] = useState(() => {
-    const saved = localStorage.getItem('hipro_tenders');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          return parsed.map(t => ({
-            ref: t.id || t.code || t.ref || 'HP-TND-2026-101',
-            title: t.title || 'Tender Notice',
-            val: t.estimatedCost || t.val || '₹ 5.00 Crore',
-            location: t.location || 'Rajasthan Site',
-            end: t.deadline || t.dueDate || t.end || '15 Aug 2026',
-            scope: t.eligibility || t.scope || 'Empanelled vendor bidding opportunity.'
-          }));
-        }
-      } catch {}
-    }
-    return [];
-  });
+  /* Live Tenders Synced from Admin Panel API */
+  const [liveTenders, setLiveTenders] = useState([]);
 
   /* Invoices & Payouts State */
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -93,6 +76,25 @@ export default function VendorDashboardPage() {
     }
   }, [navigate]);
 
+  useEffect(() => {
+    if (!vendor) return;
+    fetch(`${API_BASE_URL}/api/tenders`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data)) {
+          setLiveTenders(data.data.map(t => ({
+            ref: t.tender_no || t.id,
+            title: t.title,
+            val: t.estimated_value || '₹ TBD',
+            location: t.location || 'Rajasthan',
+            end: t.due_date || 'Open',
+            scope: t.category || 'Empanelled vendor opportunity'
+          })));
+        }
+      })
+      .catch(() => {});
+  }, [vendor]);
+
   /* Persist local state changes */
   useEffect(() => {
     localStorage.setItem('hipro_vendor_submitted_bids', JSON.stringify(submittedBids));
@@ -126,9 +128,27 @@ export default function VendorDashboardPage() {
     setBidSubmitted(true);
   };
 
-  const handleCreateInvoice = (e) => {
+  const handleCreateInvoice = async (e) => {
     e.preventDefault();
     if (!invoiceForm.invoiceNo || !invoiceForm.amt) return;
+
+    try {
+      await fetch(`${API_BASE_URL}/api/invoices`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoice_no: invoiceForm.invoiceNo,
+          vendor_tracking_id: vendor.tracking_id,
+          vendor_name: vendor.company_name || vendor.contact_name,
+          amount: invoiceForm.amt,
+          work_order_no: invoiceForm.milestone,
+          date: new Date().toLocaleDateString('en-IN')
+        })
+      });
+    } catch (err) {
+      console.warn('Invoice API notice:', err.message);
+    }
+
     const newInv = {
       id: invoiceForm.invoiceNo,
       milestone: invoiceForm.milestone,
@@ -142,11 +162,30 @@ export default function VendorDashboardPage() {
     setInvoiceSubmitted(true);
   };
 
-  const handleCreateTicket = (e) => {
+  const handleCreateTicket = async (e) => {
     e.preventDefault();
     if (!ticketForm.query) return;
+
+    const tNo = `TCK-${Math.floor(10000 + Math.random() * 90000)}`;
+
+    try {
+      await fetch(`${API_BASE_URL}/api/tickets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticket_no: tNo,
+          vendor_tracking_id: vendor.tracking_id,
+          vendor_name: vendor.company_name || vendor.contact_name,
+          subject: `${ticketForm.category}: ${ticketForm.query.substring(0, 80)}`,
+          category: ticketForm.category
+        })
+      });
+    } catch (err) {
+      console.warn('Ticket API notice:', err.message);
+    }
+
     const newTck = {
-      ticket: `TCK-${Math.floor(10000 + Math.random() * 90000)}`,
+      ticket: tNo,
       subject: `${ticketForm.category}: ${ticketForm.query.substring(0, 45)}...`,
       status: 'OPEN & ASSIGNED ⏳',
       date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -284,7 +323,12 @@ export default function VendorDashboardPage() {
         <div style={{ padding: '0.75rem 1.25rem', borderRadius: 12, background: 'rgba(0,71,171,0.06)', border: '1px solid rgba(0,71,171,0.2)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', fontWeight: 700, color: '#0047AB' }}>
             <Bell style={{ width: 16, height: 16, color: '#0047AB' }} />
-            <span><strong>Live Procurement Alert:</strong> Work Order `HP-WO-2026-081` is active. Daily site QR gate pass generation is open for site engineers.</span>
+            <span>
+              <strong>Live Procurement Alert:</strong>{' '}
+              {workOrders.filter(wo => wo.status && wo.status.includes('ACTIVE')).length > 0
+                ? `Work Order ${workOrders.find(wo => wo.status && wo.status.includes('ACTIVE'))?.code} is active. Daily site QR gate pass generation is open for site engineers.`
+                : 'Welcome to your Vendor Portal. Check Active Tenders for new bidding opportunities.'}
+            </span>
           </div>
           <button
             onClick={() => setShowGatePassModal(true)}

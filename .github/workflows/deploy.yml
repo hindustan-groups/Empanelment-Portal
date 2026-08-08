@@ -34,11 +34,9 @@ jobs:
     name: 📡 SSH Auto-Deploy to VPS Server
     needs: build-and-test
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: ⚡ Execute Remote SSH Commands on VPS
         uses: appleboy/ssh-action@v1.0.3
-        continue-on-error: true
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
@@ -79,4 +77,3 @@ jobs:
             pm2 restart all || pm2 start backend/server.js --name "hipro-backend"
             
             echo "✅ Auto-Deployment Completed Successfully!"
-

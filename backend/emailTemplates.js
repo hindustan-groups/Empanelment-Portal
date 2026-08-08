@@ -66,6 +66,8 @@ const emailHeader = () => `
     </tr>
 `;
 
+const PORTAL_URL = process.env.PORTAL_BASE_URL || 'https://empanelment.hindustanprojects.in';
+
 const emailFooter = () => `
     <!-- CORPORATE FOOTER -->
     <tr>
@@ -77,8 +79,8 @@ const emailFooter = () => `
             <td style="font-size:10px;color:#8898aa;line-height:1.8;">
               <strong style="color:#aab4c8;">HINDUSTAN PROJECTS</strong><br/>
               Bhilwara – 311001, Rajasthan, India<br/>
-              📞 +91 75970 00601 &nbsp;|&nbsp; ✉️ empanelment@hindustanprojects.in<br/>
-              🌐 hindustanprojects.in
+              📞 +91 75970 00601 &nbsp;|&nbsp; ✉️ industrial@hindustanprojects.in<br/>
+              🌐 empanelment.hindustanprojects.in
             </td>
             <td align="right" valign="top" style="font-size:9px;color:#4a5568;line-height:1.8;">
               This is an official automated email.<br/>
@@ -475,11 +477,11 @@ ${emailHeader()}
     <!-- RE-APPLY CTA -->
     <tr>
       <td style="padding:16px 36px 28px 36px;text-align:center;">
-        <a href="https://hindustanprojects.in/apply" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
+        <a href="${PORTAL_URL}/apply" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
           📝 SUBMIT ADDITIONAL INFORMATION
         </a>
         &nbsp;&nbsp;
-        <a href="mailto:empanelment@hindustanprojects.in" style="background:#f1f5f9;color:#1e293b;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;border:1px solid #e2e8f0;">
+        <a href="mailto:industrial@hindustanprojects.in" style="background:#f1f5f9;color:#1e293b;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;border:1px solid #e2e8f0;">
           ✉️ CONTACT SUPPORT
         </a>
       </td>
@@ -554,7 +556,7 @@ ${emailHeader()}
     <!-- CONTACT CTA -->
     <tr>
       <td style="padding:16px 36px 28px 36px;text-align:center;">
-        <a href="mailto:empanelment@hindustanprojects.in" style="background:linear-gradient(135deg,#1a3a6b,#0a1628);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
+        <a href="mailto:industrial@hindustanprojects.in" style="background:linear-gradient(135deg,#1a3a6b,#0a1628);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
           ✉️ CONTACT EMPANELMENT TEAM
         </a>
       </td>

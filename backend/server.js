@@ -48,7 +48,7 @@ app.use('/api/', apiLimiter);
 
 // ─── 3. CORS ─────────────────────────────────────────────────────
 app.use(cors({
-  origin: true,
+  origin: process.env.ALLOWED_ORIGIN || true,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-admin-key']
 }));
@@ -90,9 +90,9 @@ let cloudinary = null;
 try {
   cloudinary = require('cloudinary').v2;
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'xskfr3wu',
-    api_key: process.env.CLOUDINARY_API_KEY || '234897422674247',
-    api_secret: process.env.CLOUDINARY_API_SECRET || '3yFqCiSQbcD9YaWasIDDK142kl4'
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
   });
 } catch (err) {
   console.warn('Cloudinary notice:', err.message);
@@ -363,9 +363,9 @@ db.serialize(() => {
 // ─── 7. ADMIN AUTHENTICATION MIDDLEWARE ───────────────────────────
 const adminAuthMiddleware = (req, res, next) => {
   const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
-  const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+  const expectedKey = process.env.ADMIN_API_KEY;
 
-  if (adminKey && (adminKey === expectedKey || adminKey === 'hipro_admin_vps_key_99201')) {
+  if (adminKey && expectedKey && adminKey === expectedKey) {
     return next();
   }
   return res.status(403).json({ success: false, error: 'Unauthorized: Invalid Admin API Key' });
@@ -381,7 +381,7 @@ const adminAuthMiddleware = (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────
 app.post('/api/empanelment/admin/login', (req, res) => {
   const { email, password } = req.body;
-  const adminKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+  const adminKey = process.env.ADMIN_API_KEY;
 
   if (!password) {
     return res.status(400).json({ success: false, error: 'Password is required' });
@@ -389,9 +389,9 @@ app.post('/api/empanelment/admin/login', (req, res) => {
 
   db.get(`SELECT value FROM site_config WHERE key = 'admin_password'`, [], (err, row) => {
     const dbPassword = row ? row.value : null;
-    const expectedPassword = process.env.ADMIN_PASSWORD || 'HindustanAdmin2026#';
+    const expectedPassword = process.env.ADMIN_PASSWORD;
 
-    const validPasswords = [dbPassword, expectedPassword, 'HindustanAdmin2026#', 'admin123'].filter(Boolean);
+    const validPasswords = [dbPassword, expectedPassword].filter(Boolean);
 
     if (validPasswords.includes((password || '').trim())) {
       const token = crypto.randomBytes(32).toString('hex');

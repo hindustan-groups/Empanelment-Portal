@@ -5,6 +5,7 @@ import { printCard } from '../utils/printCard';
 export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin = false, onPhotoUpdate }) {
   const [editMode, setEditMode] = useState(false);
   const [cardData, setCardData] = useState({});
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'assembly_demo'
 
   useEffect(() => {
     if (!vendorData) return;
@@ -91,8 +92,6 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin
   // QR Code URL — scans open live /track page with vendor ID auto-searched
   const liveBaseUrl = 'https://www.empanelment.hindustanprojects.in';
   const qrVerificationUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${liveBaseUrl}/track?id=${cardData.vendorId}`)}`;
-
-  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'assembly_demo'
 
   const handlePrint = () => {
     printCard('printable-id-card-element', `Smart PVC ID Card - ${cardData.vendorId}`);

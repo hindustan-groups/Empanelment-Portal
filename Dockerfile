@@ -15,7 +15,7 @@ FROM node:20-alpine AS production
 WORKDIR /app
 
 # Install SQLite dependencies & build tools
-RUN apk add --no-libc-base-search python3 make g++
+RUN apk add --no-cache python3 make g++
 
 # Copy backend dependencies and source
 COPY backend/package*.json ./backend/

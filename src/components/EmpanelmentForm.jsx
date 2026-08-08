@@ -398,9 +398,15 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
   const handleSaveDraft = () => {
     const safe = { ...formData };
-    ['gstDoc', 'panDoc', 'bankDoc', 'expDoc'].forEach(f => {
+    ['gstDoc', 'panDoc', 'bankDoc', 'expDoc', 'aadharFrontDoc', 'aadharBackDoc'].forEach(f => {
       if (safe[f]) {
-        safe[f] = { name: safe[f].name || 'uploaded_doc.pdf' };
+        safe[f] = {
+          name: safe[f].name || 'uploaded_doc.pdf',
+          type: safe[f].type,
+          size: safe[f].size,
+          data: safe[f].data,      // preserve base64
+          previewUrl: safe[f].previewUrl
+        };
       } else {
         safe[f] = null;
       }
@@ -688,21 +694,9 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         }
       } catch (e) {}
 
-      // Backup client email alert if backend was unreachable on live server
+      // Backend unreachable notice
       if (!serverTrackingId) {
-        try {
-          fetch('https://api.web3forms.com/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({
-              access_key: '00000000-0000-0000-0000-000000000000',
-              subject: `📩 New Empanelment Application Submitted — ${payload.companyName || payload.contactName}`,
-              from_name: 'HiPRO Live Portal',
-              to_email: 'industrial@hindustanprojects.in',
-              message: `New Vendor Application Submitted:\nCompany: ${payload.companyName}\nContact: ${payload.contactName}\nEmail: ${payload.email}\nPhone: ${payload.phone}\nCategory: ${payload.category}`
-            })
-          }).catch(() => {});
-        } catch (e) {}
+        console.warn('Backend submit failed. No fallback email configured.');
       }
 
       clearTimeout(t1);

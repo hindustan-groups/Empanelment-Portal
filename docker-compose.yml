@@ -9,13 +9,8 @@ services:
     restart: always
     ports:
       - "9000:9000"
-    environment:
-      - NODE_ENV=production
-      - PORT=9000
-      - ADMIN_PASSWORD=HindustanAdmin2026#
-      - ADMIN_API_KEY=hipro_admin_vps_key_99201
-      - EMAIL_USER=hindustanprojects0.2@gmail.com
-      - EMAIL_APP_PASS=sbecchomfbrgkrwx
+    env_file:
+      - ./backend/.env
     volumes:
       - ./backend/empanelment.db:/app/backend/empanelment.db
       - ./backend/uploads:/app/backend/uploads
