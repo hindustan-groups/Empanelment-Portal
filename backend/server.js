@@ -1504,14 +1504,13 @@ app.post('/api/deploy-webhook', (req, res) => {
   const { exec } = require('child_process');
   console.log('🔄 GitHub Push Webhook Triggered: Auto-deploying latest master code...');
 
-  exec('cd /var/www/Empanelment-Portal && rm -f backend/empanelment.db-shm backend/empanelment.db-wal && git checkout . && git pull origin master && npm run build', (error, stdout, stderr) => {
+  exec('cd /var/www/Empanelment-Portal && rm -f backend/empanelment.db-shm backend/empanelment.db-wal && git checkout . && git pull origin master && npm run build && pm2 restart all', (error, stdout, stderr) => {
     if (error) {
       console.error('❌ Auto-deploy failed:', error.message);
       return res.status(500).json({ success: false, error: error.message });
     }
-    console.log('✅ Pull & Build Complete. Restarting Node Process via process.exit(0)...');
-    res.json({ success: true, message: 'VPS Code Pulled & Built. Server restarting now ✅', output: stdout });
-    setTimeout(() => process.exit(0), 1000);
+    console.log('✅ Auto-Deploy Execution Complete:\n', stdout);
+    res.json({ success: true, message: 'VPS Auto-Deploy Executed Cleanly ✅', output: stdout });
   });
 });
 
