@@ -6,7 +6,7 @@ import VendorDossierA4Modal from '../components/VendorDossierA4Modal';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
 import AdminDrawer from '../components/AdminDrawer';
-import { API_BASE_URL, ADMIN_API_KEY } from '../config/api';
+import { API_BASE_URL, ADMIN_API_KEY, getAdminAuthHeader } from '../config/api';
 import {
   Database, RefreshCw, LogOut, ShieldCheck, Search,
   Download, Eye, EyeOff, CheckCircle2, XCircle, Clock, Trash2, Edit3,
@@ -435,25 +435,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [cmsSavedAlert, setCmsSavedAlert] = useState(false);
 
   /* Tenders */
-  const [tenders, setTenders] = useState(() => {
-    const saved = localStorage.getItem('hipro_tenders');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [tenders, setTenders] = useState([]);
   const [editingTender, setEditingTender] = useState(null);
   const [showAddTenderModal, setShowAddTenderModal] = useState(false);
   const [newTender, setNewTender] = useState({ title: '', category: 'civil', location: '', estimatedCost: '', deadline: '', status: 'OPEN FOR BIDDING' });
 
   /* Vendor RA Invoices Approval State */
-  const [invoices, setInvoices] = useState(() => {
-    const saved = localStorage.getItem('hipro_vendor_invoices');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      } catch {}
-    }
-    return [];
-  });
+  const [invoices, setInvoices] = useState([]);
 
   /* Support Tickets State */
   const [tickets, setTickets] = useState(() => {
@@ -617,15 +605,43 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [passwordMsg, setPasswordMsg] = useState('');
   const [auditLogs] = useState([]);
 
+  const fetchTenders = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/tenders`);
+      const data = await res.json();
+      if (data.success) setTenders(data.data || []);
+    } catch {}
+  };
+
+  const fetchInvoices = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/invoices`, { headers: getAdminAuthHeader() });
+      const data = await res.json();
+      if (data.success) setInvoices(data.data || []);
+    } catch {}
+  };
+
+  const handleApproveInvoiceStatus = async (id, ref) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/invoices/${id}/status`, {
+        method: 'PATCH',
+        headers: getAdminAuthHeader(),
+        body: JSON.stringify({ status: 'RELEASED via RTGS', rtgs_ref: ref })
+      });
+      fetchInvoices();
+    } catch {}
+  };
+
   /* Sync to localStorage */
   useEffect(() => { localStorage.setItem('hipro_custom_categories', JSON.stringify(categories)); }, [categories]);
   useEffect(() => { localStorage.setItem('hipro_site_config', JSON.stringify(siteConfig)); }, [siteConfig]);
-  useEffect(() => { localStorage.setItem('hipro_tenders', JSON.stringify(tenders)); }, [tenders]);
 
   useEffect(() => {
     if (!isAuthenticated) { navigate('/admin-login'); return; }
     fetchVendors();
     fetchContactMessages();
+    fetchTenders();
+    fetchInvoices();
 
     // Hydrate siteConfig from VPS Database on mount so Admin Panel starts with live DB config!
     fetch(`${API_BASE_URL}/api/empanelment/public/site-config`)
