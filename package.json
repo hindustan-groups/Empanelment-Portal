@@ -8,7 +8,7 @@
     "start": "node scripts/start-all.js",
     "server": "node backend/server.js",
     "vite": "vite",
-    "build": "vite build && (pkill -f node || true)",
+    "build": "vite build",
     "test": "node test/validators.test.js",
     "lint": "oxlint",
     "preview": "vite preview",
