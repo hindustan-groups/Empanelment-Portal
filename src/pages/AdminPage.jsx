@@ -531,10 +531,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const fetchContactMessages = async () => {
     const backendUrl = API_BASE_URL;
-    const adminKey = ADMIN_API_KEY;
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/contacts`, {
-        headers: { 'x-admin-key': adminKey }
+        headers: getAdminAuthHeader()
       });
       if (res.ok) {
         const text = await res.text();
@@ -558,31 +557,47 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const handleToggleContactStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === 'NEW' ? 'RESOLVED' : 'NEW';
     const backendUrl = API_BASE_URL;
-    const adminKey = ADMIN_API_KEY;
     try {
       await fetch(`${backendUrl}/api/empanelment/admin/contacts/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        headers: getAdminAuthHeader(),
         body: JSON.stringify({ status: newStatus })
       });
     } catch {}
 
-    // Update local state
-    setContactMessages(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
+    // Update local state and localStorage
+    setContactMessages(prev => {
+      const updated = prev.map(c => (c.id === id || String(c.id) === String(id)) ? { ...c, status: newStatus } : c);
+      try {
+        localStorage.setItem('hipro_contact_submissions', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
   };
 
   const handleDeleteContactMessage = async (id) => {
     if (!window.confirm('Are you sure you want to permanently delete this contact inquiry message?')) return;
     const backendUrl = API_BASE_URL;
-    const adminKey = ADMIN_API_KEY;
     try {
-      await fetch(`${backendUrl}/api/empanelment/admin/contacts/${id}`, {
+      const res = await fetch(`${backendUrl}/api/empanelment/admin/contacts/${id}`, {
         method: 'DELETE',
-        headers: { 'x-admin-key': adminKey }
+        headers: getAdminAuthHeader()
       });
-    } catch {}
+      const data = await res.json();
+      if (data.success) {
+        console.log(`✅ Contact message ${id} permanently deleted.`);
+      }
+    } catch (err) {
+      console.error('Delete contact message error:', err);
+    }
 
-    setContactMessages(prev => prev.filter(c => c.id !== id));
+    setContactMessages(prev => prev.filter(c => c.id !== id && String(c.id) !== String(id)));
+
+    try {
+      const stored = JSON.parse(localStorage.getItem('hipro_contact_submissions') || '[]');
+      const updated = stored.filter(c => c.id !== id && String(c.id) !== String(id));
+      localStorage.setItem('hipro_contact_submissions', JSON.stringify(updated));
+    } catch {}
   };
 
   /* Security */
