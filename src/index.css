@@ -2646,6 +2646,61 @@ body {
     gap: 0.75rem !important;
   }
 
+  /* Hero Section Compact Mobile Scaling */
+  .hero-section {
+    padding: 1.75rem 1rem 1.5rem 1rem !important;
+  }
+  .hero-tag {
+    font-size: 0.72rem !important;
+    padding: 0.3rem 0.8rem !important;
+    margin-bottom: 0.85rem !important;
+  }
+  .hero-title {
+    font-size: 1.65rem !important;
+    line-height: 1.22 !important;
+    margin-bottom: 0.75rem !important;
+    letter-spacing: -0.02em !important;
+  }
+  .hero-subtitle {
+    font-size: 0.825rem !important;
+    line-height: 1.5 !important;
+    margin: 0 auto 1.5rem auto !important;
+  }
+  .trust-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.55rem !important;
+    margin-bottom: 1.75rem !important;
+  }
+  .trust-card {
+    padding: 0.65rem 0.6rem !important;
+    border-radius: 14px !important;
+    gap: 0.45rem !important;
+  }
+  .trust-icon-box {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 9px !important;
+  }
+  .trust-icon-box svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .trust-label {
+    font-size: 0.58rem !important;
+    letter-spacing: 0.01em !important;
+    line-height: 1.15 !important;
+  }
+  .trust-value {
+    font-size: 0.78rem !important;
+    line-height: 1.2 !important;
+    font-weight: 800 !important;
+  }
+  .stats-banner {
+    padding: 0.85rem 0.75rem !important;
+    margin-bottom: 2rem !important;
+    border-radius: 14px !important;
+  }
+
   /* Support Widget on Mobile */
   .support-widget-wrapper {
     bottom: 1rem !important;
