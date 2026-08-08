@@ -63,6 +63,8 @@ jobs:
             cd "$PROJECT_DIR"
 
             echo "📥 Pulling latest code from GitHub master..."
+            rm -f backend/empanelment.db-shm backend/empanelment.db-wal || true
+            git checkout .
             git pull origin master --rebase || git pull origin master
 
             echo "📦 Installing Dependencies..."
