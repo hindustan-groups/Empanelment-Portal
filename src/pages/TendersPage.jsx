@@ -207,69 +207,92 @@ export default function TendersPage() {
           </div>
         )}
 
-        {filteredTenders.map(tender => (
-          <div key={tender.id} style={{
-            backgroundColor: '#FFFFFF', borderRadius: 20, padding: '1.5rem 1.75rem',
-            border: '1.5px solid #E2E8F0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
-            display: 'flex', flexDirection: 'column', gap: '1rem'
-          }}>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', marginBottom: 6 }}>
-                  <span style={{ padding: '0.2rem 0.6rem', borderRadius: 6, backgroundColor: 'rgba(0, 71, 171, 0.08)', color: '#0047AB', fontSize: '0.725rem', fontWeight: 900, fontFamily: 'monospace' }}>
-                    {tender.id}
-                  </span>
-                  <span style={{ padding: '0.2rem 0.6rem', borderRadius: 6, backgroundColor: '#ECFDF5', color: '#047857', fontSize: '0.725rem', fontWeight: 800 }}>
-                    {tender.category}
-                  </span>
+        {filteredTenders.map(tender => {
+          const isOpen = (tender.status || 'ACTIVE').toUpperCase() === 'ACTIVE';
+
+          return (
+            <div key={tender.id} style={{
+              backgroundColor: '#FFFFFF', borderRadius: 20, padding: '1.5rem 1.75rem',
+              border: isOpen ? '1.5px solid #E2E8F0' : '1.5px solid #CBD5E1',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
+              display: 'flex', flexDirection: 'column', gap: '1rem',
+              opacity: isOpen ? 1 : 0.85
+            }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', marginBottom: 6 }}>
+                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: 6, backgroundColor: 'rgba(0, 71, 171, 0.08)', color: '#0047AB', fontSize: '0.725rem', fontWeight: 900, fontFamily: 'monospace' }}>
+                      {tender.id}
+                    </span>
+                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: 6, backgroundColor: '#ECFDF5', color: '#047857', fontSize: '0.725rem', fontWeight: 800 }}>
+                      {tender.category}
+                    </span>
+                    {isOpen ? (
+                      <span style={{ padding: '0.2rem 0.6rem', borderRadius: 6, backgroundColor: '#D1FAE5', color: '#047857', fontSize: '0.725rem', fontWeight: 900 }}>
+                        🟢 ACTIVE &amp; OPEN
+                      </span>
+                    ) : (
+                      <span style={{ padding: '0.2rem 0.6rem', borderRadius: 6, backgroundColor: '#FEF2F2', color: '#DC2626', fontSize: '0.725rem', fontWeight: 900 }}>
+                        🔴 BIDDING CLOSED (OFF)
+                      </span>
+                    )}
+                  </div>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+                    {tender.title}
+                  </h3>
                 </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
-                  {tender.title}
-                </h3>
+
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>Estimated Order Value</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ED1C24' }}>{tender.estimatedCost}</div>
+                </div>
               </div>
 
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 700 }}>Estimated Order Value</div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ED1C24' }}>{tender.estimatedCost}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem', padding: '0.85rem 1rem', backgroundColor: '#F8FAFC', borderRadius: 12, fontSize: '0.8rem', color: '#334155' }}>
+                <div><strong>Location:</strong> {tender.location}</div>
+                <div><strong>Published On:</strong> {tender.publishDate}</div>
+                <div><strong>Submission Deadline:</strong> <span style={{ color: isOpen ? '#ED1C24' : '#64748B', fontWeight: 800 }}>{tender.dueDate}</span></div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', paddingTop: '0.5rem', borderTop: '1px dashed #E2E8F0' }}>
+                <div style={{ fontSize: '0.78rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <AlertCircle style={{ width: 14, height: 14, color: '#0047AB' }} />
+                  <span><strong>Eligibility:</strong> {tender.eligibility}</span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.65rem' }}>
+                  <Link
+                    to="/vendor-login"
+                    style={{ padding: '0.5rem 0.95rem', fontSize: '0.8rem', fontWeight: 800, borderRadius: 10, border: '1px solid #CBD5E1', backgroundColor: '#FFFFFF', color: '#334155', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none' }}
+                    title="Sign in to Vendor Portal to download official Tender Package PDF"
+                  >
+                    <Download style={{ width: 14, height: 14 }} />
+                    <span>Download Package PDF</span>
+                  </Link>
+
+                  {isOpen ? (
+                    <Link
+                      to="/apply"
+                      className="btn-accent"
+                      style={{ padding: '0.5rem 1.15rem', fontSize: '0.8rem', borderRadius: 10, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                    >
+                      <span>Empanel to Bid</span>
+                      <ArrowRight style={{ width: 14, height: 14 }} />
+                    </Link>
+                  ) : (
+                    <span
+                      style={{ padding: '0.5rem 1.15rem', fontSize: '0.8rem', fontWeight: 800, borderRadius: 10, backgroundColor: '#F1F5F9', color: '#64748B', cursor: 'not-allowed', border: '1px solid #CBD5E1', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                      title="Bidding window has been closed by the Procurement Committee"
+                    >
+                      <span>Bidding Closed</span>
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem', padding: '0.85rem 1rem', backgroundColor: '#F8FAFC', borderRadius: 12, fontSize: '0.8rem', color: '#334155' }}>
-              <div><strong>Location:</strong> {tender.location}</div>
-              <div><strong>Published On:</strong> {tender.publishDate}</div>
-              <div><strong>Submission Deadline:</strong> <span style={{ color: '#ED1C24', fontWeight: 800 }}>{tender.dueDate}</span></div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', paddingTop: '0.5rem', borderTop: '1px dashed #E2E8F0' }}>
-              <div style={{ fontSize: '0.78rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <AlertCircle style={{ width: 14, height: 14, color: '#0047AB' }} />
-                <span><strong>Eligibility:</strong> {tender.eligibility}</span>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.65rem' }}>
-                <Link
-                  to="/vendor-login"
-                  style={{ padding: '0.5rem 0.95rem', fontSize: '0.8rem', fontWeight: 800, borderRadius: 10, border: '1px solid #CBD5E1', backgroundColor: '#FFFFFF', color: '#334155', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none' }}
-                  title="Sign in to Vendor Portal to download official Tender Package PDF"
-                >
-                  <Download style={{ width: 14, height: 14 }} />
-                  <span>Download Tender Package PDF</span>
-                </Link>
-
-                <Link
-                  to="/apply"
-                  className="btn-accent"
-                  style={{ padding: '0.5rem 1.15rem', fontSize: '0.8rem', borderRadius: 10, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-                >
-                  <span>Empanel to Bid</span>
-                  <ArrowRight style={{ width: 14, height: 14 }} />
-                </Link>
-              </div>
-            </div>
-
-          </div>
-        ))}
+          );
+        })}
       </div>
 
     </div>

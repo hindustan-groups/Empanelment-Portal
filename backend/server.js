@@ -1278,9 +1278,17 @@ app.post('/api/test-email', adminAuthMiddleware, async (req, res) => {
 //                     TENDERS API ENDPOINTS
 // ════════════════════════════════════════════════════════════════
 
-// GET /api/tenders — Fetch active tenders
+// GET /api/tenders — Fetch active tenders (optional status filter)
 app.get('/api/tenders', (req, res) => {
-  db.all(`SELECT * FROM tenders ORDER BY id DESC`, [], (err, rows) => {
+  const reqStatus = req.query.status || req.query.active_only;
+  let sql = `SELECT * FROM tenders ORDER BY id DESC`;
+  let params = [];
+
+  if (reqStatus && (reqStatus === 'true' || reqStatus.toUpperCase() === 'ACTIVE')) {
+    sql = `SELECT * FROM tenders WHERE UPPER(status) = 'ACTIVE' ORDER BY id DESC`;
+  }
+
+  db.all(sql, params, (err, rows) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, count: rows.length, data: rows });
   });

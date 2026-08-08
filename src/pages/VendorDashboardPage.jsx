@@ -85,7 +85,8 @@ export default function VendorDashboardPage() {
             val: t.estimated_value || '₹ TBD',
             location: t.location || 'Rajasthan',
             end: t.due_date || 'Open',
-            scope: t.category || 'Empanelled vendor opportunity'
+            scope: t.category || 'Empanelled vendor opportunity',
+            status: (t.status || 'ACTIVE').toUpperCase()
           })));
         }
       })
@@ -701,41 +702,67 @@ export default function VendorDashboardPage() {
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {liveTenders.map((tnd, idx) => (
-                <div key={idx} style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.65rem' }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 4 }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.6rem', borderRadius: 6, fontFamily: 'monospace' }}>
-                          {tnd.ref}
-                        </span>
-                        <span style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 800 }}>✓ EMD WAIVED</span>
+              {liveTenders.map((tnd, idx) => {
+                const isOpen = (tnd.status || 'ACTIVE').toUpperCase() === 'ACTIVE';
+
+                return (
+                  <div key={idx} style={{
+                    padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)',
+                    border: isOpen ? '1px solid var(--border-color)' : '1px solid #CBD5E1',
+                    opacity: isOpen ? 1 : 0.85
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.65rem' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 4 }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.6rem', borderRadius: 6, fontFamily: 'monospace' }}>
+                            {tnd.ref}
+                          </span>
+                          {isOpen ? (
+                            <span style={{ fontSize: '0.72rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: '#D1FAE5', color: '#047857' }}>
+                              🟢 ACTIVE &amp; ON • ✓ EMD WAIVED
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '0.72rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: '#FEF2F2', color: '#DC2626' }}>
+                              🔴 BIDDING CLOSED (OFF)
+                            </span>
+                          )}
+                        </div>
+                        <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A' }}>{tnd.title}</h4>
                       </div>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A' }}>{tnd.title}</h4>
+
+                      {isOpen ? (
+                        <button
+                          className="btn-primary"
+                          onClick={() => { setBiddingTender(tnd); setBidAmount(tnd.val.replace('₹ ', '').replace(' Crores', '')); setBidSubmitted(false); }}
+                          style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10, background: '#0047AB' }}
+                        >
+                          <span>Submit Tender Bid</span>
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10, background: '#F1F5F9', color: '#64748B', border: '1px solid #CBD5E1', cursor: 'not-allowed', fontWeight: 700 }}
+                          title="Bidding closed by Procurement Committee"
+                        >
+                          <span>Bidding Closed</span>
+                        </button>
+                      )}
                     </div>
 
-                    <button
-                      className="btn-primary"
-                      onClick={() => { setBiddingTender(tnd); setBidAmount(tnd.val.replace('₹ ', '').replace(' Crores', '')); setBidSubmitted(false); }}
-                      style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10, background: '#0047AB' }}
-                    >
-                      <span>Submit Tender Bid</span>
-                    </button>
-                  </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', lineHeight: 1.45 }}>
+                      <strong>Scope Summary:</strong> {tnd.scope}
+                    </div>
 
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', lineHeight: 1.45 }}>
-                    <strong>Scope Summary:</strong> {tnd.scope}
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
+                      <span>Estimated Package Value: <strong style={{ color: '#047857' }}>{tnd.val}</strong></span>
+                      <span>•</span>
+                      <span>Location: <strong>{tnd.location}</strong></span>
+                      <span>•</span>
+                      <span>Bid Deadline: <strong>{tnd.end}</strong></span>
+                    </div>
                   </div>
-
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
-                    <span>Estimated Package Value: <strong style={{ color: '#047857' }}>{tnd.val}</strong></span>
-                    <span>•</span>
-                    <span>Location: <strong>{tnd.location}</strong></span>
-                    <span>•</span>
-                    <span>Bid Deadline: <strong>{tnd.end}</strong></span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
