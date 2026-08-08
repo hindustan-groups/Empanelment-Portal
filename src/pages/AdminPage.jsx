@@ -770,13 +770,12 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const getAppId = (v) => {
     if (!v) return '';
-    return String(v.tracking_id || v.trackingId || v.id || '').trim();
+    return String(v.tracking_id || v.trackingId || v.id || '').trim().toUpperCase();
   };
 
   const fetchVendors = async () => {
     setLoading(true);
 
-    // On localhost, local backend doesn't support admin endpoints — skip API call silently
     const backendUrl = API_BASE_URL;
 
     let apiData = [];
@@ -828,7 +827,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     // Read deleted IDs blacklist from localStorage
     let deletedIds = [];
     try {
-      deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
+      deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim().toUpperCase());
     } catch (e) {}
 
     // Filter out deleted/archived IDs permanently!
