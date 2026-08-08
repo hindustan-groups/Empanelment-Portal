@@ -967,10 +967,8 @@ function buildDossierHTML({ trackingId, formData }) {
             <img src="${formData?.adminSeal || formData?.companySeal || '/hipro-watermark-seal.jpg'}" alt="Official Corporate Seal" style="height:55px;max-width:110px;object-fit:contain;display:block;margin:0 auto 4px auto"/>
             <div style="font-size:7pt;font-weight:800;color:${HP_TEXT}">HINDUSTAN PROJECTS BHILWARA HQ</div>
           ` : `
-            <div style="border:1.5px dashed #CBD5E1;border-radius:8px;padding:10px 4px;color:#64748B;font-size:7pt;font-weight:800;text-align:center;background:#F8FAFC;margin:4px 0">
-              🔒 PROVISIONAL FILING<br/><span style="font-size:6.2pt;color:#94A3B8">SEAL ATTACHED UPON APPROVAL</span>
-            </div>
-            <div style="font-size:6.8pt;font-weight:700;color:#94A3B8">Pending Admin Audit</div>
+            <div style="border:1.5px dashed #CBD5E1;border-radius:8px;height:55px;width:110px;margin:0 auto 4px auto;background:#FAFAFA"></div>
+            <div style="font-size:6.8pt;font-weight:700;color:#94A3B8">( Stamp Space Upon Approval )</div>
           `}
         </div>
 
@@ -984,11 +982,10 @@ function buildDossierHTML({ trackingId, formData }) {
             <div class="sig-name">${formData?.adminCeoName || 'Authorized Signatory (CEO Office)'}</div>
             <div class="sig-date">${formData?.adminOfficerName || 'Procurement Officer'} · ${formData?.adminSignedAt || filingDate}</div>
           ` : `
-            <div style="border:1.5px dashed #CBD5E1;border-radius:8px;padding:10px 4px;color:#64748B;font-size:7pt;font-weight:800;text-align:center;background:#F8FAFC;margin:4px 0">
-              ⏳ UNDER VERIFICATION<br/><span style="font-size:6.2pt;color:#94A3B8">SIGNATURE PENDING AUDIT</span>
-            </div>
-            <div class="sig-label" style="margin-top:2px">For Hindustan Projects</div>
-            <div class="sig-name" style="color:#94A3B8">Executive Office Sign-off Pending</div>
+            <div style="border:1.5px dashed #CBD5E1;border-radius:8px;height:42px;width:140px;margin:0 0 4px auto;background:#FAFAFA"></div>
+            <div class="sig-line" style="margin-left:auto"></div>
+            <div class="sig-label">For Hindustan Projects</div>
+            <div class="sig-name" style="color:#94A3B8">( CEO Signature Upon Approval )</div>
           `}
         </div>
 

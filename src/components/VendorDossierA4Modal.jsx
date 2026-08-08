@@ -392,8 +392,8 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
                     </div>
                   </>
                 ) : (
-                  <div style={{ padding: '0.65rem 0.4rem', border: '1px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.68rem', fontWeight: 800 }}>
-                    🔒 PENDING APPROVAL<br/><span style={{ fontSize: '0.6rem', color: '#64748B' }}>Seal Attached by Admin</span>
+                  <div style={{ height: 50, border: '1.5px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.68rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F172A' }}>
+                    ( Stamp Space Upon Approval )
                   </div>
                 )}
               </div>
@@ -411,8 +411,8 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
                     </div>
                   </>
                 ) : (
-                  <div style={{ padding: '0.65rem 0.4rem', border: '1px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.68rem', fontWeight: 800 }}>
-                    ⏳ UNDER VERIFICATION<br/><span style={{ fontSize: '0.6rem', color: '#64748B' }}>CEO Sign-off Pending</span>
+                  <div style={{ height: 45, border: '1.5px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.68rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F172A' }}>
+                    ( CEO Signature Upon Approval )
                   </div>
                 )}
               </div>

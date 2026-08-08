@@ -115,7 +115,7 @@ const uploadRateLimiter = rateLimit({
 });
 
 async function uploadFileToCloudinary(filePath, mimetype) {
-  if (!cloudinary) return null;
+  if (!cloudinary || !process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY) return null;
   try {
     const resourceType = mimetype === 'application/pdf' ? 'raw' : 'auto';
     const res = await cloudinary.uploader.upload(filePath, {

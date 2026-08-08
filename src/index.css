@@ -3210,3 +3210,29 @@ body {
     font-size: 0.65rem !important;
   }
 }
+
+/* ── Mobile Success Modal Overhaul ── */
+@media (max-width: 640px) {
+  .modal-backdrop {
+    padding: 0.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .modal-content {
+    padding: 1.25rem 1rem !important;
+    border-radius: 16px !important;
+    max-height: 92vh !important;
+    overflow-y: auto !important;
+    width: 100% !important;
+  }
+  .modal-content table {
+    display: block !important;
+    overflow-x: auto !important;
+    width: 100% !important;
+  }
+  .modal-content div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+

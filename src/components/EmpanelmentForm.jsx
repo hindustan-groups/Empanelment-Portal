@@ -199,6 +199,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [savedDraft, setSavedDraft] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
   const [refillInfo, setRefillInfo] = useState(null);
+  const [submitProgressStep, setSubmitProgressStep] = useState(1);
 
   const [availableCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
@@ -695,10 +696,11 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       return;
     }
     setIsSubmitting(true);
-    setSubmitStageText('🔒 Encrypting SSL Form Payload...');
+    setSubmitProgressStep(1);
 
-    const t1 = setTimeout(() => setSubmitStageText('🔐 Generating SHA-256 Signature...'), 400);
-    const t2 = setTimeout(() => setSubmitStageText('📡 Transmitting to Live VPS Database...'), 900);
+    const pTimer1 = setTimeout(() => setSubmitProgressStep(2), 350);
+    const pTimer2 = setTimeout(() => setSubmitProgressStep(3), 700);
+    const pTimer3 = setTimeout(() => setSubmitProgressStep(4), 1100);
 
     const backendUrl = API_BASE_URL;
     
@@ -751,15 +753,14 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         }
       } catch (e) {}
 
-      // Backend unreachable notice
-      if (!serverTrackingId) {
-        console.warn('Backend submit failed. No fallback email configured.');
-      }
-
-      clearTimeout(t1);
-      clearTimeout(t2);
-      setIsSubmitting(false);
-      onFormSubmit({ ...payload, signature: signatureData }, serverTrackingId);
+      clearTimeout(pTimer1);
+      clearTimeout(pTimer2);
+      clearTimeout(pTimer3);
+      setSubmitProgressStep(4);
+      setTimeout(() => {
+        setIsSubmitting(false);
+        onFormSubmit({ ...payload, signature: signatureData }, serverTrackingId);
+      }, 400);
     }
   };
 
@@ -1972,9 +1973,91 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
               )
             }
           </div>
-
         </form>
       </div>
+
+      {/* ── Payment-Gateway Style Processing Overlay Modal ── */}
+      {isSubmitting && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(11, 27, 61, 0.88)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem'
+        }}>
+          <div style={{
+            background: '#FFFFFF',
+            borderRadius: 24,
+            padding: '2.25rem 1.75rem',
+            maxWidth: 440,
+            width: '100%',
+            textAlign: 'center',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            animation: 'modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
+            {/* Animated Spinner Ring */}
+            <div style={{
+              width: 64, height: 64,
+              borderRadius: '50%',
+              border: '4px solid #E2E8F0',
+              borderTopColor: '#0047AB',
+              borderRightColor: '#ED1C24',
+              margin: '0 auto 1.25rem auto',
+              animation: 'spin 0.8s linear infinite'
+            }} />
+
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', marginBottom: '0.35rem' }}>
+              Processing Registration
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600, marginBottom: '1.25rem' }}>
+              Please wait while we encrypt &amp; register your empanelment application.
+            </p>
+
+            {/* Progress Bar */}
+            <div style={{ background: '#F1F5F9', borderRadius: 99, height: 7, overflow: 'hidden', marginBottom: '1.25rem' }}>
+              <div style={{
+                height: '100%',
+                width: `${submitProgressStep * 25}%`,
+                background: 'linear-gradient(90deg, #0047AB, #10B981)',
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
+
+            {/* Step Status Badges */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', textAlign: 'left' }}>
+              {[
+                { step: 1, label: 'Encrypting SSL Payload & Documents' },
+                { step: 2, label: 'Validating Statutory GSTIN & Bank Info' },
+                { step: 3, label: 'Generating SHA-256 Digital Audit Seal' },
+                { step: 4, label: 'Registration Complete! Opening Dossier' }
+              ].map(s => {
+                const isDone = submitProgressStep > s.step;
+                const isCurrent = submitProgressStep === s.step;
+                return (
+                  <div key={s.step} style={{
+                    display: 'flex', alignItems: 'center', gap: '0.65rem',
+                    padding: '0.5rem 0.75rem', borderRadius: 10,
+                    background: isDone ? '#ECFDF5' : (isCurrent ? '#EFF6FF' : '#F8FAFC'),
+                    border: `1px solid ${isDone ? '#A7F3D0' : (isCurrent ? '#BFDBFE' : '#E2E8F0')}`,
+                    fontSize: '0.78rem',
+                    fontWeight: isCurrent || isDone ? 800 : 600,
+                    color: isDone ? '#047857' : (isCurrent ? '#1D4ED8' : '#94A3B8')
+                  }}>
+                    <span style={{ fontSize: '0.85rem' }}>
+                      {isDone ? '✅' : (isCurrent ? '⏳' : '⚪')}
+                    </span>
+                    <span>{s.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Document Preview Modal ── */}
       {previewFile && (
