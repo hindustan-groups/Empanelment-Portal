@@ -108,20 +108,20 @@ export default function GuidelinesPage() {
                 <CheckCircle2 style={{ width: 20, height: 20, flexShrink: 0, color: '#10B981' }} />
                 <span>Mandatory Vendor Filing Prerequisites:</span>
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem' }}>
-                <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+              <div className="guidelines-prereq-grid">
+                <div className="guidelines-prereq-card">
                   <strong style={{ color: '#0F172A', display: 'block', marginBottom: 2 }}>🆔 Valid Govt Tax Identity</strong>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>10-Digit PAN Card &amp; 15-Digit GSTIN Certificate (or MSME GST exemption declaration).</span>
                 </div>
-                <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div className="guidelines-prereq-card">
                   <strong style={{ color: '#0F172A', display: 'block', marginBottom: 2 }}>🏦 Verified Banking Credentials</strong>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Cancelled Cheque or Passbook showing Account Number &amp; IFSC code for RTGS payout.</span>
                 </div>
-                <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div className="guidelines-prereq-card">
                   <strong style={{ color: '#0F172A', display: 'block', marginBottom: 2 }}>📄 Identity Proofs (Front &amp; Back)</strong>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Mandatory upload of PAN Card and Aadhaar Card (Front &amp; Back side scans).</span>
                 </div>
-                <div style={{ padding: '0.85rem 1rem', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div className="guidelines-prereq-card">
                   <strong style={{ color: '#0F172A', display: 'block', marginBottom: 2 }}>✍️ Digital Legal Signature</strong>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Digital canvas signature &amp; Place of Signing declaration on final step.</span>
                 </div>
@@ -133,18 +133,20 @@ export default function GuidelinesPage() {
               <h3 style={{ fontWeight: 900, marginBottom: '1rem', color: '#0F172A', fontSize: '1.1rem' }}>
                 Empanelment Classification &amp; Capability Matrix:
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.15rem' }}>
+              <div className="guidelines-tier-grid">
                 
                 {/* Class A */}
-                <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '2px solid #0047AB', boxShadow: '0 4px 16px rgba(0,71,171,0.08)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
-                    <span style={{ color: '#0047AB', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-A (TIER 1 PRIME)</span>
-                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'rgba(0,71,171,0.12)', color: '#0047AB', fontSize: '0.725rem', fontWeight: 900 }}>PAN-INDIA</span>
+                <div className="guidelines-tier-card tier-a">
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                      <span style={{ color: '#0047AB', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-A (TIER 1 PRIME)</span>
+                      <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'rgba(0,71,171,0.12)', color: '#0047AB', fontSize: '0.725rem', fontWeight: 900 }}>PAN-INDIA</span>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
+                      Prime EPC Contractors, Turnkey Infrastructure Firms, and Certified Lead Architects.
+                    </p>
                   </div>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
-                    Prime EPC Contractors, Turnkey Infrastructure Firms, and Certified Lead Architects.
-                  </p>
-                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', margin: 0 }}>
                     <li><strong>Turnover:</strong> &gt; ₹ 5.0 Crores per annum.</li>
                     <li><strong>Eligibility:</strong> Commercial towers &amp; major civil works.</li>
                     <li><strong>EMD Benefit:</strong> EMD Waiver on active tenders.</li>
@@ -152,15 +154,17 @@ export default function GuidelinesPage() {
                 </div>
 
                 {/* Class B */}
-                <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1.5px solid #10B981', boxShadow: '0 4px 16px rgba(16,185,129,0.08)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
-                    <span style={{ color: '#047857', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-B (TIER 2 SPECIALISTS)</span>
-                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'rgba(16,185,129,0.12)', color: '#047857', fontSize: '0.725rem', fontWeight: 900 }}>REGIONAL</span>
+                <div className="guidelines-tier-card tier-b">
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                      <span style={{ color: '#047857', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-B (TIER 2 SPECIALISTS)</span>
+                      <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'rgba(16,185,129,0.12)', color: '#047857', fontSize: '0.725rem', fontWeight: 900 }}>REGIONAL</span>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
+                      Specialist Sub-Contractors, MEP Engineers, Material Suppliers, and Interior Decorators.
+                    </p>
                   </div>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
-                    Specialist Sub-Contractors, MEP Engineers, Material Suppliers, and Interior Decorators.
-                  </p>
-                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', margin: 0 }}>
                     <li><strong>Turnover:</strong> ₹ 50 Lakhs to ₹ 5.0 Crores per annum.</li>
                     <li><strong>Eligibility:</strong> MEP works, HVAC &amp; steel supply.</li>
                     <li><strong>Payouts:</strong> 7-day milestone payment release.</li>
@@ -168,15 +172,17 @@ export default function GuidelinesPage() {
                 </div>
 
                 {/* Class C */}
-                <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1.5px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
-                    <span style={{ color: '#64748B', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-C (TIER 3 SUPPLIERS)</span>
-                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'var(--bg-surface)', color: '#64748B', fontSize: '0.725rem', fontWeight: 900 }}>LOCAL</span>
+                <div className="guidelines-tier-card tier-c">
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                      <span style={{ color: '#64748B', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-C (TIER 3 SUPPLIERS)</span>
+                      <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'var(--bg-surface)', color: '#64748B', fontSize: '0.725rem', fontWeight: 900 }}>LOCAL</span>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
+                      Local Material Vendors, Heavy Equipment Hirers, Soil Testing Labs, and PMC Support.
+                    </p>
                   </div>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
-                    Local Material Vendors, Heavy Equipment Hirers, Soil Testing Labs, and PMC Support.
-                  </p>
-                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', margin: 0 }}>
                     <li><strong>Turnover:</strong> Up to ₹ 50 Lakhs per annum.</li>
                     <li><strong>MSME Exemption:</strong> 100% Fee Waiver for UDYAM.</li>
                     <li><strong>Empanelment:</strong> Valid for 1 Financial Year.</li>
@@ -184,15 +190,17 @@ export default function GuidelinesPage() {
                 </div>
 
                 {/* Class D */}
-                <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1.5px solid #F59E0B' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
-                    <span style={{ color: '#D97706', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-D (EMERGING / MSME)</span>
-                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'rgba(245,158,11,0.12)', color: '#D97706', fontSize: '0.725rem', fontWeight: 900 }}>MICRO</span>
+                <div className="guidelines-tier-card tier-d">
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                      <span style={{ color: '#D97706', fontWeight: 900, fontSize: '0.95rem' }}>CLASS-D (EMERGING / MSME)</span>
+                      <span style={{ padding: '0.2rem 0.6rem', borderRadius: 99, background: 'rgba(245,158,11,0.12)', color: '#D97706', fontSize: '0.725rem', fontWeight: 900 }}>MICRO</span>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
+                      Specialized Skilled Artisans, Labor Supervisors, Safety Inspectors, and Niche Craftsmen.
+                    </p>
                   </div>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.85rem', lineHeight: 1.45 }}>
-                    Specialized Skilled Artisans, Labor Supervisors, Safety Inspectors, and Niche Craftsmen.
-                  </p>
-                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <ul style={{ fontSize: '0.78rem', color: 'var(--text-muted)', paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', margin: 0 }}>
                     <li><strong>Turnover:</strong> New Entrants &amp; Micro Firms.</li>
                     <li><strong>Fast-Track:</strong> Simplified single-page verification.</li>
                     <li><strong>Site Pass:</strong> Smart PVC Gate Pass enabled.</li>
