@@ -1298,7 +1298,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.5rem 1.75rem', gap: '2rem', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
             
             {/* Left: Logo + Title */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: '1 1 400px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: '1 1 240px', minWidth: 0 }}>
               <Logo height={48} />
               <div style={{ borderLeft: '1px solid rgba(255,255,255,0.15)', paddingLeft: '1.25rem' }}>
                 <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.3rem' }}>
@@ -1314,7 +1314,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
             </div>
 
             {/* Right: KPI Metric Cards */}
-            <div style={{ display: 'flex', gap: '0.75rem', flexShrink: 0, flexWrap: 'wrap' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))', gap: '0.6rem', width: '100%', maxWidth: 520 }}>
               {[
                 { label: 'TOTAL APPS', value: totalApps,    bg: 'rgba(255,255,255,0.07)', border: 'rgba(255,255,255,0.14)', color: '#FFFFFF',  labelColor: '#94A3B8' },
                 { label: 'APPROVED',   value: approvedApps, bg: 'rgba(16,185,129,0.14)', border: 'rgba(16,185,129,0.3)',  color: '#34D399',  labelColor: '#6EE7B7' },
