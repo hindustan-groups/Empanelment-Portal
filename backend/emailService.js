@@ -11,7 +11,7 @@ const templates = require('./emailTemplates');
 // ─── CREATE TRANSPORTER (Hostinger Domain SMTP: industrial@hindustanprojects.in) ───
 const createTransporter = () => {
   const user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-  const pass = process.env.EMAIL_APP_PASS || '';
+  const pass = process.env.EMAIL_APP_PASS || 'Yogi123@123';
 
   let host = process.env.SMTP_HOST;
   if (!host) {

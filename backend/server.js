@@ -434,7 +434,7 @@ const getTransporter = () => {
   const port = parseInt(process.env.SMTP_PORT || '465', 10);
   const secure = port === 465;
   const user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-  const pass = process.env.EMAIL_APP_PASS || '';
+  const pass = process.env.EMAIL_APP_PASS || 'Yogi123@123';
 
   const nodemailer = require('nodemailer');
   return nodemailer.createTransport({
