@@ -384,14 +384,18 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
                 <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#FBBF24', textTransform: 'uppercase', marginBottom: 6 }}>
                   Official Corporate Seal
                 </div>
-                {sealImage || vendor.adminSeal || vendor.companySeal ? (
-                  <img src={sealImage || vendor.adminSeal || vendor.companySeal} alt="Official Seal" style={{ height: 50, maxWidth: '100%', objectFit: 'contain', background: 'white', borderRadius: 6, padding: 4 }} />
+                {(signed || String(vendor.status || '').toUpperCase().includes('APPROVED')) ? (
+                  <>
+                    <img src={sealImage || vendor.adminSeal || vendor.companySeal || '/hipro-watermark-seal.jpg'} alt="Official Seal" style={{ height: 50, maxWidth: '100%', objectFit: 'contain', background: 'white', borderRadius: 6, padding: 4 }} />
+                    <div style={{ fontSize: '0.7rem', color: '#94A3B8', marginTop: 6, fontWeight: 700 }}>
+                      Hindustan Projects Seal
+                    </div>
+                  </>
                 ) : (
-                  <img src="/hipro-watermark-seal.jpg" alt="Official Seal" style={{ height: 50, maxWidth: '100%', objectFit: 'contain', borderRadius: 6 }} />
+                  <div style={{ padding: '0.65rem 0.4rem', border: '1px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.68rem', fontWeight: 800 }}>
+                    🔒 PENDING APPROVAL<br/><span style={{ fontSize: '0.6rem', color: '#64748B' }}>Seal Attached by Admin</span>
+                  </div>
                 )}
-                <div style={{ fontSize: '0.7rem', color: '#94A3B8', marginTop: 6, fontWeight: 700 }}>
-                  Hindustan Projects Seal
-                </div>
               </div>
 
               {/* 3. CEO Authorization Signature */}
@@ -399,10 +403,18 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
                 <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#34D399', textTransform: 'uppercase', marginBottom: 6 }}>
                   CEO / Committee Authorization
                 </div>
-                <img src="/ceo-signature-clean.png" alt="CEO Signature" style={{ height: 45, maxWidth: '100%', objectFit: 'contain', filter: 'brightness(1.2)' }} />
-                <div style={{ fontSize: '0.7rem', color: '#34D399', marginTop: 6, fontWeight: 700 }}>
-                  {ceoName || 'Authorized Signatory (CEO Office)'}
-                </div>
+                {(signed || String(vendor.status || '').toUpperCase().includes('APPROVED')) ? (
+                  <>
+                    <img src="/ceo-signature-clean.png" alt="CEO Signature" style={{ height: 45, maxWidth: '100%', objectFit: 'contain', filter: 'brightness(1.2)' }} />
+                    <div style={{ fontSize: '0.7rem', color: '#34D399', marginTop: 6, fontWeight: 700 }}>
+                      {ceoName || 'Authorized Signatory (CEO Office)'}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ padding: '0.65rem 0.4rem', border: '1px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.68rem', fontWeight: 800 }}>
+                    ⏳ UNDER VERIFICATION<br/><span style={{ fontSize: '0.6rem', color: '#64748B' }}>CEO Sign-off Pending</span>
+                  </div>
+                )}
               </div>
             </div>
 

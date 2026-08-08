@@ -962,31 +962,53 @@ function buildDossierHTML({ trackingId, formData }) {
 
         <!-- Middle: Official Corporate Seal / Stamp -->
         <div style="flex:1;text-align:center">
-          <div style="font-size:7pt;font-weight:900;color:${HP_RED};margin-bottom:3px">OFFICIAL CORPORATE SEAL</div>
-          <img src="${formData?.adminSeal || formData?.companySeal || '/hipro-watermark-seal.jpg'}" alt="Official Corporate Seal" style="height:55px;max-width:110px;object-fit:contain;display:block;margin:0 auto 4px auto"/>
-          <div style="font-size:7pt;font-weight:800;color:${HP_TEXT}">HINDUSTAN PROJECTS BHILWARA HQ</div>
+          <div style="font-size:7pt;font-weight:900;color:${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? HP_RED : HP_MUTED};margin-bottom:3px">OFFICIAL CORPORATE SEAL</div>
+          ${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? `
+            <img src="${formData?.adminSeal || formData?.companySeal || '/hipro-watermark-seal.jpg'}" alt="Official Corporate Seal" style="height:55px;max-width:110px;object-fit:contain;display:block;margin:0 auto 4px auto"/>
+            <div style="font-size:7pt;font-weight:800;color:${HP_TEXT}">HINDUSTAN PROJECTS BHILWARA HQ</div>
+          ` : `
+            <div style="border:1.5px dashed #CBD5E1;border-radius:8px;padding:10px 4px;color:#64748B;font-size:7pt;font-weight:800;text-align:center;background:#F8FAFC;margin:4px 0">
+              🔒 PROVISIONAL FILING<br/><span style="font-size:6.2pt;color:#94A3B8">SEAL ATTACHED UPON APPROVAL</span>
+            </div>
+            <div style="font-size:6.8pt;font-weight:700;color:#94A3B8">Pending Admin Audit</div>
+          `}
         </div>
 
         <!-- Right: For Hindustan Projects + CEO Signature -->
         <div style="flex:1;text-align:right">
-          <div style="font-size:7pt;font-weight:900;color:#047857;margin-bottom:3px">CEO &amp; PROCUREMENT AUTHORIZATION</div>
-          <img src="${formData?.ceoSignature || '/ceo-signature-clean.png'}" alt="CEO Signature" style="height:42px;max-width:140px;object-fit:contain;display:block;margin:0 0 4px auto"/>
-          <div class="sig-line"></div>
-          <div class="sig-label">For Hindustan Projects</div>
-          <div class="sig-name">${formData?.adminSigned ? (formData?.adminCeoName || 'Authorized Signatory (CEO Office)') : 'Authorized Signatory (CEO Office)'}</div>
-          <div class="sig-date">${formData?.adminSigned ? (formData?.adminOfficerName || 'Procurement Officer') : 'Bhilwara Corporate HQ'}</div>
+          <div style="font-size:7pt;font-weight:900;color:${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? '#047857' : HP_MUTED};margin-bottom:3px">CEO &amp; PROCUREMENT AUTHORIZATION</div>
+          ${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? `
+            <img src="${formData?.ceoSignature || '/ceo-signature-clean.png'}" alt="CEO Signature" style="height:42px;max-width:140px;object-fit:contain;display:block;margin:0 0 4px auto"/>
+            <div class="sig-line"></div>
+            <div class="sig-label">For Hindustan Projects</div>
+            <div class="sig-name">${formData?.adminCeoName || 'Authorized Signatory (CEO Office)'}</div>
+            <div class="sig-date">${formData?.adminOfficerName || 'Procurement Officer'} · ${formData?.adminSignedAt || filingDate}</div>
+          ` : `
+            <div style="border:1.5px dashed #CBD5E1;border-radius:8px;padding:10px 4px;color:#64748B;font-size:7pt;font-weight:800;text-align:center;background:#F8FAFC;margin:4px 0">
+              ⏳ UNDER VERIFICATION<br/><span style="font-size:6.2pt;color:#94A3B8">SIGNATURE PENDING AUDIT</span>
+            </div>
+            <div class="sig-label" style="margin-top:2px">For Hindustan Projects</div>
+            <div class="sig-name" style="color:#94A3B8">Executive Office Sign-off Pending</div>
+          `}
         </div>
 
       </div>
 
-      ${formData?.adminSigned ? `
+      ${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? `
       <div style="margin-top:10px;padding:8px 12px;background:#D1FAE5;border:1.5px solid #10B981;border-radius:8px;display:flex;align-items:center;gap:8px">
         <span style="font-size:12pt">✅</span>
         <div>
-          <div style="font-size:8.5pt;font-weight:900;color:#065F46">APPLICATION ${(formData?.adminApprovalClass || 'APPROVED').toUpperCase()} — OFFICIAL AUTHORIZATION</div>
+          <div style="font-size:8.5pt;font-weight:900;color:#065F46">APPLICATION ${(formData?.adminApprovalClass || formData?.status || 'APPROVED').toUpperCase()} — OFFICIAL AUTHORIZATION</div>
           <div style="font-size:7pt;color:#047857">Authorized on ${formData?.adminSignedAt || filingDate} by Procurement Committee, Hindustan Projects · Ref: ${trackingId}</div>
         </div>
-      </div>` : ''}
+      </div>` : `
+      <div style="margin-top:10px;padding:8px 12px;background:#FFFBEB;border:1.5px solid #F59E0B;border-radius:8px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:12pt">📋</span>
+        <div>
+          <div style="font-size:8.5pt;font-weight:900;color:#B45309">PROVISIONAL EMPANELMENT DOSSIER — UNDER VERIFICATION</div>
+          <div style="font-size:7pt;color:#D97706">Submitted on ${filingDate} · Official CEO Signature &amp; Corporate Seal will be appended upon Admin Approval · Ref: ${trackingId}</div>
+        </div>
+      </div>`}
     </div>
   </div>
 
