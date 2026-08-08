@@ -1379,7 +1379,7 @@ app.post('/api/deploy-webhook', (req, res) => {
   const { exec } = require('child_process');
   console.log('🔄 GitHub Push Webhook Triggered: Auto-deploying latest master code...');
 
-  exec('cd /var/www/Empanelment-Portal && git pull origin master && npm run build && pm2 restart hipro-backend', (error, stdout, stderr) => {
+  exec('cd /var/www/Empanelment-Portal && git pull origin master && npm run build && pm2 restart hipro-empanelment-backend', (error, stdout, stderr) => {
     if (error) {
       console.error('❌ Auto-deploy failed:', error.message);
       return res.status(500).json({ success: false, error: error.message });
