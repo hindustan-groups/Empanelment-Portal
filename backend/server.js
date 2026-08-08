@@ -1299,6 +1299,32 @@ app.post('/api/tenders', adminAuthMiddleware, (req, res) => {
   });
 });
 
+// PUT /api/tenders/:id — Update a tender (PROTECTED)
+app.put('/api/tenders/:id', adminAuthMiddleware, (req, res) => {
+  const { id } = req.params;
+  const { tender_no, title, category, estimated_value, location, due_date, status } = req.body;
+  
+  const query = `UPDATE tenders SET tender_no = ?, title = ?, category = ?, estimated_value = ?, location = ?, due_date = ?, status = ? WHERE id = ?`;
+  db.run(query, [tender_no, title, category, estimated_value, location, due_date, status || 'ACTIVE', id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, updated: this.changes, message: 'Tender updated successfully ✅' });
+  });
+});
+
+// PATCH /api/tenders/:id/status — Toggle ON/OFF or update tender status (PROTECTED)
+app.patch('/api/tenders/:id/status', adminAuthMiddleware, (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  if (!status) {
+    return res.status(400).json({ success: false, error: 'Status is required' });
+  }
+
+  db.run(`UPDATE tenders SET status = ? WHERE id = ?`, [status, id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, updated: this.changes, status });
+  });
+});
+
 // DELETE /api/tenders/:id — Delete a tender (PROTECTED)
 app.delete('/api/tenders/:id', adminAuthMiddleware, (req, res) => {
   db.run(`DELETE FROM tenders WHERE id = ?`, [req.params.id], function(err) {

@@ -605,6 +605,105 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     } catch {}
   };
 
+  const handleOpenAddTenderModal = () => {
+    setEditingTender(null);
+    setTenderForm({
+      tender_no: `HIPRO-TND-2026-${String(tenders.length + 1).padStart(3, '0')}`,
+      title: '',
+      category: 'Civil & Structural Execution',
+      estimated_value: '',
+      location: 'Bhilwara, Rajasthan',
+      due_date: '',
+      status: 'ACTIVE'
+    });
+    setShowAddTenderModal(true);
+  };
+
+  const handleEditTender = (t) => {
+    setEditingTender(t);
+    setTenderForm({
+      tender_no: t.tender_no || t.code || '',
+      title: t.title || '',
+      category: t.category || 'Civil & Structural Execution',
+      estimated_value: t.estimated_value || t.estimatedCost || '',
+      location: t.location || 'Bhilwara, Rajasthan',
+      due_date: t.due_date || t.deadline || '',
+      status: t.status || 'ACTIVE'
+    });
+    setShowAddTenderModal(true);
+  };
+
+  const handleToggleTenderStatus = async (id, currentStatus) => {
+    const isCurrentlyActive = (currentStatus || 'ACTIVE').toUpperCase() === 'ACTIVE';
+    const newStatus = isCurrentlyActive ? 'CLOSED' : 'ACTIVE';
+
+    setTenders(prev => prev.map(t => t.id === id ? { ...t, status: newStatus } : t));
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/tenders/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+        body: JSON.stringify({ status: newStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchTenders();
+      } else {
+        alert(`Error updating status: ${data.error}`);
+        fetchTenders();
+      }
+    } catch (err) {
+      console.error('Status update notice:', err);
+    }
+  };
+
+  const handleDeleteTender = async (id, title) => {
+    if (!window.confirm(`Are you sure you want to permanently delete tender "${title}"?`)) return;
+
+    setTenders(prev => prev.filter(t => t.id !== id));
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/tenders/${id}`, {
+        method: 'DELETE',
+        headers: getAdminAuthHeader()
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchTenders();
+      } else {
+        alert(`Error deleting tender: ${data.error}`);
+        fetchTenders();
+      }
+    } catch (err) {
+      console.error('Delete tender notice:', err);
+    }
+  };
+
+  const handleSaveTender = async (e) => {
+    e.preventDefault();
+    const isEdit = !!editingTender;
+    const url = isEdit ? `${API_BASE_URL}/api/tenders/${editingTender.id}` : `${API_BASE_URL}/api/tenders`;
+    const method = isEdit ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
+        body: JSON.stringify(tenderForm)
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchTenders();
+        setShowAddTenderModal(false);
+        setEditingTender(null);
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      alert(`Failed to save tender: ${err.message}`);
+    }
+  };
+
   const fetchInvoices = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/invoices`, { headers: getAdminAuthHeader() });
@@ -975,24 +1074,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     setCategories(prev => prev.filter(c => c.id !== id));
   };
 
-  /* ── Tender CRUD ── */
-  const handleAddTender = (e) => {
-    e.preventDefault();
-    if (!newTender.title || !newTender.location) return;
-    const code = `HP-TND-2026-${Math.floor(100 + Math.random() * 900)}`;
-    setTenders(prev => [{ id: Date.now(), code, ...newTender, estimatedCost: newTender.estimatedCost || '₹ 5.0 Crores', deadline: newTender.deadline || '2026-09-15' }, ...prev]);
-    setNewTender({ title: '', category: 'civil', location: '', estimatedCost: '', deadline: '', status: 'OPEN FOR BIDDING' });
-    setShowAddTenderModal(false);
-  };
 
-  const handleUpdateTender = (id, field, val) => {
-    setTenders(prev => prev.map(t => t.id === id ? { ...t, [field]: val } : t));
-  };
-
-  const handleDeleteTender = (id) => {
-    if (!window.confirm('Delete this tender?')) return;
-    setTenders(prev => prev.filter(t => t.id !== id));
-  };
 
   const handleSaveCMS = async (e) => {
     e.preventDefault();
@@ -2124,29 +2206,120 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Active Tenders & Project Radar</h3>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Publish new project packages and manage bidding deadlines</p>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Briefcase style={{ width: 20, height: 20, color: '#0047AB' }} />
+                  <span>Active Tenders &amp; Project Radar ({tenders.length})</span>
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Publish new project packages, toggle bidding status ON/OFF, edit details, or remove expired tenders.
+                </p>
               </div>
-              <button onClick={() => setShowAddTenderModal(true)} className="btn-primary" style={{ padding: '0.6rem 1.25rem' }}>
-                <PlusCircle style={{ width: 15, height: 15 }} /><span>Publish New Tender</span>
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button onClick={fetchTenders} className="btn-secondary" style={{ padding: '0.5rem 0.85rem', fontSize: '0.78rem' }}>
+                  <span>🔄 Refresh List</span>
+                </button>
+                <button onClick={handleOpenAddTenderModal} className="btn-primary" style={{ padding: '0.55rem 1.2rem', fontSize: '0.82rem' }}>
+                  <PlusCircle style={{ width: 15, height: 15 }} />
+                  <span>+ Publish New Tender</span>
+                </button>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              {tenders.map((t) => (
-                <div key={t.id} style={{ padding: '1.1rem 1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <span style={{ fontSize: '0.725rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6, fontFamily: 'monospace' }}>
-                        {t.code}
-                      </span>
-                      <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{t.title}</div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>Location: {t.location} • Budget: {t.estimatedCost} • Deadline: {t.deadline}</div>
+            {tenders.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem 1.5rem', background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-color)' }}>
+                <Briefcase style={{ width: 40, height: 40, color: '#94A3B8', marginBottom: '0.75rem' }} />
+                <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A' }}>No Tenders Published Yet</h4>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4 }}>Click "+ Publish New Tender" above to create and list active procurement packages.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                {tenders.map((t) => {
+                  const isActive = (t.status || 'ACTIVE').toUpperCase() === 'ACTIVE';
+                  const tenderNo = t.tender_no || t.code || `HIPRO-TND-${t.id}`;
+                  const estVal = t.estimated_value || t.estimatedCost || 'TBD';
+                  const dueDate = t.due_date || t.deadline || 'Open';
+
+                  return (
+                    <div key={t.id} style={{
+                      padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)',
+                      border: isActive ? '1.5px solid #0047AB' : '1px solid var(--border-color)',
+                      boxShadow: isActive ? '0 4px 14px rgba(0,71,171,0.06)' : 'none'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div style={{ flex: 1, minWidth: 260 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: 4 }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.6rem', borderRadius: 6, fontFamily: 'monospace' }}>
+                              {tenderNo}
+                            </span>
+                            <span style={{
+                              fontSize: '0.72rem', fontWeight: 900, padding: '0.15rem 0.6rem', borderRadius: 6,
+                              backgroundColor: isActive ? '#D1FAE5' : '#F1F5F9',
+                              color: isActive ? '#047857' : '#64748B'
+                            }}>
+                              {isActive ? '🟢 ACTIVE & ON' : '🔴 CLOSED / OFF'}
+                            </span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', background: '#F1F5F9', padding: '0.1rem 0.55rem', borderRadius: 6 }}>
+                              {t.category}
+                            </span>
+                          </div>
+
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', margin: '4px 0' }}>
+                            {t.title}
+                          </h4>
+
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', gap: '1.25rem', flexWrap: 'wrap', marginTop: 4 }}>
+                            <span>📍 Location: <strong style={{ color: '#0F172A' }}>{t.location || 'Bhilwara, Rajasthan'}</strong></span>
+                            <span>💰 Estimated Cost: <strong style={{ color: '#047857' }}>{estVal}</strong></span>
+                            <span>📅 Due Date: <strong style={{ color: '#0047AB' }}>{dueDate}</strong></span>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons: Status Toggle (ON/OFF), Edit, Delete */}
+                        <div style={{ display: 'flex', gap: '0.45rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleTenderStatus(t.id, t.status)}
+                            style={{
+                              padding: '0.4rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                              background: isActive ? '#FEF3C7' : '#D1FAE5',
+                              color: isActive ? '#B45309' : '#047857',
+                              border: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem'
+                            }}
+                            title={isActive ? 'Turn OFF (Mark as Closed)' : 'Turn ON (Mark as Active)'}
+                          >
+                            {isActive ? '⏸️ Turn OFF (Close)' : '⚡ Turn ON (Activate)'}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleEditTender(t)}
+                            style={{
+                              padding: '0.4rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                              background: '#0047AB', color: '#FFFFFF', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem'
+                            }}
+                          >
+                            <Edit3 style={{ width: 13, height: 13 }} />
+                            <span>Edit</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTender(t.id, t.title)}
+                            style={{
+                              padding: '0.4rem 0.8rem', fontSize: '0.75rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                              background: '#991B1B', color: '#FFFFFF', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem'
+                            }}
+                          >
+                            <Trash2 style={{ width: 13, height: 13 }} />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -2679,6 +2852,163 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   >
                     <Mail style={{ width: 16, height: 16 }} />
                     <span>{replySending ? 'Sending Reply...' : '🚀 Send Reply Email'}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Publish / Edit Tender Package Modal */}
+        {showAddTenderModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+          }}>
+            <div style={{
+              width: '100%', maxWidth: 580, backgroundColor: '#FFFFFF', borderRadius: 20,
+              padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid #E2E8F0'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Briefcase style={{ width: 22, height: 22, color: '#0047AB' }} />
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+                    {editingTender ? 'Edit Tender Package Details' : 'Publish New Tender Package'}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddTenderModal(false)}
+                  style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#64748B' }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveTender} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Tender Reference No.
+                    </label>
+                    <input
+                      type="text"
+                      value={tenderForm.tender_no}
+                      onChange={e => setTenderForm({ ...tenderForm, tender_no: e.target.value })}
+                      required
+                      placeholder="e.g. HIPRO-TND-2026-005"
+                      style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Category / Trade Line
+                    </label>
+                    <select
+                      value={tenderForm.category}
+                      onChange={e => setTenderForm({ ...tenderForm, category: e.target.value })}
+                      style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box' }}
+                    >
+                      <option value="Civil & Structural Execution">Civil &amp; Structural Execution</option>
+                      <option value="MEP & Electrical Services">MEP &amp; Electrical Services</option>
+                      <option value="Architecture & Design Consultancy">Architecture &amp; Design Consultancy</option>
+                      <option value="Material Supply & Rental">Material Supply &amp; Rental</option>
+                      <option value="Site Survey & Structural Audit">Site Survey &amp; Structural Audit</option>
+                      <option value="HVAC & Fire Safety Services">HVAC &amp; Fire Safety Services</option>
+                      <option value="General Works">General Works</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                    Tender / Project Title
+                  </label>
+                  <input
+                    type="text"
+                    value={tenderForm.title}
+                    onChange={e => setTenderForm({ ...tenderForm, title: e.target.value })}
+                    required
+                    placeholder="e.g. Construction of High-Rise Commercial Substructure"
+                    style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Estimated Cost / Budget
+                    </label>
+                    <input
+                      type="text"
+                      value={tenderForm.estimated_value}
+                      onChange={e => setTenderForm({ ...tenderForm, estimated_value: e.target.value })}
+                      placeholder="e.g. ₹ 5.50 Crore"
+                      required
+                      style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Bidding Due Date
+                    </label>
+                    <input
+                      type="text"
+                      value={tenderForm.due_date}
+                      onChange={e => setTenderForm({ ...tenderForm, due_date: e.target.value })}
+                      placeholder="YYYY-MM-DD e.g. 2026-08-30"
+                      required
+                      style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Project Site Location
+                    </label>
+                    <input
+                      type="text"
+                      value={tenderForm.location}
+                      onChange={e => setTenderForm({ ...tenderForm, location: e.target.value })}
+                      placeholder="e.g. Bhilwara, Rajasthan"
+                      style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Bidding Status (ON/OFF)
+                    </label>
+                    <select
+                      value={tenderForm.status}
+                      onChange={e => setTenderForm({ ...tenderForm, status: e.target.value })}
+                      style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box', fontWeight: 700 }}
+                    >
+                      <option value="ACTIVE">🟢 ACTIVE (Open for Bidding - ON)</option>
+                      <option value="CLOSED">🔴 CLOSED (Bidding Closed - OFF)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center', marginTop: '0.75rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddTenderModal(false)}
+                    style={{ padding: '0.65rem 1.1rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10, border: '1px solid #CBD5E1', background: '#FFFFFF', color: '#475569', cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{ padding: '0.65rem 1.5rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #0047AB 0%, #002D62 100%)', color: '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    <Save style={{ width: 16, height: 16 }} />
+                    <span>{editingTender ? 'Save Tender Changes' : '🚀 Publish Tender Now'}</span>
                   </button>
                 </div>
               </form>
