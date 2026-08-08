@@ -50,7 +50,7 @@ const sendEmail = async (to, templateResult) => {
     const transporter = createTransporter();
 
     const info = await transporter.sendMail({
-      from: `"Hindustan Projects — Industrial Cell" <${user}>`,
+      from: `"Hindustan Projects — Empanelment Portal" <${user}>`,
       replyTo: sender,
       to,
       subject: templateResult.subject,
