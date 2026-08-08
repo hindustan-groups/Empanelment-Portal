@@ -446,6 +446,15 @@ const getTransporter = () => {
   });
 };
 
+app.all('/api/empanelment/admin/fix-smtp', (req, res) => {
+  process.env.EMAIL_USER = 'info@hindustanprojects.in';
+  process.env.EMAIL_APP_PASS = 'Yogi123@123';
+  process.env.SMTP_HOST = 'smtp.hostinger.com';
+  process.env.SMTP_PORT = '465';
+  process.env.ALIAS_EMAIL = 'info@hindustanprojects.in';
+  res.json({ success: true, message: 'SMTP credentials forcibly updated on live server ✅', user: process.env.EMAIL_USER });
+});
+
 // ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/admin/send-test-email
 // Admin sends a live test email to verify SMTP is working
@@ -465,11 +474,10 @@ app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
   try {
     const transporter = getTransporter();
     const currentUser = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-    const sender = process.env.ALIAS_EMAIL || currentUser;
     const currentHost = process.env.SMTP_HOST || 'smtp.hostinger.com';
 
     const info = await transporter.sendMail({
-      from: `"Hindustan Projects Portal" <${sender}>`,
+      from: `"Hindustan Projects Portal" <${currentUser}>`,
       to,
       subject: 'Test Email — Hindustan Projects Empanelment Portal ✅',
       html: `
