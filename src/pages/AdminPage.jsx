@@ -946,12 +946,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const ref = `RTGS-HDFC${Math.floor(100000 + Math.random() * 900000)}`;
     setInvoices(prev => {
       const updated = prev.map(inv => inv.id === id ? { ...inv, status: 'RELEASED via RTGS', rtgsRef: ref } : inv);
-      // Sync to vendor invoices in localStorage if available
-      try {
-        const savedInvs = JSON.parse(localStorage.getItem('hipro_vendor_invoices') || '[]');
-        const updatedSaved = savedInvs.map(inv => (inv.id === id || inv.ref === id) ? { ...inv, status: 'RELEASED via RTGS', ref } : inv);
-        localStorage.setItem('hipro_vendor_invoices', JSON.stringify(updatedSaved));
-      } catch {}
+      // Invoice state refreshed from backend API via fetchInvoices()
       return updated;
     });
   };

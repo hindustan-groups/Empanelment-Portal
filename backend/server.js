@@ -1190,7 +1190,7 @@ app.post('/api/empanelment/admin/clear-all-vendors', adminAuthMiddleware, (req, 
   });
 });
 
-app.get('/api/empanelment/admin/force-purge-all', adminAuthMiddleware, (req, res) => {
+app.delete('/api/empanelment/admin/force-purge-all', adminAuthMiddleware, (req, res) => {
   db.run(`DELETE FROM vendors`, [], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
     db.run(`DELETE FROM sqlite_sequence WHERE name='vendors'`, [], () => {});
@@ -1198,7 +1198,7 @@ app.get('/api/empanelment/admin/force-purge-all', adminAuthMiddleware, (req, res
   });
 });
 
-app.get('/api/empanelment/admin/delete-row/:trackingId', adminAuthMiddleware, (req, res) => {
+app.delete('/api/empanelment/admin/delete-row/:trackingId', adminAuthMiddleware, (req, res) => {
   const { trackingId } = req.params;
   db.run(`DELETE FROM vendors WHERE tracking_id = ? OR id = ? OR company_name = ?`, [trackingId, trackingId, trackingId], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
