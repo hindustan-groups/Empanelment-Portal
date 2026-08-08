@@ -3,7 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 import Logo from './Logo';
 import { Search, HelpCircle, PlusCircle, Menu, X, ShieldCheck, ExternalLink, Home, FileText, Building2 } from 'lucide-react';
 
-import { API_BASE_URL } from '../config/api';
+import { loadSiteConfig, getSiteConfigSync } from '../config/siteConfigService';
 
 const DEFAULT_SITE_CONFIG = {
   companyTitle: 'Hindustan Projects',
@@ -17,32 +17,17 @@ export default function Header() {
   const [siteConfig, setSiteConfig] = useState(DEFAULT_SITE_CONFIG);
 
   useEffect(() => {
-    const saved = localStorage.getItem('hipro_site_config');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.corporateEmail && parsed.corporateEmail.includes('empanelment@')) {
-          delete parsed.corporateEmail;
-        }
-        setSiteConfig({ ...DEFAULT_SITE_CONFIG, ...parsed });
-      } catch (err) {
-        console.warn('Failed to parse site config:', err);
-      }
+    // Use shared cached service — only 1 API call per page load across all components
+    const saved = getSiteConfigSync();
+    if (saved && Object.keys(saved).length > 0) {
+      setSiteConfig(prev => ({ ...DEFAULT_SITE_CONFIG, ...saved }));
     }
 
-    // Fetch live CMS site config from VPS Database so Mobile & Desktop are 100% in sync!
-    fetch(`${API_BASE_URL}/api/empanelment/public/site-config`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.success && data.data && Object.keys(data.data).length > 0) {
-          setSiteConfig(prev => {
-            const merged = { ...prev, ...data.data };
-            try { localStorage.setItem('hipro_site_config', JSON.stringify(merged)); } catch (e) {}
-            return merged;
-          });
-        }
-      })
-      .catch(() => {});
+    loadSiteConfig().then(data => {
+      if (data && Object.keys(data).length > 0) {
+        setSiteConfig(prev => ({ ...DEFAULT_SITE_CONFIG, ...data }));
+      }
+    }).catch(() => {});
   }, []);
 
   const closeMobileMenu = () => {

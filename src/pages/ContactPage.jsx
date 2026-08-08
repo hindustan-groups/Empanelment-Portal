@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert, RefreshCw } from 'lucide-react';
 import SecurityCaptcha from '../components/SecurityCaptcha';
-import { API_BASE_URL } from '../config/api';
+import { loadSiteConfig, getSiteConfigSync } from '../config/siteConfigService';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -19,19 +19,13 @@ export default function ContactPage() {
     website_url_hp: '' // 🍯 Honeypot Trap field for anti-spambots
   });
 
-  const [siteConfig, setSiteConfig] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('hipro_site_config') || '{}'); } catch { return {}; }
-  });
+  const [siteConfig, setSiteConfig] = useState(() => getSiteConfigSync());
 
-  React.useEffect(() => {
-    fetch(`${API_BASE_URL}/api/empanelment/public/site-config`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.success && data.data && Object.keys(data.data).length > 0) {
-          setSiteConfig(prev => ({ ...prev, ...data.data }));
-        }
-      })
-      .catch(() => {});
+  useEffect(() => {
+    // Use shared cached service — only 1 API call fires per page load across all components
+    loadSiteConfig().then(data => {
+      if (data && Object.keys(data).length > 0) setSiteConfig(data);
+    }).catch(() => {});
   }, []);
 
   const [isSending, setIsSending] = useState(false);

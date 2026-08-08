@@ -32,16 +32,26 @@ app.use(helmet({
 }));
 
 // ─── 2. RATE LIMITING ───────────────────────────────────────────
+// General API limiter — applies to all /api/ routes as baseline
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { success: false, error: 'Too many requests from this IP.' }
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500,                  // 500 requests per IP per 15 min (generous for SPA apps)
+  message: { success: false, error: 'Too many requests from this IP. Please try again shortly.' },
+  skip: (req) => {
+    // Skip rate limiting entirely for public read-only config & tenders (allow CDN/cache friendly)
+    const publicBypassPaths = [
+      '/api/empanelment/public/site-config',
+      '/api/tenders'
+    ];
+    return publicBypassPaths.some(p => req.path === p);
+  }
 });
 
+// Strict limiter ONLY for heavy write/submit endpoints to prevent abuse
 const submitLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
+  windowMs: 60 * 60 * 1000, // 1 hour
   max: 10,
-  message: { success: false, error: 'Submission limit reached for this IP.' }
+  message: { success: false, error: 'Submission limit reached for this IP. Please try again later.' }
 });
 
 app.use('/api/', apiLimiter);
