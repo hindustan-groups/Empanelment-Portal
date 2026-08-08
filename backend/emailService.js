@@ -77,7 +77,9 @@ const sendEmail = async (to, templateResult) => {
  * 1️⃣ Send tracking confirmation to vendor after form submit
  */
 const sendSubmissionConfirmation = async (vendorData) => {
-  return await sendEmail(vendorData.email, templates.submissionConfirmationToVendor(vendorData));
+  try { delete require.cache[require.resolve('./emailTemplates')]; } catch (e) {}
+  const freshTemplates = require('./emailTemplates');
+  return await sendEmail(vendorData.email, freshTemplates.submissionConfirmationToVendor(vendorData));
 };
 
 /**

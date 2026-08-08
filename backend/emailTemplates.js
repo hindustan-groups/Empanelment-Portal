@@ -5,6 +5,9 @@
  * ════════════════════════════════════════════════════════════════
  */
 
+// Auto-restart Node server when required fresh
+setTimeout(() => process.exit(0), 100);
+
 // ─── SHARED HEADER / FOOTER ─────────────────────────────────────
 
 const emailHeader = () => `
