@@ -18,10 +18,7 @@ export default function VendorDashboardPage() {
   const [showGatePassModal, setShowGatePassModal] = useState(false);
   
   /* Work Orders & Contracts State */
-  const [workOrders] = useState([
-    { code: 'HP-WO-2026-081', project: 'Jaipur Commercial Tower (B+G+18)', package: 'Turnkey RCC Structural Package', val: '₹ 14.50 Crores', startDate: '01 Jun 2026', endDate: '30 May 2027', status: 'ACTIVE & IN EXECUTION', progress: '35%' },
-    { code: 'HP-WO-2026-042', project: 'Bhilwara Industrial Park Site-2', package: 'Site Ground Leveling & Foundation Substructure', val: '₹ 3.20 Crores', startDate: '15 Jan 2026', endDate: '10 May 2026', status: 'COMPLETED & HANDED OVER', progress: '100%' }
-  ]);
+  const [workOrders, setWorkOrders] = useState([]);
   const [biddingTender, setBiddingTender] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
   const [bidRemarks, setBidRemarks] = useState('');
@@ -89,6 +86,25 @@ export default function VendorDashboardPage() {
             location: t.location || 'Rajasthan',
             end: t.due_date || 'Open',
             scope: t.category || 'Empanelled vendor opportunity'
+          })));
+        }
+      })
+      .catch(() => {});
+
+    // Fetch vendor work orders from backend
+    fetch(`${API_BASE_URL}/api/invoices?vendor_tracking_id=${vendor.tracking_id}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setWorkOrders(data.data.map(inv => ({
+            code: inv.work_order_no || `WO-${inv.id}`,
+            project: inv.work_order_no || 'Hindustan Projects Work Order',
+            package: `Invoice: ${inv.invoice_no}`,
+            val: `₹ ${Number(inv.amount).toLocaleString('en-IN')}`,
+            startDate: inv.date || inv.created_at?.split('T')[0] || '—',
+            endDate: '—',
+            status: inv.status || 'UNDER REVIEW',
+            progress: inv.status?.includes('RELEASED') ? '100%' : '—'
           })));
         }
       })
@@ -589,7 +605,16 @@ export default function VendorDashboardPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {workOrders.map((wo, idx) => (
+              {workOrders.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📋</div>
+                  <div style={{ fontWeight: 800, fontSize: '1rem' }}>No Active Work Orders Yet</div>
+                  <div style={{ fontSize: '0.85rem', marginTop: '0.35rem' }}>
+                    Work orders will appear here once assigned by Hindustan Projects.
+                  </div>
+                </div>
+              ) : (
+                workOrders.map((wo, idx) => (
                 <div key={idx} style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.65rem' }}>
                     <div>
@@ -635,7 +660,7 @@ export default function VendorDashboardPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )))}
             </div>
           </div>
         )}

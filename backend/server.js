@@ -631,12 +631,14 @@ app.post('/api/empanelment/vendor/login', (req, res) => {
     }
 
     // Check Password
-    const expectedPass = vendor.login_password || 'HP@VENDOR2026';
-    const isValidPass = cleanPass === expectedPass || 
-                        cleanPass.toLowerCase() === 'vendor@2026' || 
-                        cleanPass.toLowerCase() === vendor.tracking_id.toLowerCase() ||
-                        cleanPass.toLowerCase() === (vendor.email || '').toLowerCase() ||
-                        cleanPass.toLowerCase() === (vendor.gstin || '').toLowerCase();
+    const expectedPass = vendor.login_password;
+    if (!expectedPass) {
+      return res.status(403).json({
+        success: false,
+        error: '⚠️ No login password set for this account. Please contact admin at industrial@hindustanprojects.in to receive your credentials.'
+      });
+    }
+    const isValidPass = cleanPass === expectedPass;
 
     if (!isValidPass) {
       return res.status(401).json({ success: false, error: 'Invalid Vendor Password. Please check password sent in approval email.' });

@@ -68,15 +68,7 @@ const DEFAULT_SITE_CONFIG = {
   deptBillingEmail:       'accounts@hindustanprojects.in'
 };
 
-const MOCK_AUDIT_LOGS = [
-  { id: 1, time: '2026-07-25 14:32:11', event: 'Application Submitted',          actor: 'HP-EMP-849201',       ip: '103.45.12.98',   severity: 'info' },
-  { id: 2, time: '2026-07-25 14:45:03', event: 'Admin Login Successful',          actor: 'admin@hindustan…',    ip: '192.168.1.10',   severity: 'success' },
-  { id: 3, time: '2026-07-25 15:01:22', event: 'Status Updated → Approved Class-A', actor: 'HP-EMP-930214',    ip: '192.168.1.10',   severity: 'success' },
-  { id: 4, time: '2026-07-25 15:12:44', event: 'Failed Login Attempt (3x)',       actor: 'unknown@mail.com',    ip: '45.89.21.200',   severity: 'danger' },
-  { id: 5, time: '2026-07-25 15:18:09', event: 'Application Deleted',             actor: 'HP-EMP-774103',       ip: '192.168.1.10',   severity: 'warning' },
-  { id: 6, time: '2026-07-25 15:30:55', event: 'Categories Updated',             actor: 'Admin Panel',         ip: '192.168.1.10',   severity: 'info' },
-  { id: 7, time: '2026-07-25 15:45:00', event: 'New Tender Published',           actor: 'HP-TND-2026-112',     ip: '192.168.1.10',   severity: 'info' },
-];
+const MOCK_AUDIT_LOGS = [];
 
 const STATUS_OPTIONS = [
   { value: 'Under Verification',  label: 'Under Verification',  color: '#D97706', bg: 'rgba(245,158,11,0.12)' },

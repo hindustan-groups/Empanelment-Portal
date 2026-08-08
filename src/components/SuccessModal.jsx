@@ -196,11 +196,36 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
 
         {/* § 1.5 — CATEGORY-SPECIFIC STATUTORY CREDENTIALS */}
         {(() => {
-          const categoryKey = formData?.category || 'vendor';
+          const CAT_TO_SCHEMA_MAP = {
+            consultants: 'architect',
+            architect: 'architect',
+            civil: 'contractor',
+            contractor: 'contractor',
+            mep: 'contractor',
+            suppliers: 'material_supplier',
+            material_supplier: 'material_supplier',
+            equipment: 'machine_rental_provider',
+            machine_rental_provider: 'machine_rental_provider',
+            site_services: 'contractor',
+            civil_engineer: 'civil_engineer',
+            freelancer: 'freelancer',
+            surveyor: 'surveyor',
+            transporter: 'transporter',
+            fire: 'contractor',
+            soil: 'civil_engineer',
+            solar: 'contractor',
+            property_dealer: 'property_dealer',
+            business_associate: 'business_associate',
+            financer: 'financer',
+            fruits_vegetables: 'fruits_vegetables',
+            vendor: 'vendor',
+          };
+          const rawCategoryKey = formData?.category || 'vendor';
+          const categoryKey = CAT_TO_SCHEMA_MAP[rawCategoryKey] || rawCategoryKey;
           const catSchema = CATEGORY_SCHEMAS[categoryKey] || CATEGORY_SCHEMAS.vendor;
           const statKey = catSchema.statutoryLicenseKey;
           const statLabel = catSchema.statutoryLicenseLabel;
-          const statVal = formData?.[statKey] || (categoryKey === 'architect' ? formData?.coaRegNo : null);
+          const statVal = formData?.[statKey] || (rawCategoryKey === 'architect' || rawCategoryKey === 'consultants' ? formData?.coaRegNo : null);
 
           if (statVal || (catSchema.customFields && catSchema.customFields.some(cf => formData?.[cf.name]))) {
             return (
