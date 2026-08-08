@@ -12,19 +12,10 @@ export default function AboutUs() {
   const aboutHeroSubtitle = siteConfig.aboutHeroSubtitle || 'Hindustan Projects is a premier multi-disciplinary conglomerate specializing in Large-scale Infrastructure Execution, Architectural Design, Civil Construction, MEP/HVAC Contracting, and Integrated Digital Solutions.';
 
   return (
-    <div className="about-page" style={{ padding: '2.5rem 1.5rem', maxWidth: 1240, margin: '0 auto' }}>
+    <div className="about-page-container">
       
       {/* Hero Banner */}
-      <div style={{
-        background: 'linear-gradient(135deg, #0F172A 0%, #002B66 50%, #0047AB 100%)',
-        borderRadius: 24,
-        padding: '3.5rem 2.5rem',
-        color: 'white',
-        position: 'relative',
-        overflow: 'hidden',
-        boxShadow: '0 20px 50px rgba(0,71,171,0.25)',
-        marginBottom: '3rem'
-      }}>
+      <div className="about-hero-box">
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 780 }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -36,11 +27,11 @@ export default function AboutUs() {
             Official Corporate Overview • Hindustan Projects
           </span>
 
-          <h1 style={{ fontSize: '2.4rem', fontWeight: 900, lineHeight: 1.25, margin: 0, letterSpacing: '-0.02em' }}>
+          <h1 className="about-hero-title">
             {aboutHeroTitle}
           </h1>
 
-          <p style={{ fontSize: '1.05rem', color: '#94A3B8', marginTop: '1.25rem', lineHeight: 1.65, fontWeight: 500 }}>
+          <p className="about-hero-subtitle">
             {aboutHeroSubtitle}
           </p>
 
@@ -68,7 +59,7 @@ export default function AboutUs() {
           </h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+        <div className="about-grid-divisions">
           
           <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
             <div style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: 'rgba(0,71,171,0.08)', color: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem' }}>
