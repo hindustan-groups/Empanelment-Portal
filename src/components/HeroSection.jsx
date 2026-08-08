@@ -125,18 +125,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
         </div>
 
         {/* Dynamic Enterprise Metrics Banner (Auto-incrementing with real vendor submissions) */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '1rem',
-          padding: '1.25rem 2rem',
-          borderRadius: 20,
-          background: 'linear-gradient(135deg, #0F172A 0%, #002B66 50%, #0047AB 100%)',
-          color: 'white',
-          boxShadow: '0 12px 32px rgba(0, 71, 171, 0.25)',
-          marginBottom: '3.5rem',
-          textAlign: 'center'
-        }}>
+        <div className="stats-banner">
           <div>
             <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#FBBF24', letterSpacing: '-0.5px' }}>
               {siteConfig.ongoingProjectsCount || '10+'}
@@ -172,7 +161,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
               <Building2 style={{ width: 14, height: 14, color: '#0047AB' }} />
               <span>Official Corporate Empanelment Disciplines • FY 2026-27</span>
             </div>
-            <h2 className="category-title" style={{ fontSize: '1.9rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.5px' }}>
+            <h2 className="category-title">
               Select Your Empanelment Category &amp; Business Discipline
             </h2>
             <p className="category-subtitle" style={{ fontSize: '0.92rem', color: 'var(--text-muted)', maxWidth: 680, margin: '0.3rem auto 0 auto' }}>
@@ -180,7 +169,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.15rem' }}>
+          <div className="category-grid">
             {categories.map((cat) => {
               const Icon = cat.icon;
               const isSelected = selectedCategory === cat.id;

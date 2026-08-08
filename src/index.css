@@ -381,10 +381,26 @@ body {
   margin-top: 2.5rem;
 }
 
+/* Enterprise Stats Banner */
+.stats-banner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 1.25rem 2rem;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0F172A 0%, #002B66 50%, #0047AB 100%);
+  color: white;
+  box-shadow: 0 12px 32px rgba(0, 71, 171, 0.25);
+  margin-bottom: 3.5rem;
+  text-align: center;
+}
+
+
 .category-title {
   font-size: 1.85rem;
   font-weight: 900;
   margin-bottom: 0.4rem;
+  color: var(--text-primary);
 }
 
 .category-subtitle {
@@ -908,9 +924,27 @@ body {
     margin-bottom: 1.5rem;
   }
 
-  .trust-grid, .category-grid {
+  .trust-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  .category-grid {
     grid-template-columns: 1fr !important;
     gap: 0.85rem !important;
+  }
+
+  .stats-banner {
+    grid-template-columns: repeat(3, 1fr) !important;
+    padding: 1rem 1rem !important;
+    border-radius: 14px !important;
+    margin-bottom: 2rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .category-title {
+    font-size: 1.45rem !important;
+    letter-spacing: -0.3px !important;
   }
 
   .form-grid-2, .form-grid-3, .form-grid-4 {
