@@ -81,15 +81,15 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
           {siteConfig.heroSubtitle || 'Direct online empanelment portal for Vendors, Contractors, Machinery Suppliers, and Consultants.'}
         </p>
 
-        {/* Trust Badges */}
+        {/* Trust Badges - Icon positioned above text for clean spacing */}
         <div className="trust-grid">
           <div className="trust-card">
             <div className="trust-icon-box" style={{ backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB' }}>
               <ShieldCheck style={{ width: 22, height: 22 }} />
             </div>
-            <div>
+            <div className="trust-content-box">
               <div className="trust-label">Compliance Shield</div>
-              <div className="trust-value">ISO 9001 & CVC Valid</div>
+              <div className="trust-value">ISO 9001 &amp; CVC Valid</div>
             </div>
           </div>
 
@@ -97,7 +97,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
             <div className="trust-icon-box" style={{ backgroundColor: 'rgba(237, 28, 36, 0.1)', color: '#ED1C24' }}>
               <Clock style={{ width: 22, height: 22 }} />
             </div>
-            <div>
+            <div className="trust-content-box">
               <div className="trust-label">Verification TAT</div>
               <div className="trust-value">48-72 Hr Fast-Track</div>
             </div>
@@ -107,7 +107,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
             <div className="trust-icon-box" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10B981' }}>
               <FileCheck style={{ width: 22, height: 22 }} />
             </div>
-            <div>
+            <div className="trust-content-box">
               <div className="trust-label">Digital Audit</div>
               <div className="trust-value">100% Paperless</div>
             </div>
@@ -117,7 +117,7 @@ export default function HeroSection({ selectedCategory, setSelectedCategory, onS
             <div className="trust-icon-box" style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)', color: '#A855F7' }}>
               <Award style={{ width: 22, height: 22 }} />
             </div>
-            <div>
+            <div className="trust-content-box">
               <div className="trust-label">Empanelment Scope</div>
               <div className="trust-value">Pan-India Projects</div>
             </div>

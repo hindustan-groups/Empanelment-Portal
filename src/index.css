@@ -338,15 +338,16 @@ body {
 }
 
 .trust-card {
-  padding: 1.25rem;
+  padding: 1.35rem 1rem;
   border-radius: 18px;
   background-color: var(--bg-card);
   border: 1.5px solid var(--border-color);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.85rem;
+  text-align: center;
+  gap: 0.75rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  text-align: left;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
 }
 
@@ -364,19 +365,32 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin: 0 auto;
+}
+
+.trust-content-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.25rem;
+  width: 100%;
 }
 
 .trust-label {
-  font-size: 0.725rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
 }
 
 .trust-value {
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-size: 0.975rem;
+  font-weight: 900;
   color: var(--text-primary);
+  line-height: 1.25;
 }
 
 .category-section {
@@ -2663,37 +2677,67 @@ body {
   }
   .hero-subtitle {
     font-size: 0.825rem !important;
+/* ── Tablet & Small Screens (≤ 768px) ── */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 1.75rem 1rem 1.5rem 1rem !important;
+  }
+  .hero-tag {
+    font-size: 0.72rem !important;
+    padding: 0.3rem 0.8rem !important;
+    margin-bottom: 0.85rem !important;
+  }
+  .hero-title {
+    font-size: 1.65rem !important;
+    line-height: 1.22 !important;
+    margin-bottom: 0.75rem !important;
+    letter-spacing: -0.02em !important;
+  }
+  .hero-subtitle {
+    font-size: 0.825rem !important;
     line-height: 1.5 !important;
     margin: 0 auto 1.5rem auto !important;
   }
   .trust-grid {
     grid-template-columns: 1fr 1fr !important;
-    gap: 0.55rem !important;
+    gap: 0.65rem !important;
     margin-bottom: 1.75rem !important;
   }
   .trust-card {
-    padding: 0.65rem 0.6rem !important;
+    padding: 0.95rem 0.65rem !important;
     border-radius: 14px !important;
     gap: 0.45rem !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
   }
   .trust-icon-box {
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 9px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    margin: 0 auto !important;
   }
   .trust-icon-box svg {
-    width: 16px !important;
-    height: 16px !important;
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .trust-content-box {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.2rem !important;
+    width: 100% !important;
   }
   .trust-label {
-    font-size: 0.58rem !important;
-    letter-spacing: 0.01em !important;
+    font-size: 0.62rem !important;
+    letter-spacing: 0.02em !important;
     line-height: 1.15 !important;
   }
   .trust-value {
-    font-size: 0.78rem !important;
+    font-size: 0.85rem !important;
     line-height: 1.2 !important;
-    font-weight: 800 !important;
+    font-weight: 900 !important;
   }
   .stats-banner {
     padding: 0.85rem 0.75rem !important;
@@ -2707,8 +2751,8 @@ body {
     right: 1rem !important;
   }
   .support-fab-btn {
-    width: 48px !important;
-    height: 48px !important;
+    width: 44px !important;
+    height: 44px !important;
     padding: 0 !important;
     justify-content: center !important;
     border-radius: 50% !important;
@@ -2757,27 +2801,39 @@ body {
 /* ── Mobile Phones (≤ 480px) ── */
 @media (max-width: 480px) {
   .hero-title {
-    font-size: 1.75rem !important;
+    font-size: 1.65rem !important;
     letter-spacing: -0.3px !important;
   }
   .hero-subtitle {
-    font-size: 0.875rem !important;
-    line-height: 1.55 !important;
+    font-size: 0.825rem !important;
+    line-height: 1.5 !important;
   }
   .trust-grid {
     grid-template-columns: 1fr 1fr !important;
-    gap: 0.5rem !important;
+    gap: 0.55rem !important;
   }
   .trust-card {
-    padding: 0.75rem 0.6rem !important;
-    gap: 0.45rem !important;
+    padding: 0.85rem 0.55rem !important;
+    gap: 0.35rem !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
   }
   .trust-icon-box {
     width: 32px !important;
     height: 32px !important;
+    margin: 0 auto !important;
+  }
+  .trust-icon-box svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .trust-content-box {
+    align-items: center !important;
+    text-align: center !important;
   }
   .trust-value {
-    font-size: 0.78rem !important;
+    font-size: 0.825rem !important;
   }
   .trust-label {
     font-size: 0.58rem !important;
@@ -2865,7 +2921,7 @@ body {
   }
   .trust-grid {
     grid-template-columns: 1fr 1fr !important;
-    gap: 0.4rem !important;
+    gap: 0.45rem !important;
   }
   .category-title {
     font-size: 1.15rem !important;
