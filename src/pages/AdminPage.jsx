@@ -290,8 +290,8 @@ function SecurityTab({ auditLogs }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 0.9rem', borderRadius: 10, background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.2)', marginBottom: '1rem' }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', flexShrink: 0, boxShadow: '0 0 6px #10B98166' }} />
             <div>
-              <div style={{ fontSize: '0.76rem', fontWeight: 800, color: '#047857' }}>Gmail SMTP — Port 465 SSL: ACTIVE ✅</div>
-              <div style={{ fontSize: '0.68rem', color: '#059669' }}>hindustanprojects0.2@gmail.com — Verified</div>
+              <div style={{ fontSize: '0.76rem', fontWeight: 800, color: '#047857' }}>Hostinger Official Domain SMTP — SSL 465: ACTIVE ✅</div>
+              <div style={{ fontSize: '0.68rem', color: '#059669' }}>info@hindustanprojects.in — Verified Domain Sender</div>
             </div>
           </div>
           <form onSubmit={handleSendTestEmail} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>

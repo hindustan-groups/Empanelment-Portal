@@ -430,11 +430,18 @@ app.post('/api/empanelment/admin/change-password', (req, res) => {
 });
 
 const getTransporter = () => {
-  const host = process.env.SMTP_HOST || 'smtp.hostinger.com';
+  let user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
+  let pass = process.env.EMAIL_APP_PASS || 'Yogi123@123';
+  let host = process.env.SMTP_HOST || 'smtp.hostinger.com';
+
+  if (!user || user.includes('gmail') || user.includes('hindustanprojects0.2')) {
+    user = 'info@hindustanprojects.in';
+    pass = 'Yogi123@123';
+    host = 'smtp.hostinger.com';
+  }
+
   const port = parseInt(process.env.SMTP_PORT || '465', 10);
   const secure = port === 465;
-  const user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-  const pass = process.env.EMAIL_APP_PASS || 'Yogi123@123';
 
   const nodemailer = require('nodemailer');
   return nodemailer.createTransport({
@@ -473,8 +480,8 @@ app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
 
   try {
     const transporter = getTransporter();
-    const currentUser = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-    const currentHost = process.env.SMTP_HOST || 'smtp.hostinger.com';
+    const currentUser = 'info@hindustanprojects.in';
+    const currentHost = 'smtp.hostinger.com';
 
     const info = await transporter.sendMail({
       from: `"Hindustan Projects Portal" <${currentUser}>`,
