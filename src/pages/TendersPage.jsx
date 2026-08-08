@@ -88,24 +88,17 @@ export default function TendersPage() {
     : tenders.filter(t => (t.category || '').toLowerCase().includes(selectedCategory.toLowerCase()));
 
   return (
-    <div className="tenders-page" style={{ padding: '2.5rem 1.5rem', maxWidth: 1240, margin: '0 auto' }}>
+    <div className="tenders-page-container">
       
       {/* Header Banner */}
-      <div style={{
-        background: 'linear-gradient(135deg, #0F172A 0%, #002B66 60%, #0047AB 100%)',
-        borderRadius: 24,
-        padding: '3rem 2.5rem',
-        color: 'white',
-        marginBottom: '2.5rem',
-        boxShadow: '0 16px 40px rgba(0,71,171,0.2)'
-      }}>
+      <div className="tenders-header-box">
         <span style={{ padding: '0.35rem 0.95rem', borderRadius: 99, backgroundColor: 'rgba(255, 255, 255, 0.12)', color: '#60A5FA', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-          📑 Active Procurement & Bidding Desk
+          📑 Active Procurement &amp; Bidding Desk
         </span>
-        <h1 style={{ fontSize: '2.2rem', fontWeight: 900, marginTop: '0.75rem', marginBottom: '0.5rem' }}>
-          Active Tenders & Expression of Interest (EOI)
+        <h1 style={{ fontSize: '1.85rem', fontWeight: 900, marginTop: '0.75rem', marginBottom: '0.5rem' }}>
+          Active Tenders &amp; Expression of Interest (EOI)
         </h1>
-        <p style={{ fontSize: '0.95rem', color: '#94A3B8', maxWidth: 680, lineHeight: 1.6 }}>
+        <p style={{ fontSize: '0.925rem', color: '#94A3B8', maxWidth: 680, lineHeight: 1.6 }}>
           Explore open tender notices and EOI opportunities across Hindustan Projects execution sites. Only Empanelled Vendors with verified Smart ID Cards are eligible to submit bids.
         </p>
 
@@ -123,9 +116,9 @@ export default function TendersPage() {
       </div>
 
       {/* Category Filter Tabs */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#475569', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <Filter style={{ width: 15, height: 15 }} /> Filter Category:
+      <div className="tenders-filter-row">
+        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Filter style={{ width: 15, height: 15 }} /> Filter:
         </span>
 
         {['ALL', 'Civil', 'MEP', 'Architecture', 'Material'].map(cat => (

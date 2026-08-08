@@ -233,23 +233,23 @@ export default function TrackPage() {
   };
 
   return (
-    <div style={{ maxWidth: 920, margin: '2.5rem auto 4rem auto', padding: '0 1.5rem' }}>
-      <div className="form-card" style={{ padding: '2.25rem' }}>
+    <div className="track-page-container">
+      <div className="track-form-card">
         
-        {/* Header Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '2px solid var(--border-color)' }}>
-          <div style={{ padding: '0.85rem', borderRadius: 14, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB' }}>
-            <Search style={{ width: 30, height: 30 }} />
+        {/* Header */}
+        <div className="track-header-wrap">
+          <div style={{ padding: '0.85rem', borderRadius: 14, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', flexShrink: 0 }}>
+            <Search style={{ width: 28, height: 28 }} />
           </div>
           <div>
             <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               HINDUSTAN PROJECTS • CORPORATE PROCUREMENT PORTAL
             </div>
-            <h1 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#0F172A', marginTop: 2, marginBottom: 2 }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: 2, marginBottom: 2 }}>
               Track Vendor Empanelment Application Status
             </h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Real-time 5-stage verification audit tracker for contractors, consultants & suppliers.
+              Real-time 5-stage verification audit tracker for contractors, consultants &amp; suppliers.
             </p>
           </div>
         </div>
@@ -271,17 +271,17 @@ export default function TrackPage() {
             <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 800 }}>
               Enter Tracking Reference Code, 15-Digit GSTIN, or Registered Email Address:
             </label>
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div className="track-search-row">
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="e.g. HP-EMP-025 or 08HYJPK8847M1ZC or contact@builder.com"
                 className="form-input"
-                style={{ flex: '1 1 240px', width: '100%', fontSize: '0.95rem', fontWeight: 700 }}
+                style={{ flex: '1 1 240px', fontSize: '0.95rem', fontWeight: 700 }}
                 required
               />
-              <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '0.75rem 1.75rem', flex: '1 1 140px', justifyContent: 'center' }}>
+              <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '0.75rem 1.75rem', justifyContent: 'center' }}>
                 {loading ? 'Searching...' : 'Search Status'}
               </button>
             </div>
@@ -382,44 +382,44 @@ export default function TrackPage() {
             <div>
 
               {/* ══ BIG QR VERIFICATION STATUS HERO CARD ══ */}
-              <div style={{ borderRadius: 20, overflow: 'hidden', marginBottom: '1.25rem', boxShadow: '0 20px 50px rgba(0,0,0,0.2)', border: `2px solid ${vs.borderColor}` }}>
+              <div className="track-status-hero" style={{ border: `2px solid ${vs.borderColor}` }}>
                 
                 {/* Status Banner */}
-                <div style={{ background: vs.bgGradient, padding: '1.75rem 2rem', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <div className="track-status-banner" style={{ background: vs.bgGradient }}>
                   {/* Big status icon */}
-                  <div style={{ width: 72, height: 72, borderRadius: '50%', background: vs.badgeBg, border: `3px solid ${vs.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {vs.icon === 'VERIFIED' && <ShieldCheck style={{ width: 36, height: 36, color: vs.borderColor }} />}
-                    {vs.icon === 'SUSPENDED' && <PauseCircle style={{ width: 36, height: 36, color: vs.borderColor }} />}
-                    {vs.icon === 'TERMINATED' && <Ban style={{ width: 36, height: 36, color: vs.borderColor }} />}
-                    {vs.icon === 'REJECTED' && <XCircle style={{ width: 36, height: 36, color: vs.borderColor }} />}
-                    {vs.icon === 'PENDING' && <Clock style={{ width: 36, height: 36, color: vs.borderColor }} />}
+                  <div style={{ width: 64, height: 64, borderRadius: '50%', background: vs.badgeBg, border: `3px solid ${vs.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {vs.icon === 'VERIFIED' && <ShieldCheck style={{ width: 32, height: 32, color: vs.borderColor }} />}
+                    {vs.icon === 'SUSPENDED' && <PauseCircle style={{ width: 32, height: 32, color: vs.borderColor }} />}
+                    {vs.icon === 'TERMINATED' && <Ban style={{ width: 32, height: 32, color: vs.borderColor }} />}
+                    {vs.icon === 'REJECTED' && <XCircle style={{ width: 32, height: 32, color: vs.borderColor }} />}
+                    {vs.icon === 'PENDING' && <Clock style={{ width: 32, height: 32, color: vs.borderColor }} />}
                   </div>
 
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                       {vs.headline}
                     </div>
-                    <div style={{ fontSize: '0.83rem', color: vs.badgeColor, marginTop: '0.4rem', lineHeight: 1.5, maxWidth: 560 }}>
+                    <div style={{ fontSize: '0.8rem', color: vs.badgeColor, marginTop: '0.35rem', lineHeight: 1.5 }}>
                       {vs.subline}
                     </div>
                   </div>
 
                   {/* Vendor ID pill */}
-                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: 12, padding: '0.65rem 1.1rem', border: `1px solid ${vs.borderColor}` }}>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: vs.badgeColor, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Vendor ID</div>
-                    <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#FFFFFF', fontSize: '1rem', marginTop: 2 }}>{result.id}</div>
+                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: 12, padding: '0.55rem 0.95rem', border: `1px solid ${vs.borderColor}` }}>
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: vs.badgeColor, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Vendor ID</div>
+                    <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#FFFFFF', fontSize: '0.95rem', marginTop: 2 }}>{result.id}</div>
                   </div>
                 </div>
 
                 {/* Vendor Details Row */}
-                <div style={{ background: '#FFFFFF', padding: '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', borderBottom: `1px solid ${vs.borderColor}` }}>
+                <div style={{ background: 'var(--bg-card)', padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', borderBottom: `1px solid var(--border-color)` }}>
                   <div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>{result.company}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: 2 }}>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--text-primary)' }}>{result.company}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>
                       GSTIN: <strong style={{ fontFamily: 'monospace' }}>{result.gstin}</strong> &nbsp;•&nbsp; Category: <strong>{result.category}</strong> &nbsp;•&nbsp; Filed: <strong>{result.submittedDate}</strong>
                     </div>
                   </div>
-                  {/* Action Buttons — only for valid records */}
+                  {/* Action Buttons */}
                   {result.fullData && (
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <button onClick={() => setShowReceiptModal(true)} className="btn-secondary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}>
@@ -431,11 +431,11 @@ export default function TrackPage() {
                 </div>
 
                 {/* Scanner Advisory Box */}
-                <div style={{ background: vs.scannerColor, padding: '1rem 2rem', borderTop: `1.5px solid ${vs.scannerBorder}`, display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <div style={{ background: vs.scannerColor, padding: '1rem 1.5rem', borderTop: `1.5px solid ${vs.scannerBorder}`, display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                   <Shield style={{ width: 18, height: 18, color: '#374151', flexShrink: 0, marginTop: 2 }} />
                   <div>
                     <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>📱 Scanner Advisory — Hindustan Projects Verification System</div>
-                    <div style={{ fontSize: '0.83rem', fontWeight: 700, color: '#1F2937', lineHeight: 1.5 }}>{vs.scannerMsg}</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1F2937', lineHeight: 1.5 }}>{vs.scannerMsg}</div>
                   </div>
                 </div>
               </div>

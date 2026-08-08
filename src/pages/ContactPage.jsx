@@ -90,28 +90,28 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="contact-page" style={{ padding: '2.5rem 1.5rem', maxWidth: 1240, margin: '0 auto' }}>
+    <div className="contact-page-container">
       
       {/* Header Banner */}
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
         <span style={{ padding: '0.35rem 0.95rem', borderRadius: 99, backgroundColor: 'rgba(0, 71, 171, 0.08)', color: '#0047AB', fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-          📍 Corporate Contact & Support Helpdesk
+          📍 Corporate Contact &amp; Support Helpdesk
         </span>
-        <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#0F172A', marginTop: '0.65rem', marginBottom: '0.5rem' }}>
+        <h1 style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: '0.65rem', marginBottom: '0.5rem' }}>
           Get in Touch With Hindustan Projects
         </h1>
-        <p style={{ fontSize: '0.95rem', color: '#64748B', maxWidth: 640, margin: '0 auto', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '0.925rem', color: 'var(--text-muted)', maxWidth: 640, margin: '0 auto', lineHeight: 1.6 }}>
           Have questions regarding vendor empanelment filing, document submission, active tenders, or ID card verification? Our corporate procurement team is ready to assist.
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem', marginBottom: '3.5rem' }}>
+      <div className="contact-layout-grid">
         
         {/* Left: Contact Info Cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="contact-info-col">
           
           {/* Corporate HQ Card */}
-          <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: '#FFFFFF', border: '1.5px solid #E2E8F0', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
+          <div className="contact-card-box">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(237,28,36,0.08)', color: '#ED1C24', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Building2 style={{ width: 22, height: 22 }} />

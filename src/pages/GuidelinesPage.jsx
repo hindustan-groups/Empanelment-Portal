@@ -15,12 +15,12 @@ export default function GuidelinesPage() {
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: '2.5rem auto 4rem auto', padding: '0 1.5rem' }}>
-      <div className="form-card" style={{ padding: '2.25rem', borderRadius: 24, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+    <div className="guidelines-page-container">
+      <div className="guidelines-card">
         
         {/* Executive Top Banner Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem', marginBottom: '1.75rem', paddingBottom: '1.5rem', borderBottom: '2px solid var(--border-color)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, minWidth: 280 }}>
+        <div className="guidelines-header-bar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, minWidth: 260 }}>
             <div style={{ padding: '0.75rem', borderRadius: 14, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', flexShrink: 0 }}>
               <ShieldCheck style={{ width: 28, height: 28 }} />
             </div>
@@ -28,20 +28,20 @@ export default function GuidelinesPage() {
               <div style={{ fontSize: '0.725rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 HINDUSTAN PROJECTS • CORPORATE MANUAL &amp; SPECIFICATIONS FY 2026–27
               </div>
-              <h1 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0F172A', marginTop: 2, marginBottom: 2 }}>
+              <h1 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: 2, marginBottom: 2 }}>
                 Vendor &amp; Contractor Empanelment Policy Guidelines
               </h1>
               <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: 4 }}>
                 <span>✓ ISO 9001:2015 Verified</span>
                 <span>•</span>
-                <span>✓ CVC Anti-Bribery Procurement Standards</span>
+                <span>✓ CVC Anti-Bribery Standards</span>
                 <span>•</span>
-                <span>✓ NBC 2016 Building Code Compliant</span>
+                <span>✓ NBC 2016 Compliant</span>
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
               onClick={() => setShowMatrixModal(true)}
               style={{ padding: '0.65rem 1.1rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', background: 'rgba(0,71,171,0.08)', color: '#0047AB', border: '1px solid rgba(0,71,171,0.2)' }}
@@ -61,7 +61,7 @@ export default function GuidelinesPage() {
         </div>
 
         {/* 4 Master Navigation Modules */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.85rem', marginBottom: '2rem', width: '100%' }}>
+        <div className="guidelines-tab-grid">
           {[
             { id: 'policy', label: '1. Tier Classification & Rating', icon: Building2 },
             { id: 'nbc_matrix', label: '2. NBC Building Code Standards', icon: HardHat },
