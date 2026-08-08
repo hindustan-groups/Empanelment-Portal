@@ -198,6 +198,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   const [signatureData, setSignatureData] = useState(null);
   const [savedDraft, setSavedDraft] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
+  const [refillInfo, setRefillInfo] = useState(null);
 
   const [availableCategories] = useState(() => {
     const saved = localStorage.getItem('hipro_custom_categories');
@@ -324,6 +325,61 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         category: category,
         primaryRole: mappedRole
       }));
+    }
+
+    // Check for ?refill=HP-EMP-XXX or ?trackingId=HP-EMP-XXX in URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const refillId = searchParams.get('refill') || searchParams.get('trackingId') || searchParams.get('id');
+
+    if (refillId) {
+      fetch(`${API_BASE_URL}/api/empanelment/application/${refillId}`)
+        .then(r => r.json())
+        .then(res => {
+          if (res.success && res.data) {
+            const d = res.data;
+            setRefillInfo(d);
+            setFormData(prev => ({
+              ...prev,
+              trackingId: d.tracking_id || d.trackingId,
+              category: d.category || prev.category,
+              primaryRole: d.primaryRole || d.primary_role || prev.primaryRole,
+              specialization: d.specialization || '',
+              skillsDetails: d.skillsDetails || '',
+              teamSize: d.teamSize || '1-5 Members',
+              companyName: d.companyName || d.company_name || '',
+              entityType: d.entityType || d.entity_type || 'sole_proprietor',
+              estYear: d.estYear || d.est_year || '',
+              ownerName: d.ownerName || d.owner_name || '',
+              ownerContact: d.ownerContact || d.owner_contact || '',
+              contactName: d.contactName || d.contact_name || '',
+              designation: d.designation || '',
+              email: d.email || '',
+              phone: d.phone || '',
+              address: d.address || '',
+              city: d.city || '',
+              state: d.state || '',
+              pincode: d.pincode || '',
+              gstin: d.gstin || '',
+              pan: d.pan || '',
+              aadharNo: d.aadharNo || d.aadhar_no || '',
+              msmeNo: d.msmeNo || d.msme_no || '',
+              bankAccount: d.bankAccount || d.bank_account || '',
+              bankName: d.bankName || d.bank_name || '',
+              ifsc: d.ifsc || '',
+              turnover2023: d.turnover2023 || d.turnover_2023 || '',
+              turnover2024: d.turnover2024 || d.turnover_2024 || '',
+              turnover2025: d.turnover2025 || d.turnover_2025 || '',
+              largestOrder: d.largestOrder || d.largest_order || '',
+              existingEmpanels: d.existingEmpanels || d.existing_empanels || '',
+              gstDoc: d.gstDoc || d.gst_doc || null,
+              panDoc: d.panDoc || d.pan_doc || null,
+              bankDoc: d.bankDoc || d.bank_doc || null,
+              expDoc: d.expDoc || d.exp_doc || null,
+              signatoryName: d.signatoryName || d.signatory_name || d.contactName || d.contact_name || ''
+            }));
+          }
+        })
+        .catch(err => console.warn('Refill fetch warning:', err));
     }
   }, [category]);
 
@@ -744,6 +800,48 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
           {/* Entity Type Switcher — shown outside banner as white readable card */}
         </div>{/* close form-header-banner here */}
+
+        {/* ── Resubmission / Refill Alert Banner ── */}
+        {refillInfo && (
+          <div style={{
+            background: '#FFFBEB',
+            borderBottom: '2px solid #F59E0B',
+            padding: '1rem 2rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.85rem'
+          }}>
+            <div style={{
+              width: 42,
+              height: 42,
+              borderRadius: 12,
+              background: '#FEF3C7',
+              border: '1.5px solid #F59E0B',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.4rem',
+              flexShrink: 0
+            }}>
+              📝
+            </div>
+            <div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#B45309', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span>⚠️ RESUBMISSION &amp; DOCUMENT CORRECTION MODE</span>
+                <span style={{ fontSize: '0.75rem', background: '#F59E0B', color: 'white', padding: '0.15rem 0.55rem', borderRadius: 6, fontWeight: 800 }}>
+                  Tracking ID: {refillInfo.tracking_id || refillInfo.trackingId}
+                </span>
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#92400E', marginTop: 2, fontWeight: 700 }}>
+                {refillInfo.missingDetails || refillInfo.adminRemarks ? (
+                  <><strong>Committee Requirement:</strong> {refillInfo.missingDetails || refillInfo.adminRemarks}</>
+                ) : (
+                  'Your previously submitted information has been auto-filled below. Please update the requested missing fields and click submit.'
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Entity Selector Card (white bg, fully readable) ── */}
         <div style={{

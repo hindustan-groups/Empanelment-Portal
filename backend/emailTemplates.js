@@ -477,8 +477,8 @@ ${emailHeader()}
     <!-- RE-APPLY CTA -->
     <tr>
       <td style="padding:16px 36px 28px 36px;text-align:center;">
-        <a href="${PORTAL_URL}/apply" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
-          📝 SUBMIT ADDITIONAL INFORMATION
+        <a href="${PORTAL_URL}/apply?refill=${trackingId}" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#ffffff;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;">
+          📝 SUBMIT / REFILL REQUESTED INFORMATION
         </a>
         &nbsp;&nbsp;
         <a href="mailto:industrial@hindustanprojects.in" style="background:#f1f5f9;color:#1e293b;text-decoration:none;padding:13px 32px;border-radius:8px;font-size:13px;font-weight:700;display:inline-block;letter-spacing:0.5px;border:1px solid #e2e8f0;">

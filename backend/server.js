@@ -594,6 +594,73 @@ app.get('/api/health', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────
+// GET /api/empanelment/application/:trackingId
+// Public endpoint for prefilling form during vendor resubmission / refill
+// ─────────────────────────────────────────────────────────────────
+app.get('/api/empanelment/application/:trackingId', (req, res) => {
+  const { trackingId } = req.params;
+  const upperId = String(trackingId || '').trim().toUpperCase();
+
+  db.get(`SELECT * FROM vendors WHERE UPPER(tracking_id) = ? OR UPPER(gstin) = ? OR UPPER(pan) = ?`, [upperId, upperId, upperId], (err, vendor) => {
+    if (err || !vendor) {
+      return res.status(404).json({ success: false, error: 'Application not found.' });
+    }
+
+    let categoryData = {};
+    if (vendor.category_specific_data) {
+      try { categoryData = JSON.parse(vendor.category_specific_data); } catch (e) {}
+    }
+
+    res.json({
+      success: true,
+      data: {
+        tracking_id: vendor.tracking_id,
+        trackingId: vendor.tracking_id,
+        category: vendor.category,
+        primaryRole: vendor.primary_role,
+        specialization: vendor.specialization,
+        skillsDetails: vendor.skills_details,
+        teamSize: vendor.team_size,
+        companyName: vendor.company_name,
+        entityType: vendor.entity_type,
+        estYear: vendor.est_year,
+        ownerName: vendor.owner_name,
+        ownerContact: vendor.owner_contact,
+        contactName: vendor.contact_name,
+        designation: vendor.designation,
+        email: vendor.email,
+        phone: vendor.phone,
+        address: vendor.address,
+        city: vendor.city,
+        state: vendor.state,
+        pincode: vendor.pincode,
+        gstin: vendor.gstin,
+        pan: vendor.pan,
+        aadharNo: vendor.aadhar_no,
+        msmeNo: vendor.msme_no,
+        bankAccount: vendor.bank_account,
+        bankName: vendor.bank_name,
+        ifsc: vendor.ifsc,
+        turnover2023: vendor.turnover_2023,
+        turnover2024: vendor.turnover_2024,
+        turnover2025: vendor.turnover_2025,
+        largestOrder: vendor.largest_order,
+        existingEmpanels: vendor.existing_empanels,
+        gstDoc: vendor.gst_doc,
+        panDoc: vendor.pan_doc,
+        bankDoc: vendor.bank_doc,
+        expDoc: vendor.exp_doc,
+        signatoryName: vendor.signatory_name,
+        status: vendor.status,
+        adminRemarks: vendor.admin_remarks,
+        missingDetails: vendor.missing_details,
+        ...categoryData
+      }
+    });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/submit
 // Submit application → save to DB → send 2 emails (vendor + admin)
 // ─────────────────────────────────────────────────────────────────
@@ -669,8 +736,51 @@ app.post('/api/empanelment/submit', submitLimiter, upload.any(), async (req, res
         gstin, pan, aadhar_no, msme_no, bank_account, bank_name, ifsc,
         turnover_2023, turnover_2024, turnover_2025, largest_order, existing_empanels,
         gst_doc, pan_doc, bank_doc, exp_doc, signatory_name, signature_data, passport_photo,
-        category_specific_data, ip_address, submitted_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        category_specific_data, ip_address, submitted_at, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Under Verification')
+      ON CONFLICT(tracking_id) DO UPDATE SET
+        hash_signature = excluded.hash_signature,
+        category = excluded.category,
+        primary_role = excluded.primary_role,
+        specialization = excluded.specialization,
+        skills_details = excluded.skills_details,
+        team_size = excluded.team_size,
+        company_name = excluded.company_name,
+        entity_type = excluded.entity_type,
+        est_year = excluded.est_year,
+        owner_name = excluded.owner_name,
+        owner_contact = excluded.owner_contact,
+        contact_name = excluded.contact_name,
+        designation = excluded.designation,
+        email = excluded.email,
+        phone = excluded.phone,
+        address = excluded.address,
+        city = excluded.city,
+        state = excluded.state,
+        pincode = excluded.pincode,
+        gstin = excluded.gstin,
+        pan = excluded.pan,
+        aadhar_no = excluded.aadhar_no,
+        msme_no = excluded.msme_no,
+        bank_account = excluded.bank_account,
+        bank_name = excluded.bank_name,
+        ifsc = excluded.ifsc,
+        turnover_2023 = excluded.turnover_2023,
+        turnover_2024 = excluded.turnover_2024,
+        turnover_2025 = excluded.turnover_2025,
+        largest_order = excluded.largest_order,
+        existing_empanels = excluded.existing_empanels,
+        gst_doc = COALESCE(excluded.gst_doc, vendors.gst_doc),
+        pan_doc = COALESCE(excluded.pan_doc, vendors.pan_doc),
+        bank_doc = COALESCE(excluded.bank_doc, vendors.bank_doc),
+        exp_doc = COALESCE(excluded.exp_doc, vendors.exp_doc),
+        signatory_name = excluded.signatory_name,
+        signature_data = COALESCE(excluded.signature_data, vendors.signature_data),
+        passport_photo = COALESCE(excluded.passport_photo, vendors.passport_photo),
+        category_specific_data = excluded.category_specific_data,
+        ip_address = excluded.ip_address,
+        submitted_at = excluded.submitted_at,
+        status = 'Under Verification'
     `;
 
     // Process and Upload Document files to Cloudinary Storage
