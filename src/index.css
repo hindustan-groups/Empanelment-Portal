@@ -1018,6 +1018,88 @@ body {
   box-shadow: var(--shadow-md);
 }
 
+/* Support Widget */
+.support-widget-wrapper {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 99;
+}
+.support-fab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1.35rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #0047AB 0%, #0F172A 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 71, 171, 0.4);
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.85rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.support-fab-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px rgba(0, 71, 171, 0.5);
+}
+.support-fab-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.support-fab-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #34D399;
+  border: 2px solid #0047AB;
+}
+.support-widget-modal {
+  width: 330px;
+  border-radius: 22px;
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: fadeIn 0.25s ease forwards;
+}
+
+/* Guidelines Page Classes */
+.guidelines-page-container {
+  padding: 2.5rem 1.5rem;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+.guidelines-card {
+  padding: 2.5rem;
+  border-radius: 24px;
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+.guidelines-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+.guidelines-tab-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
 /* Eligibility Calculator Component */
 .calculator-section-wrap {
   max-width: 1100px;
@@ -2521,6 +2603,46 @@ body {
     gap: 0.75rem !important;
   }
 
+  /* Support Widget on Mobile */
+  .support-widget-wrapper {
+    bottom: 1rem !important;
+    right: 1rem !important;
+  }
+  .support-fab-btn {
+    width: 48px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+  }
+  .support-fab-label {
+    display: none !important;
+  }
+  .support-widget-modal {
+    width: calc(100vw - 2rem) !important;
+    max-width: 320px !important;
+  }
+
+  /* Guidelines Sub-tab Grid */
+  .guidelines-tab-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+  }
+  .guidelines-card {
+    padding: 1.5rem 1rem !important;
+  }
+  .calculator-footer-action {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    text-align: center !important;
+    padding: 1.25rem 1rem !important;
+  }
+  .calculator-cta-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    white-space: normal !important;
+  }
+
   /* Modals */
   .modal-backdrop {
     padding: 1rem 0.5rem !important;
@@ -2576,6 +2698,25 @@ body {
   }
   .category-card {
     padding: 0.9rem 0.85rem !important;
+  }
+  .guidelines-tab-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+  .guidelines-header-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+  }
+  .guidelines-card {
+    padding: 1.25rem 0.75rem !important;
+  }
+  .calculator-container-card {
+    padding: 1.25rem 0.75rem !important;
+  }
+  .calculator-controls-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
   }
   .step-title {
     display: none !important;
