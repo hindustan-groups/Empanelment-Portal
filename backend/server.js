@@ -529,6 +529,25 @@ app.patch('/api/empanelment/admin/contacts/:id', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────
+// DELETE /api/empanelment/admin/contacts/:id
+// Admin deletes contact ticket permanently from SQLite DB
+// ─────────────────────────────────────────────────────────────────
+app.delete('/api/empanelment/admin/contacts/:id', (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  const expectedKey = process.env.ADMIN_API_KEY;
+  if (!adminKey || !expectedKey || adminKey !== expectedKey) {
+    return res.status(403).json({ success: false, error: 'Unauthorized' });
+  }
+
+  const { id } = req.params;
+
+  db.run(`DELETE FROM contact_messages WHERE id = ? OR message_ref = ?`, [id, id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: `Contact message ${id} deleted successfully.`, deleted: this.changes });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/admin/reply-contact
 // Admin replies directly to a contact inquiry via official email
 // ─────────────────────────────────────────────────────────────────

@@ -530,17 +530,8 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   };
 
   const fetchContactMessages = async () => {
-    // Read local contact messages state by default
-    try {
-      const stored = JSON.parse(localStorage.getItem('hipro_contact_messages') || '[]');
-      if (Array.isArray(stored) && stored.length > 0) {
-        setContactMessages(stored);
-      }
-    } catch {}
-
     const backendUrl = API_BASE_URL;
     const adminKey = ADMIN_API_KEY;
-    let apiContacts = [];
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/contacts`, {
         headers: { 'x-admin-key': adminKey }
@@ -550,22 +541,18 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         if (text && text.trim() !== 'PRO FEATURE ONLY') {
           const data = JSON.parse(text);
           if (data.success && Array.isArray(data.data)) {
-            apiContacts = data.data;
+            setContactMessages(data.data);
+            return;
           }
         }
       }
     } catch {}
 
-    let localContacts = [];
+    // Offline / Local storage fallback if API fails
     try {
-      localContacts = JSON.parse(localStorage.getItem('hipro_contact_submissions') || '[]');
+      const localContacts = JSON.parse(localStorage.getItem('hipro_contact_submissions') || '[]');
+      setContactMessages(localContacts);
     } catch {}
-
-    const map = new Map();
-    localContacts.forEach(c => { if (c && c.id) map.set(c.id, c); });
-    apiContacts.forEach(c => { if (c && c.id) map.set(c.id, c); });
-
-    setContactMessages(Array.from(map.values()));
   };
 
   const handleToggleContactStatus = async (id, currentStatus) => {
@@ -580,14 +567,22 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       });
     } catch {}
 
-    // Update local state and localStorage
-    setContactMessages(prev => {
-      const updated = prev.map(c => c.id === id ? { ...c, status: newStatus } : c);
-      try {
-        localStorage.setItem('hipro_contact_submissions', JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
+    // Update local state
+    setContactMessages(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
+  };
+
+  const handleDeleteContactMessage = async (id) => {
+    if (!window.confirm('Are you sure you want to permanently delete this contact inquiry message?')) return;
+    const backendUrl = API_BASE_URL;
+    const adminKey = ADMIN_API_KEY;
+    try {
+      await fetch(`${backendUrl}/api/empanelment/admin/contacts/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': adminKey }
+      });
+    } catch {}
+
+    setContactMessages(prev => prev.filter(c => c.id !== id));
   };
 
   /* Security */
@@ -1959,6 +1954,19 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                           }}
                         >
                           {msg.status === 'NEW' ? '✓ Mark as Resolved' : '↩ Reopen Inquiry'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteContactMessage(msg.id)}
+                          style={{
+                            padding: '0.4rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: 8, cursor: 'pointer',
+                            background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', display: 'inline-flex', alignItems: 'center', gap: '0.35rem'
+                          }}
+                          title="Permanently delete this contact inquiry message"
+                        >
+                          <Trash2 style={{ width: 14, height: 14 }} />
+                          <span>Delete</span>
                         </button>
                       </div>
                     </div>

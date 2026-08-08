@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert, RefreshCw } from 'lucide-react';
 import SecurityCaptcha from '../components/SecurityCaptcha';
 import { API_BASE_URL } from '../config/api';
 
@@ -38,6 +38,7 @@ export default function ContactPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSending) return; // 🛑 Double-click protection
     setSpamError('');
 
     // 1. 🍯 Honeypot Check: Spambot trap field must be empty
@@ -70,28 +71,11 @@ export default function ContactPage() {
       return;
     }
 
-    const newSubmission = {
-      id: Date.now(),
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone || '',
-      company: formData.company || '',
-      department: formData.department === 'Other' ? formData.customDepartment : formData.department,
-      message: formData.message,
-      status: 'NEW',
-      time: new Date().toLocaleString('en-IN')
-    };
-
-    try {
-      const existing = JSON.parse(localStorage.getItem('hipro_contact_submissions') || '[]');
-      localStorage.setItem('hipro_contact_submissions', JSON.stringify([newSubmission, ...existing]));
-    } catch {}
-
     setIsSending(true);
     const backendUrl = API_BASE_URL;
 
     try {
-      // Attempt backend API call
+      // Send single API call to backend (saves to SQLite DB and sends SMTP email)
       const res = await fetch(`${backendUrl}/api/empanelment/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,11 +83,14 @@ export default function ContactPage() {
       });
       const data = await res.json();
       if (data.success) {
-        console.log('✅ Contact inquiry email sent via VPS backend');
+        console.log('✅ Contact inquiry submitted via VPS backend');
       }
-    } catch {}
+    } catch (err) {
+      console.error('Contact submission error:', err);
+    } finally {
+      setIsSending(false);
+    }
 
-    setIsSending(false);
     sessionStorage.setItem('hipro_last_contact_sub', Date.now().toString());
     setSubmitted(true);
   };
@@ -380,11 +367,25 @@ export default function ContactPage() {
 
               <button
                 type="submit"
+                disabled={isSending}
                 className="btn-accent"
-                style={{ padding: '0.75rem 1.5rem', fontSize: '0.9rem', borderRadius: 12, marginTop: '0.25rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                style={{
+                  padding: '0.75rem 1.5rem', fontSize: '0.9rem', borderRadius: 12, marginTop: '0.25rem',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  opacity: isSending ? 0.7 : 1, cursor: isSending ? 'not-allowed' : 'pointer'
+                }}
               >
-                <Send style={{ width: 16, height: 16 }} />
-                <span>Submit Inquiry</span>
+                {isSending ? (
+                  <>
+                    <RefreshCw style={{ width: 16, height: 16, animation: 'spin 1s linear infinite' }} />
+                    <span>Sending Message... Please Wait</span>
+                  </>
+                ) : (
+                  <>
+                    <Send style={{ width: 16, height: 16 }} />
+                    <span>Submit Inquiry</span>
+                  </>
+                )}
               </button>
             </form>
           )}
