@@ -430,25 +430,17 @@ app.post('/api/empanelment/admin/change-password', (req, res) => {
 });
 
 const getTransporter = () => {
-  let user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-  let pass = process.env.EMAIL_APP_PASS || 'Yogi123@123';
-  let host = process.env.SMTP_HOST || 'smtp.hostinger.com';
-
-  if (!user || user.includes('gmail') || user.includes('hindustanprojects0.2')) {
-    user = 'info@hindustanprojects.in';
-    pass = 'Yogi123@123';
-    host = 'smtp.hostinger.com';
-  }
-
-  const port = parseInt(process.env.SMTP_PORT || '465', 10);
-  const secure = port === 465;
+  const finalUser = 'info@hindustanprojects.in';
+  const finalPass = 'Yogi123@123';
+  const host = 'smtp.hostinger.com';
+  const port = 465;
 
   const nodemailer = require('nodemailer');
   return nodemailer.createTransport({
     host,
     port,
-    secure,
-    auth: { user, pass },
+    secure: true,
+    auth: { user: finalUser, pass: finalPass },
     tls: { rejectUnauthorized: false }
   });
 };

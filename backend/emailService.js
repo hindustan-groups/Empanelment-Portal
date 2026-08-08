@@ -10,24 +10,16 @@ const templates = require('./emailTemplates');
 
 // ─── CREATE TRANSPORTER (Hostinger Domain SMTP: industrial@hindustanprojects.in) ───
 const createTransporter = () => {
-  let user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-  let pass = process.env.EMAIL_APP_PASS || 'Yogi123@123';
-  let host = process.env.SMTP_HOST || 'smtp.hostinger.com';
-
-  if (!user || user.includes('gmail') || user.includes('hindustanprojects0.2')) {
-    user = 'info@hindustanprojects.in';
-    pass = 'Yogi123@123';
-    host = 'smtp.hostinger.com';
-  }
-
-  const port = parseInt(process.env.SMTP_PORT || '465', 10);
-  const secure = port === 465;
+  const finalUser = 'info@hindustanprojects.in';
+  const finalPass = 'Yogi123@123';
+  const host = 'smtp.hostinger.com';
+  const port = 465;
 
   return nodemailer.createTransport({
     host,
     port,
-    secure,
-    auth: { user, pass },
+    secure: true,
+    auth: { user: finalUser, pass: finalPass },
     tls: { rejectUnauthorized: false }
   });
 };
@@ -47,10 +39,7 @@ const logEmailToOutbox = (to, subject, html) => {
 const sendEmail = async (to, templateResult) => {
   logEmailToOutbox(to, templateResult.subject, templateResult.html);
   try {
-    let user = process.env.EMAIL_USER || 'info@hindustanprojects.in';
-    if (!user || user.includes('gmail') || user.includes('hindustanprojects0.2')) {
-      user = 'info@hindustanprojects.in';
-    }
+    const user = 'info@hindustanprojects.in';
     const sender = 'info@hindustanprojects.in';
     const transporter = createTransporter();
 
