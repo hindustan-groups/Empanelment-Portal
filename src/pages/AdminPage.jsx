@@ -430,7 +430,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [tenders, setTenders] = useState([]);
   const [editingTender, setEditingTender] = useState(null);
   const [showAddTenderModal, setShowAddTenderModal] = useState(false);
-  const [newTender, setNewTender] = useState({ title: '', category: 'civil', location: '', estimatedCost: '', deadline: '', status: 'OPEN FOR BIDDING' });
+  const [tenderForm, setTenderForm] = useState({
+    tender_no: '',
+    title: '',
+    category: 'Civil & Structural Execution',
+    estimated_value: '',
+    location: 'Bhilwara, Rajasthan',
+    due_date: '',
+    status: 'ACTIVE'
+  });
 
   /* Vendor RA Invoices Approval State */
   const [invoices, setInvoices] = useState([]);
@@ -2374,7 +2382,11 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
               <div style={{ textAlign: 'center', padding: '3rem 1.5rem', background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-color)' }}>
                 <Briefcase style={{ width: 40, height: 40, color: '#94A3B8', marginBottom: '0.75rem' }} />
                 <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A' }}>No Tenders Published Yet</h4>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4 }}>Click "+ Publish New Tender" above to create and list active procurement packages.</p>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4, marginBottom: '1.25rem' }}>Click "+ Publish New Tender" to create and list active procurement packages.</p>
+                <button onClick={handleOpenAddTenderModal} className="btn-primary" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem' }}>
+                  <PlusCircle style={{ width: 16, height: 16 }} />
+                  <span>+ Publish New Tender Package</span>
+                </button>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
