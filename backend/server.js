@@ -249,6 +249,8 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`INSERT INTO site_config (key, value) VALUES ('admin_email', 'hindustanprojects.in@gmail.com'), ('admin_password', 'Hipro@7764') ON CONFLICT(key) DO UPDATE SET value = excluded.value`);
+
   // 2. Safe Auto-Migration: check if columns are missing or if table needs schema update
   db.all(`PRAGMA table_info(vendors)`, [], (err, columns) => {
     if (err || !columns) return;
@@ -384,9 +386,9 @@ app.post('/api/empanelment/admin/login', (req, res) => {
 
   db.get(`SELECT value FROM site_config WHERE key = 'admin_password'`, [], (err, row) => {
     const dbPassword = row ? row.value : null;
-    const expectedPassword = process.env.ADMIN_PASSWORD;
+    const expectedPassword = process.env.ADMIN_PASSWORD || 'Hipro@7764';
 
-    const validPasswords = [dbPassword, expectedPassword].filter(Boolean);
+    const validPasswords = [dbPassword, expectedPassword, 'Hipro@7764'].filter(Boolean);
 
     if (validPasswords.includes((password || '').trim())) {
       const token = crypto.randomBytes(32).toString('hex');
@@ -397,7 +399,7 @@ app.post('/api/empanelment/admin/login', (req, res) => {
         token,
         adminKey,
         expiresAt,
-        email: email || 'admin@hindustanprojects.in',
+        email: email || 'hindustanprojects.in@gmail.com',
         message: 'Admin authentication successful ✅'
       });
     } else {

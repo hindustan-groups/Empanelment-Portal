@@ -54,7 +54,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
           const sessionExpiry = Date.now() + 4 * 60 * 60 * 1000;
           localStorage.setItem('hipro_admin_session', 'true');
           localStorage.setItem('hipro_admin_session_expiry', sessionExpiry.toString());
-          localStorage.setItem('hipro_admin_email', adminId || 'admin@hindustanprojects.in');
+          localStorage.setItem('hipro_admin_email', adminId || 'hindustanprojects.in@gmail.com');
 
           onLoginSuccess();
           navigate('/admin');
@@ -63,13 +63,13 @@ export default function AdminLoginPage({ onLoginSuccess }) {
         throw new Error(data.error || 'Invalid credentials');
       }
     } catch (err) {
-      // Backend offline fallback check
       const savedPassword = localStorage.getItem('hipro_admin_password');
-      const envPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'HindustanAdmin2026#';
+      const envPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'Hipro@7764';
 
       const validPasswords = [
         savedPassword,
         envPassword,
+        'Hipro@7764',
         'HindustanAdmin2026#',
         'admin123'
       ].filter(Boolean);
@@ -78,7 +78,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
         const sessionExpiry = Date.now() + 4 * 60 * 60 * 1000;
         localStorage.setItem('hipro_admin_session', 'true');
         localStorage.setItem('hipro_admin_session_expiry', sessionExpiry.toString());
-        localStorage.setItem('hipro_admin_email', adminId || 'admin@hindustanprojects.in');
+        localStorage.setItem('hipro_admin_email', adminId || 'hindustanprojects.in@gmail.com');
 
         onLoginSuccess();
         navigate('/admin');
@@ -193,7 +193,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
                 type="email"
                 value={adminId}
                 onChange={(e) => setAdminId(e.target.value)}
-                placeholder="admin@hindustanprojects.in"
+                placeholder="hindustanprojects.in@gmail.com"
                 required
                 style={{
                   width: '100%',
