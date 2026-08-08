@@ -41,6 +41,7 @@ export default function AdminLoginPage({ onLoginSuccess }) {
       if (data.success && data.token) {
         localStorage.setItem('hipro_admin_session', 'true');
         localStorage.setItem('hipro_admin_token', data.token);
+        localStorage.setItem('hipro_admin_password', password.trim());
         if (data.adminKey) localStorage.setItem('hipro_admin_key', data.adminKey);
         localStorage.setItem('hipro_admin_session_expiry', data.expiresAt ? data.expiresAt.toString() : (Date.now() + 4 * 60 * 60 * 1000).toString());
         localStorage.setItem('hipro_admin_email', data.email);
