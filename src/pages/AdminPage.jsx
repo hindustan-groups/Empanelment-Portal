@@ -752,12 +752,17 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     fetchTenders();
     fetchInvoices();
 
-    // Hydrate siteConfig from VPS Database on mount so Admin Panel starts with live DB config!
+    // Hydrate siteConfig & customCategories from VPS Database on mount so Admin Panel starts with live DB config!
     fetch(`${API_BASE_URL}/api/empanelment/public/site-config`)
       .then(res => res.json())
       .then(data => {
-        if (data && data.success && data.data && Object.keys(data.data).length > 0) {
-          setSiteConfig(prev => ({ ...prev, ...data.data }));
+        if (data && data.success && data.data) {
+          if (Object.keys(data.data).length > 0) {
+            setSiteConfig(prev => ({ ...prev, ...data.data }));
+          }
+          if (Array.isArray(data.data.customCategories) && data.data.customCategories.length > 0) {
+            setCategories(data.data.customCategories);
+          }
         }
       })
       .catch(() => {});
@@ -1073,7 +1078,24 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     });
   };
 
-  /* ── Category CRUD ── */
+  /* ── Category CRUD & VPS Sync ── */
+  const syncCategoriesToVPS = async (updatedCategories) => {
+    try {
+      localStorage.setItem('hipro_custom_categories', JSON.stringify(updatedCategories));
+      const updatedConfig = { ...siteConfig, customCategories: updatedCategories };
+      setSiteConfig(updatedConfig);
+      localStorage.setItem('hipro_site_config', JSON.stringify(updatedConfig));
+
+      await fetch(`${API_BASE_URL}/api/empanelment/admin/site-config`, {
+        method: 'POST',
+        headers: getAdminAuthHeader(),
+        body: JSON.stringify({ siteConfig: updatedConfig })
+      });
+    } catch (err) {
+      console.error('Categories VPS sync notice:', err);
+    }
+  };
+
   const handleOpenAddCatModal = () => {
     setEditingCat(null);
     setNewCat({ id: '', label: '', description: '', status: 'ACTIVE' });
@@ -1091,18 +1113,15 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     if (!newCat.label.trim()) return;
     const catId = newCat.id.trim() || newCat.label.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
-    setCategories(prev => {
-      let updated;
-      if (editingCat) {
-        updated = prev.map(c => c.id === editingCat.id ? { ...c, id: catId, label: newCat.label, description: newCat.description, status: newCat.status || 'ACTIVE' } : c);
-      } else {
-        updated = [...prev, { id: catId, label: newCat.label, description: newCat.description || 'Empanelment Trade Line', status: newCat.status || 'ACTIVE' }];
-      }
-      try {
-        localStorage.setItem('hipro_custom_categories', JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
+    let updated;
+    if (editingCat) {
+      updated = categories.map(c => c.id === editingCat.id ? { ...c, id: catId, label: newCat.label, description: newCat.description, status: newCat.status || 'ACTIVE' } : c);
+    } else {
+      updated = [...categories, { id: catId, label: newCat.label, description: newCat.description || 'Empanelment Trade Line', status: newCat.status || 'ACTIVE' }];
+    }
+
+    setCategories(updated);
+    syncCategoriesToVPS(updated);
 
     setShowAddCatModal(false);
     setEditingCat(null);
@@ -1110,31 +1129,25 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   };
 
   const handleToggleCatStatus = (id) => {
-    setCategories(prev => {
-      const updated = prev.map(c => {
-        if (c.id === id) {
-          const current = (c.status || 'ACTIVE').toUpperCase();
-          const nextStatus = current === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-          return { ...c, status: nextStatus };
-        }
-        return c;
-      });
-      try {
-        localStorage.setItem('hipro_custom_categories', JSON.stringify(updated));
-      } catch {}
-      return updated;
+    const updated = categories.map(c => {
+      if (c.id === id) {
+        const current = (c.status || 'ACTIVE').toUpperCase();
+        const nextStatus = current === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+        return { ...c, status: nextStatus };
+      }
+      return c;
     });
+
+    setCategories(updated);
+    syncCategoriesToVPS(updated);
   };
 
   const handleDeleteCat = (id) => {
     if (!window.confirm(`Are you sure you want to delete category "${id}"?`)) return;
-    setCategories(prev => {
-      const updated = prev.filter(c => c.id !== id);
-      try {
-        localStorage.setItem('hipro_custom_categories', JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
+    const updated = categories.filter(c => c.id !== id);
+
+    setCategories(updated);
+    syncCategoriesToVPS(updated);
   };
 
 
