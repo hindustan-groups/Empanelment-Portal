@@ -321,64 +321,35 @@ export default function VendorDashboardPage() {
         borderBottom: '1px solid var(--border-color)',
         position: 'sticky',
         top: 0,
-        zIndex: 100
+        zIndex: 100,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
       }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', padding: isMobile ? '0.65rem 1rem' : '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', padding: isMobile ? '0.6rem 0.85rem' : '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           
-          {/* Brand */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          {/* Brand Group */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <Link to="/vendor-dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-              <Logo height={isMobile ? 26 : 30} />
+              <Logo height={isMobile ? 22 : 26} showText={true} />
             </Link>
-
-            <div style={{ height: 22, width: 1, backgroundColor: 'var(--border-color)' }} />
-
-            <div>
-              <div style={{ fontSize: isMobile ? '0.825rem' : '0.875rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
-                HINDUSTAN PROJECTS
-              </div>
-              <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Vendor Portal ERP
-              </div>
-            </div>
 
             {!isMobile && (
               <span style={{
-                marginLeft: '0.5rem',
                 fontSize: '0.68rem',
                 fontWeight: 700,
                 color: '#0047AB',
                 backgroundColor: 'rgba(0,71,171,0.08)',
-                padding: '0.15rem 0.5rem',
+                padding: '0.25rem 0.6rem',
                 borderRadius: 4,
-                border: '1px solid rgba(0,71,171,0.2)'
+                border: '1px solid rgba(0,71,171,0.2)',
+                letterSpacing: '0.04em'
               }}>
-                TIER-1 EMPANELLED
+                VENDOR PORTAL ERP
               </span>
             )}
           </div>
 
           {/* Right User & Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            
-            <button
-              onClick={toggleTheme}
-              title="Theme Toggle"
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 6,
-                border: '1px solid var(--border-color)',
-                backgroundColor: 'var(--bg-surface)',
-                color: 'var(--text-primary)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              {isDarkMode ? <Sun style={{ width: 14, height: 14 }} /> : <Moon style={{ width: 14, height: 14 }} />}
-            </button>
 
             {!isMobile && (
               <>
@@ -387,14 +358,14 @@ export default function VendorDashboardPage() {
                     {vendor.company_name}
                   </div>
                   <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                    {vendor.tracking_id}
+                    Code: <strong style={{ color: '#0047AB' }}>{vendor.tracking_id}</strong>
                   </div>
                 </div>
 
                 <button
                   onClick={handleLogout}
                   style={{
-                    padding: '0.35rem 0.65rem',
+                    padding: '0.4rem 0.75rem',
                     borderRadius: 6,
                     fontSize: '0.75rem',
                     fontWeight: 600,
@@ -404,7 +375,7 @@ export default function VendorDashboardPage() {
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.3rem'
+                    gap: '0.35rem'
                   }}
                 >
                   <LogOut style={{ width: 13, height: 13 }} />
@@ -414,23 +385,39 @@ export default function VendorDashboardPage() {
             )}
 
             {isMobile && (
-              <button
-                onClick={() => setMobileMenuOpen(prev => !prev)}
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 6,
-                  border: '1px solid var(--border-color)',
-                  backgroundColor: mobileMenuOpen ? '#0047AB' : 'var(--bg-surface)',
-                  color: mobileMenuOpen ? '#FFFFFF' : 'var(--text-primary)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                {mobileMenuOpen ? <X style={{ width: 16, height: 16 }} /> : <Menu style={{ width: 16, height: 16 }} />}
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{
+                  fontFamily: 'monospace',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  color: '#0047AB',
+                  backgroundColor: 'rgba(0,71,171,0.08)',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: 5,
+                  border: '1px solid rgba(0,71,171,0.2)'
+                }}>
+                  {vendor.tracking_id}
+                </span>
+
+                <button
+                  onClick={() => setMobileMenuOpen(prev => !prev)}
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 7,
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: mobileMenuOpen ? '#0047AB' : 'var(--bg-surface)',
+                    color: mobileMenuOpen ? '#FFFFFF' : 'var(--text-primary)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {mobileMenuOpen ? <X style={{ width: 17, height: 17 }} /> : <Menu style={{ width: 17, height: 17 }} />}
+                </button>
+              </div>
             )}
 
           </div>
@@ -439,39 +426,43 @@ export default function VendorDashboardPage() {
         {/* Mobile Dropdown Drawer */}
         {isMobile && mobileMenuOpen && (
           <div style={{
-            padding: '0.85rem 1rem',
+            padding: '1rem',
             backgroundColor: 'var(--bg-surface)',
             borderTop: '1px solid var(--border-color)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.65rem'
+            gap: '0.75rem',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>{vendor.company_name}</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Code: <strong style={{ fontFamily: 'monospace' }}>{vendor.tracking_id}</strong></div>
+                <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>{vendor.company_name}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Vendor Code: <strong style={{ fontFamily: 'monospace', color: '#0047AB' }}>{vendor.tracking_id}</strong> • <span style={{ color: '#047857', fontWeight: 700 }}>Tier-1 Active</span>
+                </div>
               </div>
               <button
                 onClick={handleLogout}
-                style={{ padding: '0.3rem 0.65rem', borderRadius: 6, fontSize: '0.725rem', fontWeight: 700, color: '#DC2626', background: 'rgba(220,38,38,0.1)', border: 'none', cursor: 'pointer' }}
+                style={{ padding: '0.35rem 0.75rem', borderRadius: 6, fontSize: '0.725rem', fontWeight: 700, color: '#DC2626', background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
               >
-                Sign Out
+                <LogOut style={{ width: 12, height: 12 }} />
+                <span>Sign Out</span>
               </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', paddingTop: '0.25rem' }}>
               <button
                 onClick={() => { setShowIdCardModal(true); setMobileMenuOpen(false); }}
-                style={{ padding: '0.45rem', borderRadius: 6, background: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}
+                style={{ padding: '0.55rem', borderRadius: 6, background: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', cursor: 'pointer' }}
               >
-                <UserCheck style={{ width: 13, height: 13 }} />
+                <UserCheck style={{ width: 14, height: 14, color: '#0047AB' }} />
                 <span>PVC ID Card</span>
               </button>
               <button
                 onClick={() => { setShowCertificateModal(true); setMobileMenuOpen(false); }}
-                style={{ padding: '0.45rem', borderRadius: 6, background: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}
+                style={{ padding: '0.55rem', borderRadius: 6, background: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', cursor: 'pointer' }}
               >
-                <Printer style={{ width: 13, height: 13 }} />
+                <Printer style={{ width: 14, height: 14, color: '#0047AB' }} />
                 <span>A4 Certificate</span>
               </button>
             </div>
@@ -487,7 +478,8 @@ export default function VendorDashboardPage() {
           overflowX: 'auto',
           scrollbarWidth: 'none',
           gap: isMobile ? '0.25rem' : '0.5rem',
-          borderTop: '1px solid var(--border-color)'
+          borderTop: '1px solid var(--border-color)',
+          backgroundColor: 'var(--bg-card)'
         }}>
           {navigationTabs.map(tab => {
             const isActive = activeTab === tab.id;
