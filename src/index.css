@@ -1518,10 +1518,51 @@ body {
 
 
 
+/* VENDOR DASHBOARD BASE STYLES */
+.desktop-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.desktop-user-info {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.desktop-signout-btn {
+  display: flex;
+}
+
+.mobile-hamburger-btn {
+  display: none;
+}
+
+.vendor-mobile-dock {
+  display: none;
+}
+
 /* ALL-DEVICE MOBILE RESPONSIVE STYLES FOR VENDOR DASHBOARD & LOGIN */
 @media (max-width: 768px) {
   .vendor-dashboard-header {
-    padding: 0.75rem 0.85rem !important;
+    padding: 0.65rem 0.85rem !important;
+  }
+
+  .desktop-badge-group {
+    display: none !important;
+  }
+
+  .desktop-user-info {
+    display: none !important;
+  }
+
+  .desktop-signout-btn {
+    display: none !important;
+  }
+
+  .mobile-hamburger-btn {
+    display: flex !important;
   }
 
   .vendor-dashboard-tabs {
@@ -1530,17 +1571,18 @@ body {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     justify-content: flex-start !important;
-    padding-bottom: 6px !important;
+    padding-bottom: 4px !important;
     gap: 0.35rem !important;
     border-top: 1px solid var(--border-color) !important;
-    padding-top: 0.5rem !important;
+    padding-top: 0.45rem !important;
+    scrollbar-width: none !important;
   }
 
   .vendor-dashboard-tabs::-webkit-scrollbar {
     display: none !important;
   }
 
-  .vendor-dashboard-tabs button {
+  .vendor-tab-btn {
     flex-shrink: 0 !important;
     white-space: nowrap !important;
     font-size: 0.75rem !important;
@@ -1551,10 +1593,77 @@ body {
     padding: 1.15rem 1rem !important;
     border-radius: 16px !important;
     margin-bottom: 1.25rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
   }
 
   .vendor-welcome-title {
-    font-size: 1.25rem !important;
+    font-size: 1.2rem !important;
+  }
+
+  .vendor-banner-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.4rem !important;
+  }
+
+  .vendor-banner-actions button {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.5rem 0.4rem !important;
+    font-size: 0.725rem !important;
+  }
+
+  .vendor-stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+  }
+
+  .vendor-profile-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+
+  .vendor-finance-strip {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  .vendor-cert-banner {
+    padding: 1.15rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.85rem !important;
+  }
+
+  .vendor-cert-banner button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .vendor-pass-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.65rem !important;
+  }
+
+  .pass-actions {
+    width: 100% !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  .wo-val-col, .payout-amount-col {
+    text-align: left !important;
+    margin-top: 0.25rem !important;
+  }
+
+  /* Show Bottom Mobile Navigation Dock */
+  .vendor-mobile-dock {
+    display: flex !important;
   }
 
   .vendor-login-card {
@@ -1565,6 +1674,25 @@ body {
   .modal-content.printable-area {
     padding: 1rem 0.75rem !important;
     border-radius: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .vendor-banner-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .vendor-stat-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .meta-separator {
+    display: none !important;
+  }
+
+  .vendor-banner-meta {
+    flex-direction: column !important;
+    gap: 0.25rem !important;
   }
 }
 
