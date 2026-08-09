@@ -35,7 +35,7 @@ export default function ActiveTenders({ onEmpanelCategory }) {
   };
 
   return (
-    <section style={{ maxWidth: 1240, margin: '3.5rem auto 4rem auto', padding: '0 1.5rem' }}>
+    <section className="home-section-wrapper" style={{ margin: '3.5rem auto 4rem auto' }}>
       
       {/* Radar Section Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border-color)' }}>
@@ -48,7 +48,7 @@ export default function ActiveTenders({ onEmpanelCategory }) {
             Active Hindustan Projects Tenders FY 2026-27
           </h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Empanelment required for technical & financial bidding participation
+            Empanelment required for technical &amp; financial bidding participation
           </p>
         </div>
 
@@ -59,7 +59,7 @@ export default function ActiveTenders({ onEmpanelCategory }) {
       </div>
 
       {/* Tender Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
         {liveTenders.map((t) => (
           <div 
             key={t.id} 

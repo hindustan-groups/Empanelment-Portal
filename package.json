@@ -4,11 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/start-all.js",
+    "start": "node scripts/start-all.js",
+    "server": "node backend/server.js",
+    "vite": "vite",
     "build": "vite build",
     "test": "node test/validators.test.js",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:form": "node scripts/test-form.js",
+    "deploy": "git add . && git commit -m \"Auto-deploy update\" && git push origin master"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",

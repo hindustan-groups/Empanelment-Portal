@@ -5,8 +5,8 @@
 **Primary Corporate Site:** `hindustanprojects.in`  
 **GitHub Repository:** `https://github.com/hindustan-groups/Empanelment-Portal`  
 **Local Workspace:** `C:\Users\HP\.gemini\antigravity\scratch\hindustan-projects-empanelment`  
-**Report Generated:** August 4, 2026  
-**Latest Git Commit:** `a6c7a5e` (*fix(auth): update credential validation hint and error message to use Registered Email Address*)  
+**Report Generated:** August 8, 2026  
+**Latest Git Commit:** `11005a3` (*fix(improvements): align 10MB file limit, update email template URLs, fix React hook order in VendorIdCardModal, and sanitize blood group default*)  
 
 ---
 
@@ -145,6 +145,11 @@ Multi-layered security controls are built into the system:
 **Status:** Clean, 100% synchronized with `origin/master`.
 
 ### Commit Trajectory:
+- `11005a3` — *fix(improvements): align 10MB file limit, update email template URLs, fix React hook order in VendorIdCardModal, and sanitize blood group default*
+- `be74c1a` — *fix(data): ensure SQLite DB application records take 100% precedence in AdminPage and hydrate siteConfig from DB on mount*
+- `8e88a1e` — *fix(cms): remove Section 5 Empanelment Application Fee & Tax Settings from AdminPage.jsx*
+- `e1b162d` — *docs: update README_VPS_DEPLOYMENT.md nginx port to 9000*
+- `5a25b6f` — *feat(cms): add site_config DB table & real-time VPS API endpoints so CMS edits in Admin instantly sync across all Mobile & Desktop devices worldwide*
 - `a6c7a5e` — *fix(auth): update credential validation hint and error message to use Registered Email Address instead of mobile number*
 - `214f479` — *feat(dossier-and-legal): overhaul print dossier A4 page layout density and expand guidelines, privacy, and terms pages*
 - `abcd277` — *Enterprise Security Hardening: Helmet security headers, rate-limiting, SHA-256 hash signatures, MIME-type file whitelisting, and Anti-Bot Math Captcha*

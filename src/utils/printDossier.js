@@ -21,9 +21,16 @@ function fv(val, prefix = '', suffix = '') {
 }
 
 function docCheck(val) {
-  return val
-    ? `<span style="color:#047857;font-weight:900">✓ ATTACHED &amp; SUBMITTED</span>`
-    : `<span style="color:#DC2626;font-weight:700">✗ NOT SUBMITTED</span>`;
+  if (!val) return `<span style="color:#DC2626;font-weight:700">✗ NOT SUBMITTED</span>`;
+
+  let srcUrl = null;
+  if (typeof val === 'string') srcUrl = val;
+  else if (typeof val === 'object' && val !== null) srcUrl = val.url || val.data || val.path || null;
+
+  if (srcUrl && (srcUrl.startsWith('http') || srcUrl.startsWith('data:') || srcUrl.startsWith('/'))) {
+    return `<span style="color:#047857;font-weight:900">✓ ATTACHED</span> &nbsp;·&nbsp; <a href="${srcUrl}" target="_blank" style="color:#0047AB;font-weight:800;text-decoration:underline">🔗 View Document PDF/File</a>`;
+  }
+  return `<span style="color:#047857;font-weight:900">✓ ATTACHED &amp; SUBMITTED</span>`;
 }
 
 function fmtDate(dateVal) {
@@ -356,7 +363,7 @@ function renderCorporateFooterBar(pageNum, totalPages) {
       </div>
       <div class="footer-item">
         <svg class="footer-icon-svg" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        <span>empanelment@hindustanprojects.in</span>
+        <span>industrial@hindustanprojects.in</span>
       </div>
       <div class="footer-item">
         <svg class="footer-icon-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
@@ -369,12 +376,12 @@ function renderCorporateFooterBar(pageNum, totalPages) {
 // Helper to render attachment pages for uploaded documents
 function renderDocumentAttachmentsHTML(formData, trackingId) {
   const categories = [
-    { title: 'Permanent Account Number (PAN Card)', keys: ['panDoc', 'pan_doc'], docType: 'Mandatory Income Tax Identity Document' },
-    { title: 'Aadhaar Card (National Identity & Address Proof)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc'], docType: 'Mandatory UIDAI National Identity Proof' },
-    { title: 'Cancelled Bank Cheque Copy', keys: ['bankDoc', 'bank_doc'], docType: 'Verified Bank Account & RTGS Payout Proof' },
-    { title: 'GST REG-06 Registration Certificate', keys: ['gstDoc', 'gst_doc'], docType: 'CBIC Statutory GST Compliance Registration' },
-    { title: 'Past Work Experience & Completion Certificates', keys: ['expDoc', 'exp_doc'], docType: 'CPWD / Corporate Work Order Execution Proof' },
-    { title: 'Technical Work Portfolio & Multi-Page Equipment Catalog', keys: ['portfolioDoc', 'portfolio_doc', 'tradeLicenseDoc', 'dealershipCertDoc', 'coaCertificateDoc', 'charteredCertDoc', 'degreeDoc', 'experienceCertDoc'], docType: 'FINAL ANNEXURE — Technical Capability Roster & Multi-Page Catalog' }
+    { title: 'Permanent Account Number (PAN Card)', keys: ['panDoc', 'pan_doc', 'panDocUrl'], docType: 'Mandatory Income Tax Identity Document' },
+    { title: 'Aadhaar Card (National Identity & Address Proof)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc', 'aadharDoc', 'aadhar_doc'], docType: 'Mandatory UIDAI National Identity Proof' },
+    { title: 'Cancelled Bank Cheque Copy', keys: ['bankDoc', 'bank_doc', 'bankDocUrl'], docType: 'Verified Bank Account & RTGS Payout Proof' },
+    { title: 'GST REG-06 Registration Certificate', keys: ['gstDoc', 'gst_doc', 'gstDocUrl'], docType: 'CBIC Statutory GST Compliance Registration' },
+    { title: 'Past Work Experience & Completion Certificates', keys: ['expDoc', 'exp_doc', 'expDocUrl'], docType: 'CPWD / Corporate Work Order Execution Proof' },
+    { title: 'Technical Work Portfolio & Multi-Page Equipment Catalog', keys: ['portfolioDoc', 'portfolio_doc', 'portfolioUrl', 'tradeLicenseDoc', 'dealershipCertDoc', 'coaCertificateDoc', 'charteredCertDoc', 'degreeDoc', 'experienceCertDoc'], docType: 'FINAL ANNEXURE — Technical Capability Roster & Multi-Page Catalog' }
   ];
 
   // ONLY include documents that were ACTUALLY uploaded by the applicant
@@ -939,44 +946,66 @@ function buildDossierHTML({ trackingId, formData }) {
         do hereby solemnly affirm that all details submitted in this Empanelment Dossier are true and correct. I/We agree to abide by all the Rules, Policy Guidelines, and Code of Conduct of Hindustan Projects.
       </div>
 
-      <div class="sig-row">
-        <div>
+      <div class="sig-row" style="display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-top:15px">
+        
+        <!-- Left: Vendor Signature -->
+        <div style="flex:1;text-align:left">
+          ${(formData?.signature || formData?.signature_data) ? `
+            <div style="font-size:7pt;font-weight:900;color:${HP_BLUE};margin-bottom:3px">DIGITAL VENDOR E-SIGNATURE</div>
+            <img src="${formData.signature || formData.signature_data}" alt="Vendor Signature" style="height:42px;max-width:140px;object-fit:contain;display:block;margin-bottom:4px"/>
+          ` : ''}
           <div class="sig-line"></div>
           <div class="sig-label">Authorized Signatory (Vendor)</div>
           <div class="sig-name">${formData?.signatoryName || formData?.contactName || '___________________________'}</div>
           <div class="sig-date">Date: ${filingDate}</div>
         </div>
 
-        ${formData?.signature ? `
-        <div class="sig-img-box">
-          <div class="sig-img-label">Digital Seal / E-Signature</div>
-          <img src="${formData.signature}" alt="Digital Signature" style="height:45px;max-width:150px;object-fit:contain;display:block"/>
-        </div>` : (formData?.adminSeal ? `
-        <div class="sig-img-box">
-          <div class="sig-img-label">OFFICIAL COMPANY SEAL</div>
-          <img src="${formData.adminSeal}" alt="Official Seal" style="height:55px;max-width:120px;object-fit:contain;display:block;margin:0 auto"/>
-        </div>` : `
-        <div class="sig-img-box" style="padding:6px 12px">
-          <div class="sig-img-label">OFFICIAL STAMP</div>
-          <div style="font-size:7pt;font-weight:900;color:${HP_MUTED}">STAMP &amp; SEAL</div>
-        </div>`)}
-
-        <div>
-          <div class="sig-line"></div>
-          <div class="sig-label">For Hindustan Projects</div>
-          <div class="sig-name">${formData?.adminSigned ? (formData?.adminCeoName || 'Empanelment Committee') : 'Empanelment Committee'}</div>
-          <div class="sig-date">${formData?.adminSigned ? (formData?.adminOfficerName || 'Procurement Officer') : 'Bhilwara HQ'}</div>
+        <!-- Middle: Official Corporate Seal / Stamp -->
+        <div style="flex:1;text-align:center">
+          <div style="font-size:7pt;font-weight:900;color:${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? HP_RED : HP_MUTED};margin-bottom:3px">OFFICIAL CORPORATE SEAL</div>
+          ${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? `
+            <img src="${formData?.adminSeal || formData?.companySeal || '/hipro-watermark-seal.jpg'}" alt="Official Corporate Seal" style="height:55px;max-width:110px;object-fit:contain;display:block;margin:0 auto 4px auto"/>
+            <div style="font-size:7pt;font-weight:800;color:${HP_TEXT}">HINDUSTAN PROJECTS BHILWARA HQ</div>
+          ` : `
+            <div style="border:1.5px dashed #CBD5E1;border-radius:8px;height:55px;width:110px;margin:0 auto 4px auto;background:#FAFAFA"></div>
+            <div style="font-size:6.8pt;font-weight:700;color:#94A3B8">( Stamp Space Upon Approval )</div>
+          `}
         </div>
+
+        <!-- Right: For Hindustan Projects + CEO Signature -->
+        <div style="flex:1;text-align:right">
+          <div style="font-size:7pt;font-weight:900;color:${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? '#047857' : HP_MUTED};margin-bottom:3px">CEO &amp; PROCUREMENT AUTHORIZATION</div>
+          ${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? `
+            <img src="${formData?.ceoSignature || '/ceo-signature-clean.png'}" alt="CEO Signature" style="height:42px;max-width:140px;object-fit:contain;display:block;margin:0 0 4px auto"/>
+            <div class="sig-line"></div>
+            <div class="sig-label">For Hindustan Projects</div>
+            <div class="sig-name">${formData?.adminCeoName || 'Authorized Signatory (CEO Office)'}</div>
+            <div class="sig-date">${formData?.adminOfficerName || 'Procurement Officer'} · ${formData?.adminSignedAt || filingDate}</div>
+          ` : `
+            <div style="border:1.5px dashed #CBD5E1;border-radius:8px;height:42px;width:140px;margin:0 0 4px auto;background:#FAFAFA"></div>
+            <div class="sig-line" style="margin-left:auto"></div>
+            <div class="sig-label">For Hindustan Projects</div>
+            <div class="sig-name" style="color:#94A3B8">( CEO Signature Upon Approval )</div>
+          `}
+        </div>
+
       </div>
 
-      ${formData?.adminSigned ? `
+      ${(formData?.adminSigned || String(formData?.status || '').toUpperCase().includes('APPROVED')) ? `
       <div style="margin-top:10px;padding:8px 12px;background:#D1FAE5;border:1.5px solid #10B981;border-radius:8px;display:flex;align-items:center;gap:8px">
         <span style="font-size:12pt">✅</span>
         <div>
-          <div style="font-size:8.5pt;font-weight:900;color:#065F46">APPLICATION ${(formData?.adminApprovalClass || 'APPROVED').toUpperCase()} — OFFICIAL AUTHORIZATION</div>
+          <div style="font-size:8.5pt;font-weight:900;color:#065F46">APPLICATION ${(formData?.adminApprovalClass || formData?.status || 'APPROVED').toUpperCase()} — OFFICIAL AUTHORIZATION</div>
           <div style="font-size:7pt;color:#047857">Authorized on ${formData?.adminSignedAt || filingDate} by Procurement Committee, Hindustan Projects · Ref: ${trackingId}</div>
         </div>
-      </div>` : ''}
+      </div>` : `
+      <div style="margin-top:10px;padding:8px 12px;background:#FFFBEB;border:1.5px solid #F59E0B;border-radius:8px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:12pt">📋</span>
+        <div>
+          <div style="font-size:8.5pt;font-weight:900;color:#B45309">PROVISIONAL EMPANELMENT DOSSIER — UNDER VERIFICATION</div>
+          <div style="font-size:7pt;color:#D97706">Submitted on ${filingDate} · Official CEO Signature &amp; Corporate Seal will be appended upon Admin Approval · Ref: ${trackingId}</div>
+        </div>
+      </div>`}
     </div>
   </div>
 
@@ -988,42 +1017,76 @@ function buildDossierHTML({ trackingId, formData }) {
 <!-- ════════════════════════════════════════════════════ -->
 ${renderDocumentAttachmentsHTML(formData, trackingId)}
 
+<script>
+  (function() {
+    function triggerPrint() {
+      try {
+        window.focus();
+        window.print();
+      } catch (e) {}
+    }
+    if (document.readyState === 'complete') {
+      setTimeout(triggerPrint, 300);
+    } else {
+      window.addEventListener('load', function() {
+        setTimeout(triggerPrint, 300);
+      });
+    }
+  })();
+</script>
+
 </body>
 </html>`;
 }
 
 // ── Main Export: printDossier(trackingId, formData) ───────────────────────────
-export function printDossier(trackingId, formData) {
+export function printDossier(arg1, arg2) {
+  let trackingId = arg1;
+  let formData = arg2;
+
+  // Flexible Parameter Resolution
+  if (typeof arg1 === 'object' && arg1 !== null && !arg2) {
+    formData = arg1;
+    trackingId = arg1.trackingId || arg1.tracking_id || arg1.id || 'HP-EMP-001';
+  } else if (!formData && typeof arg1 === 'string') {
+    trackingId = arg1;
+    formData = { tracking_id: arg1 };
+  }
+
+  if (!trackingId && formData) {
+    trackingId = formData.trackingId || formData.tracking_id || formData.id || 'HP-EMP-001';
+  }
+
   const html = buildDossierHTML({ trackingId, formData });
 
-  const isMobileOrTablet = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth <= 1024);
-
-  if (isMobileOrTablet) {
-    // Mobile/Tablet Strategy: Open a clean popup window containing ONLY the isolated dossier HTML
-    const printWin = window.open('', '_blank');
+  // 1. Try Window Open Print Strategy (Works seamlessly on Desktop & Mobile)
+  try {
+    const printWin = window.open('', '_blank', 'width=950,height=1000,scrollbars=yes,resizable=yes');
     if (printWin) {
       printWin.document.open();
       printWin.document.write(html);
       printWin.document.close();
-      printWin.onload = () => {
-        setTimeout(() => {
-          printWin.focus();
-          printWin.print();
-        }, 500);
-      };
       setTimeout(() => {
         try {
           printWin.focus();
           printWin.print();
-        } catch(e) {}
-      }, 1200);
+        } catch (e) {}
+      }, 500);
       return;
     }
+  } catch (err) {
+    console.warn('Window open print fallback engaged:', err);
   }
 
-  // Desktop Strategy: Hidden iframe with explicit 210mm x 297mm bounds
+  // 2. Fallback Iframe Print Strategy if popup was blocked
+  const existingFrame = document.getElementById('hipro-print-frame');
+  if (existingFrame) {
+    try { document.body.removeChild(existingFrame); } catch(e) {}
+  }
+
   const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:none;opacity:0;pointer-events:none;z-index:9999';
+  iframe.id = 'hipro-print-frame';
+  iframe.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:white;z-index:999999;border:none;visibility:visible';
   document.body.appendChild(iframe);
 
   const doc = iframe.contentWindow.document;
@@ -1031,23 +1094,17 @@ export function printDossier(trackingId, formData) {
   doc.write(html);
   doc.close();
 
-  // Wait for fonts/images to load then print
-  iframe.contentWindow.onload = () => {
-    setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      setTimeout(() => document.body.removeChild(iframe), 2500);
-    }, 600);
-  };
-
-  // Fallback if onload already fired
-  setTimeout(() => {
+  const printIframe = () => {
     try {
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
-    } catch(e) { /* already printed */ }
+    } catch (e) {}
     setTimeout(() => {
       try { document.body.removeChild(iframe); } catch(e) {}
-    }, 2500);
-  }, 1800);
+    }, 4000);
+  };
+
+  iframe.contentWindow.onload = () => setTimeout(printIframe, 400);
+  setTimeout(printIframe, 1200);
 }
+

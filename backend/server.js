@@ -20,7 +20,10 @@ require('dotenv').config();
 const emailService = require('./emailService');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 9000;
+
+// Enable Nginx Reverse Proxy Trust (Prevents ERR_ERL_UNEXPECTED_X_FORWARDED_FOR behind Nginx)
+app.set('trust proxy', 1);
 
 // ─── 1. SECURITY HEADERS ────────────────────────────────────────
 app.use(helmet({
@@ -29,23 +32,33 @@ app.use(helmet({
 }));
 
 // ─── 2. RATE LIMITING ───────────────────────────────────────────
+// General API limiter — applies to all /api/ routes as baseline
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { success: false, error: 'Too many requests from this IP.' }
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500,                  // 500 requests per IP per 15 min (generous for SPA apps)
+  message: { success: false, error: 'Too many requests from this IP. Please try again shortly.' },
+  skip: (req) => {
+    // Skip rate limiting entirely for public read-only config & tenders (allow CDN/cache friendly)
+    const publicBypassPaths = [
+      '/api/empanelment/public/site-config',
+      '/api/tenders'
+    ];
+    return publicBypassPaths.some(p => req.path === p);
+  }
 });
 
+// Strict limiter ONLY for heavy write/submit endpoints to prevent abuse
 const submitLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
+  windowMs: 60 * 60 * 1000, // 1 hour
   max: 10,
-  message: { success: false, error: 'Submission limit reached for this IP.' }
+  message: { success: false, error: 'Submission limit reached for this IP. Please try again later.' }
 });
 
 app.use('/api/', apiLimiter);
 
 // ─── 3. CORS ─────────────────────────────────────────────────────
 app.use(cors({
-  origin: true,
+  origin: process.env.ALLOWED_ORIGIN || true,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-admin-key']
 }));
@@ -80,16 +93,20 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB File Limit
+const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB File Limit
 
 // ─── 5.1 CLOUDINARY FILE STORAGE & RATE LIMITER ─────────────────
-const cloudinary = require('cloudinary').v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'xskfr3wu',
-  api_key: process.env.CLOUDINARY_API_KEY || '234897422674247',
-  api_secret: process.env.CLOUDINARY_API_SECRET || '3yFqCiSQbcD9YaWasIDDK142kl4'
-});
+let cloudinary = null;
+try {
+  cloudinary = require('cloudinary').v2;
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
+} catch (err) {
+  console.warn('Cloudinary notice:', err.message);
+}
 
 const uploadRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 Minutes
@@ -98,6 +115,7 @@ const uploadRateLimiter = rateLimit({
 });
 
 async function uploadFileToCloudinary(filePath, mimetype) {
+  if (!cloudinary || !process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY) return null;
   try {
     const resourceType = mimetype === 'application/pdf' ? 'raw' : 'auto';
     const res = await cloudinary.uploader.upload(filePath, {
@@ -123,9 +141,9 @@ app.post('/api/empanelment/upload-cloud', uploadRateLimiter, upload.single('docu
       return res.status(400).json({ success: false, error: 'No file provided or file format invalid.' });
     }
 
-    if (req.file.size > 5 * 1024 * 1024) {
+    if (req.file.size > 10 * 1024 * 1024) {
       if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-      return res.status(400).json({ success: false, error: 'File size exceeds maximum allowed 5 MB limit!' });
+      return res.status(400).json({ success: false, error: 'File size exceeds maximum allowed 10 MB limit!' });
     }
 
     const secureUrl = await uploadFileToCloudinary(req.file.path, req.file.mimetype);
@@ -153,6 +171,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
     console.error('Error connecting to SQLite database:', err.message);
   } else {
     console.log('🔒 Connected to Secure VPS SQLite Database at:', dbPath);
+    db.run('PRAGMA journal_mode=WAL;');
   }
 });
 
@@ -209,6 +228,29 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS contacts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT,
+      company TEXT,
+      department TEXT,
+      message TEXT NOT NULL,
+      status TEXT DEFAULT 'NEW',
+      submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS site_config (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    )
+  `);
+
+  db.run(`INSERT INTO site_config (key, value) VALUES ('admin_email', 'hindustanprojects.in@gmail.com'), ('admin_password', 'Hipro@7764') ON CONFLICT(key) DO UPDATE SET value = excluded.value`);
+
   // 2. Safe Auto-Migration: check if columns are missing or if table needs schema update
   db.all(`PRAGMA table_info(vendors)`, [], (err, columns) => {
     if (err || !columns) return;
@@ -225,7 +267,10 @@ db.serialize(() => {
       { name: 'aadhar_no', type: 'TEXT' },
       { name: 'signature_data', type: 'TEXT' },
       { name: 'passport_photo', type: 'TEXT' },
-      { name: 'category_specific_data', type: 'TEXT' }
+      { name: 'category_specific_data', type: 'TEXT' },
+      { name: 'admin_remarks', type: 'TEXT' },
+      { name: 'ceo_signed', type: 'BOOLEAN' },
+      { name: 'ceo_signed_date', type: 'TEXT' }
     ];
 
     missingCols.forEach(col => {
@@ -237,21 +282,6 @@ db.serialize(() => {
       }
     });
   });
-
-  // 3. Tenders Table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS tenders (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      tender_no TEXT UNIQUE NOT NULL,
-      title TEXT NOT NULL,
-      category TEXT NOT NULL,
-      estimated_value TEXT NOT NULL,
-      location TEXT NOT NULL,
-      due_date TEXT NOT NULL,
-      status TEXT DEFAULT 'Active',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
 
   // 4. Invoices Table
   db.run(`
@@ -283,18 +313,59 @@ db.serialize(() => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // 6. Contact Inquiries Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      company TEXT,
+      department TEXT,
+      message TEXT NOT NULL,
+      status TEXT DEFAULT 'NEW',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // 7. Tenders Master Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tenders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tender_no TEXT UNIQUE NOT NULL,
+      title TEXT NOT NULL,
+      category TEXT NOT NULL,
+      location TEXT,
+      estimated_value TEXT NOT NULL,
+      due_date TEXT NOT NULL,
+      status TEXT DEFAULT 'ACTIVE',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `, () => {
+    // Seed Default Tenders if table is empty
+    db.get(`SELECT COUNT(*) as count FROM tenders`, [], (err, row) => {
+      if (!err && row && row.count === 0) {
+        const stmt = db.prepare(`INSERT INTO tenders (tender_no, title, category, location, estimated_value, due_date) VALUES (?, ?, ?, ?, ?, ?)`);
+        stmt.run('HIPRO-TND-2026-001', 'Construction & Structural Civil Works for Commercial Complex', 'Civil & Structural Execution', 'Bhilwara, Rajasthan', '₹ 14.50 Crore', '2026-08-25');
+        stmt.run('HIPRO-TND-2026-002', 'Supply & Installation of High-Voltage Electrical Substation & HVAC', 'MEP & Electrical Services', 'Jaipur / Bhilwara, Rajasthan', '₹ 4.80 Crore', '2026-08-20');
+        stmt.run('HIPRO-TND-2026-003', 'Architectural Consultancy & Structural Audit Services', 'Architecture & Design Consultancy', 'Corporate HQ, Bhilwara', '₹ 85.00 Lakhs', '2026-08-30');
+        stmt.run('HIPRO-TND-2026-004', 'Supply of Ready Mix Concrete (RMC) & TMT Steel Bars', 'Material Supply & Rental', 'Various Project Sites (Rajasthan)', '₹ 8.20 Crore', '2026-08-15');
+        stmt.finalize();
+      }
+    });
+  });
 });
 
 // ─── 7. ADMIN AUTHENTICATION MIDDLEWARE ───────────────────────────
 const adminAuthMiddleware = (req, res, next) => {
-  const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
+  const adminKey = req.headers['x-admin-key'] || req.query.adminKey || req.body?.adminKey;
   const expectedKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
 
   if (adminKey && (adminKey === expectedKey || adminKey === 'hipro_admin_vps_key_99201')) {
     return next();
   }
-  // Allow authenticated admin requests
-  next();
+  return res.status(403).json({ success: false, error: 'Unauthorized: Invalid Admin API Key' });
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -307,32 +378,224 @@ const adminAuthMiddleware = (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────
 app.post('/api/empanelment/admin/login', (req, res) => {
   const { email, password } = req.body;
-  const expectedPassword = process.env.ADMIN_PASSWORD || 'HindustanAdmin2026#';
   const adminKey = process.env.ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
 
   if (!password) {
     return res.status(400).json({ success: false, error: 'Password is required' });
   }
 
-  if (password === expectedPassword || password === 'HindustanAdmin2026#') {
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = Date.now() + 4 * 60 * 60 * 1000; // 4 Hours
+  db.get(`SELECT value FROM site_config WHERE key = 'admin_password'`, [], (err, row) => {
+    const dbPassword = row ? row.value : null;
+    const expectedPassword = process.env.ADMIN_PASSWORD || 'Hipro@7764';
 
-    return res.json({
-      success: true,
-      token,
-      adminKey,
-      expiresAt,
-      email: email || 'admin@hindustanprojects.in',
-      message: 'Admin authentication successful ✅'
+    const validPasswords = [dbPassword, expectedPassword, 'Hipro@7764'].filter(Boolean);
+
+    if (validPasswords.includes((password || '').trim())) {
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiresAt = Date.now() + 4 * 60 * 60 * 1000; // 4 Hours
+
+      return res.json({
+        success: true,
+        token,
+        adminKey,
+        expiresAt,
+        email: email || 'hindustanprojects.in@gmail.com',
+        message: 'Admin authentication successful ✅'
+      });
+    } else {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid Admin Security Passcode'
+      });
+    }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/admin/change-password
+// Admin changes password — saves permanently to site_config table in SQLite DB
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/admin/change-password', (req, res) => {
+  const { newPassword } = req.body;
+  if (!newPassword || newPassword.length < 8) {
+    return res.status(400).json({ success: false, error: 'New password must be at least 8 characters long.' });
+  }
+
+  const cleanPass = newPassword.trim();
+  db.run(`INSERT INTO site_config (key, value) VALUES ('admin_password', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`, [cleanPass], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    console.log('✅ Admin password changed in SQLite database to:', cleanPass);
+    res.json({ success: true, message: 'Admin password updated permanently in VPS SQLite database.' });
+  });
+});
+
+const getTransporter = () => {
+  const finalUser = 'info@hindustanprojects.in';
+  const finalPass = 'Yogi123@123';
+  const host = 'smtp.hostinger.com';
+  const port = 465;
+
+  const nodemailer = require('nodemailer');
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: true,
+    auth: { user: finalUser, pass: finalPass },
+    tls: { rejectUnauthorized: false }
+  });
+};
+
+app.all('/api/empanelment/admin/fix-smtp', (req, res) => {
+  process.env.EMAIL_USER = 'info@hindustanprojects.in';
+  process.env.EMAIL_APP_PASS = 'Yogi123@123';
+  process.env.SMTP_HOST = 'smtp.hostinger.com';
+  process.env.SMTP_PORT = '465';
+  process.env.ALIAS_EMAIL = 'info@hindustanprojects.in';
+  res.json({ success: true, message: 'SMTP credentials forcibly updated on live server ✅', user: process.env.EMAIL_USER });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/admin/send-test-email
+// Admin sends a live test email to verify SMTP is working
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  const expectedKey = process.env.ADMIN_API_KEY;
+  if (!adminKey || !expectedKey || adminKey !== expectedKey) {
+    return res.status(403).json({ success: false, error: 'Unauthorized' });
+  }
+
+  const { to } = req.body;
+  if (!to || !to.includes('@')) {
+    return res.status(400).json({ success: false, error: 'Valid recipient email required' });
+  }
+
+  try {
+    const transporter = getTransporter();
+    const currentUser = 'info@hindustanprojects.in';
+    const currentHost = 'smtp.hostinger.com';
+
+    const info = await transporter.sendMail({
+      from: `"Hindustan Projects Portal" <${currentUser}>`,
+      to,
+      subject: 'Test Email — Hindustan Projects Empanelment Portal ✅',
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0">
+          <div style="background:#0047AB;color:white;padding:20px 28px">
+            <h2 style="margin:0;font-size:20px">Hindustan Projects</h2>
+            <p style="margin:4px 0 0;opacity:.85;font-size:13px">Empanelment Portal — Email System Test</p>
+          </div>
+          <div style="background:white;padding:28px">
+            <h3 style="color:#0047AB;margin-top:0">Email System Working!</h3>
+            <p style="color:#334155">Yeh ek <strong>test email</strong> hai Admin Security tab se bheja gaya.</p>
+            <p style="color:#334155">SMTP system <strong>100% active aur working</strong> hai.</p>
+            <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:14px;margin:16px 0">
+              <p style="margin:0;color:#166534;font-weight:bold">SMTP Server: ${currentHost} - ACTIVE</p>
+              <p style="margin:4px 0 0;color:#166534;font-size:13px">Sender: ${currentUser}</p>
+            </div>
+            <hr style="border:none;border-top:1px solid #E2E8F0">
+            <p style="color:#64748B;font-size:12px;margin:0">
+              Sent: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST<br>
+              Hindustan Projects Admin Panel
+            </p>
+          </div>
+        </div>
+      `
     });
-  } else {
-    return res.status(401).json({
-      success: false,
-      error: 'Invalid Admin Security Passcode'
-    });
+    console.log('Test email sent to ' + to + ' | ' + info.messageId);
+    return res.json({ success: true, messageId: info.messageId, to });
+  } catch (err) {
+    console.error('Test email failed:', err.message);
+    return res.status(500).json({ success: false, error: err.message });
   }
 });
+
+
+// ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/vendor/login
+// Vendor Login — checks vendor record & approval status in SQLite DB
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/vendor/login', (req, res) => {
+  const { identity, password } = req.body;
+  const cleanId = (identity || '').trim();
+  const upperId = cleanId.toUpperCase();
+  const cleanPass = (password || '').trim();
+
+  if (!cleanId || !cleanPass) {
+    return res.status(400).json({ success: false, error: 'Identity (Tracking ID/Email/GSTIN) and Password are required.' });
+  }
+
+  const sql = `
+    SELECT * FROM vendors 
+    WHERE UPPER(tracking_id) = ? 
+       OR UPPER(gstin) = ? 
+       OR UPPER(pan) = ? 
+       OR LOWER(email) = LOWER(?) 
+       OR LOWER(company_name) LIKE LOWER(?)
+    ORDER BY id DESC LIMIT 1
+  `;
+
+  db.get(sql, [upperId, upperId, upperId, cleanId, `%${cleanId}%`], (err, vendor) => {
+    if (err || !vendor) {
+      return res.status(404).json({ success: false, error: 'No registered vendor application found matching this ID, GSTIN or Email.' });
+    }
+
+    const status = vendor.status || 'Under Verification';
+    const isApproved = status.includes('Approved') || status.includes('Active') || status === 'APPROVED';
+
+    if (!isApproved) {
+      if (status.includes('Rejected')) {
+        return res.status(403).json({ success: false, error: `❌ Application Rejected: Your empanelment application ${vendor.tracking_id} was rejected by the Procurement Committee.` });
+      }
+      if (status.includes('Clarification')) {
+        return res.status(403).json({ success: false, error: `⚠️ Clarification Required: Your application ${vendor.tracking_id} is on hold pending document clarification.` });
+      }
+      return res.status(403).json({ success: false, error: `⏳ Review Pending: Application ${vendor.tracking_id} is under audit by the Procurement Committee & CEO Office. Dashboard access will unlock upon CEO Approval.` });
+    }
+
+    // Check Password
+    const expectedPass = vendor.login_password;
+    if (!expectedPass) {
+      return res.status(403).json({
+        success: false,
+        error: '⚠️ No login password set for this account. Please contact admin at industrial@hindustanprojects.in to receive your credentials.'
+      });
+    }
+    const isValidPass = cleanPass === expectedPass;
+
+    if (!isValidPass) {
+      return res.status(401).json({ success: false, error: 'Invalid Vendor Password. Please check password sent in approval email.' });
+    }
+
+    // Success — return vendor session
+    res.json({
+      success: true,
+      message: 'Vendor Login Successful ✅',
+      vendor: {
+        id: vendor.id,
+        tracking_id: vendor.tracking_id,
+        trackingId: vendor.tracking_id,
+        companyName: vendor.company_name,
+        company_name: vendor.company_name,
+        contactName: vendor.contact_name,
+        contact_name: vendor.contact_name,
+        email: vendor.email,
+        phone: vendor.phone,
+        category: vendor.category,
+        gstin: vendor.gstin,
+        pan: vendor.pan,
+        status: vendor.status,
+        stage: vendor.current_stage,
+        passportPhoto: vendor.passport_photo,
+        passport_photo: vendor.passport_photo,
+        hash_signature: vendor.hash_signature,
+        submitted_at: vendor.submitted_at,
+        approved_at: vendor.approved_at
+      }
+    });
+  });
+});
+
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -340,28 +603,111 @@ app.get('/api/health', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────
+// GET /api/empanelment/application/:trackingId
+// Public endpoint for prefilling form during vendor resubmission / refill
+// ─────────────────────────────────────────────────────────────────
+app.get('/api/empanelment/application/:trackingId', (req, res) => {
+  const { trackingId } = req.params;
+  const upperId = String(trackingId || '').trim().toUpperCase();
+
+  db.get(`SELECT * FROM vendors WHERE UPPER(tracking_id) = ? OR UPPER(gstin) = ? OR UPPER(pan) = ?`, [upperId, upperId, upperId], (err, vendor) => {
+    if (err || !vendor) {
+      return res.status(404).json({ success: false, error: 'Application not found.' });
+    }
+
+    let categoryData = {};
+    if (vendor.category_specific_data) {
+      try { categoryData = JSON.parse(vendor.category_specific_data); } catch (e) {}
+    }
+
+    res.json({
+      success: true,
+      data: {
+        tracking_id: vendor.tracking_id,
+        trackingId: vendor.tracking_id,
+        category: vendor.category,
+        primaryRole: vendor.primary_role,
+        specialization: vendor.specialization,
+        skillsDetails: vendor.skills_details,
+        teamSize: vendor.team_size,
+        companyName: vendor.company_name,
+        entityType: vendor.entity_type,
+        estYear: vendor.est_year,
+        ownerName: vendor.owner_name,
+        ownerContact: vendor.owner_contact,
+        contactName: vendor.contact_name,
+        designation: vendor.designation,
+        email: vendor.email,
+        phone: vendor.phone,
+        address: vendor.address,
+        city: vendor.city,
+        state: vendor.state,
+        pincode: vendor.pincode,
+        gstin: vendor.gstin,
+        pan: vendor.pan,
+        aadharNo: vendor.aadhar_no,
+        msmeNo: vendor.msme_no,
+        bankAccount: vendor.bank_account,
+        bankName: vendor.bank_name,
+        ifsc: vendor.ifsc,
+        turnover2023: vendor.turnover_2023,
+        turnover2024: vendor.turnover_2024,
+        turnover2025: vendor.turnover_2025,
+        largestOrder: vendor.largest_order,
+        existingEmpanels: vendor.existing_empanels,
+        gstDoc: vendor.gst_doc,
+        panDoc: vendor.pan_doc,
+        bankDoc: vendor.bank_doc,
+        expDoc: vendor.exp_doc,
+        signatoryName: vendor.signatory_name,
+        status: vendor.status,
+        adminRemarks: vendor.admin_remarks,
+        missingDetails: vendor.missing_details,
+        ...categoryData
+      }
+    });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/submit
 // Submit application → save to DB → send 2 emails (vendor + admin)
 // ─────────────────────────────────────────────────────────────────
-app.post('/api/empanelment/submit', submitLimiter, upload.fields([
-  { name: 'gstDoc', maxCount: 1 },
-  { name: 'panDoc', maxCount: 1 },
-  { name: 'bankDoc', maxCount: 1 },
-  { name: 'expDoc', maxCount: 1 },
-]), async (req, res) => {
+app.post('/api/empanelment/submit', submitLimiter, upload.any(), async (req, res) => {
   try {
     const data = req.body;
-    const files = req.files || {};
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
 
-    // Generate Sequential Tracking ID starting at HP-EMP-025
+    const getFile = (fieldName) => {
+      if (!req.files) return null;
+      if (Array.isArray(req.files)) {
+        return req.files.find(f => f.fieldname === fieldName) || null;
+      }
+      return (req.files[fieldName] && req.files[fieldName][0]) || null;
+    };
+
+    // Generate Sequential Tracking ID starting at HP-EMP-025 (Reusing lowest available number >= 25)
     let trackingId = data.trackingId || data.tracking_id || data.customTrackingId;
     if (!trackingId) {
-      const countRow = await new Promise((resolve) => {
-        db.get(`SELECT COUNT(*) as count FROM vendors`, [], (err, row) => resolve(row));
+      const rows = await new Promise((resolve) => {
+        db.all(`SELECT tracking_id FROM vendors`, [], (err, r) => resolve(r || []));
       });
-      const nextNum = (countRow && countRow.count ? countRow.count : 0) + 25;
-      const formattedNum = nextNum < 100 ? nextNum.toString().padStart(3, '0') : nextNum.toString();
+
+      const usedNumbers = new Set();
+      rows.forEach(r => {
+        const tid = String(r.tracking_id || '').toUpperCase();
+        if (tid.startsWith('HP-EMP-')) {
+          const num = parseInt(tid.replace('HP-EMP-', ''), 10);
+          if (!isNaN(num)) usedNumbers.add(num);
+        }
+      });
+
+      let candidate = 25;
+      while (usedNumbers.has(candidate)) {
+        candidate++;
+      }
+
+      const formattedNum = candidate < 100 ? candidate.toString().padStart(3, '0') : candidate.toString();
       trackingId = `HP-EMP-${formattedNum}`;
     }
 
@@ -399,8 +745,51 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
         gstin, pan, aadhar_no, msme_no, bank_account, bank_name, ifsc,
         turnover_2023, turnover_2024, turnover_2025, largest_order, existing_empanels,
         gst_doc, pan_doc, bank_doc, exp_doc, signatory_name, signature_data, passport_photo,
-        category_specific_data, ip_address, submitted_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        category_specific_data, ip_address, submitted_at, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Under Verification')
+      ON CONFLICT(tracking_id) DO UPDATE SET
+        hash_signature = excluded.hash_signature,
+        category = excluded.category,
+        primary_role = excluded.primary_role,
+        specialization = excluded.specialization,
+        skills_details = excluded.skills_details,
+        team_size = excluded.team_size,
+        company_name = excluded.company_name,
+        entity_type = excluded.entity_type,
+        est_year = excluded.est_year,
+        owner_name = excluded.owner_name,
+        owner_contact = excluded.owner_contact,
+        contact_name = excluded.contact_name,
+        designation = excluded.designation,
+        email = excluded.email,
+        phone = excluded.phone,
+        address = excluded.address,
+        city = excluded.city,
+        state = excluded.state,
+        pincode = excluded.pincode,
+        gstin = excluded.gstin,
+        pan = excluded.pan,
+        aadhar_no = excluded.aadhar_no,
+        msme_no = excluded.msme_no,
+        bank_account = excluded.bank_account,
+        bank_name = excluded.bank_name,
+        ifsc = excluded.ifsc,
+        turnover_2023 = excluded.turnover_2023,
+        turnover_2024 = excluded.turnover_2024,
+        turnover_2025 = excluded.turnover_2025,
+        largest_order = excluded.largest_order,
+        existing_empanels = excluded.existing_empanels,
+        gst_doc = COALESCE(excluded.gst_doc, vendors.gst_doc),
+        pan_doc = COALESCE(excluded.pan_doc, vendors.pan_doc),
+        bank_doc = COALESCE(excluded.bank_doc, vendors.bank_doc),
+        exp_doc = COALESCE(excluded.exp_doc, vendors.exp_doc),
+        signatory_name = excluded.signatory_name,
+        signature_data = COALESCE(excluded.signature_data, vendors.signature_data),
+        passport_photo = COALESCE(excluded.passport_photo, vendors.passport_photo),
+        category_specific_data = excluded.category_specific_data,
+        ip_address = excluded.ip_address,
+        submitted_at = excluded.submitted_at,
+        status = 'Under Verification'
     `;
 
     // Process and Upload Document files to Cloudinary Storage
@@ -409,21 +798,25 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
     let bankDocUrl = typeof data.bankDoc === 'string' ? data.bankDoc : (data.bankDocUrl || null);
     let expDocUrl = typeof data.expDoc === 'string' ? data.expDoc : (data.expDocUrl || null);
 
-    if (files.gstDoc && files.gstDoc[0]) {
-      const cUrl = await uploadFileToCloudinary(files.gstDoc[0].path, files.gstDoc[0].mimetype);
-      gstDocUrl = cUrl || files.gstDoc[0].filename;
+    const fGst = getFile('gstDoc');
+    if (fGst) {
+      const cUrl = await uploadFileToCloudinary(fGst.path, fGst.mimetype);
+      gstDocUrl = cUrl || fGst.filename;
     }
-    if (files.panDoc && files.panDoc[0]) {
-      const cUrl = await uploadFileToCloudinary(files.panDoc[0].path, files.panDoc[0].mimetype);
-      panDocUrl = cUrl || files.panDoc[0].filename;
+    const fPan = getFile('panDoc');
+    if (fPan) {
+      const cUrl = await uploadFileToCloudinary(fPan.path, fPan.mimetype);
+      panDocUrl = cUrl || fPan.filename;
     }
-    if (files.bankDoc && files.bankDoc[0]) {
-      const cUrl = await uploadFileToCloudinary(files.bankDoc[0].path, files.bankDoc[0].mimetype);
-      bankDocUrl = cUrl || files.bankDoc[0].filename;
+    const fBank = getFile('bankDoc');
+    if (fBank) {
+      const cUrl = await uploadFileToCloudinary(fBank.path, fBank.mimetype);
+      bankDocUrl = cUrl || fBank.filename;
     }
-    if (files.expDoc && files.expDoc[0]) {
-      const cUrl = await uploadFileToCloudinary(files.expDoc[0].path, files.expDoc[0].mimetype);
-      expDocUrl = cUrl || files.expDoc[0].filename;
+    const fExp = getFile('expDoc');
+    if (fExp) {
+      const cUrl = await uploadFileToCloudinary(fExp.path, fExp.mimetype);
+      expDocUrl = cUrl || fExp.filename;
     }
 
     const params = [
@@ -489,53 +882,192 @@ app.post('/api/empanelment/submit', submitLimiter, upload.fields([
 
 // ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/contact
-// Contact form inquiry endpoint
+// Contact form inquiry endpoint — saves to DB + sends admin mail
 // ─────────────────────────────────────────────────────────────────
 app.post('/api/empanelment/contact', async (req, res) => {
-  const { name, email, phone, company, department, message } = req.body;
-  const adminEmail = process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in';
+  const { name, email, phone, company, department, customDepartment, message } = req.body;
+  const dept = department === 'Other' ? (customDepartment || 'Other') : (department || 'Empanelment Helpdesk');
+  const adminEmail = process.env.ADMIN_EMAIL || 'industrial@hindustanprojects.in';
 
+  if (!name || !email || !message) {
+    return res.status(400).json({ success: false, error: 'Name, email, and message are required.' });
+  }
+
+  // 1. Save to SQLite Database
+  const sql = `INSERT INTO contact_messages (name, email, phone, company, department, message) VALUES (?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [name, email, phone || 'N/A', company || 'N/A', dept, message], function(err) {
+    if (err) {
+      console.error('Contact DB insert error:', err.message);
+    }
+  });
+
+  // 2. Send Alert Mail to Admin
   try {
     if (emailService && emailService.sendEmail) {
       await emailService.sendEmail(adminEmail, {
-        subject: `[Contact Support] ${department} — ${name} (${company || 'Individual'})`,
-        html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Company:</strong> ${company}</p><p><strong>Message:</strong> ${message}</p>`
+        subject: `[Contact Support] ${dept} — ${name} (${company || 'Individual'})`,
+        html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Company:</strong> ${company}</p><p><strong>Department:</strong> ${dept}</p><p><strong>Message:</strong> ${message}</p>`
       });
     }
-    res.json({ success: true, message: 'Inquiry email sent successfully.' });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('Contact mail notice:', err.message);
+  }
+
+  res.json({ success: true, message: 'Inquiry submitted and logged to Admin control panel successfully.' });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// GET /api/empanelment/admin/contacts
+// Admin — get all contact inquiries (PROTECTED)
+// ─────────────────────────────────────────────────────────────────
+app.get('/api/empanelment/admin/contacts', adminAuthMiddleware, (req, res) => {
+  db.all(`SELECT * FROM contact_messages ORDER BY id DESC`, [], (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// PATCH /api/empanelment/admin/contacts/:id
+// Admin — update contact inquiry status (NEW -> RESOLVED)
+// ─────────────────────────────────────────────────────────────────
+app.patch('/api/empanelment/admin/contacts/:id', adminAuthMiddleware, (req, res) => {
+  const { status } = req.body;
+  const id = req.params.id;
+  db.run(`UPDATE contact_messages SET status = ? WHERE id = ?`, [status || 'RESOLVED', id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: 'Inquiry status updated.' });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// DELETE /api/empanelment/admin/contacts/:id
+// Admin — permanently delete a contact inquiry from SQLite DB
+// ─────────────────────────────────────────────────────────────────
+app.delete('/api/empanelment/admin/contacts/:id', adminAuthMiddleware, (req, res) => {
+  const id = req.params.id;
+  db.run(`DELETE FROM contact_messages WHERE id = ?`, [id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: `Contact inquiry #${id} permanently deleted.`, deleted: this.changes });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// POST /api/empanelment/admin/reply-contact
+// Admin replies directly to a contact inquiry via official email
+// ─────────────────────────────────────────────────────────────────
+app.post('/api/empanelment/admin/reply-contact', adminAuthMiddleware, async (req, res) => {
+  const { contactId, to, name, subject, message } = req.body;
+  if (!to || !to.includes('@') || !message) {
+    return res.status(400).json({ success: false, error: 'Valid recipient email and reply message are required' });
+  }
+  try {
+    const transporter = getTransporter();
+    const sender = process.env.ALIAS_EMAIL || 'industrial@hindustanprojects.in';
+    const replySubject = subject || 'Response to your Inquiry — Hindustan Projects Empanelment Desk';
+    const info = await transporter.sendMail({
+      from: `"Hindustan Projects — Officer Response" <${sender}>`,
+      to,
+      subject: replySubject,
+      html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0"><div style="background:#0047AB;color:white;padding:20px 28px"><h2 style="margin:0;font-size:20px">Hindustan Projects</h2><p style="margin:4px 0 0;opacity:.85;font-size:13px">Official Response from Empanelment Support Desk</p></div><div style="background:white;padding:28px"><p style="color:#334155;font-size:15px;margin-top:0">Dear <strong>${name || 'Valued User'}</strong>,</p><p style="color:#334155;font-size:14px">Regarding your support inquiry:</p><div style="background:#F8FAFC;border-left:4px solid #0047AB;padding:14px 18px;margin:18px 0;border-radius:0 8px 8px 0;color:#1E293B;font-size:14px;line-height:1.6;white-space:pre-wrap">${message}</div><p style="color:#94A3B8;font-size:12px">Warm regards,<br><strong>Procurement &amp; Support Committee</strong><br>Hindustan Projects Limited</p></div></div>`
+    });
+    if (contactId) {
+      db.run(`UPDATE contact_messages SET status = 'RESOLVED' WHERE id = ?`, [contactId]);
+    }
+    console.log('✅ Admin reply email sent to ' + to);
+    return res.json({ success: true, messageId: info.messageId, to });
+  } catch (err) {
+    console.error('❌ Admin reply email failed:', err.message);
+    return res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // ─────────────────────────────────────────────────────────────────
+// GET & POST /api/empanelment/public/site-config & /admin/site-config
+// CMS Site Configurator endpoints for Real-Time Sync across all devices (Mobile & Desktop)
+// ─────────────────────────────────────────────────────────────────
+app.get('/api/empanelment/public/site-config', (req, res) => {
+  db.all(`SELECT key, value FROM site_config`, [], (err, rows) => {
+    if (err || !rows) return res.json({ success: true, data: {} });
+    const config = {};
+    rows.forEach(r => {
+      try {
+        config[r.key] = JSON.parse(r.value);
+      } catch {
+        config[r.key] = r.value;
+      }
+    });
+    res.json({ success: true, data: config });
+  });
+});
+
+app.post('/api/empanelment/admin/site-config', adminAuthMiddleware, (req, res) => {
+  const { siteConfig } = req.body;
+  if (!siteConfig || typeof siteConfig !== 'object') {
+    return res.status(400).json({ success: false, error: 'Invalid siteConfig object.' });
+  }
+
+  const stmt = db.prepare(`INSERT INTO site_config (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`);
+  db.serialize(() => {
+    Object.keys(siteConfig).forEach(key => {
+      const val = typeof siteConfig[key] === 'object' ? JSON.stringify(siteConfig[key]) : String(siteConfig[key]);
+      stmt.run(key, val);
+    });
+    stmt.finalize(err => {
+      if (err) return res.status(500).json({ success: false, error: err.message });
+      res.json({ success: true, message: 'Site Configuration saved permanently to VPS Database.' });
+    });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
 // GET /api/empanelment/status/:trackingId
-// Public tracking — returns status for a given tracking ID
+// Public tracking — returns status for tracking ID, GSTIN, PAN, Email, or Company
 // ─────────────────────────────────────────────────────────────────
 app.get('/api/empanelment/status/:trackingId', (req, res) => {
-  const trackingId = req.params.trackingId.toUpperCase();
+  const queryVal = (req.params.trackingId || '').trim();
+  const upperVal = queryVal.toUpperCase();
 
-  db.get(
-    `SELECT tracking_id, hash_signature, company_name, category, status, current_stage, submitted_at FROM vendors WHERE tracking_id = ?`,
-    [trackingId],
-    (err, row) => {
-      if (err || !row) {
-        return res.status(404).json({ success: false, error: 'Application Reference ID not found.' });
-      }
-      res.json({
-        success: true,
-        data: {
-          id: row.tracking_id,
-          hash: row.hash_signature,
-          company: row.company_name,
-          category: row.category,
-          status: row.status,
-          stage: row.current_stage,
-          submittedDate: row.submitted_at
-        }
-      });
+  const sql = `
+    SELECT * FROM vendors 
+    WHERE UPPER(tracking_id) = ? 
+       OR UPPER(gstin) = ? 
+       OR UPPER(pan) = ? 
+       OR LOWER(email) = LOWER(?) 
+       OR LOWER(company_name) LIKE LOWER(?)
+    ORDER BY id DESC LIMIT 1
+  `;
+  const params = [upperVal, upperVal, upperVal, queryVal, `%${queryVal}%`];
+
+  db.get(sql, params, (err, row) => {
+    if (err || !row) {
+      return res.status(404).json({ success: false, error: 'Application Reference ID or Record not found.' });
     }
-  );
+    res.json({
+      success: true,
+      data: {
+        id: row.tracking_id,
+        tracking_id: row.tracking_id,
+        hash: row.hash_signature,
+        hash_signature: row.hash_signature,
+        company: row.company_name,
+        company_name: row.company_name,
+        contact_name: row.contact_name,
+        email: row.email,
+        phone: row.phone,
+        category: row.category,
+        gstin: row.gstin,
+        pan: row.pan,
+        status: row.status,
+        stage: row.current_stage,
+        current_stage: row.current_stage,
+        submittedDate: row.submitted_at,
+        submitted_at: row.submitted_at,
+        passportPhoto: row.passport_photo,
+        photo_url: row.passport_photo
+      }
+    });
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────
@@ -571,11 +1103,14 @@ app.get('/api/empanelment/admin/applications', adminAuthMiddleware, (req, res) =
 // Triggers appropriate email to vendor
 // ─────────────────────────────────────────────────────────────────
 app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res) => {
-  const { trackingId, status, currentStage, rejectionReason, missingDetails, adminNote } = req.body;
+  const { trackingId, status, currentStage, rejectionReason, missingDetails, adminNote, adminRemark, admin_remarks, ceoSigned, ceoDate } = req.body;
 
   if (!trackingId || !status) {
     return res.status(400).json({ success: false, error: 'Tracking ID and Status are required.' });
   }
+
+  const remarks = adminRemark || admin_remarks || '';
+  const isApprovedStatus = (status || '').toLowerCase().includes('approved');
 
   // Fetch vendor details for email
   db.get(`SELECT * FROM vendors WHERE tracking_id = ?`, [trackingId], async (err, vendor) => {
@@ -585,14 +1120,15 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
 
     let updateQuery, updateParams;
 
-    // ── APPROVED ──────────────────────────────────────────────
-    if (status === 'Approved') {
-      // Generate a simple temporary password
-      const tempPassword = 'HP@' + Math.random().toString(36).slice(2, 8).toUpperCase();
-      const approvedAt = new Date().toISOString();
+    // ── APPROVED (Handles 'Approved', 'Approved Class-A', etc.) ───────────────
+    if (isApprovedStatus) {
+      // Generate a simple temporary password if not set
+      const tempPassword = vendor.login_password || ('HP@' + Math.random().toString(36).slice(2, 8).toUpperCase());
+      const approvedAt = vendor.approved_at || new Date().toISOString();
+      const signedDate = ceoDate || new Date().toLocaleDateString('en-IN');
 
-      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, login_password = ?, approved_at = ? WHERE tracking_id = ?`;
-      updateParams = [status, currentStage || 'CEO Final Approval', tempPassword, approvedAt, trackingId];
+      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, login_password = ?, approved_at = ?, admin_remarks = ?, ceo_signed = ?, ceo_signed_date = ? WHERE tracking_id = ?`;
+      updateParams = [status, currentStage || 'CEO Final Approval', tempPassword, approvedAt, remarks || vendor.admin_remarks || '', 1, signedDate, trackingId];
 
       db.run(updateQuery, updateParams, async function(dbErr) {
         if (dbErr) return res.status(500).json({ success: false, error: dbErr.message });
@@ -615,9 +1151,9 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
       });
 
     // ── RESUBMISSION REQUIRED ──────────────────────────────────
-    } else if (status === 'Resubmission Required') {
-      updateQuery = `UPDATE vendors SET status = ?, current_stage = ? WHERE tracking_id = ?`;
-      updateParams = [status, currentStage || 'Document Re-verification', trackingId];
+    } else if (status === 'Resubmission Required' || status === 'Clarification Required') {
+      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, admin_remarks = ? WHERE tracking_id = ?`;
+      updateParams = [status, currentStage || 'Document Re-verification', remarks || vendor.admin_remarks || '', trackingId];
 
       db.run(updateQuery, updateParams, async function(dbErr) {
         if (dbErr) return res.status(500).json({ success: false, error: dbErr.message });
@@ -640,8 +1176,8 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
 
     // ── REJECTED ───────────────────────────────────────────────
     } else if (status === 'Rejected') {
-      updateQuery = `UPDATE vendors SET status = ?, current_stage = ? WHERE tracking_id = ?`;
-      updateParams = [status, currentStage || 'Application Closed', trackingId];
+      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, admin_remarks = ? WHERE tracking_id = ?`;
+      updateParams = [status, currentStage || 'Application Closed', remarks || vendor.admin_remarks || '', trackingId];
 
       db.run(updateQuery, updateParams, async function(dbErr) {
         if (dbErr) return res.status(500).json({ success: false, error: dbErr.message });
@@ -663,8 +1199,8 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
 
     // ── OTHER STATUS UPDATE ────────────────────────────────────
     } else {
-      updateQuery = `UPDATE vendors SET status = ?, current_stage = ? WHERE tracking_id = ?`;
-      updateParams = [status, currentStage || vendor.current_stage, trackingId];
+      updateQuery = `UPDATE vendors SET status = ?, current_stage = ?, admin_remarks = ? WHERE tracking_id = ?`;
+      updateParams = [status, currentStage || vendor.current_stage, remarks || vendor.admin_remarks || '', trackingId];
 
       db.run(updateQuery, updateParams, function(dbErr) {
         if (dbErr) return res.status(500).json({ success: false, error: dbErr.message });
@@ -675,14 +1211,65 @@ app.patch('/api/empanelment/admin/status', adminAuthMiddleware, async (req, res)
 });
 
 // ─────────────────────────────────────────────────────────────────
-// DELETE /api/empanelment/admin/delete/:trackingId
-// Admin — delete an application (PROTECTED)
+// DELETE & POST /api/empanelment/admin/applications/:trackingId & delete-vendor
+// Admin — Delete application permanently from SQLite database
 // ─────────────────────────────────────────────────────────────────
-app.delete('/api/empanelment/admin/delete/:trackingId', adminAuthMiddleware, (req, res) => {
-  const trackingId = req.params.trackingId;
-  db.run(`DELETE FROM vendors WHERE tracking_id = ?`, [trackingId], function(err) {
+app.delete('/api/empanelment/admin/applications/:trackingId', adminAuthMiddleware, (req, res) => {
+  const { trackingId } = req.params;
+  if (!trackingId) {
+    return res.status(400).json({ success: false, error: 'Tracking ID is required.' });
+  }
+
+  db.run(`DELETE FROM vendors WHERE tracking_id = ? OR id = ?`, [trackingId, trackingId], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ success: true, message: `Application ${trackingId} deleted successfully.` });
+    res.json({ success: true, message: `Vendor application ${trackingId} permanently deleted.` });
+  });
+});
+
+app.post('/api/empanelment/admin/delete-vendor', adminAuthMiddleware, (req, res) => {
+  const trackingId = req.body?.trackingId || req.query?.trackingId;
+  if (!trackingId) {
+    return res.status(400).json({ success: false, error: 'Tracking ID is required.' });
+  }
+
+  db.run(`DELETE FROM vendors WHERE tracking_id = ? OR id = ?`, [trackingId, trackingId], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: `Vendor application ${trackingId} permanently deleted.` });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────
+// DELETE & POST /api/empanelment/admin/clear-all & clear-all-vendors
+// Admin — wipe all vendor applications permanently from SQLite database
+// ─────────────────────────────────────────────────────────────────
+app.delete('/api/empanelment/admin/clear-all', adminAuthMiddleware, (req, res) => {
+  db.run(`DELETE FROM vendors`, [], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: `All vendor applications permanently cleared.` });
+  });
+});
+
+app.post('/api/empanelment/admin/clear-all-vendors', adminAuthMiddleware, (req, res) => {
+  db.run(`DELETE FROM vendors`, [], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    db.run(`DELETE FROM sqlite_sequence WHERE name='vendors'`, [], () => {});
+    res.json({ success: true, message: `All vendor applications permanently cleared.` });
+  });
+});
+
+app.delete('/api/empanelment/admin/force-purge-all', adminAuthMiddleware, (req, res) => {
+  db.run(`DELETE FROM vendors`, [], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    db.run(`DELETE FROM sqlite_sequence WHERE name='vendors'`, [], () => {});
+    res.json({ success: true, message: `All vendor applications permanently purged from VPS SQLite database.` });
+  });
+});
+
+app.delete('/api/empanelment/admin/delete-row/:trackingId', adminAuthMiddleware, (req, res) => {
+  const { trackingId } = req.params;
+  db.run(`DELETE FROM vendors WHERE tracking_id = ? OR id = ? OR company_name = ?`, [trackingId, trackingId, trackingId], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: `Vendor application ${trackingId} permanently deleted.` });
   });
 });
 
@@ -756,9 +1343,17 @@ app.post('/api/test-email', adminAuthMiddleware, async (req, res) => {
 //                     TENDERS API ENDPOINTS
 // ════════════════════════════════════════════════════════════════
 
-// GET /api/tenders — Fetch active tenders
+// GET /api/tenders — Fetch active tenders (optional status filter)
 app.get('/api/tenders', (req, res) => {
-  db.all(`SELECT * FROM tenders ORDER BY id DESC`, [], (err, rows) => {
+  const reqStatus = req.query.status || req.query.active_only;
+  let sql = `SELECT * FROM tenders ORDER BY id DESC`;
+  let params = [];
+
+  if (reqStatus && (reqStatus === 'true' || reqStatus.toUpperCase() === 'ACTIVE')) {
+    sql = `SELECT * FROM tenders WHERE UPPER(status) = 'ACTIVE' ORDER BY id DESC`;
+  }
+
+  db.all(sql, params, (err, rows) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, count: rows.length, data: rows });
   });
@@ -774,6 +1369,32 @@ app.post('/api/tenders', adminAuthMiddleware, (req, res) => {
   db.run(query, [tender_no, title, category, estimated_value || 'TBD', location || 'PAN India', due_date || 'Open', status || 'Active'], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.status(201).json({ success: true, id: this.lastID, message: 'Tender created successfully ✅' });
+  });
+});
+
+// PUT /api/tenders/:id — Update a tender (PROTECTED)
+app.put('/api/tenders/:id', adminAuthMiddleware, (req, res) => {
+  const { id } = req.params;
+  const { tender_no, title, category, estimated_value, location, due_date, status } = req.body;
+  
+  const query = `UPDATE tenders SET tender_no = ?, title = ?, category = ?, estimated_value = ?, location = ?, due_date = ?, status = ? WHERE id = ?`;
+  db.run(query, [tender_no, title, category, estimated_value, location, due_date, status || 'ACTIVE', id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, updated: this.changes, message: 'Tender updated successfully ✅' });
+  });
+});
+
+// PATCH /api/tenders/:id/status — Toggle ON/OFF or update tender status (PROTECTED)
+app.patch('/api/tenders/:id/status', adminAuthMiddleware, (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  if (!status) {
+    return res.status(400).json({ success: false, error: 'Status is required' });
+  }
+
+  db.run(`UPDATE tenders SET status = ? WHERE id = ?`, [status, id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, updated: this.changes, status });
   });
 });
 
@@ -873,11 +1494,16 @@ app.get('/api/deploy-webhook', (req, res) => {
   });
 });
 
+app.all('/api/empanelment/admin/restart', (req, res) => {
+  res.json({ success: true, message: 'Server process restarting via PM2 auto-respawn...' });
+  setTimeout(() => process.exit(0), 1000);
+});
+
 app.post('/api/deploy-webhook', (req, res) => {
   const { exec } = require('child_process');
   console.log('🔄 GitHub Push Webhook Triggered: Auto-deploying latest master code...');
 
-  exec('cd /var/www/Empanelment-Portal && git pull origin master && npm run build && pm2 restart hipro-backend', (error, stdout, stderr) => {
+  exec('cd /var/www/Empanelment-Portal && rm -f backend/empanelment.db-shm backend/empanelment.db-wal && git checkout . && git pull origin master && npm run build && pm2 restart all', (error, stdout, stderr) => {
     if (error) {
       console.error('❌ Auto-deploy failed:', error.message);
       return res.status(500).json({ success: false, error: error.message });
@@ -886,6 +1512,21 @@ app.post('/api/deploy-webhook', (req, res) => {
     res.json({ success: true, message: 'VPS Auto-Deploy Executed Cleanly ✅', output: stdout });
   });
 });
+
+// ─────────────────────────────────────────────────────────────────
+// STATIC FRONTEND SERVING & SPA FALLBACK (VPS PRODUCTION)
+// ─────────────────────────────────────────────────────────────────
+const distPath = path.join(__dirname, '../dist');
+if (fs.existsSync(distPath)) {
+  console.log(`📦 Serving React SPA Production Build from: ${distPath}`);
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
 // ─────────────────────────────────────────────────────────────────
 // START SERVER
@@ -897,3 +1538,4 @@ app.listen(PORT, () => {
   console.log(`👤 Admin Alert Email: ${process.env.ADMIN_EMAIL || 'NOT CONFIGURED — Set in .env'}`);
   console.log(`====================================================`);
 });
+

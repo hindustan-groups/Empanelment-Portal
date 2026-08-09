@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import Logo from './Logo';
 import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, Lock, Award, Clock, ArrowRight, Building2 } from 'lucide-react';
 
+import { loadSiteConfig, getSiteConfigSync } from '../config/siteConfigService';
+
 const DEFAULT_SITE_CONFIG = {
   companyTitle:           'Hindustan Projects',
   subdomainPill:          'www.empanelment.hindustanprojects.in',
   helplinePhone:          '+91 7597000601',
-  corporateEmail:         'empanelment@hindustanprojects.in',
+  corporateEmail:         'industrial@hindustanprojects.in',
   corporateAddress:       'Bhopal Ganj, Bhilwara - 311001, Rajasthan, India',
   footerCopyright:        '© 2026 Hindustan Projects. All Rights Reserved.',
   footerAboutText:        'Official Vendor & Contractor Empanelment Portal of Hindustan Projects. Facilitating transparent, paperless, and fast-track procurement for infrastructure and commercial projects.',
@@ -22,22 +24,17 @@ export default function Footer() {
   const [siteConfig, setSiteConfig] = useState(DEFAULT_SITE_CONFIG);
 
   useEffect(() => {
-    const saved = localStorage.getItem('hipro_site_config');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Sanitize if old stale data exists in local storage
-        if (parsed.corporateAddress && parsed.corporateAddress.includes('Barakhamba')) {
-          delete parsed.corporateAddress;
-        }
-        if (parsed.helplinePhone && parsed.helplinePhone.includes('4500')) {
-          delete parsed.helplinePhone;
-        }
-        setSiteConfig({ ...DEFAULT_SITE_CONFIG, ...parsed });
-      } catch (err) {
-        console.warn('Failed to parse site config:', err);
-      }
+    // Use shared cached service — only 1 API call fires across all components per page load
+    const saved = getSiteConfigSync();
+    if (saved && Object.keys(saved).length > 0) {
+      setSiteConfig(prev => ({ ...DEFAULT_SITE_CONFIG, ...saved }));
     }
+
+    loadSiteConfig().then(data => {
+      if (data && Object.keys(data).length > 0) {
+        setSiteConfig(prev => ({ ...DEFAULT_SITE_CONFIG, ...data }));
+      }
+    }).catch(() => {});
   }, []);
 
   return (
@@ -141,7 +138,7 @@ export default function Footer() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <Mail style={{ width: 14, height: 14, color: '#ED1C24', flexShrink: 0 }} />
-                <span>{siteConfig.corporateEmail || 'empanelment@hindustanprojects.in'}</span>
+                <span>{siteConfig.corporateEmail || 'industrial@hindustanprojects.in'}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <Phone style={{ width: 14, height: 14, color: '#0047AB', flexShrink: 0 }} />

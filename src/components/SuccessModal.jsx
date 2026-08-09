@@ -32,10 +32,8 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
 
   const handlePrint = () => {
     setPrinting(true);
-    setTimeout(() => {
-      printDossier(trackingId, formData);
-      setTimeout(() => setPrinting(false), 2000);
-    }, 200);
+    printDossier(trackingId, formData);
+    setTimeout(() => setPrinting(false), 2000);
   };
 
   const handleTrackDirect = () => {
@@ -61,12 +59,11 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
   const entityType = (formData?.entityType || 'sole_proprietor').replace(/_/g, ' ').toUpperCase();
 
   const docRows = [
-    { name: 'PAN Card Copy', submitted: formData?.panDoc, req: 'Mandatory' },
-    { name: 'Aadhaar Card (Front)', submitted: formData?.aadharFrontDoc, req: 'Mandatory' },
-    { name: 'Aadhaar Card (Back)', submitted: formData?.aadharBackDoc, req: 'Mandatory' },
-    { name: 'Cancelled Cheque / Passbook', submitted: formData?.bankDoc, req: 'Mandatory' },
-    { name: 'GST REG-06 Certificate', submitted: formData?.gstDoc, req: 'Conditional' },
-    { name: 'Work Portfolio / Experience', submitted: formData?.expDoc, req: 'Mandatory' },
+    { name: 'PAN Card Copy', submitted: formData?.panDoc || formData?.pan_doc || formData?.panDocUrl, req: 'Mandatory' },
+    { name: 'Aadhaar Card (Front/Back)', submitted: formData?.aadharFrontDoc || formData?.aadhar_front_doc || formData?.aadharDoc || formData?.aadhar_doc, req: 'Mandatory' },
+    { name: 'Cancelled Cheque / Passbook', submitted: formData?.bankDoc || formData?.bank_doc || formData?.bankDocUrl, req: 'Mandatory' },
+    { name: 'GST REG-06 Certificate', submitted: formData?.gstDoc || formData?.gst_doc || formData?.gstDocUrl, req: 'Conditional' },
+    { name: 'Work Portfolio / Experience', submitted: formData?.expDoc || formData?.exp_doc || formData?.expDocUrl || formData?.portfolioDoc, req: 'Mandatory' },
   ];
 
   const BLUE = '#0047AB';
@@ -199,11 +196,36 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
 
         {/* § 1.5 — CATEGORY-SPECIFIC STATUTORY CREDENTIALS */}
         {(() => {
-          const categoryKey = formData?.category || 'vendor';
+          const CAT_TO_SCHEMA_MAP = {
+            consultants: 'architect',
+            architect: 'architect',
+            civil: 'contractor',
+            contractor: 'contractor',
+            mep: 'contractor',
+            suppliers: 'material_supplier',
+            material_supplier: 'material_supplier',
+            equipment: 'machine_rental_provider',
+            machine_rental_provider: 'machine_rental_provider',
+            site_services: 'contractor',
+            civil_engineer: 'civil_engineer',
+            freelancer: 'freelancer',
+            surveyor: 'surveyor',
+            transporter: 'transporter',
+            fire: 'contractor',
+            soil: 'civil_engineer',
+            solar: 'contractor',
+            property_dealer: 'property_dealer',
+            business_associate: 'business_associate',
+            financer: 'financer',
+            fruits_vegetables: 'fruits_vegetables',
+            vendor: 'vendor',
+          };
+          const rawCategoryKey = formData?.category || 'vendor';
+          const categoryKey = CAT_TO_SCHEMA_MAP[rawCategoryKey] || rawCategoryKey;
           const catSchema = CATEGORY_SCHEMAS[categoryKey] || CATEGORY_SCHEMAS.vendor;
           const statKey = catSchema.statutoryLicenseKey;
           const statLabel = catSchema.statutoryLicenseLabel;
-          const statVal = formData?.[statKey] || (categoryKey === 'architect' ? formData?.coaRegNo : null);
+          const statVal = formData?.[statKey] || (rawCategoryKey === 'architect' || rawCategoryKey === 'consultants' ? formData?.coaRegNo : null);
 
           if (statVal || (catSchema.customFields && catSchema.customFields.some(cf => formData?.[cf.name]))) {
             return (
@@ -290,24 +312,49 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
         <div style={{ fontSize: '0.78rem', fontWeight: 900, color: BLUE, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#EFF6FF', borderLeft: `4px solid ${BLUE}`, borderRadius: '0 6px 6px 0' }}>
           § 4 — Document Submission Audit Roster
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.45rem', marginBottom: '1rem' }}>
-          {docRows.map((doc, i) => (
-            <div key={i} style={{
-              display: 'flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.5rem 0.75rem', borderRadius: 8,
-              background: doc.submitted ? '#F0FDF4' : '#FFF7F7',
-              border: `1px solid ${doc.submitted ? '#BBF7D0' : '#FECACA'}`,
-              fontSize: '0.75rem', fontWeight: 700
-            }}>
-              <span style={{ fontSize: '1rem' }}>{doc.submitted ? '✅' : '❌'}</span>
-              <div>
-                <div style={{ color: '#0F172A' }}>{doc.name}</div>
-                <div style={{ fontSize: '0.65rem', fontWeight: 600, color: doc.submitted ? '#047857' : '#DC2626' }}>
-                  {doc.submitted ? 'Submitted' : 'Not Submitted'}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '0.6rem', marginBottom: '1rem' }}>
+          {docRows.map((doc, i) => {
+            const rawVal = doc.submitted;
+            let fileUrl = null;
+            if (typeof rawVal === 'string') fileUrl = rawVal;
+            else if (typeof rawVal === 'object' && rawVal !== null) fileUrl = rawVal.url || rawVal.data || rawVal.path || null;
+
+            return (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0.65rem 0.85rem', borderRadius: 10,
+                background: rawVal ? '#F0FDF4' : '#FFF7F7',
+                border: `1.5px solid ${rawVal ? '#BBF7D0' : '#FECACA'}`,
+                fontSize: '0.78rem', fontWeight: 700
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+                  <span style={{ fontSize: '1.1rem' }}>{rawVal ? '✅' : '❌'}</span>
+                  <div>
+                    <div style={{ color: '#0F172A', fontWeight: 800 }}>{doc.name}</div>
+                    <div style={{ fontSize: '0.68rem', fontWeight: 700, color: rawVal ? '#047857' : '#DC2626' }}>
+                      {rawVal ? 'Verified Document Attached' : 'Not Attached'}
+                    </div>
+                  </div>
                 </div>
+
+                {fileUrl && (fileUrl.startsWith('http') || fileUrl.startsWith('data:') || fileUrl.startsWith('/')) ? (
+                  <a
+                    href={fileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      padding: '0.3rem 0.65rem', borderRadius: 6, background: BLUE, color: '#FFFFFF',
+                      fontSize: '0.72rem', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem'
+                    }}
+                  >
+                    <span>🔗 View PDF</span>
+                  </a>
+                ) : rawVal ? (
+                  <span style={{ fontSize: '0.7rem', color: '#047857', fontWeight: 800 }}>✓ Attached</span>
+                ) : null}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* § 5 — GUIDELINES PREVIEW (condensed) */}

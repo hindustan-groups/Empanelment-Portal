@@ -5,11 +5,34 @@
  * ════════════════════════════════════════════════════════════════
  */
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? '' : 'http://localhost:5000');
+export const getApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_BASE_URL !== undefined && import.meta.env.VITE_API_BASE_URL !== '') {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  if (typeof window === 'undefined') return 'http://localhost:9000';
+
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  const port = window.location.port;
+
+  // Running via Vite Dev Server (e.g., http://localhost:5173)
+  if (port === '5173') {
+    return `${protocol}//${hostname}:9000`;
+  }
+  
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return port === '9000' ? '' : 'http://localhost:9000';
+  }
+
+  // Production VPS (Domain or direct IP access via Express/Nginx)
+  return '';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export const ADMIN_API_KEY = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
 
-export const CORPORATE_EMAIL = 'empanelment@hindustanprojects.in';
+export const CORPORATE_EMAIL = 'industrial@hindustanprojects.in';
 
 export const HELPLINE_PHONE = '+91 75970 00601';
 

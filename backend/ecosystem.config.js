@@ -1,4 +1,4 @@
-module = {
+module.exports = {
   apps: [{
     name: "hipro-empanelment-backend",
     script: "./server.js",
@@ -6,7 +6,7 @@ module = {
     exec_mode: "cluster",
     env: {
       NODE_ENV: "production",
-      PORT: 5000
+      PORT: 9000
     }
   }]
 };

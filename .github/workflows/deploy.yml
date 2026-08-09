@@ -1,0 +1,85 @@
+name: 🚀 Auto-Deploy to VPS
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: 🧪 Run Frontend & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci || npm install
+
+      - name: 🧪 Run Unit Tests
+        run: npm test
+
+      - name: 🏗️ Build Production Bundle
+        run: npm run build
+
+  deploy:
+    name: 📡 SSH Auto-Deploy to VPS Server
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⚡ Execute Remote SSH Commands on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          script: |
+            echo "🚀 Starting Automatic Deployment on VPS..."
+
+            # Find the correct project folder (handles any casing)
+            PROJECT_DIR=""
+            for dir in /var/www/Empanelment-Portal /var/www/empanelment-portal /var/www/hipro-empanelment; do
+              if [ -d "$dir" ]; then
+                PROJECT_DIR="$dir"
+                break
+              fi
+            done
+
+            if [ -z "$PROJECT_DIR" ]; then
+              echo "❌ ERROR: Project directory not found in /var/www/"
+              exit 1
+            fi
+
+            echo "📁 Using project directory: $PROJECT_DIR"
+            cd "$PROJECT_DIR"
+
+            echo "📥 Pulling latest code from GitHub master..."
+            rm -f backend/empanelment.db-shm backend/empanelment.db-wal || true
+            git checkout .
+            git pull origin master --rebase || git pull origin master
+
+            echo "📦 Installing Dependencies..."
+            npm install --production=false
+
+            echo "🏗️ Building Frontend Production Assets..."
+            npm run build
+
+            echo "⚙️ Restarting ONLY this project's PM2 process..."
+            # Try specific names first — avoids restarting other VPS projects
+            pm2 restart hipro-empanelment-backend 2>/dev/null || \
+            pm2 restart hipro-backend 2>/dev/null || \
+            pm2 restart empanelment 2>/dev/null || \
+            pm2 start backend/server.js --name "hipro-empanelment-backend" --watch false
+
+            pm2 save
+
+            echo "✅ Auto-Deployment Completed Successfully!"

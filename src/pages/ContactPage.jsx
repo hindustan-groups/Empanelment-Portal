@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert, RefreshCw } from 'lucide-react';
 import SecurityCaptcha from '../components/SecurityCaptcha';
+import { loadSiteConfig, getSiteConfigSync } from '../config/siteConfigService';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -18,10 +19,20 @@ export default function ContactPage() {
     website_url_hp: '' // 🍯 Honeypot Trap field for anti-spambots
   });
 
+  const [siteConfig, setSiteConfig] = useState(() => getSiteConfigSync());
+
+  useEffect(() => {
+    // Use shared cached service — only 1 API call fires per page load across all components
+    loadSiteConfig().then(data => {
+      if (data && Object.keys(data).length > 0) setSiteConfig(data);
+    }).catch(() => {});
+  }, []);
+
   const [isSending, setIsSending] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSending) return; // 🛑 Double-click protection
     setSpamError('');
 
     // 1. 🍯 Honeypot Check: Spambot trap field must be empty
@@ -55,10 +66,10 @@ export default function ContactPage() {
     }
 
     setIsSending(true);
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL;
 
     try {
-      // Attempt backend API call
+      // Send single API call to backend (saves to SQLite DB and sends SMTP email)
       const res = await fetch(`${backendUrl}/api/empanelment/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,57 +77,41 @@ export default function ContactPage() {
       });
       const data = await res.json();
       if (data.success) {
-        console.log('✅ Contact inquiry email sent via VPS backend');
+        console.log('✅ Contact inquiry submitted via VPS backend');
       }
-    } catch {
-      // Fallback: Web3Forms free public mail dispatcher for static Vercel apps
-      try {
-        await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({
-            access_key: '00000000-0000-0000-0000-000000000000', // Public fallback key
-            subject: `[Empanelment Inquiry] ${formData.department} — ${formData.name}`,
-            from_name: formData.name,
-            to_email: 'empanelment@hindustanprojects.in',
-            company: formData.company,
-            email: formData.email,
-            phone: formData.phone,
-            department: formData.department === 'Other' ? formData.customDepartment : formData.department,
-            message: formData.message
-          })
-        });
-      } catch {}
+    } catch (err) {
+      console.error('Contact submission error:', err);
+    } finally {
+      setIsSending(false);
     }
 
-    setIsSending(false);
     sessionStorage.setItem('hipro_last_contact_sub', Date.now().toString());
     setSubmitted(true);
   };
 
   return (
-    <div className="contact-page" style={{ padding: '2.5rem 1.5rem', maxWidth: 1240, margin: '0 auto' }}>
+    <div className="contact-page-container">
       
       {/* Header Banner */}
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
         <span style={{ padding: '0.35rem 0.95rem', borderRadius: 99, backgroundColor: 'rgba(0, 71, 171, 0.08)', color: '#0047AB', fontSize: '0.8rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-          📍 Corporate Contact & Support Helpdesk
+          📍 Corporate Contact &amp; Support Helpdesk
         </span>
-        <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#0F172A', marginTop: '0.65rem', marginBottom: '0.5rem' }}>
+        <h1 style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: '0.65rem', marginBottom: '0.5rem' }}>
           Get in Touch With Hindustan Projects
         </h1>
-        <p style={{ fontSize: '0.95rem', color: '#64748B', maxWidth: 640, margin: '0 auto', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '0.925rem', color: 'var(--text-muted)', maxWidth: 640, margin: '0 auto', lineHeight: 1.6 }}>
           Have questions regarding vendor empanelment filing, document submission, active tenders, or ID card verification? Our corporate procurement team is ready to assist.
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem', marginBottom: '3.5rem' }}>
+      <div className="contact-layout-grid">
         
         {/* Left: Contact Info Cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="contact-info-col">
           
           {/* Corporate HQ Card */}
-          <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: '#FFFFFF', border: '1.5px solid #E2E8F0', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
+          <div className="contact-card-box">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(237,28,36,0.08)', color: '#ED1C24', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Building2 style={{ width: 22, height: 22 }} />
@@ -132,7 +127,12 @@ export default function ContactPage() {
                 <MapPin style={{ width: 16, height: 16, color: '#ED1C24', marginTop: 3, flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: '#0F172A' }}>Address:</strong><br />
-                  Bhopal Ganj, Bhilwara - 311001, Rajasthan, India
+                  {(() => {
+                    try {
+                      const cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+                      return cfg.corporateAddress || 'Bhopal Ganj, Bhilwara - 311001, Rajasthan, India';
+                    } catch { return 'Bhopal Ganj, Bhilwara - 311001, Rajasthan, India'; }
+                  })()}
                 </div>
               </div>
 
@@ -140,7 +140,13 @@ export default function ContactPage() {
                 <Phone style={{ width: 16, height: 16, color: '#0047AB', flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: '#0F172A' }}>Helpline Phone:</strong>{' '}
-                  <a href="tel:+917597000601" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>+91 7597000601</a>
+                  {(() => {
+                    try {
+                      const cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+                      const p = cfg.helplinePhone || '+91 7597000601';
+                      return <a href={`tel:${p.replace(/\s+/g, '')}`} style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>{p}</a>;
+                    } catch { return <a href="tel:+917597000601" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>+91 7597000601</a>; }
+                  })()}
                 </div>
               </div>
 
@@ -148,14 +154,26 @@ export default function ContactPage() {
                 <Mail style={{ width: 16, height: 16, color: '#ED1C24', flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: '#0F172A' }}>Email:</strong>{' '}
-                  <a href="mailto:empanelment@hindustanprojects.in" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>empanelment@hindustanprojects.in</a>
+                  {(() => {
+                    try {
+                      const cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+                      const e = cfg.corporateEmail || 'industrial@hindustanprojects.in';
+                      return <a href={`mailto:${e}`} style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>{e}</a>;
+                    } catch { return <a href="mailto:industrial@hindustanprojects.in" style={{ color: '#0047AB', fontWeight: 800, textDecoration: 'none' }}>industrial@hindustanprojects.in</a>; }
+                  })()}
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                 <Clock style={{ width: 16, height: 16, color: '#F59E0B', flexShrink: 0 }} />
                 <div>
-                  <strong style={{ color: '#0F172A' }}>Support Hours:</strong> Monday – Saturday: 09:00 AM – 06:00 PM IST
+                  <strong style={{ color: '#0F172A' }}>Support Hours:</strong>{' '}
+                  {(() => {
+                    try {
+                      const cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+                      return cfg.supportHours || 'Monday – Saturday: 09:00 AM – 06:00 PM IST';
+                    } catch { return 'Monday – Saturday: 09:00 AM – 06:00 PM IST'; }
+                  })()}
                 </div>
               </div>
             </div>
@@ -166,22 +184,37 @@ export default function ContactPage() {
             <h4 style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A', marginTop: 0, marginBottom: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Departmental Routing Contacts
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.825rem' }}>
-              <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
-                <div style={{ fontWeight: 800, color: '#0047AB' }}>Procurement & Tenders Team</div>
-                <div style={{ color: '#64748B' }}>tenders@hindustanprojects.in</div>
-              </div>
+            {(() => {
+              let cfg = {};
+              try {
+                cfg = JSON.parse(localStorage.getItem('hipro_site_config') || '{}');
+              } catch {}
+              const pLabel = cfg.deptProcurementLabel || 'Procurement & Tenders Team';
+              const pEmail = cfg.deptProcurementEmail || 'tenders@hindustanprojects.in';
+              const vLabel = cfg.deptVerificationLabel || 'Vendor Verification Cell';
+              const vEmail = cfg.deptVerificationEmail || 'verify@hindustanprojects.in';
+              const bLabel = cfg.deptBillingLabel || 'Billing & Accounts Desk';
+              const bEmail = cfg.deptBillingEmail || 'accounts@hindustanprojects.in';
 
-              <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
-                <div style={{ fontWeight: 800, color: '#047857' }}>Vendor Verification Cell</div>
-                <div style={{ color: '#64748B' }}>verify@hindustanprojects.in</div>
-              </div>
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.825rem' }}>
+                  <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontWeight: 800, color: '#0047AB' }}>{pLabel}</div>
+                    <div style={{ color: '#64748B' }}>{pEmail}</div>
+                  </div>
 
-              <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
-                <div style={{ fontWeight: 800, color: '#ED1C24' }}>Billing & Accounts Desk</div>
-                <div style={{ color: '#64748B' }}>accounts@hindustanprojects.in</div>
-              </div>
-            </div>
+                  <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontWeight: 800, color: '#047857' }}>{vLabel}</div>
+                    <div style={{ color: '#64748B' }}>{vEmail}</div>
+                  </div>
+
+                  <div style={{ padding: '0.6rem 0.85rem', backgroundColor: '#FFFFFF', borderRadius: 10, border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontWeight: 800, color: '#ED1C24' }}>{bLabel}</div>
+                    <div style={{ color: '#64748B' }}>{bEmail}</div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
         </div>
@@ -328,11 +361,25 @@ export default function ContactPage() {
 
               <button
                 type="submit"
+                disabled={isSending}
                 className="btn-accent"
-                style={{ padding: '0.75rem 1.5rem', fontSize: '0.9rem', borderRadius: 12, marginTop: '0.25rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                style={{
+                  padding: '0.75rem 1.5rem', fontSize: '0.9rem', borderRadius: 12, marginTop: '0.25rem',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  opacity: isSending ? 0.7 : 1, cursor: isSending ? 'not-allowed' : 'pointer'
+                }}
               >
-                <Send style={{ width: 16, height: 16 }} />
-                <span>Submit Inquiry</span>
+                {isSending ? (
+                  <>
+                    <RefreshCw style={{ width: 16, height: 16, animation: 'spin 1s linear infinite' }} />
+                    <span>Sending Message... Please Wait</span>
+                  </>
+                ) : (
+                  <>
+                    <Send style={{ width: 16, height: 16 }} />
+                    <span>Submit Inquiry</span>
+                  </>
+                )}
               </button>
             </form>
           )}

@@ -42,6 +42,22 @@ function MainAppLayout() {
   const [submittedId, setSubmittedId] = useState('');
   const [lastSubmittedData, setLastSubmittedData] = useState(null);
 
+  // Mobile & Browser Cache Sanitizer (Ensures Mobile devices get 100% updated data)
+  useEffect(() => {
+    const CURRENT_CONFIG_VERSION = 'v2026.2.5_industrial_vps9000';
+    const savedVersion = localStorage.getItem('hipro_config_version');
+    
+    if (savedVersion !== CURRENT_CONFIG_VERSION) {
+      try {
+        const rawConfig = localStorage.getItem('hipro_site_config');
+        if (rawConfig && (rawConfig.includes('empanelment@') || rawConfig.includes('5000'))) {
+          localStorage.removeItem('hipro_site_config');
+        }
+      } catch (e) {}
+      localStorage.setItem('hipro_config_version', CURRENT_CONFIG_VERSION);
+    }
+  }, []);
+
   // Standalone Software Portal check
   const isStandalonePortal = location.pathname.startsWith('/vendor-dashboard') || 
                              location.pathname.startsWith('/vendor-login') || 
@@ -90,11 +106,35 @@ function MainAppLayout() {
     let trackingCode = customTrackingId;
 
     if (!trackingCode) {
-      const currentCounter = parseInt(localStorage.getItem('hipro_emp_counter') || '27', 10);
-      const formattedNum = currentCounter < 100 ? currentCounter.toString().padStart(3, '0') : currentCounter.toString();
+      let localApps = [];
+      let deletedIds = [];
+      try { localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]'); } catch (e) {}
+      try { deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim().toUpperCase()); } catch (e) {}
+
+      const usedNumbers = new Set();
+      localApps.forEach(app => {
+        const tid = String(app.tracking_id || app.trackingId || app.id || '').toUpperCase();
+        if (tid.startsWith('HP-EMP-') && !deletedIds.includes(tid)) {
+          const num = parseInt(tid.replace('HP-EMP-', ''), 10);
+          if (!isNaN(num)) usedNumbers.add(num);
+        }
+      });
+
+      let candidate = 25;
+      while (usedNumbers.has(candidate)) {
+        candidate++;
+      }
+
+      const formattedNum = candidate < 100 ? candidate.toString().padStart(3, '0') : candidate.toString();
       trackingCode = `HP-EMP-${formattedNum}`;
-      localStorage.setItem('hipro_emp_counter', (currentCounter + 1).toString());
     }
+
+    // Ensure newly assigned trackingCode is removed from deleted blacklist so Admin loads it cleanly!
+    try {
+      const deleted = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim().toUpperCase());
+      const updatedDeleted = deleted.filter(id => id !== trackingCode.toUpperCase());
+      localStorage.setItem('hipro_deleted_applications', JSON.stringify(updatedDeleted));
+    } catch (e) {}
 
     const newApplication = {
       id: Date.now(),
@@ -130,6 +170,8 @@ function MainAppLayout() {
       pan_doc: formData?.panDoc?.data || formData?.panDoc?.name || (typeof formData?.panDoc === 'string' ? formData.panDoc : 'pan_card.pdf'),
       bank_doc: formData?.bankDoc?.data || formData?.bankDoc?.name || (typeof formData?.bankDoc === 'string' ? formData.bankDoc : 'cancelled_cheque.pdf'),
       exp_doc: formData?.expDoc?.data || formData?.expDoc?.name || (typeof formData?.expDoc === 'string' ? formData.expDoc : 'completion_certificate.pdf'),
+      passportPhoto: formData?.passportPhoto || formData?.photo_url || formData?.photoUrl || null,
+      photo_url: formData?.passportPhoto || formData?.photo_url || formData?.photoUrl || null,
       signatory_name: formData?.signatoryName || formData?.contactName || 'Authorized Signatory',
       signature_data: formData?.signature || null,
       status: 'Under Verification',
@@ -138,6 +180,16 @@ function MainAppLayout() {
       admin_remarks: '',
       submitted_at: new Date().toISOString()
     };
+
+    // Save newly submitted application to localStorage for Admin & Track portals
+    try {
+      const existing = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+      const filtered = existing.filter(a => a.tracking_id !== trackingCode && a.gstin !== newApplication.gstin);
+      const updated = [newApplication, ...filtered];
+      localStorage.setItem('hipro_vps_applications', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Error saving submitted application to local storage:', e);
+    }
 
     setSubmittedId(trackingCode);
     setLastSubmittedData({ ...formData, tracking_id: trackingCode, submitted_at: newApplication.submitted_at });

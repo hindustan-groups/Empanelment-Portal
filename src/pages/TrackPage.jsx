@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShieldCheck, CheckCircle2, Clock, FileText, AlertCircle, PhoneCall, FilePlus, ArrowLeft, Printer, HelpCircle, Lock, Building2, MapPin, Mail, XCircle, Ban, PauseCircle, Shield } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SuccessModal from '../components/SuccessModal';
-import VendorIdCardModal from '../components/VendorIdCardModal';
+import { API_BASE_URL } from '../config/api';
 
 // ── QR Verification Status Engine ──────────────────────────────────────────
 function getVerificationStatus(status) {
@@ -17,7 +17,7 @@ function getVerificationStatus(status) {
       badgeBg: 'rgba(16,185,129,0.2)',
       badgeColor: '#6EE7B7',
       icon: 'VERIFIED',
-      scannerMsg: 'You may proceed. This ID card is genuine and the vendor\'s empanelment is currently active.',
+      scannerMsg: 'You may proceed. This vendor\'s empanelment is currently active and authorized for project execution.',
       scannerColor: '#ECFDF5',
       scannerBorder: '#A7F3D0',
     };
@@ -41,13 +41,13 @@ function getVerificationStatus(status) {
     return {
       type: 'TERMINATED',
       headline: '🚫 EMPANELMENT TERMINATED',
-      subline: 'This vendor has been removed from the Hindustan Projects approved vendor registry. This ID card is no longer valid.',
+      subline: 'This vendor has been removed from the Hindustan Projects approved vendor registry. Verification card is no longer valid.',
       bgGradient: 'linear-gradient(135deg,#7F1D1D,#DC2626)',
       borderColor: '#FCA5A5',
       badgeBg: 'rgba(220,38,38,0.25)',
       badgeColor: '#FCA5A5',
       icon: 'TERMINATED',
-      scannerMsg: 'WARNING: This vendor is NOT authorized to work with Hindustan Projects. If someone is presenting this card, please report to procurement@hindustanprojects.in immediately.',
+      scannerMsg: 'WARNING: This vendor is NOT authorized to work with Hindustan Projects. If someone is presenting credentials under this ID, please report to procurement@hindustanprojects.in immediately.',
       scannerColor: '#FEF2F2',
       scannerBorder: '#FECACA',
     };
@@ -62,7 +62,7 @@ function getVerificationStatus(status) {
       badgeBg: 'rgba(153,27,27,0.25)',
       badgeColor: '#FCA5A5',
       icon: 'REJECTED',
-      scannerMsg: 'This vendor is NOT empanelled with Hindustan Projects. This ID card may be fraudulent. Do not authorize any work or payment.',
+      scannerMsg: 'This vendor is NOT empanelled with Hindustan Projects. Do not authorize any work or payment.',
       scannerColor: '#FEF2F2',
       scannerBorder: '#FECACA',
     };
@@ -106,7 +106,6 @@ export default function TrackPage() {
   const [result, setResult] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
-  const [showIdCardModal, setShowIdCardModal] = useState(false);
   const [qrScanned, setQrScanned] = useState(false);
 
   // ── Auto-search when QR code is scanned (URL has ?id=HP-EMP-XXX) ──
@@ -115,7 +114,6 @@ export default function TrackPage() {
     if (idFromUrl && idFromUrl.trim()) {
       setSearchInput(idFromUrl.trim());
       setQrScanned(true);
-      // Trigger search automatically after setting state
       setTimeout(() => {
         document.getElementById('track-search-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
       }, 300);
@@ -131,98 +129,127 @@ export default function TrackPage() {
     setNotFound(false);
     setResult(null);
 
-    // 1. Check LocalStorage First (Real Submissions Log)
+    const backendUrl = API_BASE_URL;
+
+    let foundData = null;
+
+    // Check if trackingId was deleted by Procurement Admin
+    let deletedIds = [];
     try {
-      const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-      const match = localApps.find(app => 
-        (app.tracking_id && app.tracking_id.toLowerCase() === query.toLowerCase()) ||
-        (app.gstin && app.gstin.toLowerCase() === query.toLowerCase()) ||
-        (app.phone && app.phone.includes(query)) ||
-        (app.email && app.email.toLowerCase() === query.toLowerCase()) ||
-        (app.contactName && app.contactName.toLowerCase().includes(query.toLowerCase())) ||
-        (app.companyName && app.companyName.toLowerCase().includes(query.toLowerCase()))
-      );
+      deletedIds = (JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]')).map(v => String(v).trim());
+    } catch (e) {}
 
-      if (match) {
-        setResult({
-          id: match.tracking_id,
-          company: match.companyName || match.contactName || 'Applicant Entity',
-          gstin: match.gstin || (match.gstExempt ? 'EXEMPT / NO GST' : 'GST PENDING'),
-          category: match.category ? match.category.toUpperCase() : 'CIVIL & STRUCTURAL',
-          submittedDate: new Date(match.submitted_at || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-          stage: match.current_stage || 'Financial & Technical Committee Audit',
-          status: match.status || 'Under Verification',
-          hashSignature: match.hash_signature || '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
-          fullData: match,
-          steps: [
-            { label: 'Application Filed & SHA-256 Hash Generated', desc: `Filed on ${new Date(match.submitted_at || Date.now()).toLocaleDateString('en-GB')}`, done: true },
-            { label: 'GSTIN REG-06 & MCA Statutory Audit', desc: 'Statutory tax identity & PAN verification cleared', done: true },
-            { label: match.current_stage || 'Financial & Technical Committee Audit', desc: 'Reviewing 3-year turnovers & technical capability', done: false, active: true },
-            { label: 'Empanelment Tier Classification & Certificate Issue', desc: 'Class-A / Class-B Tier Rating assignment', done: false },
-            { label: 'Active Bidding Clearance & Tender Onboarding', desc: 'Qualified for active Hindustan Projects tenders', done: false }
-          ]
-        });
-        setLoading(false);
-        return;
-      }
-    } catch (err) {
-      console.warn('Local apps check error:', err);
-    }
-
-    // 2. Query API Backend
-    const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-
+    // 1. Query Live VPS Backend API First (Real Database Records)
     try {
       const response = await fetch(`${backendUrl}/api/empanelment/status/${encodeURIComponent(query)}`);
-      const data = await response.json();
-
-      if (data.success && data.data) {
-        setResult({
-          id: data.data.tracking_id || data.data.id || query.toUpperCase(),
-          company: data.data.company_name || data.data.company || 'Applicant Organization',
-          gstin: data.data.gstin || 'GST NOTIFIED',
-          category: (data.data.category || 'civil').toUpperCase(),
-          submittedDate: data.data.submitted_at ? new Date(data.data.submitted_at).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB'),
-          stage: data.data.current_stage || 'Financial & Technical Committee Audit',
-          status: data.data.status || 'Under Verification',
-          hashSignature: data.data.hash_signature || '8f3a9e120bc741a8d0521e90b6a718cf3a89045b',
-          fullData: data.data,
-          steps: [
-            { label: 'Application Filed & SHA-256 Hash Generated', desc: 'Digital registration logged on empanel.hindustanprojects.in', done: true },
-            { label: 'GSTIN REG-06 & MCA Statutory Audit', desc: 'Active tax status & PAN verification cleared', done: true },
-            { label: data.data.current_stage || 'Financial & Technical Committee Audit', desc: 'Reviewing 3-year turnovers & equipment capability', done: false, active: true },
-            { label: 'Empanelment Tier Classification & Certificate Issue', desc: 'Class-A / B Tier Rating assignment', done: false },
-            { label: 'Active Bidding Clearance & Tender Onboarding', desc: 'Qualified for active Hindustan Projects tenders', done: false }
-          ]
-        });
-      } else {
-        setNotFound(true);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          foundData = data.data;
+        }
       }
-    } catch {
-      setNotFound(true);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.warn('API Search notice, fallback to local apps:', err);
     }
+
+    // 2. Fallback to Local Applications if API offline or not found
+    if (!foundData) {
+      try {
+        const localApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+        const match = localApps.find(app => {
+          const tid = String(app.tracking_id || app.trackingId || app.id || '').toLowerCase();
+          const gstin = String(app.gstin || '').toLowerCase();
+          const phone = String(app.phone || '');
+          const email = String(app.email || '').toLowerCase();
+          const name = String(app.company_name || app.companyName || app.contact_name || app.contactName || '').toLowerCase();
+          const q = query.toLowerCase();
+          return tid === q || gstin === q || phone.includes(query) || email === q || name.includes(q);
+        });
+        if (match) foundData = match;
+      } catch (err) {
+        console.warn('Local apps check error:', err);
+      }
+    }
+
+    // 3. Fallback to Approved Vendors
+    if (!foundData) {
+      try {
+        const approved = JSON.parse(localStorage.getItem('hipro_approved_vendors') || '[]');
+        const matchApproved = approved.find(app => {
+          const tid = String(app.tracking_id || app.trackingId || app.id || '').toLowerCase();
+          const gstin = String(app.gstin || '').toLowerCase();
+          const phone = String(app.phone || '');
+          const email = String(app.email || '').toLowerCase();
+          const name = String(app.company_name || app.companyName || '').toLowerCase();
+          const q = query.toLowerCase();
+          return tid === q || gstin === q || phone.includes(query) || email === q || name.includes(q);
+        });
+        if (matchApproved) foundData = matchApproved;
+      } catch (err) {
+        console.warn('Approved check error:', err);
+      }
+    }
+
+    const trackingId = String(foundData?.tracking_id || foundData?.trackingId || foundData?.id || query.toUpperCase()).trim();
+
+    if (!foundData || deletedIds.includes(trackingId)) {
+      setNotFound(true);
+      setLoading(false);
+      return;
+    }
+
+    // Extract Real Data Fields
+    const companyName = foundData.company_name || foundData.companyName || foundData.contact_name || foundData.contactName || 'Applicant Entity';
+    const gstin = foundData.gstin || (foundData.gstExempt ? 'EXEMPT / NO GST' : 'GST PENDING');
+    const category = (foundData.category || foundData.primary_role || 'CIVIL & STRUCTURAL').toUpperCase();
+    const submittedAt = foundData.submitted_at || foundData.submittedAt || foundData.submittedDate || new Date().toISOString();
+    const formattedDate = new Date(submittedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const currentStage = foundData.current_stage || foundData.stage || 'Financial & Technical Committee Audit';
+    const status = foundData.status || 'Under Verification';
+    const hashSignature = foundData.hash_signature || foundData.hashSignature || '8f3a9e120bc741a8d0521e90b6a718cf3a89045b';
+
+    const isApproved = status === 'APPROVED' || String(status).includes('Approved') || String(status).includes('Active');
+    const isRejected = String(status).includes('Rejected');
+
+    setResult({
+      id: trackingId,
+      company: companyName,
+      gstin: gstin,
+      category: category,
+      submittedDate: formattedDate,
+      stage: currentStage,
+      status: status,
+      hashSignature: hashSignature,
+      fullData: foundData,
+      steps: [
+        { label: 'Application Filed & SHA-256 Hash Generated', desc: `Filed on ${formattedDate} (Verified Audit Trail)`, done: true },
+        { label: 'GSTIN REG-06 & MCA Statutory Audit', desc: 'Statutory tax identity & PAN verification cleared', done: true },
+        { label: currentStage, desc: isApproved ? 'Audit Completed & Tier Assigned' : isRejected ? 'Committee Audit Concluded' : 'Reviewing 3-year turnovers & technical capability', done: isApproved, active: !isApproved && !isRejected },
+        { label: 'Empanelment Tier Classification & Certificate Issue', desc: isApproved ? 'Class-A / B Tier Certificate Active' : 'Class-A / Class-B Tier Rating assignment', done: isApproved },
+        { label: 'Active Bidding Clearance & Tender Onboarding', desc: isApproved ? 'Authorized for active tenders' : 'Qualified for active Hindustan Projects tenders', done: isApproved }
+      ]
+    });
+    setLoading(false);
   };
 
   return (
-    <div style={{ maxWidth: 920, margin: '2.5rem auto 4rem auto', padding: '0 1.5rem' }}>
-      <div className="form-card" style={{ padding: '2.25rem' }}>
+    <div className="track-page-container">
+      <div className="track-form-card">
         
-        {/* Header Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.75rem', paddingBottom: '1.25rem', borderBottom: '2px solid var(--border-color)' }}>
-          <div style={{ padding: '0.85rem', borderRadius: 14, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB' }}>
-            <Search style={{ width: 30, height: 30 }} />
+        {/* Header */}
+        <div className="track-header-wrap">
+          <div style={{ padding: '0.85rem', borderRadius: 14, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', flexShrink: 0 }}>
+            <Search style={{ width: 28, height: 28 }} />
           </div>
           <div>
             <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               HINDUSTAN PROJECTS • CORPORATE PROCUREMENT PORTAL
             </div>
-            <h1 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#0F172A', marginTop: 2, marginBottom: 2 }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: 2, marginBottom: 2 }}>
               Track Vendor Empanelment Application Status
             </h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Real-time 5-stage verification audit tracker for contractors, consultants & suppliers.
+              Real-time 5-stage verification audit tracker for contractors, consultants &amp; suppliers.
             </p>
           </div>
         </div>
@@ -244,17 +271,17 @@ export default function TrackPage() {
             <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 800 }}>
               Enter Tracking Reference Code, 15-Digit GSTIN, or Registered Email Address:
             </label>
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div className="track-search-row">
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="e.g. HP-EMP-025 or 08HYJPK8847M1ZC or contact@builder.com"
                 className="form-input"
-                style={{ flex: '1 1 240px', width: '100%', fontSize: '0.95rem', fontWeight: 700 }}
+                style={{ flex: '1 1 240px', fontSize: '0.95rem', fontWeight: 700 }}
                 required
               />
-              <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '0.75rem 1.75rem', flex: '1 1 140px', justifyContent: 'center' }}>
+              <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '0.75rem 1.75rem', justifyContent: 'center' }}>
                 {loading ? 'Searching...' : 'Search Status'}
               </button>
             </div>
@@ -340,7 +367,7 @@ export default function TrackPage() {
                 <span>Submit New Application</span>
               </Link>
               
-              <a href="mailto:empanelment@hindustanprojects.in" className="btn-secondary" style={{ flex: 1, justifyContent: 'center', padding: '0.65rem 1rem' }}>
+              <a href="mailto:industrial@hindustanprojects.in" className="btn-secondary" style={{ flex: 1, justifyContent: 'center', padding: '0.65rem 1rem' }}>
                 <PhoneCall style={{ width: 16, height: 16, color: '#0047AB' }} />
                 <span>Contact Procurement Officer (+91-7597000601)</span>
               </a>
@@ -355,63 +382,60 @@ export default function TrackPage() {
             <div>
 
               {/* ══ BIG QR VERIFICATION STATUS HERO CARD ══ */}
-              <div style={{ borderRadius: 20, overflow: 'hidden', marginBottom: '1.25rem', boxShadow: '0 20px 50px rgba(0,0,0,0.2)', border: `2px solid ${vs.borderColor}` }}>
+              <div className="track-status-hero" style={{ border: `2px solid ${vs.borderColor}` }}>
                 
                 {/* Status Banner */}
-                <div style={{ background: vs.bgGradient, padding: '1.75rem 2rem', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <div className="track-status-banner" style={{ background: vs.bgGradient }}>
                   {/* Big status icon */}
-                  <div style={{ width: 72, height: 72, borderRadius: '50%', background: vs.badgeBg, border: `3px solid ${vs.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {vs.icon === 'VERIFIED' && <ShieldCheck style={{ width: 36, height: 36, color: vs.borderColor }} />}
-                    {vs.icon === 'SUSPENDED' && <PauseCircle style={{ width: 36, height: 36, color: vs.borderColor }} />}
-                    {vs.icon === 'TERMINATED' && <Ban style={{ width: 36, height: 36, color: vs.borderColor }} />}
-                    {vs.icon === 'REJECTED' && <XCircle style={{ width: 36, height: 36, color: vs.borderColor }} />}
-                    {vs.icon === 'PENDING' && <Clock style={{ width: 36, height: 36, color: vs.borderColor }} />}
+                  <div style={{ width: 64, height: 64, borderRadius: '50%', background: vs.badgeBg, border: `3px solid ${vs.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {vs.icon === 'VERIFIED' && <ShieldCheck style={{ width: 32, height: 32, color: vs.borderColor }} />}
+                    {vs.icon === 'SUSPENDED' && <PauseCircle style={{ width: 32, height: 32, color: vs.borderColor }} />}
+                    {vs.icon === 'TERMINATED' && <Ban style={{ width: 32, height: 32, color: vs.borderColor }} />}
+                    {vs.icon === 'REJECTED' && <XCircle style={{ width: 32, height: 32, color: vs.borderColor }} />}
+                    {vs.icon === 'PENDING' && <Clock style={{ width: 32, height: 32, color: vs.borderColor }} />}
                   </div>
 
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                       {vs.headline}
                     </div>
-                    <div style={{ fontSize: '0.83rem', color: vs.badgeColor, marginTop: '0.4rem', lineHeight: 1.5, maxWidth: 560 }}>
+                    <div style={{ fontSize: '0.8rem', color: vs.badgeColor, marginTop: '0.35rem', lineHeight: 1.5 }}>
                       {vs.subline}
                     </div>
                   </div>
 
                   {/* Vendor ID pill */}
-                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: 12, padding: '0.65rem 1.1rem', border: `1px solid ${vs.borderColor}` }}>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 800, color: vs.badgeColor, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Vendor ID</div>
-                    <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#FFFFFF', fontSize: '1rem', marginTop: 2 }}>{result.id}</div>
+                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: 12, padding: '0.55rem 0.95rem', border: `1px solid ${vs.borderColor}` }}>
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: vs.badgeColor, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Vendor ID</div>
+                    <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#FFFFFF', fontSize: '0.95rem', marginTop: 2 }}>{result.id}</div>
                   </div>
                 </div>
 
                 {/* Vendor Details Row */}
-                <div style={{ background: '#FFFFFF', padding: '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', borderBottom: `1px solid ${vs.borderColor}` }}>
+                <div style={{ background: 'var(--bg-card)', padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', borderBottom: `1px solid var(--border-color)` }}>
                   <div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>{result.company}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: 2 }}>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--text-primary)' }}>{result.company}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>
                       GSTIN: <strong style={{ fontFamily: 'monospace' }}>{result.gstin}</strong> &nbsp;•&nbsp; Category: <strong>{result.category}</strong> &nbsp;•&nbsp; Filed: <strong>{result.submittedDate}</strong>
                     </div>
                   </div>
-                  {/* Action Buttons — only for valid records */}
+                  {/* Action Buttons */}
                   {result.fullData && (
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <button onClick={() => setShowReceiptModal(true)} className="btn-secondary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}>
                         <Printer style={{ width: 14, height: 14 }} />
-                        <span>Print Dossier</span>
-                      </button>
-                      <button onClick={() => setShowIdCardModal(true)} className="btn-accent" style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}>
-                        <span>🪪 Smart ID Card</span>
+                        <span>Print Application Dossier</span>
                       </button>
                     </div>
                   )}
                 </div>
 
                 {/* Scanner Advisory Box */}
-                <div style={{ background: vs.scannerColor, padding: '1rem 2rem', borderTop: `1.5px solid ${vs.scannerBorder}`, display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <div style={{ background: vs.scannerColor, padding: '1rem 1.5rem', borderTop: `1.5px solid ${vs.scannerBorder}`, display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                   <Shield style={{ width: 18, height: 18, color: '#374151', flexShrink: 0, marginTop: 2 }} />
                   <div>
                     <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>📱 Scanner Advisory — Hindustan Projects Verification System</div>
-                    <div style={{ fontSize: '0.83rem', fontWeight: 700, color: '#1F2937', lineHeight: 1.5 }}>{vs.scannerMsg}</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1F2937', lineHeight: 1.5 }}>{vs.scannerMsg}</div>
                   </div>
                 </div>
               </div>
@@ -471,7 +495,7 @@ export default function TrackPage() {
             <Mail style={{ width: 18, height: 18, color: '#ED1C24' }} />
             <div>
               <strong style={{ display: 'block', color: '#0F172A' }}>Corporate Email</strong>
-              <span style={{ color: 'var(--text-muted)' }}>empanelment@hindustanprojects.in</span>
+              <span style={{ color: 'var(--text-muted)' }}>industrial@hindustanprojects.in</span>
             </div>
           </div>
 
@@ -493,15 +517,6 @@ export default function TrackPage() {
           onClose={() => setShowReceiptModal(false)}
           trackingId={result.id}
           formData={result.fullData}
-        />
-      )}
-
-      {/* Printable Vendor Smart ID Card Modal */}
-      {showIdCardModal && result?.fullData && (
-        <VendorIdCardModal
-          isOpen={showIdCardModal}
-          onClose={() => setShowIdCardModal(false)}
-          vendorData={result.fullData}
         />
       )}
     </div>

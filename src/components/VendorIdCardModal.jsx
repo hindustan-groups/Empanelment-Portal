@@ -2,43 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { X, Printer, ShieldCheck, Edit3, Lock, Check } from 'lucide-react';
 import { printCard } from '../utils/printCard';
 
-export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin = false }) {
+export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin = false, onPhotoUpdate }) {
+  const [editMode, setEditMode] = useState(false);
+  const [cardData, setCardData] = useState({});
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'assembly_demo'
+
+  useEffect(() => {
+    if (!vendorData) return;
+    const getPhoto = (data) => {
+      if (!data) return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+      return data.passportPhoto || data.photo_url || data.photoUrl || data.photo || data.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+    };
+
+    setCardData({
+      name: vendorData.contactName || vendorData.contact_name || vendorData.company_name || vendorData.name || 'MOHMMAD DILSHAN',
+      designation: vendorData.designation || vendorData.primary_role || vendorData.category || 'Empanelled Vendor Signatory',
+      vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
+      department: vendorData.department || vendorData.category || vendorData.primary_role || 'Procurement & Contracting',
+      bloodGroup: vendorData.bloodGroup || vendorData.blood_group || 'N/A (Verified Vendor)',
+      photoUrl: getPhoto(vendorData),
+      address: vendorData.corporateAddress || vendorData.address || 'Bhilwara - 311001, Rajasthan, India',
+      phone: vendorData.helplinePhone || vendorData.phone || '+91 7597000601',
+      email: vendorData.corporateEmail || vendorData.email || 'industrial@hindustanprojects.in',
+      website: 'www.empanelment.hindustanprojects.in'
+    });
+  }, [vendorData]);
+
   if (!isOpen || !vendorData) return null;
 
   // Determine if vendor empanelment status is APPROVED
   const isApproved = vendorData.status === 'APPROVED' || vendorData.isApproved !== false || String(vendorData.status).includes('Approved');
-
-  // Auto-populated ID Card fields directly from verified empanelment data
-  const defaultCardData = {
-    name: vendorData.contactName || vendorData.contact_name || vendorData.company_name || vendorData.name || 'MOHMMAD DILSHAN',
-    designation: vendorData.designation || vendorData.primary_role || vendorData.category || 'Empanelled Vendor',
-    vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
-    department: vendorData.department || vendorData.category || vendorData.primary_role || 'Procurement & Engineering',
-    bloodGroup: vendorData.bloodGroup || vendorData.blood_group || 'B+',
-    photoUrl: vendorData.passportPhoto || vendorData.photo_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
-    address: vendorData.corporateAddress || vendorData.address || 'Bhilwara - 311001, Rajasthan, India',
-    phone: vendorData.helplinePhone || vendorData.phone || '+91 7597000601',
-    email: vendorData.corporateEmail || vendorData.email || 'info@hindustanprojects.in',
-    website: 'hindustanprojects.in'
-  };
-
-  const [editMode, setEditMode] = useState(false);
-  const [cardData, setCardData] = useState(defaultCardData);
-
-  useEffect(() => {
-    setCardData({
-      name: vendorData.contactName || vendorData.contact_name || vendorData.company_name || vendorData.name || 'MOHMMAD DILSHAN',
-      designation: vendorData.designation || vendorData.primary_role || vendorData.category || 'Empanelled Vendor',
-      vendorId: vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || 'HP-EMP-025',
-      department: vendorData.department || vendorData.category || vendorData.primary_role || 'Procurement & Engineering',
-      bloodGroup: vendorData.bloodGroup || vendorData.blood_group || 'B+',
-      photoUrl: vendorData.passportPhoto || vendorData.photo_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
-      address: vendorData.corporateAddress || vendorData.address || 'Bhilwara - 311001, Rajasthan, India',
-      phone: vendorData.helplinePhone || vendorData.phone || '+91 7597000601',
-      email: vendorData.corporateEmail || vendorData.email || 'info@hindustanprojects.in',
-      website: 'hindustanprojects.in'
-    });
-  }, [vendorData]);
 
   const handleFieldChange = (field, value) => {
     setCardData(prev => ({ ...prev, [field]: value }));
@@ -49,7 +42,48 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin
     if (file) {
       const reader = new FileReader();
       reader.onload = (evt) => {
-        setCardData(prev => ({ ...prev, photoUrl: evt.target.result }));
+        const newPhoto = evt.target.result;
+        setCardData(prev => ({ ...prev, photoUrl: newPhoto }));
+
+        if (vendorData) {
+          const targetId = vendorData.trackingId || vendorData.tracking_id || vendorData.vendorId || vendorData.id;
+          
+          // 1. Update in hipro_vps_applications
+          try {
+            const allApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
+            const updatedApps = allApps.map(app => {
+              if (app.tracking_id === targetId || app.trackingId === targetId || (app.gstin && app.gstin === vendorData.gstin)) {
+                return { ...app, passportPhoto: newPhoto, photo_url: newPhoto, photoUrl: newPhoto };
+              }
+              return app;
+            });
+            localStorage.setItem('hipro_vps_applications', JSON.stringify(updatedApps));
+          } catch (err) { console.warn(err); }
+
+          // 2. Update in hipro_approved_vendors
+          try {
+            const approved = JSON.parse(localStorage.getItem('hipro_approved_vendors') || '[]');
+            const updatedApproved = approved.map(app => {
+              if (app.tracking_id === targetId || app.trackingId === targetId || (app.gstin && app.gstin === vendorData.gstin)) {
+                return { ...app, passportPhoto: newPhoto, photo_url: newPhoto, photoUrl: newPhoto };
+              }
+              return app;
+            });
+            localStorage.setItem('hipro_approved_vendors', JSON.stringify(updatedApproved));
+          } catch (err) { console.warn(err); }
+
+          // 3. Update active session if logged in vendor
+          try {
+            const session = JSON.parse(localStorage.getItem('hipro_vendor_session') || '{}');
+            if (session && (session.tracking_id === targetId || session.trackingId === targetId || session.gstin === vendorData.gstin)) {
+              localStorage.setItem('hipro_vendor_session', JSON.stringify({
+                ...session, passportPhoto: newPhoto, photo_url: newPhoto, photoUrl: newPhoto
+              }));
+            }
+          } catch (err) { console.warn(err); }
+
+          if (onPhotoUpdate) onPhotoUpdate(newPhoto);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -58,8 +92,6 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin
   // QR Code URL — scans open live /track page with vendor ID auto-searched
   const liveBaseUrl = 'https://www.empanelment.hindustanprojects.in';
   const qrVerificationUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${liveBaseUrl}/track?id=${cardData.vendorId}`)}`;
-
-  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'assembly_demo'
 
   const handlePrint = () => {
     printCard('printable-id-card-element', `Smart PVC ID Card - ${cardData.vendorId}`);

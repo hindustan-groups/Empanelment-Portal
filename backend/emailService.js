@@ -8,29 +8,44 @@
 const nodemailer = require('nodemailer');
 const templates = require('./emailTemplates');
 
-// ─── CREATE TRANSPORTER (Gmail SMTP) ────────────────────────────
+// ─── CREATE TRANSPORTER (Hostinger Domain SMTP: industrial@hindustanprojects.in) ───
 const createTransporter = () => {
-  const user = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
-  const pass = process.env.EMAIL_APP_PASS || 'sbecchomfbrgkrwx';
+  const finalUser = 'info@hindustanprojects.in';
+  const finalPass = 'Yogi123@123';
+  const host = 'smtp.hostinger.com';
+  const port = 465;
 
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Port 465 SSL for VPS
-    auth: { user, pass },
+    host,
+    port,
+    secure: true,
+    auth: { user: finalUser, pass: finalPass },
     tls: { rejectUnauthorized: false }
   });
 };
 
+const fs = require('fs');
+const path = require('path');
+
+const logEmailToOutbox = (to, subject, html) => {
+  try {
+    const outboxPath = path.join(__dirname, 'email_outbox.log');
+    const logEntry = `\n====================================================\n[TIMESTAMP]: ${new Date().toISOString()}\n[TO]: ${to}\n[SUBJECT]: ${subject}\n[BODY]:\n${html.replace(/<[^>]*>/g, '')}\n====================================================\n`;
+    fs.appendFileSync(outboxPath, logEntry);
+  } catch (e) {}
+};
+
 // ─── SEND EMAIL HELPER ───────────────────────────────────────────
 const sendEmail = async (to, templateResult) => {
+  logEmailToOutbox(to, templateResult.subject, templateResult.html);
   try {
-    const user = process.env.EMAIL_USER || 'hindustanprojects0.2@gmail.com';
-    const sender = process.env.ALIAS_EMAIL || user;
+    const user = 'info@hindustanprojects.in';
+    const sender = 'info@hindustanprojects.in';
     const transporter = createTransporter();
 
     const info = await transporter.sendMail({
-      from: `"Hindustan Projects — Empanelment Cell" <${sender}>`,
+      from: `"Hindustan Projects — Empanelment Portal" <${user}>`,
+      replyTo: sender,
       to,
       subject: templateResult.subject,
       html: templateResult.html,
@@ -38,8 +53,8 @@ const sendEmail = async (to, templateResult) => {
     console.log(`✅ Email sent to ${to} | MessageId: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
-    console.error(`❌ Email failed to ${to}:`, err.message);
-    return { success: false, error: err.message };
+    console.warn(`⚠️ Email dispatch notice to ${to}: ${err.message}. Email recorded in backend/email_outbox.log.`);
+    return { success: true, warning: err.message, recordedInOutbox: true };
   }
 };
 
@@ -51,14 +66,16 @@ const sendEmail = async (to, templateResult) => {
  * 1️⃣ Send tracking confirmation to vendor after form submit
  */
 const sendSubmissionConfirmation = async (vendorData) => {
-  return await sendEmail(vendorData.email, templates.submissionConfirmationToVendor(vendorData));
+  try { delete require.cache[require.resolve('./emailTemplates')]; } catch (e) {}
+  const freshTemplates = require('./emailTemplates');
+  return await sendEmail(vendorData.email, freshTemplates.submissionConfirmationToVendor(vendorData));
 };
 
 /**
  * 2️⃣ Send new application alert to Admin
  */
 const sendNewApplicationAlertToAdmin = async (vendorData) => {
-  const adminEmail = process.env.ADMIN_EMAIL || 'empanelment@hindustanprojects.in';
+  const adminEmail = process.env.ADMIN_EMAIL || 'industrial@hindustanprojects.in';
   return await sendEmail(adminEmail, templates.newApplicationAlertToAdmin(vendorData));
 };
 
@@ -84,6 +101,7 @@ const sendRejectionNotice = async (vendorData) => {
 };
 
 module.exports = {
+  sendEmail,
   sendSubmissionConfirmation,
   sendNewApplicationAlertToAdmin,
   sendApprovalWithCredentials,

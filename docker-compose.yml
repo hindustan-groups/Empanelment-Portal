@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  empanelment-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hipro-empanelment-app
+    restart: always
+    ports:
+      - "9000:9000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/empanelment.db:/app/backend/empanelment.db
+      - ./backend/uploads:/app/backend/uploads
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

@@ -24,13 +24,13 @@ export default function Home({ selectedCategory, setSelectedCategory }) {
 
 
       {/* 4-Step Empanelment Journey Workflow */}
-      <div style={{ maxWidth: 1200, margin: '2.5rem auto 3.5rem auto', padding: '0 1.5rem' }}>
+      <div className="home-section-wrapper">
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.85rem', borderRadius: 9999, backgroundColor: 'rgba(0, 71, 171, 0.08)', color: '#0047AB', fontSize: '0.775rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
             <CheckCircle2 style={{ width: 14, height: 14, color: '#10B981' }} />
             <span>Fast-Track Corporate Onboarding</span>
           </div>
-          <h3 style={{ fontSize: '1.85rem', fontWeight: 900, letterSpacing: '-0.5px' }}>
+          <h3 className="home-section-title">
             Transparent 4-Stage Verification Workflow
           </h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
@@ -38,7 +38,7 @@ export default function Home({ selectedCategory, setSelectedCategory }) {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+        <div className="workflow-grid">
           {[
             { num: '01', title: 'Entity Selection & Profile', desc: 'Select Sole Proprietor or Corporate Firm type. Fill contact details and primary discipline.', color: '#0047AB', bg: 'rgba(0, 71, 171, 0.08)' },
             { num: '02', title: 'Tax & GST Screening', desc: 'Verify 15-digit GSTIN and 10-character PAN card with automated statutory compliance check.', color: '#ED1C24', bg: 'rgba(237, 28, 36, 0.08)' },
@@ -57,8 +57,8 @@ export default function Home({ selectedCategory, setSelectedCategory }) {
       </div>
 
       {/* Quick Action Banner for Dedicated Form Page */}
-      <div style={{ maxWidth: 1200, margin: '0 auto 3.5rem auto', padding: '0 1.5rem' }}>
-        <div style={{ padding: '2.25rem 2.5rem', borderRadius: 24, background: 'linear-gradient(135deg, #002B66 0%, #0047AB 60%, #0F172A 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', boxShadow: '0 16px 40px rgba(0, 71, 171, 0.3)' }}>
+      <div className="home-section-wrapper">
+        <div className="home-cta-banner">
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#FCA5A5', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
               <Building2 style={{ width: 14, height: 14 }} />

@@ -5,7 +5,7 @@ import {
   CheckCircle2, Building2, Briefcase, UserCheck, Printer, 
   LogOut, Search, ExternalLink, FileCheck2, FolderCheck, ArrowRight, 
   X, HelpCircle, MessageSquarePlus, QrCode, FileSignature, 
-  Bell, Share2, Sun, Moon, Menu, Copy, ChevronRight, Check,
+  Bell, Share2, Menu, Copy, ChevronRight, Check,
   CreditCard, Shield, Download, RefreshCw, Calendar, Phone, Mail, MapPin
 } from 'lucide-react';
 import SuccessModal from '../components/SuccessModal';
@@ -13,6 +13,7 @@ import VendorIdCardModal from '../components/VendorIdCardModal';
 import GatePassModal from '../components/GatePassModal';
 import Logo from '../components/Logo';
 import { getEmpanelmentMode } from '../utils/printDossier';
+import { API_BASE_URL } from '../config/api';
 
 export default function VendorDashboardPage() {
   const navigate = useNavigate();
@@ -22,9 +23,6 @@ export default function VendorDashboardPage() {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'work_orders' | 'tenders' | 'payouts' | 'documents' | 'support'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return document.documentElement.classList.contains('dark') || localStorage.getItem('hipro_theme') === 'dark';
-  });
   const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
@@ -48,8 +46,8 @@ export default function VendorDashboardPage() {
   const [tenderCategoryFilter, setTenderCategoryFilter] = useState('all');
   const [woSearch, setWoSearch] = useState('');
 
-  /* Work Orders State */
-  const [workOrders] = useState([
+  /* Work Orders & Contracts State */
+  const [workOrders, setWorkOrders] = useState([
     { code: 'HP-WO-2026-081', project: 'Jaipur Commercial Tower (B+G+18)', package: 'Turnkey RCC Structural Package', val: '₹ 14.50 Cr', startDate: '01 Jun 2026', endDate: '30 May 2027', status: 'IN EXECUTION', progress: 35 },
     { code: 'HP-WO-2026-042', project: 'Bhilwara Industrial Park Site-2', package: 'Site Ground Leveling & Substructure', val: '₹ 3.20 Cr', startDate: '15 Jan 2026', endDate: '10 May 2026', status: 'COMPLETED', progress: 100 }
   ]);
@@ -62,8 +60,8 @@ export default function VendorDashboardPage() {
     return JSON.parse(localStorage.getItem('hipro_vendor_submitted_bids') || '[]');
   });
 
-  /* Live Tenders */
-  const [liveTenders] = useState(() => {
+  /* Live Tenders State */
+  const [liveTenders, setLiveTenders] = useState(() => {
     const saved = localStorage.getItem('hipro_tenders');
     if (saved) {
       try {
@@ -119,18 +117,7 @@ export default function VendorDashboardPage() {
     ];
   });
 
-  // Dark Mode
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('hipro_theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('hipro_theme', 'light');
-    }
-  }, [isDarkMode]);
-
-  // Session
+  // Session Authentication
   useEffect(() => {
     const session = localStorage.getItem('hipro_vendor_session');
     if (!session) {
@@ -151,6 +138,50 @@ export default function VendorDashboardPage() {
     }
   }, [navigate]);
 
+  // Sync with Backend API
+  useEffect(() => {
+    if (!vendor) return;
+
+    // Fetch Live Tenders from backend
+    fetch(`${API_BASE_URL}/api/tenders`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setLiveTenders(data.data.map(t => ({
+            ref: t.tender_no || t.id || 'HP-TND-2026-101',
+            title: t.title || 'Tender Notice',
+            val: t.estimated_value || '₹ 5.00 Cr',
+            location: t.location || 'Rajasthan Site',
+            end: t.due_date || '15 Aug 2026',
+            scope: t.category || 'Empanelled contractor package bidding.',
+            category: (t.category || t.title || '').toLowerCase().includes('electrical') ? 'electrical' : 
+                      (t.category || t.title || '').toLowerCase().includes('bim') || (t.category || t.title || '').toLowerCase().includes('hvac') ? 'mep' : 'civil'
+          })));
+        }
+      })
+      .catch(() => {});
+
+    // Fetch Invoices & Work Orders from backend
+    fetch(`${API_BASE_URL}/api/invoices?vendor_tracking_id=${vendor.tracking_id}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setWorkOrders(data.data.map(inv => ({
+            code: inv.work_order_no || `WO-${inv.id}`,
+            project: inv.work_order_no || 'Hindustan Projects Execution Contract',
+            package: `Milestone Claim: ${inv.invoice_no}`,
+            val: `₹ ${Number(inv.amount).toLocaleString('en-IN')}`,
+            startDate: inv.date || inv.created_at?.split('T')[0] || '01 Jun 2026',
+            endDate: '30 May 2027',
+            status: inv.status || 'IN EXECUTION',
+            progress: inv.status?.includes('PAID') || inv.status?.includes('RELEASED') ? 100 : 35
+          })));
+        }
+      })
+      .catch(() => {});
+  }, [vendor]);
+
+  /* Persist local state */
   useEffect(() => {
     localStorage.setItem('hipro_vendor_submitted_bids', JSON.stringify(submittedBids));
   }, [submittedBids]);
@@ -173,10 +204,6 @@ export default function VendorDashboardPage() {
     navigate('/vendor-login');
   };
 
-  const toggleTheme = () => {
-    setIsDarkMode(prev => !prev);
-  };
-
   const handleCreateBid = (e) => {
     e.preventDefault();
     if (!bidAmount) return;
@@ -193,9 +220,27 @@ export default function VendorDashboardPage() {
     showToast(`Bid for ${biddingTender.ref} submitted.`);
   };
 
-  const handleCreateInvoice = (e) => {
+  const handleCreateInvoice = async (e) => {
     e.preventDefault();
     if (!invoiceForm.invoiceNo || !invoiceForm.amt) return;
+
+    try {
+      await fetch(`${API_BASE_URL}/api/invoices`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoice_no: invoiceForm.invoiceNo,
+          vendor_tracking_id: vendor.tracking_id,
+          vendor_name: vendor.company_name || vendor.contact_name,
+          amount: invoiceForm.amt,
+          work_order_no: invoiceForm.milestone,
+          date: new Date().toLocaleDateString('en-IN')
+        })
+      });
+    } catch (err) {
+      console.warn('Invoice API notice:', err.message);
+    }
+
     const newInv = {
       id: invoiceForm.invoiceNo,
       milestone: invoiceForm.milestone,
@@ -210,11 +255,30 @@ export default function VendorDashboardPage() {
     showToast(`Invoice ${invoiceForm.invoiceNo} submitted.`);
   };
 
-  const handleCreateTicket = (e) => {
+  const handleCreateTicket = async (e) => {
     e.preventDefault();
     if (!ticketForm.query) return;
+
+    const tNo = `TCK-${Math.floor(10000 + Math.random() * 90000)}`;
+
+    try {
+      await fetch(`${API_BASE_URL}/api/tickets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticket_no: tNo,
+          vendor_tracking_id: vendor.tracking_id,
+          vendor_name: vendor.company_name || vendor.contact_name,
+          subject: `${ticketForm.category}: ${ticketForm.query.substring(0, 80)}`,
+          category: ticketForm.category
+        })
+      });
+    } catch (err) {
+      console.warn('Ticket API notice:', err.message);
+    }
+
     const newTck = {
-      ticket: `TCK-${Math.floor(10000 + Math.random() * 90000)}`,
+      ticket: tNo,
       subject: `${ticketForm.category}: ${ticketForm.query.substring(0, 45)}...`,
       status: 'OPEN',
       date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -1036,7 +1100,7 @@ export default function VendorDashboardPage() {
         {/* ════════════════ TAB 4: PAYOUTS ════════════════ */}
         {activeTab === 'payouts' && (
           <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'gap', gap: '0.5rem' }}>
               <div>
                 <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                   Milestone Payouts & RA Bill Clearance
