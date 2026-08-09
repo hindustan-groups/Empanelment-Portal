@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Award, FileText, Download, DollarSign, Clock, CheckCircle2, Building2, Briefcase, Lock, UserCheck, Printer, LogOut, Search, ExternalLink, FileCheck2, FolderCheck, ArrowRight, X, AlertCircle, HelpCircle, MessageSquarePlus, Send, Activity, ShieldAlert, QrCode, FileSignature, Bell } from 'lucide-react';
+import { 
+  ShieldCheck, Award, FileText, DollarSign, Clock, 
+  CheckCircle2, Building2, Briefcase, UserCheck, Printer, 
+  LogOut, Search, ExternalLink, FileCheck2, FolderCheck, ArrowRight, 
+  X, HelpCircle, MessageSquarePlus, QrCode, FileSignature, 
+  Bell, Share2, Menu, Copy, ChevronRight, Check,
+  CreditCard, Shield, Download, RefreshCw, Calendar, Phone, Mail, MapPin
+} from 'lucide-react';
 import SuccessModal from '../components/SuccessModal';
 import VendorIdCardModal from '../components/VendorIdCardModal';
 import GatePassModal from '../components/GatePassModal';
@@ -11,15 +18,41 @@ import { API_BASE_URL } from '../config/api';
 export default function VendorDashboardPage() {
   const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
-  /* Active Tab & Dynamic Modals State */
+  
+  /* Active Tab & Navigation */
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'work_orders' | 'tenders' | 'payouts' | 'documents' | 'support'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
+  const [toastMessage, setToastMessage] = useState('');
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  /* Modals */
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
   const [showGatePassModal, setShowGatePassModal] = useState(false);
-  
-  /* Work Orders & Contracts State */
-  const [workOrders, setWorkOrders] = useState([]);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showTicketModal, setShowTicketModal] = useState(false);
   const [biddingTender, setBiddingTender] = useState(null);
+
+  /* Search & Filter States */
+  const [tenderSearch, setTenderSearch] = useState('');
+  const [tenderCategoryFilter, setTenderCategoryFilter] = useState('all');
+  const [woSearch, setWoSearch] = useState('');
+
+  /* Work Orders & Contracts State */
+  const [workOrders, setWorkOrders] = useState([
+    { code: 'HP-WO-2026-081', project: 'Jaipur Commercial Tower (B+G+18)', package: 'Turnkey RCC Structural Package', val: '₹ 14.50 Cr', startDate: '01 Jun 2026', endDate: '30 May 2027', status: 'IN EXECUTION', progress: 35 },
+    { code: 'HP-WO-2026-042', project: 'Bhilwara Industrial Park Site-2', package: 'Site Ground Leveling & Substructure', val: '₹ 3.20 Cr', startDate: '15 Jan 2026', endDate: '10 May 2026', status: 'COMPLETED', progress: 100 }
+  ]);
+
+  /* Bidding Form State */
   const [bidAmount, setBidAmount] = useState('');
   const [bidRemarks, setBidRemarks] = useState('');
   const [bidSubmitted, setBidSubmitted] = useState(false);
@@ -27,31 +60,64 @@ export default function VendorDashboardPage() {
     return JSON.parse(localStorage.getItem('hipro_vendor_submitted_bids') || '[]');
   });
 
-  /* Live Tenders Synced from Admin Panel API */
-  const [liveTenders, setLiveTenders] = useState([]);
+  /* Live Tenders State */
+  const [liveTenders, setLiveTenders] = useState(() => {
+    const saved = localStorage.getItem('hipro_tenders');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(t => ({
+            ref: t.id || t.ref || 'HP-TND-2026-101',
+            title: t.title || 'Tender Notice',
+            val: t.estimatedCost || t.val || '₹ 5.00 Cr',
+            location: t.location || 'Rajasthan Site',
+            end: t.dueDate || t.end || '15 Aug 2026',
+            scope: t.eligibility || t.scope || 'Empanelled contractor package bidding.',
+            category: (t.category || t.title || '').toLowerCase().includes('electrical') ? 'electrical' : 
+                      (t.category || t.title || '').toLowerCase().includes('bim') || (t.category || t.title || '').toLowerCase().includes('hvac') ? 'mep' : 'civil'
+          }));
+        }
+      } catch {}
+    }
+    return [
+      { ref: 'HP-TND-2026-101', title: 'Jaipur Commercial Tower — Turnkey Civil & Structural Package', val: '₹ 14.50 Cr', location: 'Jaipur, Rajasthan', end: '08 Aug 2026', scope: 'RCC superstructure, basement waterproofing, and structural fabrication.', category: 'civil' },
+      { ref: 'HP-TND-2026-102', title: 'Bhilwara Industrial Park — High-Tension Electrical & Substation Installation', val: '₹ 3.80 Cr', location: 'Bhilwara, Rajasthan', end: '12 Aug 2026', scope: '11kV Substation installation, HT cable laying, transformer commissioning.', category: 'electrical' },
+      { ref: 'HP-TND-2026-103', title: 'Luxury Township — BIM Architectural & HVAC Consultancy', val: '₹ 1.20 Cr', location: 'Udaipur, Rajasthan', end: '15 Aug 2026', scope: 'Revit 3D BIM modeling, VRF HVAC layout design, fire safety documentation.', category: 'mep' }
+    ];
+  });
 
-  /* Invoices & Payouts State */
-  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  /* Invoices State */
   const [invoiceForm, setInvoiceForm] = useState({ invoiceNo: '', milestone: 'Milestone 1: Progress Claim', amt: '', file: null });
   const [invoiceSubmitted, setInvoiceSubmitted] = useState(false);
   const [vendorInvoices, setVendorInvoices] = useState(() => {
     const saved = localStorage.getItem('hipro_vendor_invoices');
-    return saved ? JSON.parse(saved) : [];
+    return saved ? JSON.parse(saved) : [
+      { id: 'INV-2026-881', milestone: 'Milestone 1: Initial Setup Sign-Off', tranche: '30% Tranche', amt: '₹ 4,35,000', status: 'PAID (RTGS)', ref: 'RTGS-HDFC-99120', date: '28 Jul 2026' },
+      { id: 'INV-2026-894', milestone: 'Milestone 2: Material Inspection', tranche: '50% Tranche', amt: '₹ 7,25,000', status: 'IN AUDIT', ref: 'AUDIT-STAGE2', date: '05 Aug 2026' }
+    ];
   });
 
   /* Site Gate Passes State */
-  const [sitePasses, setSitePasses] = useState(() => {
+  const [sitePasses] = useState(() => {
     const saved = localStorage.getItem('hipro_vendor_site_passes');
-    return saved ? JSON.parse(saved) : [];
+    return saved ? JSON.parse(saved) : [
+      { passCode: 'HP-PASS-2026-8812', visitorName: 'Ramesh Kumar', workerCount: '15', vehicleNo: 'RJ 06 GB 1234', validityDays: '1 Day', siteLocation: 'Jaipur Commercial Tower', date: '01 Aug 2026', validTill: '02 Aug 2026 23:59 IST' }
+    ];
   });
-  const [showTicketModal, setShowTicketModal] = useState(false);
-  const [ticketForm, setTicketForm] = useState({ category: 'Construction Site Gate Pass Request', query: '' });
+
+  /* Support Tickets State */
+  const [ticketForm, setTicketForm] = useState({ category: 'Site Gate Pass Request', query: '' });
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
   const [vendorTickets, setVendorTickets] = useState(() => {
     const saved = localStorage.getItem('hipro_vendor_tickets');
-    return saved ? JSON.parse(saved) : [];
+    return saved ? JSON.parse(saved) : [
+      { ticket: 'TCK-99201', subject: 'Site Entry Gate Pass Request (Jaipur Tower)', status: 'RESOLVED', date: '27 Jul 2026' },
+      { ticket: 'TCK-99145', subject: 'GFC Structural Drawing Clarification', status: 'IN PROGRESS', date: '28 Jul 2026' }
+    ];
   });
 
+  // Session Authentication
   useEffect(() => {
     const session = localStorage.getItem('hipro_vendor_session');
     if (!session) {
@@ -60,7 +126,6 @@ export default function VendorDashboardPage() {
     }
     try {
       const parsed = JSON.parse(session);
-      // Fetch latest data from stored applications if available
       const allApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
       const match = allApps.find(app => app.tracking_id === parsed.tracking_id || app.gstin === parsed.gstin);
       if (match) {
@@ -73,46 +138,50 @@ export default function VendorDashboardPage() {
     }
   }, [navigate]);
 
+  // Sync with Backend API
   useEffect(() => {
     if (!vendor) return;
+
+    // Fetch Live Tenders from backend
     fetch(`${API_BASE_URL}/api/tenders`)
       .then(r => r.json())
       .then(data => {
-        if (data.success && Array.isArray(data.data)) {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
           setLiveTenders(data.data.map(t => ({
-            ref: t.tender_no || t.id,
-            title: t.title,
-            val: t.estimated_value || '₹ TBD',
-            location: t.location || 'Rajasthan',
-            end: t.due_date || 'Open',
-            scope: t.category || 'Empanelled vendor opportunity',
-            status: (t.status || 'ACTIVE').toUpperCase()
+            ref: t.tender_no || t.id || 'HP-TND-2026-101',
+            title: t.title || 'Tender Notice',
+            val: t.estimated_value || '₹ 5.00 Cr',
+            location: t.location || 'Rajasthan Site',
+            end: t.due_date || '15 Aug 2026',
+            scope: t.category || 'Empanelled contractor package bidding.',
+            category: (t.category || t.title || '').toLowerCase().includes('electrical') ? 'electrical' : 
+                      (t.category || t.title || '').toLowerCase().includes('bim') || (t.category || t.title || '').toLowerCase().includes('hvac') ? 'mep' : 'civil'
           })));
         }
       })
       .catch(() => {});
 
-    // Fetch vendor work orders from backend
+    // Fetch Invoices & Work Orders from backend
     fetch(`${API_BASE_URL}/api/invoices?vendor_tracking_id=${vendor.tracking_id}`)
       .then(r => r.json())
       .then(data => {
         if (data.success && Array.isArray(data.data) && data.data.length > 0) {
           setWorkOrders(data.data.map(inv => ({
             code: inv.work_order_no || `WO-${inv.id}`,
-            project: inv.work_order_no || 'Hindustan Projects Work Order',
-            package: `Invoice: ${inv.invoice_no}`,
+            project: inv.work_order_no || 'Hindustan Projects Execution Contract',
+            package: `Milestone Claim: ${inv.invoice_no}`,
             val: `₹ ${Number(inv.amount).toLocaleString('en-IN')}`,
-            startDate: inv.date || inv.created_at?.split('T')[0] || '—',
-            endDate: '—',
-            status: inv.status || 'UNDER REVIEW',
-            progress: inv.status?.includes('RELEASED') ? '100%' : '—'
+            startDate: inv.date || inv.created_at?.split('T')[0] || '01 Jun 2026',
+            endDate: '30 May 2027',
+            status: inv.status || 'IN EXECUTION',
+            progress: inv.status?.includes('PAID') || inv.status?.includes('RELEASED') ? 100 : 35
           })));
         }
       })
       .catch(() => {});
   }, [vendor]);
 
-  /* Persist local state changes */
+  /* Persist local state */
   useEffect(() => {
     localStorage.setItem('hipro_vendor_submitted_bids', JSON.stringify(submittedBids));
   }, [submittedBids]);
@@ -124,6 +193,11 @@ export default function VendorDashboardPage() {
   useEffect(() => {
     localStorage.setItem('hipro_vendor_tickets', JSON.stringify(vendorTickets));
   }, [vendorTickets]);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('hipro_vendor_session');
@@ -137,12 +211,13 @@ export default function VendorDashboardPage() {
       ref: biddingTender.ref,
       title: biddingTender.title,
       amount: bidAmount,
-      remarks: bidRemarks || 'Commercial bid submitted with 100% EMD waiver.',
+      remarks: bidRemarks || 'Commercial bid submitted.',
       date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
-      status: 'UNDER COMMITTEE AUDIT ⏳'
+      status: 'UNDER REVIEW'
     };
     setSubmittedBids(prev => [newBid, ...prev]);
     setBidSubmitted(true);
+    showToast(`Bid for ${biddingTender.ref} submitted.`);
   };
 
   const handleCreateInvoice = async (e) => {
@@ -171,12 +246,13 @@ export default function VendorDashboardPage() {
       milestone: invoiceForm.milestone,
       tranche: 'Progress Claim',
       amt: `₹ ${Number(invoiceForm.amt).toLocaleString('en-IN')}`,
-      status: 'IN FINANCE AUDIT ⏳',
+      status: 'IN AUDIT',
       ref: `REF-${Math.floor(100000 + Math.random() * 900000)}`,
       date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     };
     setVendorInvoices(prev => [newInv, ...prev]);
     setInvoiceSubmitted(true);
+    showToast(`Invoice ${invoiceForm.invoiceNo} submitted.`);
   };
 
   const handleCreateTicket = async (e) => {
@@ -204,386 +280,613 @@ export default function VendorDashboardPage() {
     const newTck = {
       ticket: tNo,
       subject: `${ticketForm.category}: ${ticketForm.query.substring(0, 45)}...`,
-      status: 'OPEN & ASSIGNED ⏳',
+      status: 'OPEN',
       date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     };
     setVendorTickets(prev => [newTck, ...prev]);
     setTicketSubmitted(true);
+    showToast('Support ticket logged.');
+  };
+
+  const handleShareGatePass = async (pass) => {
+    const text = `HINDUSTAN PROJECTS — SITE GATE PASS\n` +
+      `Pass Code: ${pass.passCode}\n` +
+      `Supervisor: ${pass.visitorName}\n` +
+      `Workers: ${pass.workerCount}\n` +
+      `Vehicle: ${pass.vehicleNo}\n` +
+      `Site: ${pass.siteLocation}\n` +
+      `Valid Till: ${pass.validTill}\n` +
+      `Contractor: ${vendor?.company_name || 'Empanelled Vendor'}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `Gate Pass: ${pass.passCode}`, text });
+        showToast('Gate pass shared.');
+        return;
+      } catch (err) {
+        if (err.name !== 'AbortError') console.log(err);
+      }
+    }
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+  };
+
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text);
+    showToast(`${label} copied.`);
   };
 
   if (!vendor) return null;
 
+  // Filtered lists
+  const filteredTenders = liveTenders.filter(t => {
+    const matchesSearch = !tenderSearch || 
+      t.title.toLowerCase().includes(tenderSearch.toLowerCase()) ||
+      t.ref.toLowerCase().includes(tenderSearch.toLowerCase()) ||
+      t.location.toLowerCase().includes(tenderSearch.toLowerCase());
+    const matchesCategory = tenderCategoryFilter === 'all' || t.category === tenderCategoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  const filteredWorkOrders = workOrders.filter(wo => {
+    if (!woSearch) return true;
+    return wo.code.toLowerCase().includes(woSearch.toLowerCase()) ||
+      wo.project.toLowerCase().includes(woSearch.toLowerCase());
+  });
+
+  const navigationTabs = [
+    { id: 'overview', label: 'Overview', icon: Award, count: null },
+    { id: 'work_orders', label: 'Work Orders', icon: FileSignature, count: workOrders.length },
+    { id: 'tenders', label: 'Tenders', icon: Briefcase, count: liveTenders.length },
+    { id: 'payouts', label: 'Payouts', icon: DollarSign, count: null },
+    { id: 'documents', label: 'Documents', icon: FolderCheck, count: '4' },
+    { id: 'support', label: 'Helpdesk', icon: HelpCircle, count: null },
+  ];
+
+  // Company Initials
+  const companyInitials = (vendor.company_name || 'HP')
+    .split(' ')
+    .slice(0, 2)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase();
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="erp-portal" style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', paddingBottom: isMobile ? '5rem' : '2rem' }}>
       
-      {/* ════════════════ STANDALONE PORTAL TOP NAVBAR ════════════════ */}
-      <header className="vendor-dashboard-header" style={{
+      {/* Toast */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          bottom: isMobile ? '5rem' : '2rem',
+          right: isMobile ? '50%' : '2rem',
+          transform: isMobile ? 'translateX(50%)' : 'none',
+          zIndex: 99999,
+          backgroundColor: '#0F172A',
+          color: '#FFFFFF',
+          padding: '0.6rem 1.1rem',
+          borderRadius: 8,
+          fontSize: '0.8rem',
+          fontWeight: 600,
+          boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          border: '1px solid rgba(255,255,255,0.1)'
+        }}>
+          <Check style={{ width: 14, height: 14, color: '#10B981' }} />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* ════════════════ ENTERPRISE TOP NAVBAR ════════════════ */}
+      <header style={{
         backgroundColor: 'var(--bg-card)',
         borderBottom: '1px solid var(--border-color)',
-        padding: '0.85rem 1.75rem',
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        boxShadow: 'var(--shadow-sm)'
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
       }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', padding: isMobile ? '0.6rem 0.85rem' : '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           
-          {/* Top Row: Branding, Badges & Logout */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-            
-            {/* Left Branding Group */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
-              <Link to="/vendor-dashboard" style={{ textDecoration: 'none' }}>
-                <Logo height={38} />
-              </Link>
-              
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.01em' }}>
-                  HINDUSTAN PROJECTS
+          {/* Brand Group */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <Link to="/vendor-dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+              <Logo height={isMobile ? 22 : 26} showText={true} />
+            </Link>
+
+            {!isMobile && (
+              <span style={{
+                fontSize: '0.68rem',
+                fontWeight: 700,
+                color: '#0047AB',
+                backgroundColor: 'rgba(0,71,171,0.08)',
+                padding: '0.25rem 0.6rem',
+                borderRadius: 4,
+                border: '1px solid rgba(0,71,171,0.2)',
+                letterSpacing: '0.04em'
+              }}>
+                VENDOR PORTAL ERP
+              </span>
+            )}
+          </div>
+
+          {/* Right User & Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+
+            {!isMobile && (
+              <>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {vendor.company_name}
+                  </div>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                    Code: <strong style={{ color: '#0047AB' }}>{vendor.tracking_id}</strong>
+                  </div>
                 </div>
-                <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0047AB', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Corporate Procurement Portal
+
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    borderRadius: 6,
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: '#DC2626',
+                    backgroundColor: 'rgba(220,38,38,0.06)',
+                    border: '1px solid rgba(220,38,38,0.2)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
+                  }}
+                >
+                  <LogOut style={{ width: 13, height: 13 }} />
+                  <span>Sign Out</span>
+                </button>
+              </>
+            )}
+
+            {isMobile && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{
+                  fontFamily: 'monospace',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  color: '#0047AB',
+                  backgroundColor: 'rgba(0,71,171,0.08)',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: 5,
+                  border: '1px solid rgba(0,71,171,0.2)'
+                }}>
+                  {vendor.tracking_id}
+                </span>
+
+                <button
+                  onClick={() => setMobileMenuOpen(prev => !prev)}
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 7,
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: mobileMenuOpen ? '#0047AB' : 'var(--bg-surface)',
+                    color: mobileMenuOpen ? '#FFFFFF' : 'var(--text-primary)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {mobileMenuOpen ? <X style={{ width: 17, height: 17 }} /> : <Menu style={{ width: 17, height: 17 }} />}
+                </button>
+              </div>
+            )}
+
+          </div>
+        </div>
+
+        {/* Mobile Dropdown Drawer */}
+        {isMobile && mobileMenuOpen && (
+          <div style={{
+            padding: '1rem',
+            backgroundColor: 'var(--bg-surface)',
+            borderTop: '1px solid var(--border-color)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>{vendor.company_name}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Vendor Code: <strong style={{ fontFamily: 'monospace', color: '#0047AB' }}>{vendor.tracking_id}</strong> • <span style={{ color: '#047857', fontWeight: 700 }}>Tier-1 Active</span>
                 </div>
               </div>
-
-              {vendor && (
-                <div style={{ padding: '0.25rem 0.65rem', borderRadius: 99, background: 'rgba(0,71,171,0.08)', color: '#0047AB', fontSize: '0.725rem', fontWeight: 900, border: '1px solid rgba(0,71,171,0.25)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <span>{getEmpanelmentMode(vendor).badge}</span>
-                </div>
-              )}
-
-              <div style={{ padding: '0.25rem 0.65rem', borderRadius: 99, background: 'rgba(16,185,129,0.12)', color: '#047857', fontSize: '0.725rem', fontWeight: 900, border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <ShieldCheck style={{ width: 13, height: 13, color: '#10B981' }} />
-                <span>OFFICIAL VENDOR PORTAL</span>
-              </div>
-
-              <a href="https://www.hindustanprojects.in" target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', textDecoration: 'none', padding: '0.25rem 0.6rem', borderRadius: 8, backgroundColor: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                <span>🌐 Main Site</span>
-                <ExternalLink style={{ width: 12, height: 12 }} />
-              </a>
-            </div>
-
-            {/* Right User Status & Logout */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0F172A' }}>{vendor?.company_name}</div>
-                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Code: <strong>{vendor?.tracking_id}</strong></div>
-              </div>
-
               <button
                 onClick={handleLogout}
-                style={{
-                  padding: '0.45rem 0.8rem',
-                  borderRadius: 9,
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  color: '#ED1C24',
-                  background: 'rgba(237,28,36,0.08)',
-                  border: '1px solid rgba(237,28,36,0.2)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem'
-                }}
+                style={{ padding: '0.35rem 0.75rem', borderRadius: 6, fontSize: '0.725rem', fontWeight: 700, color: '#DC2626', background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
               >
-                <LogOut style={{ width: 14, height: 14 }} />
+                <LogOut style={{ width: 12, height: 12 }} />
                 <span>Sign Out</span>
               </button>
             </div>
 
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', paddingTop: '0.25rem' }}>
+              <button
+                onClick={() => { setShowIdCardModal(true); setMobileMenuOpen(false); }}
+                style={{ padding: '0.55rem', borderRadius: 6, background: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', cursor: 'pointer' }}
+              >
+                <UserCheck style={{ width: 14, height: 14, color: '#0047AB' }} />
+                <span>PVC ID Card</span>
+              </button>
+              <button
+                onClick={() => { setShowCertificateModal(true); setMobileMenuOpen(false); }}
+                style={{ padding: '0.55rem', borderRadius: 6, background: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', cursor: 'pointer' }}
+              >
+                <Printer style={{ width: 14, height: 14, color: '#0047AB' }} />
+                <span>A4 Certificate</span>
+              </button>
+            </div>
           </div>
+        )}
 
-          {/* Bottom Row: Centered Desktop Navigation Tabs */}
-          <div className="vendor-dashboard-tabs" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', borderTop: '1px solid var(--border-color)', paddingTop: '0.65rem' }}>
-            {[
-              { id: 'overview', label: '📊 Overview & Profile', icon: Award },
-              { id: 'work_orders', label: '📜 Work Orders & Contracts', icon: FileSignature },
-              { id: 'tenders', label: '🏗️ Active Tenders Radar', icon: Briefcase },
-              { id: 'payouts', label: '💰 Payouts & Invoices', icon: DollarSign },
-              { id: 'documents', label: '📂 Document Vault', icon: FolderCheck },
-              { id: 'support', label: '💬 Technical Support Desk', icon: HelpCircle },
-            ].map(tab => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  style={{
-                    padding: '0.45rem 0.95rem',
-                    borderRadius: 10,
-                    fontSize: '0.8rem',
-                    fontWeight: isActive ? 900 : 700,
-                    cursor: 'pointer',
-                    border: isActive ? '1.5px solid #0047AB' : '1px solid var(--border-color)',
-                    background: isActive ? '#0047AB' : 'var(--bg-surface)',
-                    color: isActive ? '#FFFFFF' : 'var(--text-primary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.35rem',
-                    boxShadow: isActive ? '0 4px 12px rgba(0,71,171,0.2)' : 'none',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-        </div>
+        {/* ════════════════ ENTERPRISE TAB BAR ════════════════ */}
+        <nav style={{
+          maxWidth: 1240,
+          margin: '0 auto',
+          padding: isMobile ? '0 0.5rem' : '0 1.5rem',
+          display: 'flex',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          gap: isMobile ? '0.25rem' : '0.5rem',
+          borderTop: '1px solid var(--border-color)',
+          backgroundColor: 'var(--bg-card)'
+        }}>
+          {navigationTabs.map(tab => {
+            const isActive = activeTab === tab.id;
+            const TabIcon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }}
+                style={{
+                  padding: isMobile ? '0.65rem 0.75rem' : '0.75rem 1rem',
+                  fontSize: '0.8rem',
+                  fontWeight: isActive ? 700 : 500,
+                  cursor: 'pointer',
+                  border: 'none',
+                  borderBottom: isActive ? '2px solid #0047AB' : '2px solid transparent',
+                  background: 'none',
+                  color: isActive ? '#0047AB' : 'var(--text-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  transition: 'color 0.15s ease'
+                }}
+              >
+                <TabIcon style={{ width: 14, height: 14, color: isActive ? '#0047AB' : 'var(--text-muted)' }} />
+                <span>{tab.label}</span>
+                {tab.count !== null && (
+                  <span style={{
+                    fontSize: '0.65rem',
+                    padding: '0.1rem 0.35rem',
+                    borderRadius: 4,
+                    background: isActive ? 'rgba(0,71,171,0.1)' : 'var(--bg-surface)',
+                    color: isActive ? '#0047AB' : 'var(--text-muted)',
+                    fontWeight: 700
+                  }}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
       </header>
 
-      {/* ════════════════ PORTAL MAIN BODY CONTENT ════════════════ */}
-      <main style={{ maxWidth: 1240, margin: '1.5rem auto 4rem auto', padding: '0 1.25rem' }}>
+      {/* ════════════════ MAIN CONTENT ════════════════ */}
+      <main style={{ maxWidth: 1240, margin: '1.25rem auto 2rem auto', padding: isMobile ? '0 1rem' : '0 1.5rem' }}>
         
-        {/* Action Notification Alert Strip */}
-        <div style={{ padding: '0.75rem 1.25rem', borderRadius: 12, background: 'rgba(0,71,171,0.06)', border: '1px solid rgba(0,71,171,0.2)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', fontWeight: 700, color: '#0047AB' }}>
-            <Bell style={{ width: 16, height: 16, color: '#0047AB' }} />
-            <span>
-              <strong>Live Procurement Alert:</strong>{' '}
-              {workOrders.filter(wo => wo.status && wo.status.includes('ACTIVE')).length > 0
-                ? `Work Order ${workOrders.find(wo => wo.status && wo.status.includes('ACTIVE'))?.code} is active. Daily site QR gate pass generation is open for site engineers.`
-                : 'Welcome to your Vendor Portal. Check Active Tenders for new bidding opportunities.'}
-            </span>
-          </div>
-          <button
-            onClick={() => setShowGatePassModal(true)}
-            style={{ padding: '0.3rem 0.75rem', borderRadius: 8, background: '#0047AB', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-          >
-            <QrCode style={{ width: 13, height: 13 }} />
-            <span>Generate Site Gate Pass</span>
-          </button>
-        </div>
-
-        {/* Executive Welcome Banner */}
-        <div className="vendor-welcome-banner" style={{
-          padding: '1.75rem 2rem',
-          borderRadius: 20,
-          background: 'linear-gradient(135deg, #0F172A 0%, #002B66 60%, #0047AB 100%)',
-          color: 'white',
-          marginBottom: '2rem',
-          boxShadow: 'var(--shadow-lg)',
+        {/* Executive Entity Profile Header */}
+        <div style={{
+          backgroundColor: 'var(--bg-card)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 12,
+          padding: isMobile ? '1.15rem' : '1.35rem 1.5rem',
+          marginBottom: '1.25rem',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1.25rem'
+          alignItems: isMobile ? 'flex-start' : 'center',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: '1rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: 52, height: 52, borderRadius: 16, backgroundColor: 'rgba(255, 255, 255, 0.15)', color: '#60A5FA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Building2 style={{ width: 28, height: 28 }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{
+              width: 44,
+              height: 44,
+              borderRadius: 8,
+              backgroundColor: '#0F172A',
+              color: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: '1rem',
+              letterSpacing: '0.05em',
+              flexShrink: 0
+            }}>
+              {companyInitials}
             </div>
+
             <div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                HINDUSTAN PROJECTS • EMPANELLED VENDOR PORTAL
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <h1 style={{ fontSize: isMobile ? '1.15rem' : '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                  {vendor.company_name}
+                </h1>
+                <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '0.15rem 0.45rem', borderRadius: 4, backgroundColor: 'rgba(16,185,129,0.1)', color: '#047857', border: '1px solid rgba(16,185,129,0.25)' }}>
+                  ACTIVE (FY 2026-27)
+                </span>
               </div>
-              <h1 className="vendor-welcome-title" style={{ fontSize: '1.65rem', fontWeight: 900, marginTop: 2, marginBottom: 2 }}>
-                {vendor.company_name}
-              </h1>
-              <div style={{ fontSize: '0.825rem', color: '#CBD5E1', display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: 4 }}>
-                <span>Tracking Ref: <strong style={{ fontFamily: 'monospace', color: 'white' }}>{vendor.tracking_id}</strong></span>
+
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', gap: '0.65rem', flexWrap: 'wrap', marginTop: 3 }}>
+                <span>Code: <strong style={{ fontFamily: 'monospace', color: 'var(--text-primary)' }}>{vendor.tracking_id}</strong></span>
                 <span>•</span>
-                <span>GSTIN: <strong style={{ fontFamily: 'monospace', color: 'white' }}>{vendor.gstin || 'N/A'}</strong></span>
+                <span>GSTIN: <strong style={{ fontFamily: 'monospace', color: 'var(--text-primary)' }}>{vendor.gstin || 'N/A'}</strong></span>
                 <span>•</span>
-                <span>Category: <strong style={{ textTransform: 'uppercase', color: '#93C5FD' }}>{vendor.category || 'Civil & Structural'}</strong></span>
+                <span>Category: <strong style={{ color: 'var(--text-primary)' }}>{vendor.category || 'Civil & Structural'}</strong></span>
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+          {/* Quick Action Buttons */}
+          <div style={{ display: 'flex', gap: '0.45rem', width: isMobile ? '100%' : 'auto', flexWrap: 'wrap' }}>
             <button
               onClick={() => setShowGatePassModal(true)}
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, backgroundColor: '#10B981', color: 'white', border: 'none', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              style={{
+                flex: isMobile ? 1 : 'initial',
+                padding: '0.5rem 0.85rem',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                borderRadius: 6,
+                backgroundColor: '#0047AB',
+                color: '#FFFFFF',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.35rem'
+              }}
             >
-              <QrCode style={{ width: 16, height: 16 }} />
-              <span>🎟️ Daily Site QR Gate Pass</span>
-            </button>
-
-            <button
-              onClick={() => setShowCertificateModal(true)}
-              className="btn-secondary"
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer' }}
-            >
-              <Printer style={{ width: 16, height: 16 }} />
-              <span>Print A4 Certificate</span>
+              <QrCode style={{ width: 14, height: 14 }} />
+              <span>Generate Site Pass</span>
             </button>
 
             <button
               onClick={() => setShowIdCardModal(true)}
-              className="btn-accent"
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', borderRadius: 12, cursor: 'pointer' }}
+              style={{
+                flex: isMobile ? 1 : 'initial',
+                padding: '0.5rem 0.85rem',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                borderRadius: 6,
+                backgroundColor: 'var(--bg-surface)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.35rem'
+              }}
             >
-              <UserCheck style={{ width: 16, height: 16 }} />
-              <span>🪪 Smart PVC ID Card</span>
+              <UserCheck style={{ width: 14, height: 14 }} />
+              <span>Smart ID Card</span>
+            </button>
+
+            <button
+              onClick={() => setShowCertificateModal(true)}
+              style={{
+                flex: isMobile ? 1 : 'initial',
+                padding: '0.5rem 0.85rem',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                borderRadius: 6,
+                backgroundColor: 'var(--bg-surface)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.35rem'
+              }}
+            >
+              <Printer style={{ width: 14, height: 14 }} />
+              <span>Certificate</span>
             </button>
           </div>
         </div>
 
-        {/* ════════════════ TAB 1: OVERVIEW & PROFILE ════════════════ */}
+        {/* ════════════════ TAB 1: OVERVIEW ════════════════ */}
         {activeTab === 'overview' && (
           <div>
-            {/* 4 Metric Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1.5px solid #10B981', boxShadow: '0 4px 16px rgba(16,185,129,0.08)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#047857', textTransform: 'uppercase', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <CheckCircle2 style={{ width: 16, height: 16, color: '#10B981' }} />
-                  <span>Empanelment Status</span>
-                </div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A' }}>EMPANELLED</div>
-                <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', marginTop: 2 }}>Verified & Active FY 2026-27</div>
+            {/* 4 Stat KPI Cards */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+              gap: '0.75rem',
+              marginBottom: '1.25rem'
+            }}>
+              <div style={{ padding: '1rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#047857', marginTop: 3 }}>EMPANELLED</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 2 }}>FY 2026-27 Active</div>
               </div>
 
-              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1.5px solid #0047AB', boxShadow: '0 4px 16px rgba(0,71,171,0.08)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', textTransform: 'uppercase', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Award style={{ width: 16, height: 16, color: '#0047AB' }} />
-                  <span>Capability Rating</span>
-                </div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A' }}>{vendor.status?.toUpperCase() || 'CLASS-A (TIER 1)'}</div>
-                <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', marginTop: 2 }}>Eligible for Pan-India Tenders</div>
+              <div style={{ padding: '1rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Capability Class</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0047AB', marginTop: 3 }}>CLASS-A PRIME</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 2 }}>Pan-India Eligibility</div>
               </div>
 
-              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <DollarSign style={{ width: 16, height: 16, color: '#F59E0B' }} />
-                  <span>EMD Exemption Waiver</span>
-                </div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A' }}>₹ 0 (WAIVED)</div>
-                <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', marginTop: 2 }}>Under Corporate Empanelment Clause</div>
+              <div style={{ padding: '1rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>EMD Waiver</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: 3 }}>100% EXEMPT</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 2 }}>Corporate Clause</div>
               </div>
 
-              <div style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748B', textTransform: 'uppercase', marginBottom: 4, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Clock style={{ width: 16, height: 16, color: '#64748B' }} />
-                  <span>Milestone Payout Cycle</span>
-                </div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A' }}>7-DAY RTGS</div>
-                <div style={{ fontSize: '0.775rem', color: 'var(--text-muted)', marginTop: 2 }}>Direct Bank Account Release</div>
+              <div style={{ padding: '1rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Payment Cycle</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: 3 }}>7-DAY RTGS</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 2 }}>Direct Bank Release</div>
               </div>
             </div>
 
-            {/* Detailed Verified Corporate Entity Profile */}
-            <div style={{ padding: '1.5rem 1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', marginBottom: '2rem', boxShadow: 'var(--shadow-sm)' }}>
-              <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0047AB', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Building2 style={{ width: 20, height: 20 }} />
-                <span>Verified Vendor Profile & Contact Information:</span>
+            {/* Entity Details Card */}
+            <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: '1.25rem', marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.85rem' }}>
+                Corporate Registration & Tax Details
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-                <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Key Contact Person</div>
-                  <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{vendor.contact_name || vendor.signatory_name || 'N/A'}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{vendor.designation || 'Proprietor / Authorized Officer'}</div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                gap: '0.75rem'
+              }}>
+                <div style={{ padding: '0.75rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 600 }}>Authorized Signatory</div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 2 }}>{vendor.contact_name || vendor.signatory_name || 'N/A'}</div>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>{vendor.designation || 'Director'}</div>
                 </div>
 
-                <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Registered Email & Phone</div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{vendor.email || 'N/A'}</div>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0047AB' }}>{vendor.phone || 'N/A'}</div>
+                <div style={{ padding: '0.75rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 600 }}>Contact Communication</div>
+                  <div style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 2, wordBreak: 'break-all' }}>{vendor.email || 'N/A'}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{vendor.phone || 'N/A'}</div>
                 </div>
 
-                <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Entity Type & Establishment</div>
-                  <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', marginTop: 2, textTransform: 'capitalize' }}>{(vendor.entity_type || 'Sole Proprietor').replace('_', ' ')}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Est. Year: {vendor.est_year || '2018'}</div>
-                </div>
-
-                <div style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', fontWeight: 800 }}>Primary Location / Address</div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A', marginTop: 2 }}>{vendor.city || 'Bhilwara'}, {vendor.state || 'Rajasthan'}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{vendor.address || 'Industrial Area'} - {vendor.pincode || '311001'}</div>
+                <div style={{ padding: '0.75rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 600 }}>Registered Premises</div>
+                  <div style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 2 }}>{vendor.city || 'Bhilwara'}, {vendor.state || 'Rajasthan'}</div>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>{vendor.address || 'Industrial Area'} - {vendor.pincode || '311001'}</div>
                 </div>
               </div>
 
-              {/* Financial & Banking Strip */}
-              <div style={{ marginTop: '1.25rem', padding: '1rem 1.25rem', borderRadius: 14, backgroundColor: 'rgba(0,71,171,0.04)', border: '1px solid rgba(0,71,171,0.15)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+              <div style={{
+                marginTop: '0.75rem',
+                padding: '0.75rem',
+                borderRadius: 8,
+                backgroundColor: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                display: 'grid',
+                gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
+                gap: '0.65rem',
+                fontSize: '0.75rem'
+              }}>
                 <div>
-                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>PAN Number: </span>
-                  <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: '#0F172A' }}>{vendor.pan || 'N/A'}</strong>
+                  <span style={{ color: 'var(--text-muted)' }}>PAN: </span>
+                  <strong style={{ fontFamily: 'monospace' }}>{vendor.pan || 'N/A'}</strong>
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>MSME Udyam: </span>
-                  <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: '#0F172A' }}>{vendor.msme_no || 'UDYAM-VERIFIED'}</strong>
+                  <span style={{ color: 'var(--text-muted)' }}>MSME: </span>
+                  <strong style={{ fontFamily: 'monospace' }}>{vendor.msme_no || 'UDYAM-VERIFIED'}</strong>
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Bank Account: </span>
-                  <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: '#047857' }}>{vendor.bank_account ? `•••• ${vendor.bank_account.slice(-4)}` : 'Verified Bank'}</strong> ({vendor.ifsc || 'HDFC Bank'})
+                  <span style={{ color: 'var(--text-muted)' }}>Bank Account: </span>
+                  <strong style={{ fontFamily: 'monospace' }}>{vendor.bank_account ? `•••• ${vendor.bank_account.slice(-4)}` : 'Verified Bank'}</strong>
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Declared 2025 Turnover: </span>
-                  <strong style={{ fontSize: '0.9rem', color: '#0047AB' }}>₹ {vendor.turnover_2025 || '350'} Lakhs</strong>
+                  <span style={{ color: 'var(--text-muted)' }}>Declared Turnover: </span>
+                  <strong>₹ {vendor.turnover_2025 || '350'} Lakhs</strong>
                 </div>
               </div>
             </div>
 
-            {/* Official Certificate Download Card */}
-            <div style={{ padding: '2rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1.5px solid #0047AB', boxShadow: 'var(--shadow-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-              <div style={{ maxWidth: 600 }}>
-                <div style={{ padding: '0.25rem 0.65rem', borderRadius: 6, backgroundColor: 'rgba(0, 71, 171, 0.1)', color: '#0047AB', fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', width: 'fit-content', marginBottom: '0.5rem' }}>
-                  ✓ Official Corporate Document
-                </div>
-                <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0F172A', marginBottom: '0.35rem' }}>
-                  Official Empanelment Certificate & Verified A4 Dossier
-                </h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  Your official empanelment certificate and 3-page verified corporate dossier are approved by the Procurement Committee & CEO Office. Click below to view and print.
-                </p>
-              </div>
-
-              <button
-                onClick={() => setShowCertificateModal(true)}
-                className="btn-accent"
-                style={{ padding: '0.85rem 1.75rem', fontSize: '0.95rem', borderRadius: 12 }}
-              >
-                <Printer style={{ width: 18, height: 18 }} />
-                <span>Download A4 Certificate (PDF)</span>
-              </button>
-            </div>
-
-            {/* 🎟️ Issued Site Gate Passes History Card */}
-            <div style={{ marginTop: '1.5rem', padding: '1.5rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {/* Issued Gate Passes */}
+            <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <QrCode style={{ width: 18, height: 18, color: '#0047AB' }} />
-                    <span>Issued Construction Site Gate Passes Roster:</span>
-                  </h4>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Active & Historical 24-Hr Security QR Passes generated for site supervisors and workers.</span>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                    Site Security Gate Passes Roster
+                  </div>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                    Active 24-Hr security passes for site labor & material transport
+                  </div>
                 </div>
+
                 <button
                   onClick={() => setShowGatePassModal(true)}
-                  style={{ padding: '0.4rem 0.85rem', borderRadius: 8, background: '#0047AB', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                  style={{
+                    padding: '0.35rem 0.65rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    borderRadius: 6,
+                    backgroundColor: '#0047AB',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.3rem'
+                  }}
                 >
-                  <QrCode style={{ width: 13, height: 13 }} />
-                  <span>+ Generate New Gate Pass</span>
+                  <QrCode style={{ width: 12, height: 12 }} />
+                  <span>+ New Pass</span>
                 </button>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                 {sitePasses.map((p, idx) => (
-                  <div key={idx} style={{ padding: '0.9rem 1.1rem', borderRadius: 12, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.8rem' }}>
+                  <div key={idx} style={{
+                    padding: '0.75rem 0.85rem',
+                    borderRadius: 8,
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-color)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: isMobile ? 'flex-start' : 'center',
+                    flexDirection: isMobile ? 'column' : 'row',
+                    gap: '0.5rem'
+                  }}>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 2 }}>
-                        <span style={{ fontWeight: 900, color: '#0047AB', fontFamily: 'monospace' }}>{p.passCode}</span>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 900, padding: '0.1rem 0.45rem', borderRadius: 4, background: 'rgba(16,185,129,0.15)', color: '#047857' }}>ACTIVE PASS</span>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#B45309', background: 'rgba(245,158,11,0.15)', padding: '0.1rem 0.45rem', borderRadius: 4 }}>{p.validityDays || '1 Day'}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: 2 }}>
+                        <strong style={{ fontFamily: 'monospace', color: '#0047AB', fontSize: '0.825rem' }}>{p.passCode}</strong>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#047857', backgroundColor: 'rgba(16,185,129,0.1)', padding: '0.1rem 0.35rem', borderRadius: 4 }}>
+                          VALID
+                        </span>
                       </div>
-                      <div style={{ fontWeight: 800, color: '#0F172A' }}>{p.siteLocation}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        Supervisor: <strong>{p.visitorName}</strong> • Workers: <strong>{p.workerCount} Personnel</strong> • Vehicle: <strong>{p.vehicleNo}</strong>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>{p.siteLocation}</div>
+                      <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                        Supervisor: <strong>{p.visitorName}</strong> • Workers: <strong>{p.workerCount}</strong> • Vehicle: <strong>{p.vehicleNo}</strong>
                       </div>
                     </div>
 
-                    <div style={{ textAlign: 'right', fontSize: '0.75rem' }}>
-                      <div style={{ color: 'var(--text-muted)' }}>Valid Till: <strong style={{ color: '#0047AB' }}>{p.validTill}</strong></div>
-                      <a
-                        href={p.qrData}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ color: '#047857', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', marginTop: 4 }}
-                      >
-                        <span>Verify QR Pass ↗</span>
-                      </a>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-between' : 'flex-end' }}>
+                      <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                        Valid Till: <strong style={{ color: 'var(--text-primary)' }}>{p.validTill}</strong>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.35rem' }}>
+                        <button
+                          onClick={() => handleShareGatePass(p)}
+                          style={{ padding: '0.25rem 0.5rem', borderRadius: 4, background: 'rgba(16,185,129,0.1)', color: '#047857', border: '1px solid rgba(16,185,129,0.2)', fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                        >
+                          <Share2 style={{ width: 11, height: 11 }} />
+                          <span>Share</span>
+                        </button>
+                        <button
+                          onClick={() => copyToClipboard(p.passCode, 'Pass Code')}
+                          style={{ padding: '0.25rem 0.5rem', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Copy
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -592,107 +895,162 @@ export default function VendorDashboardPage() {
           </div>
         )}
 
-        {/* ════════════════ TAB: WORK ORDERS & EXECUTED CONTRACTS ════════════════ */}
+        {/* ════════════════ TAB 2: WORK ORDERS ════════════════ */}
         {activeTab === 'work_orders' && (
-          <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
-            <div style={{ marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FileSignature style={{ width: 20, height: 20, color: '#0047AB' }} />
-                <span>Executed Contracts & Formal Work Orders Roster:</span>
-              </h3>
-              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                Official Work Orders issued to {vendor.company_name} by Hindustan Projects Corporate Procurement Committee.
-              </p>
+          <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.65rem', marginBottom: '1rem' }}>
+              <div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Active Work Orders & Contracts
+                </div>
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                  Formal corporate execution contracts issued to {vendor.company_name}
+                </div>
+              </div>
+
+              <div style={{ position: 'relative', width: isMobile ? '100%' : 240 }}>
+                <Search style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', width: 13, height: 13, color: 'var(--text-muted)' }} />
+                <input
+                  type="text"
+                  placeholder="Filter contracts..."
+                  value={woSearch}
+                  onChange={e => setWoSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.4rem 0.65rem 0.4rem 2rem',
+                    borderRadius: 6,
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-surface)',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.78rem'
+                  }}
+                />
+              </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {workOrders.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                  <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📋</div>
-                  <div style={{ fontWeight: 800, fontSize: '1rem' }}>No Active Work Orders Yet</div>
-                  <div style={{ fontSize: '0.85rem', marginTop: '0.35rem' }}>
-                    Work orders will appear here once assigned by Hindustan Projects.
-                  </div>
-                </div>
-              ) : (
-                workOrders.map((wo, idx) => (
-                <div key={idx} style={{ padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.65rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {filteredWorkOrders.map((wo, idx) => (
+                <div key={idx} style={{ padding: '1rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 4 }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.6rem', borderRadius: 6, fontFamily: 'monospace' }}>
-                          {wo.code}
-                        </span>
-                        <span style={{ fontSize: '0.725rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: wo.status.includes('ACTIVE') ? 'rgba(16,185,129,0.15)' : 'rgba(0,71,171,0.15)', color: wo.status.includes('ACTIVE') ? '#047857' : '#0047AB' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: 2 }}>
+                        <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', fontWeight: 700, color: '#0047AB' }}>{wo.code}</span>
+                        <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '0.1rem 0.4rem', borderRadius: 4, backgroundColor: wo.status === 'COMPLETED' ? 'rgba(16,185,129,0.1)' : 'rgba(0,71,171,0.1)', color: wo.status === 'COMPLETED' ? '#047857' : '#0047AB' }}>
                           {wo.status}
                         </span>
                       </div>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A' }}>{wo.project} — {wo.package}</h4>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>{wo.project} — {wo.package}</div>
                     </div>
 
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>{wo.val}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Progress Completion: <strong>{wo.progress}</strong></div>
+                    <div style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                      <div style={{ fontSize: '1rem', fontWeight: 800, color: '#047857' }}>{wo.val}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Progress: <strong>{wo.progress}%</strong></div>
                     </div>
                   </div>
 
-                  {/* Execution Timeline & Actions Bar */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                    <div>Execution Timeline: <strong>{wo.startDate}</strong> to <strong>{wo.endDate}</strong></div>
+                  {/* Progress bar */}
+                  <div style={{ width: '100%', height: 5, borderRadius: 99, backgroundColor: 'var(--border-color)', margin: '0.5rem 0', overflow: 'hidden' }}>
+                    <div style={{ width: `${wo.progress}%`, height: '100%', backgroundColor: wo.progress === 100 ? '#10B981' : '#0047AB' }} />
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.4rem', borderTop: '1px solid var(--border-color)', fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                    <div>Timeline: <strong>{wo.startDate}</strong> to <strong>{wo.endDate}</strong></div>
                     
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.35rem' }}>
                       <button
                         onClick={() => setShowGatePassModal(true)}
-                        className="btn-secondary"
-                        style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: 8, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.725rem', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 600 }}
                       >
-                        <QrCode style={{ width: 13, height: 13 }} />
-                        <span>Site Gate Pass</span>
+                        Site Pass
                       </button>
-
                       <button
-                        onClick={() => alert(`Downloading Official Work Order PDF for ${wo.code}...`)}
-                        className="btn-accent"
-                        style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: 8, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                        onClick={() => showToast(`Work Order ${wo.code} PDF downloaded.`)}
+                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.725rem', borderRadius: 4, background: '#0047AB', color: '#FFFFFF', border: 'none', cursor: 'pointer', fontWeight: 600 }}
                       >
-                        <FileText style={{ width: 13, height: 13 }} />
-                        <span>Work Order PDF</span>
+                        Contract PDF
                       </button>
                     </div>
                   </div>
                 </div>
-              )))}
+              ))}
             </div>
           </div>
         )}
 
-        {/* ════════════════ TAB 2: ACTIVE TENDERS RADAR ════════════════ */}
+        {/* ════════════════ TAB 3: TENDERS RADAR ════════════════ */}
         {activeTab === 'tenders' && (
-          <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
-            <div style={{ marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Briefcase style={{ width: 20, height: 20, color: '#0047AB' }} />
-                <span>Active Hindustan Projects Tenders & Bidding Radar:</span>
-              </h3>
-              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                As a Class-A Empanelled Vendor, EMD is 100% waived for all active project tenders.
-              </p>
+          <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: '1.25rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                Active Project Tenders & Procurement Radar
+              </div>
+              <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                EMD 100% waived for empanelled contractors. Direct committee submission.
+              </div>
             </div>
 
-            {/* Submitted Bids History if any */}
+            {/* Filter */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+              <div style={{ position: 'relative', width: '100%' }}>
+                <Search style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: 'var(--text-muted)' }} />
+                <input
+                  type="text"
+                  placeholder="Search tenders by keyword, site, location..."
+                  value={tenderSearch}
+                  onChange={e => setTenderSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.45rem 0.75rem 0.45rem 2.1rem',
+                    borderRadius: 6,
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-surface)',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.8rem'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                {[
+                  { id: 'all', label: 'All Packages' },
+                  { id: 'civil', label: 'Civil & RCC' },
+                  { id: 'electrical', label: 'Electrical & Substation' },
+                  { id: 'mep', label: 'HVAC & MEP' }
+                ].map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setTenderCategoryFilter(cat.id)}
+                    style={{
+                      padding: '0.25rem 0.55rem',
+                      borderRadius: 4,
+                      fontSize: '0.725rem',
+                      fontWeight: tenderCategoryFilter === cat.id ? 700 : 500,
+                      cursor: 'pointer',
+                      border: tenderCategoryFilter === cat.id ? '1px solid #0047AB' : '1px solid var(--border-color)',
+                      backgroundColor: tenderCategoryFilter === cat.id ? 'rgba(0,71,171,0.08)' : 'var(--bg-surface)',
+                      color: tenderCategoryFilter === cat.id ? '#0047AB' : 'var(--text-muted)'
+                    }}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Submitted Bids */}
             {submittedBids.length > 0 && (
-              <div style={{ marginBottom: '1.5rem', padding: '1.15rem', borderRadius: 14, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#047857', marginBottom: '0.5rem' }}>
-                  📋 Your Submitted Tender Proposals ({submittedBids.length}):
+              <div style={{ marginBottom: '1rem', padding: '0.75rem 0.85rem', borderRadius: 8, backgroundColor: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#047857', marginBottom: '0.35rem' }}>
+                  Submitted Commercial Bids ({submittedBids.length}):
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                   {submittedBids.map((b, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0.85rem', background: '#fff', borderRadius: 8, fontSize: '0.8rem', border: '1px solid var(--border-color)' }}>
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.45rem 0.65rem', background: 'var(--bg-card)', borderRadius: 6, fontSize: '0.75rem', border: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '0.35rem' }}>
                       <div>
                         <strong style={{ color: '#0047AB' }}>{b.ref}</strong> — {b.title}
-                        <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Quoted: <strong>₹ {b.amount} Cr</strong> • Submitted on {b.date}</div>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Quoted: <strong>₹ {b.amount} Cr</strong> • {b.date}</div>
                       </div>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.5rem', borderRadius: 6, background: 'rgba(245,158,11,0.15)', color: '#B45309' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '0.1rem 0.35rem', borderRadius: 4, background: 'rgba(245,158,11,0.15)', color: '#B45309' }}>
                         {b.status}
                       </span>
                     </div>
@@ -701,109 +1059,79 @@ export default function VendorDashboardPage() {
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {liveTenders.map((tnd, idx) => {
-                const isOpen = (tnd.status || 'ACTIVE').toUpperCase() === 'ACTIVE';
-
-                return (
-                  <div key={idx} style={{
-                    padding: '1.25rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)',
-                    border: isOpen ? '1px solid var(--border-color)' : '1px solid #CBD5E1',
-                    opacity: isOpen ? 1 : 0.85
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.65rem' }}>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 4 }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.6rem', borderRadius: 6, fontFamily: 'monospace' }}>
-                            {tnd.ref}
-                          </span>
-                          {isOpen ? (
-                            <span style={{ fontSize: '0.72rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: '#D1FAE5', color: '#047857' }}>
-                              🟢 ACTIVE &amp; ON • ✓ EMD WAIVED
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: '0.72rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: '#FEF2F2', color: '#DC2626' }}>
-                              🔴 BIDDING CLOSED (OFF)
-                            </span>
-                          )}
-                        </div>
-                        <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0F172A' }}>{tnd.title}</h4>
+            {/* List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {filteredTenders.map((tnd, idx) => (
+                <div key={idx} style={{ padding: '0.85rem 1rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: 2 }}>
+                        <span style={{ fontFamily: 'monospace', fontSize: '0.725rem', fontWeight: 700, color: '#0047AB' }}>{tnd.ref}</span>
+                        <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#047857' }}>EMD EXEMPT</span>
                       </div>
-
-                      {isOpen ? (
-                        <button
-                          className="btn-primary"
-                          onClick={() => { setBiddingTender(tnd); setBidAmount(tnd.val.replace('₹ ', '').replace(' Crores', '')); setBidSubmitted(false); }}
-                          style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10, background: '#0047AB' }}
-                        >
-                          <span>Submit Tender Bid</span>
-                        </button>
-                      ) : (
-                        <button
-                          disabled
-                          style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10, background: '#F1F5F9', color: '#64748B', border: '1px solid #CBD5E1', cursor: 'not-allowed', fontWeight: 700 }}
-                          title="Bidding closed by Procurement Committee"
-                        >
-                          <span>Bidding Closed</span>
-                        </button>
-                      )}
+                      <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>{tnd.title}</div>
                     </div>
 
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', lineHeight: 1.45 }}>
-                      <strong>Scope Summary:</strong> {tnd.scope}
-                    </div>
-
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
-                      <span>Estimated Package Value: <strong style={{ color: '#047857' }}>{tnd.val}</strong></span>
-                      <span>•</span>
-                      <span>Location: <strong>{tnd.location}</strong></span>
-                      <span>•</span>
-                      <span>Bid Deadline: <strong>{tnd.end}</strong></span>
-                    </div>
+                    <button
+                      onClick={() => { setBiddingTender(tnd); setBidAmount(tnd.val.replace('₹ ', '').replace(' Cr', '')); setBidSubmitted(false); }}
+                      style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, borderRadius: 6, backgroundColor: '#0047AB', color: '#FFFFFF', border: 'none', cursor: 'pointer' }}
+                    >
+                      Submit Bid
+                    </button>
                   </div>
-                );
-              })}
+
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                    {tnd.scope}
+                  </div>
+
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
+                    <span>Value: <strong style={{ color: 'var(--text-primary)' }}>{tnd.val}</strong></span>
+                    <span>•</span>
+                    <span>Location: <strong>{tnd.location}</strong></span>
+                    <span>•</span>
+                    <span>Due: <strong style={{ color: '#DC2626' }}>{tnd.end}</strong></span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* ════════════════ TAB 3: MILESTONE PAYOUTS & INVOICES ════════════════ */}
+        {/* ════════════════ TAB 4: PAYOUTS ════════════════ */}
         {activeTab === 'payouts' && (
-          <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'gap', gap: '0.5rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <DollarSign style={{ width: 20, height: 20, color: '#10B981' }} />
-                  <span>Milestone Payment Release & Tax Invoices:</span>
-                </h3>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                  All vendor payouts are processed directly via RTGS / NEFT to your verified bank account (`{vendor.bank_account || vendor.gstin}`).
-                </p>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Milestone Payouts & RA Bill Clearance
+                </div>
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                  Disbursements processed via direct RTGS / NEFT transfer
+                </div>
               </div>
 
               <button
                 onClick={() => { setShowInvoiceModal(true); setInvoiceSubmitted(false); }}
-                className="btn-accent"
-                style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10 }}
+                style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, borderRadius: 6, backgroundColor: '#0047AB', color: '#FFFFFF', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
               >
-                <FileCheck2 style={{ width: 15, height: 15 }} />
-                <span>Submit RA Bill / GST Invoice</span>
+                <FileCheck2 style={{ width: 13, height: 13 }} />
+                <span>Submit RA Bill</span>
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
               {vendorInvoices.map((p, idx) => (
-                <div key={idx} style={{ padding: '1.1rem 1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div key={idx} style={{ padding: '0.85rem 1rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0F172A' }}>{p.milestone}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                      Tranche: <strong>{p.tranche}</strong> • Ref: <strong style={{ fontFamily: 'monospace' }}>{p.ref || p.id}</strong> • Date: <strong>{p.date}</strong>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>{p.milestone}</div>
+                    <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                      Tranche: <strong>{p.tranche}</strong> • Ref: <span style={{ fontFamily: 'monospace' }}>{p.ref || p.id}</span> • Date: <strong>{p.date}</strong>
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>{p.amt}</div>
-                    <span style={{ fontSize: '0.725rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: p.status.includes('RELEASED') ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', color: p.status.includes('RELEASED') ? '#047857' : '#B45309' }}>
+                  <div style={{ textAlign: isMobile ? 'left' : 'right' }}>
+                    <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#047857' }}>{p.amt}</div>
+                    <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '0.1rem 0.4rem', borderRadius: 4, backgroundColor: p.status.includes('PAID') ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: p.status.includes('PAID') ? '#047857' : '#B45309' }}>
                       {p.status}
                     </span>
                   </div>
@@ -813,34 +1141,36 @@ export default function VendorDashboardPage() {
           </div>
         )}
 
-        {/* ════════════════ TAB 4: DOCUMENT VAULT & LOCKER ════════════════ */}
+        {/* ════════════════ TAB 5: DOCUMENTS ════════════════ */}
         {activeTab === 'documents' && (
-          <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
-            <div style={{ marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FolderCheck style={{ width: 20, height: 20, color: '#0047AB' }} />
-                <span>Statutory Tax & Compliance Document Locker:</span>
-              </h3>
-              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                Verified tax identity and bank cheque files attached to your empanelment code `{vendor.tracking_id}`.
-              </p>
+          <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: '1.25rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                Statutory Compliance & Tax Documents
+              </div>
+              <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                Verified documents on record for vendor code `{vendor.tracking_id}`
+              </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '0.75rem' }}>
               {[
-                { title: 'GST REG-06 Certificate', type: 'CBIC Tax Identity', status: 'VERIFIED & ACTIVE', file: vendor.gst_doc || 'gst_certificate.pdf', date: 'Valid till 31 Mar 2027' },
-                { title: 'Income Tax PAN Card Copy', type: 'Govt Tax ID', status: 'VERIFIED', file: vendor.pan_doc || 'pan_card.pdf', date: 'Permanent Residency ID' },
-                { title: 'Cancelled Bank Cheque', type: 'Payout Verification', status: 'VERIFIED', file: vendor.bank_doc || 'bank_cheque.pdf', date: vendor.bank_name || 'HDFC Bank Ltd' },
-                { title: 'Experience / Completion Certificates', type: 'Past Work Proof', status: 'VERIFIED', file: vendor.exp_doc || 'experience_docs.pdf', date: 'Audited by Technical Comm.' },
+                { title: 'GST Registration Certificate (REG-06)', status: 'VERIFIED', file: vendor.gst_doc || 'gst_cert.pdf', date: 'Valid FY 2026-27' },
+                { title: 'Permanent Account Number (PAN Card)', status: 'VERIFIED', file: vendor.pan_doc || 'pan_card.pdf', date: 'Govt Tax ID' },
+                { title: 'Bank Cheque / Mandate Form', status: 'VERIFIED', file: vendor.bank_doc || 'cheque.pdf', date: vendor.bank_name || 'HDFC Bank Ltd' },
+                { title: 'Technical Capability & Work Experience', status: 'AUDITED', file: vendor.exp_doc || 'experience.pdf', date: 'Procurement Audit' },
               ].map((d, idx) => (
-                <div key={idx} style={{ padding: '1.15rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.725rem', fontWeight: 900, color: '#047857', backgroundColor: 'rgba(16,185,129,0.12)', padding: '0.15rem 0.5rem', borderRadius: 6, width: 'fit-content', marginBottom: 4 }}>
-                    ✓ {d.status}
+                <div key={idx} style={{ padding: '0.85rem 1rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                    <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#047857', backgroundColor: 'rgba(16,185,129,0.1)', padding: '0.1rem 0.35rem', borderRadius: 4 }}>
+                      {d.status}
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{d.date}</span>
                   </div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0F172A' }}>{d.title}</div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{d.type} • {d.date}</div>
-                  <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#0047AB', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <FileText style={{ width: 14, height: 14 }} /> {d.file}
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 4 }}>{d.title}</div>
+                  <div style={{ fontSize: '0.725rem', color: '#0047AB', marginTop: 4, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <FileText style={{ width: 12, height: 12 }} />
+                    <span>{d.file}</span>
                   </div>
                 </div>
               ))}
@@ -848,44 +1178,40 @@ export default function VendorDashboardPage() {
           </div>
         )}
 
-        {/* ════════════════ TAB 5: TECHNICAL SUPPORT & HELPDESK ════════════════ */}
+        {/* ════════════════ TAB 6: SUPPORT ════════════════ */}
         {activeTab === 'support' && (
-          <div style={{ padding: '1.75rem', borderRadius: 20, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <HelpCircle style={{ width: 20, height: 20, color: '#0047AB' }} />
-                  <span>Vendor Technical Helpdesk & Ticket System:</span>
-                </h3>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                  Direct communication channel with Hindustan Projects corporate procurement committee.
-                </p>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Procurement Support Desk & Inquiries
+                </div>
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                  Direct communication line with corporate procurement officers
+                </div>
               </div>
 
               <button
                 onClick={() => { setShowTicketModal(true); setTicketSubmitted(false); }}
-                className="btn-accent"
-                style={{ padding: '0.55rem 1.15rem', fontSize: '0.825rem', borderRadius: 10 }}
+                style={{ padding: '0.4rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, borderRadius: 6, backgroundColor: '#0047AB', color: '#FFFFFF', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
               >
-                <MessageSquarePlus style={{ width: 15, height: 15 }} />
-                <span>Raise New Support Ticket</span>
+                <MessageSquarePlus style={{ width: 13, height: 13 }} />
+                <span>Raise Ticket</span>
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
               {vendorTickets.map((t, idx) => (
-                <div key={idx} style={{ padding: '1.1rem 1.25rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div key={idx} style={{ padding: '0.85rem 1rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 2 }}>
-                      <span style={{ fontSize: '0.725rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6, fontFamily: 'monospace' }}>
-                        {t.ticket}
-                      </span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Created: <strong>{t.date}</strong></span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: 2 }}>
+                      <span style={{ fontFamily: 'monospace', fontSize: '0.725rem', fontWeight: 700, color: '#0047AB' }}>{t.ticket}</span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>• {t.date}</span>
                     </div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0F172A' }}>{t.subject}</div>
+                    <div style={{ fontSize: '0.825rem', fontWeight: 600, color: 'var(--text-primary)' }}>{t.subject}</div>
                   </div>
 
-                  <span style={{ fontSize: '0.75rem', fontWeight: 900, padding: '0.2rem 0.65rem', borderRadius: 6, backgroundColor: t.status.includes('RESOLVED') ? 'rgba(16,185,129,0.15)' : 'rgba(0,71,171,0.15)', color: t.status.includes('RESOLVED') ? '#047857' : '#0047AB' }}>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '0.1rem 0.4rem', borderRadius: 4, backgroundColor: t.status === 'RESOLVED' ? 'rgba(16,185,129,0.1)' : 'rgba(0,71,171,0.1)', color: t.status === 'RESOLVED' ? '#047857' : '#0047AB' }}>
                     {t.status}
                   </span>
                 </div>
@@ -896,49 +1222,150 @@ export default function VendorDashboardPage() {
 
       </main>
 
-      {/* ════════════════ BID SUBMISSION MODAL ════════════════ */}
+      {/* ════════════════ MOBILE NATIVE BOTTOM BAR ════════════════ */}
+      {isMobile && (
+        <div style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 900,
+          backgroundColor: 'var(--bg-card)',
+          borderTop: '1px solid var(--border-color)',
+          padding: '0.4rem 0.5rem',
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center'
+        }}>
+          <button
+            onClick={() => setActiveTab('overview')}
+            style={{
+              background: 'none',
+              border: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              color: activeTab === 'overview' ? '#0047AB' : 'var(--text-muted)',
+              cursor: 'pointer'
+            }}
+          >
+            <Award style={{ width: 17, height: 17 }} />
+            <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>Overview</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('tenders')}
+            style={{
+              background: 'none',
+              border: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              color: activeTab === 'tenders' ? '#0047AB' : 'var(--text-muted)',
+              cursor: 'pointer'
+            }}
+          >
+            <Briefcase style={{ width: 17, height: 17 }} />
+            <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>Tenders</span>
+          </button>
+
+          {/* Quick Gate Pass */}
+          <button
+            onClick={() => setShowGatePassModal(true)}
+            style={{
+              backgroundColor: '#0047AB',
+              border: 'none',
+              width: 38,
+              height: 38,
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#FFFFFF',
+              cursor: 'pointer'
+            }}
+          >
+            <QrCode style={{ width: 18, height: 18 }} />
+          </button>
+
+          <button
+            onClick={() => setActiveTab('payouts')}
+            style={{
+              background: 'none',
+              border: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              color: activeTab === 'payouts' ? '#0047AB' : 'var(--text-muted)',
+              cursor: 'pointer'
+            }}
+          >
+            <DollarSign style={{ width: 17, height: 17 }} />
+            <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>Payouts</span>
+          </button>
+
+          <button
+            onClick={() => setShowIdCardModal(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              color: 'var(--text-muted)',
+              cursor: 'pointer'
+            }}
+          >
+            <UserCheck style={{ width: 17, height: 17 }} />
+            <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>ID Card</span>
+          </button>
+        </div>
+      )}
+
+      {/* ════════════════ BID MODAL ════════════════ */}
       {biddingTender && (
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(5px)',
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
           zIndex: 99999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '1.5rem'
+          padding: '1rem'
         }}>
-          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 550, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 10, maxWidth: 480, width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '1.25rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.85rem' }}>
               <div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.2rem 0.65rem', borderRadius: 6 }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.08)', padding: '0.1rem 0.4rem', borderRadius: 4 }}>
                   {biddingTender.ref}
                 </span>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, marginTop: 4, color: '#0F172A' }}>Submit Tender Proposal</h3>
+                <div style={{ fontSize: '1rem', fontWeight: 800, marginTop: 4, color: 'var(--text-primary)' }}>Submit Commercial Bid</div>
               </div>
-              <button onClick={() => setBiddingTender(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+              <button onClick={() => setBiddingTender(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                <X style={{ width: 18, height: 18 }} />
+              </button>
             </div>
 
             {bidSubmitted ? (
-              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
-                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Bid Proposal Submitted Successfully!</h4>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
-                  Your commercial bid for <strong>{biddingTender.ref}</strong> has been recorded and submitted to the Procurement Committee.
+              <div style={{ padding: '1.25rem', textAlign: 'center', borderRadius: 8, backgroundColor: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <CheckCircle2 style={{ width: 36, height: 36, color: '#10B981', margin: '0 auto 0.5rem auto' }} />
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#047857' }}>Bid Recorded Successfully</div>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                  Quote for {biddingTender.ref} submitted to Procurement Committee.
                 </p>
-                <button onClick={() => setBiddingTender(null)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
-                  Close Window
+                <button onClick={() => setBiddingTender(null)} className="btn-primary" style={{ marginTop: '0.75rem', padding: '0.45rem 1rem', fontSize: '0.8rem' }}>
+                  Done
                 </button>
               </div>
             ) : (
               <form onSubmit={handleCreateBid}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-                  Submitting tender proposal as <strong>{vendor.company_name}</strong> (EMD Waived).
-                </p>
-
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label className="form-label">Quoted Commercial Lump-Sum Bid (in ₹ Crores) *</label>
+                <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                  <label className="form-label">Quoted Bid Amount (in ₹ Crores) *</label>
                   <input
                     type="text"
                     required
@@ -946,26 +1373,28 @@ export default function VendorDashboardPage() {
                     value={bidAmount}
                     onChange={e => setBidAmount(e.target.value)}
                     placeholder="e.g. 13.80"
+                    style={{ fontSize: 15 }}
                   />
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Technical Capability & Execution Remarks</label>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Technical Capability & Remarks</label>
                   <textarea
                     className="form-input"
                     rows={3}
                     value={bidRemarks}
                     onChange={e => setBidRemarks(e.target.value)}
-                    placeholder="We commit to execute as per GFC drawings & NBC 2016 building code specifications..."
+                    placeholder="Execution timeline, batching plant setup, machinery deployment commitments..."
+                    style={{ fontSize: 15 }}
                   />
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button type="button" onClick={() => setBiddingTender(null)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
                     Cancel
                   </button>
                   <button type="submit" className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
-                    Confirm & Submit Bid
+                    Submit Bid
                   </button>
                 </div>
               </form>
@@ -974,42 +1403,43 @@ export default function VendorDashboardPage() {
         </div>
       )}
 
-      {/* ════════════════ INVOICE SUBMISSION MODAL ════════════════ */}
+      {/* ════════════════ INVOICE MODAL ════════════════ */}
       {showInvoiceModal && (
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(5px)',
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
           zIndex: 99999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '1.5rem'
+          padding: '1rem'
         }}>
-          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 10, maxWidth: 480, width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '1.25rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.85rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Submit Milestone Invoice / RA Bill</h3>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Upload GST Invoice for 7-day RTGS payout release</div>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>Submit Milestone RA Bill</div>
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Upload GST Invoice for RTGS payout release</div>
               </div>
-              <button onClick={() => setShowInvoiceModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+              <button onClick={() => setShowInvoiceModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                <X style={{ width: 18, height: 18 }} />
+              </button>
             </div>
 
             {invoiceSubmitted ? (
-              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
-                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Invoice Submitted Successfully!</h4>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
-                  Your GST tax invoice has been routed to finance department for RTGS payout release.
+              <div style={{ padding: '1.25rem', textAlign: 'center', borderRadius: 8, backgroundColor: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <CheckCircle2 style={{ width: 36, height: 36, color: '#10B981', margin: '0 auto 0.5rem auto' }} />
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#047857' }}>Invoice Submitted</div>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                  Routed to Finance Dept for 7-day audit & RTGS release.
                 </p>
-                <button onClick={() => setShowInvoiceModal(false)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
-                  Close Window
+                <button onClick={() => setShowInvoiceModal(false)} className="btn-primary" style={{ marginTop: '0.75rem', padding: '0.45rem 1rem', fontSize: '0.8rem' }}>
+                  Done
                 </button>
               </div>
             ) : (
               <form onSubmit={handleCreateInvoice}>
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <div className="form-group" style={{ marginBottom: '0.75rem' }}>
                   <label className="form-label">GST Tax Invoice Number *</label>
                   <input
                     type="text"
@@ -1018,10 +1448,11 @@ export default function VendorDashboardPage() {
                     placeholder="e.g. INV-2026-8812"
                     value={invoiceForm.invoiceNo}
                     onChange={e => setInvoiceForm({ ...invoiceForm, invoiceNo: e.target.value })}
+                    style={{ fontSize: 15 }}
                   />
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <div className="form-group" style={{ marginBottom: '0.75rem' }}>
                   <label className="form-label">Invoice Amount (in ₹) *</label>
                   <input
                     type="number"
@@ -1030,15 +1461,16 @@ export default function VendorDashboardPage() {
                     placeholder="e.g. 725000"
                     value={invoiceForm.amt}
                     onChange={e => setInvoiceForm({ ...invoiceForm, amt: e.target.value })}
+                    style={{ fontSize: 15 }}
                   />
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Attach Signed PDF Invoice Copy</label>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Signed PDF Invoice Copy</label>
                   <input type="file" className="form-input" accept=".pdf" />
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button type="button" onClick={() => setShowInvoiceModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
                     Cancel
                   </button>
@@ -1052,73 +1484,76 @@ export default function VendorDashboardPage() {
         </div>
       )}
 
-      {/* ════════════════ SUPPORT TICKET MODAL ════════════════ */}
+      {/* ════════════════ SUPPORT MODAL ════════════════ */}
       {showTicketModal && (
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(5px)',
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
           zIndex: 99999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '1.5rem'
+          padding: '1rem'
         }}>
-          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 10, maxWidth: 480, width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '1.25rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.85rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Raise Technical Support Ticket</h3>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Direct ticket channel to corporate procurement team</div>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>Raise Support Ticket</div>
+                <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>Direct ticket channel to corporate procurement desk</div>
               </div>
-              <button onClick={() => setShowTicketModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+              <button onClick={() => setShowTicketModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                <X style={{ width: 18, height: 18 }} />
+              </button>
             </div>
 
             {ticketSubmitted ? (
-              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
-                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Ticket Created Successfully!</h4>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
-                  Your support inquiry has been logged. Assigned procurement officer will respond within 24 hours.
+              <div style={{ padding: '1.25rem', textAlign: 'center', borderRadius: 8, backgroundColor: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <CheckCircle2 style={{ width: 36, height: 36, color: '#10B981', margin: '0 auto 0.5rem auto' }} />
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#047857' }}>Ticket Created</div>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                  Assigned procurement officer will respond within 24 hours.
                 </p>
-                <button onClick={() => setShowTicketModal(false)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
-                  Close Window
+                <button onClick={() => setShowTicketModal(false)} className="btn-primary" style={{ marginTop: '0.75rem', padding: '0.45rem 1rem', fontSize: '0.8rem' }}>
+                  Done
                 </button>
               </div>
             ) : (
               <form onSubmit={handleCreateTicket}>
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label className="form-label">Support Category</label>
+                <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                  <label className="form-label">Category</label>
                   <select
                     className="form-input"
                     value={ticketForm.category}
                     onChange={e => setTicketForm({ ...ticketForm, category: e.target.value })}
+                    style={{ fontSize: 15 }}
                   >
-                    <option>Construction Site Gate Pass Request</option>
-                    <option>GFC Structural Drawing Clarification</option>
-                    <option>RTGS Payment Payout Status Inquiry</option>
-                    <option>GST Certificate Renewal Request</option>
+                    <option>Site Gate Pass Request</option>
+                    <option>GFC Drawing Clarification</option>
+                    <option>RTGS Payment Payout Inquiry</option>
+                    <option>Document Renewal</option>
                   </select>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Describe your query / issue *</label>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Query Details *</label>
                   <textarea
                     required
                     className="form-input"
                     rows={3}
-                    placeholder="Provide complete details..."
+                    placeholder="Provide full details..."
                     value={ticketForm.query}
                     onChange={e => setTicketForm({ ...ticketForm, query: e.target.value })}
+                    style={{ fontSize: 15 }}
                   />
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button type="button" onClick={() => setShowTicketModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
                     Cancel
                   </button>
                   <button type="submit" className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
-                    Submit Ticket
+                    Submit
                   </button>
                 </div>
               </form>
@@ -1127,7 +1562,7 @@ export default function VendorDashboardPage() {
         </div>
       )}
 
-      {/* ════════════════ CERTIFICATE A4 DOSSIER MODAL ════════════════ */}
+      {/* ════════════════ CERTIFICATE MODAL ════════════════ */}
       {showCertificateModal && (
         <SuccessModal
           isOpen={showCertificateModal}
@@ -1143,227 +1578,16 @@ export default function VendorDashboardPage() {
         />
       )}
 
-      {/* ════════════════ BID SUBMISSION MODAL ════════════════ */}
-      {biddingTender && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(5px)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1.5rem'
-        }}>
-          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 550, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0047AB', backgroundColor: 'rgba(0,71,171,0.1)', padding: '0.2rem 0.65rem', borderRadius: 6 }}>
-                  {biddingTender.ref}
-                </span>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, marginTop: 4, color: '#0F172A' }}>Submit Tender Proposal</h3>
-              </div>
-              <button onClick={() => setBiddingTender(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
-            </div>
-
-            {bidSubmitted ? (
-              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
-                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Bid Proposal Submitted Successfully!</h4>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
-                  Your technical proposal for <strong>{biddingTender.ref}</strong> has been logged. Our procurement committee will review it within 48 hours.
-                </p>
-                <button onClick={() => setBiddingTender(null)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
-                  Close Window
-                </button>
-              </div>
-            ) : (
-              <div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-                  Submitting tender proposal as <strong>{vendor.company_name}</strong> (EMD Waived).
-                </p>
-
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label className="form-label">Quoted Commercial Lump-Sum Bid (in ₹ Crores)</label>
-                  <input type="text" className="form-input" defaultValue={biddingTender.val.replace('₹ ', '').replace(' Crores', '')} />
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Technical Capability & Execution Remarks</label>
-                  <textarea className="form-input" rows={3} defaultValue="We commit to execute as per GFC drawings & NBC 2016 building code specifications within the stipulated completion timeline." />
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  <button onClick={() => setBiddingTender(null)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
-                    Cancel
-                  </button>
-                  <button onClick={() => setBidSubmitted(true)} className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
-                    Confirm & Submit Bid
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════ INVOICE SUBMISSION MODAL ════════════════ */}
-      {showInvoiceModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(5px)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1.5rem'
-        }}>
-          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Submit Milestone Invoice / RA Bill</h3>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Upload GST Invoice for 7-day RTGS payout release</div>
-              </div>
-              <button onClick={() => setShowInvoiceModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
-            </div>
-
-            {invoiceSubmitted ? (
-              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
-                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Invoice Submitted Successfully!</h4>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
-                  Your GST tax invoice has been routed to finance department for RTGS payout release.
-                </p>
-                <button onClick={() => setShowInvoiceModal(false)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
-                  Close Window
-                </button>
-              </div>
-            ) : (
-              <div>
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label className="form-label">GST Tax Invoice Number</label>
-                  <input type="text" className="form-input" placeholder="e.g. INV-2026-8812" />
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label className="form-label">Invoice Amount (in ₹)</label>
-                  <input type="text" className="form-input" placeholder="e.g. 725000" />
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Attach Signed PDF Invoice Copy</label>
-                  <input type="file" className="form-input" accept=".pdf" />
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  <button onClick={() => setShowInvoiceModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
-                    Cancel
-                  </button>
-                  <button onClick={() => setInvoiceSubmitted(true)} className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
-                    Submit Invoice
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════ SUPPORT TICKET MODAL ════════════════ */}
-      {showTicketModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(5px)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1.5rem'
-        }}>
-          <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 20, maxWidth: 520, width: '100%', padding: '2rem', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A' }}>Raise Technical Support Ticket</h3>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Direct ticket channel to corporate procurement team</div>
-              </div>
-              <button onClick={() => setShowTicketModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
-            </div>
-
-            {ticketSubmitted ? (
-              <div style={{ padding: '1.5rem', textAlign: 'center', borderRadius: 14, backgroundColor: 'rgba(16,185,129,0.1)', border: '1px solid #10B981' }}>
-                <CheckCircle2 style={{ width: 44, height: 44, color: '#10B981', margin: '0 auto 0.75rem auto' }} />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#047857' }}>Ticket Created Successfully!</h4>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginTop: 4 }}>
-                  Ticket reference code <strong>TCK-99240</strong> assigned. Assigned procurement officer will respond within 24 hours.
-                </p>
-                <button onClick={() => setShowTicketModal(false)} className="btn-primary" style={{ marginTop: '1rem', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}>
-                  Close Window
-                </button>
-              </div>
-            ) : (
-              <div>
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label className="form-label">Support Category</label>
-                  <select className="form-input">
-                    <option>Construction Site Gate Pass Request</option>
-                    <option>GFC Structural Drawing Clarification</option>
-                    <option>RTGS Payment Payout Status Inquiry</option>
-                    <option>GST Certificate Renewal Request</option>
-                  </select>
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Describe your query / issue</label>
-                  <textarea className="form-input" rows={3} placeholder="Provide complete details..." />
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  <button onClick={() => setShowTicketModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
-                    Cancel
-                  </button>
-                  <button onClick={() => setTicketSubmitted(true)} className="btn-accent" style={{ flex: 1, justifyContent: 'center' }}>
-                    Submit Ticket
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════ CERTIFICATE A4 DOSSIER MODAL ════════════════ */}
-      {showCertificateModal && (
-        <SuccessModal
-          isOpen={showCertificateModal}
-          onClose={() => setShowCertificateModal(false)}
-          trackingId={vendor.tracking_id}
-          formData={{
-            companyName: vendor.company_name,
-            gstin: vendor.gstin,
-            category: vendor.category,
-            status: vendor.status || 'Approved Class-A',
-            submitted_at: vendor.submitted_at || new Date().toISOString()
-          }}
-        />
-      )}
-      {/* ════════════════ VENDOR SMART ID CARD MODAL ════════════════ */}
+      {/* ════════════════ ID CARD MODAL ════════════════ */}
       {showIdCardModal && (
         <VendorIdCardModal
           isOpen={showIdCardModal}
           onClose={() => setShowIdCardModal(false)}
           vendorData={vendor}
-          onPhotoUpdate={(newPhoto) => {
-            setVendor(prev => prev ? ({ ...prev, passportPhoto: newPhoto, photo_url: newPhoto, photoUrl: newPhoto }) : null);
-          }}
         />
       )}
 
-      {/* ════════════════ DAILY SITE QR GATE PASS MODAL ════════════════ */}
+      {/* ════════════════ GATE PASS MODAL ════════════════ */}
       {showGatePassModal && (
         <GatePassModal
           isOpen={showGatePassModal}
@@ -1372,9 +1596,9 @@ export default function VendorDashboardPage() {
         />
       )}
 
-      {/* Standalone Footer */}
-      <footer style={{ borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.75rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-        © 2026 Hindustan Projects Corporate Procurement Division. Secure Vendor Portal (256-Bit SSL Encrypted).
+      {/* Footer */}
+      <footer style={{ borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)', padding: '1rem 1.5rem', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+        Hindustan Projects Corporate Procurement Division • Vendor ERP Portal (256-Bit SSL Encrypted)
       </footer>
 
     </div>
