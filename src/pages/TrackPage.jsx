@@ -387,41 +387,45 @@ export default function TrackPage() {
                 {/* Status Banner */}
                 <div className="track-status-banner" style={{ background: vs.bgGradient }}>
                   {/* Big status icon */}
-                  <div style={{ width: 64, height: 64, borderRadius: '50%', background: vs.badgeBg, border: `3px solid ${vs.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {vs.icon === 'VERIFIED' && <ShieldCheck style={{ width: 32, height: 32, color: vs.borderColor }} />}
-                    {vs.icon === 'SUSPENDED' && <PauseCircle style={{ width: 32, height: 32, color: vs.borderColor }} />}
-                    {vs.icon === 'TERMINATED' && <Ban style={{ width: 32, height: 32, color: vs.borderColor }} />}
-                    {vs.icon === 'REJECTED' && <XCircle style={{ width: 32, height: 32, color: vs.borderColor }} />}
-                    {vs.icon === 'PENDING' && <Clock style={{ width: 32, height: 32, color: vs.borderColor }} />}
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: vs.badgeBg, border: `3px solid ${vs.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {vs.icon === 'VERIFIED' && <ShieldCheck style={{ width: 28, height: 28, color: vs.borderColor }} />}
+                    {vs.icon === 'SUSPENDED' && <PauseCircle style={{ width: 28, height: 28, color: vs.borderColor }} />}
+                    {vs.icon === 'TERMINATED' && <Ban style={{ width: 28, height: 28, color: vs.borderColor }} />}
+                    {vs.icon === 'REJECTED' && <XCircle style={{ width: 28, height: 28, color: vs.borderColor }} />}
+                    {vs.icon === 'PENDING' && <Clock style={{ width: 28, height: 28, color: vs.borderColor }} />}
                   </div>
 
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                  <div style={{ flex: '1 1 auto', minWidth: 0, wordBreak: 'break-word' }}>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.01em', lineHeight: 1.25, wordBreak: 'break-word' }}>
                       {vs.headline}
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: vs.badgeColor, marginTop: '0.35rem', lineHeight: 1.5 }}>
+                    <div style={{ fontSize: '0.8rem', color: vs.badgeColor, marginTop: '0.35rem', lineHeight: 1.45, wordBreak: 'break-word' }}>
                       {vs.subline}
                     </div>
                   </div>
 
                   {/* Vendor ID pill */}
-                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: 12, padding: '0.55rem 0.95rem', border: `1px solid ${vs.borderColor}` }}>
+                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: 12, padding: '0.45rem 0.85rem', border: `1px solid ${vs.borderColor}`, flexShrink: 0 }}>
                     <div style={{ fontSize: '0.62rem', fontWeight: 800, color: vs.badgeColor, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Vendor ID</div>
                     <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#FFFFFF', fontSize: '0.95rem', marginTop: 2 }}>{result.id}</div>
                   </div>
                 </div>
 
                 {/* Vendor Details Row */}
-                <div style={{ background: 'var(--bg-card)', padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', borderBottom: `1px solid var(--border-color)` }}>
-                  <div>
-                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--text-primary)' }}>{result.company}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                      GSTIN: <strong style={{ fontFamily: 'monospace' }}>{result.gstin}</strong> &nbsp;•&nbsp; Category: <strong>{result.category}</strong> &nbsp;•&nbsp; Filed: <strong>{result.submittedDate}</strong>
+                <div style={{ background: 'var(--bg-card)', padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', borderBottom: `1px solid var(--border-color)` }}>
+                  <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-primary)', wordBreak: 'break-word' }}>{result.company}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: '0.25rem 0.5rem', alignItems: 'center' }}>
+                      <span>GSTIN: <strong style={{ fontFamily: 'monospace' }}>{result.gstin}</strong></span>
+                      <span style={{ opacity: 0.5 }}>•</span>
+                      <span>Category: <strong>{result.category}</strong></span>
+                      <span style={{ opacity: 0.5 }}>•</span>
+                      <span>Filed: <strong>{result.submittedDate}</strong></span>
                     </div>
                   </div>
                   {/* Action Buttons */}
                   {result.fullData && (
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: '100%', maxWidth: 'max-content' }}>
                       <button onClick={() => setShowReceiptModal(true)} className="btn-secondary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}>
                         <Printer style={{ width: 14, height: 14 }} />
                         <span>Print Application Dossier</span>
@@ -431,36 +435,36 @@ export default function TrackPage() {
                 </div>
 
                 {/* Scanner Advisory Box */}
-                <div style={{ background: vs.scannerColor, padding: '1rem 1.5rem', borderTop: `1.5px solid ${vs.scannerBorder}`, display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <div style={{ background: vs.scannerColor, padding: '0.85rem 1.1rem', borderTop: `1.5px solid ${vs.scannerBorder}`, display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
                   <Shield style={{ width: 18, height: 18, color: '#374151', flexShrink: 0, marginTop: 2 }} />
-                  <div>
-                    <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>📱 Scanner Advisory — Hindustan Projects Verification System</div>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1F2937', lineHeight: 1.5 }}>{vs.scannerMsg}</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>📱 Scanner Advisory — Verification System</div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1F2937', lineHeight: 1.45, wordBreak: 'break-word' }}>{vs.scannerMsg}</div>
                   </div>
                 </div>
               </div>
 
               {/* SHA-256 Hash + Timeline — below the hero */}
-              <div style={{ padding: '1.5rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+              <div style={{ padding: '1.25rem 1.1rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
 
                 {/* Cryptographic SHA-256 Hash Ribbon */}
-                <div style={{ padding: '0.65rem 1rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <span>🔒 SHA-256 Hash Signature: <strong>{result.hashSignature}</strong></span>
-                  <span style={{ color: '#047857', fontWeight: 800 }}>✓ Verified Audit Trail</span>
+                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.73rem', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', wordBreak: 'break-all' }}>
+                  <span style={{ wordBreak: 'break-all', overflowWrap: 'anywhere' }}>🔒 SHA-256 Hash: <strong style={{ wordBreak: 'break-all' }}>{result.hashSignature}</strong></span>
+                  <span style={{ color: '#047857', fontWeight: 800, flexShrink: 0 }}>✓ Verified Audit Trail</span>
                 </div>
 
                 {/* 5-Stage Visual Progress Timeline */}
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 900, marginBottom: '1.25rem', color: '#0047AB' }}>
-                  5-Stage Vendor Audit & Classification Pipeline:
+                <h4 style={{ fontSize: '1rem', fontWeight: 900, marginBottom: '1rem', color: '#0047AB' }}>
+                  5-Stage Vendor Audit &amp; Classification Pipeline:
                 </h4>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
                   {result.steps.map((st, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                       <div style={{
-                        width: 34, height: 34, borderRadius: '50%',
+                        width: 32, height: 32, borderRadius: '50%',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '0.85rem', fontWeight: 900,
+                        fontSize: '0.8rem', fontWeight: 900,
                         backgroundColor: st.done ? '#10B981' : st.active ? '#0047AB' : 'var(--border-color)',
                         color: 'white',
                         boxShadow: st.active ? '0 0 14px rgba(0,71,171,0.45)' : 'none',
@@ -468,9 +472,9 @@ export default function TrackPage() {
                       }}>
                         {st.done ? '✓' : idx + 1}
                       </div>
-                      <div style={{ flex: 1, paddingTop: 3 }}>
-                        <div style={{ fontSize: '0.95rem', fontWeight: 900, color: st.active ? '#0047AB' : st.done ? '#047857' : 'var(--text-primary)' }}>{st.label}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>{st.desc}</div>
+                      <div style={{ flex: 1, paddingTop: 2, minWidth: 0, wordBreak: 'break-word' }}>
+                        <div style={{ fontSize: '0.88rem', fontWeight: 900, color: st.active ? '#0047AB' : st.done ? '#047857' : 'var(--text-primary)', lineHeight: 1.35, wordBreak: 'break-word' }}>{st.label}</div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.2rem', lineHeight: 1.4, wordBreak: 'break-word' }}>{st.desc}</div>
                       </div>
                     </div>
                   ))}
