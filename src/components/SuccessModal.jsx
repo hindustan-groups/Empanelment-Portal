@@ -58,13 +58,44 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
   const filingDate = fmtDate(formData?.submitted_at);
   const entityType = (formData?.entityType || 'sole_proprietor').replace(/_/g, ' ').toUpperCase();
 
-  const docRows = [
-    { name: 'PAN Card Copy', submitted: formData?.panDoc || formData?.pan_doc || formData?.panDocUrl, req: 'Mandatory' },
-    { name: 'Aadhaar Card (Front/Back)', submitted: formData?.aadharFrontDoc || formData?.aadhar_front_doc || formData?.aadharDoc || formData?.aadhar_doc, req: 'Mandatory' },
-    { name: 'Cancelled Cheque / Passbook', submitted: formData?.bankDoc || formData?.bank_doc || formData?.bankDocUrl, req: 'Mandatory' },
-    { name: 'GST REG-06 Certificate', submitted: formData?.gstDoc || formData?.gst_doc || formData?.gstDocUrl, req: 'Conditional' },
-    { name: 'Work Portfolio / Experience', submitted: formData?.expDoc || formData?.exp_doc || formData?.expDocUrl || formData?.portfolioDoc, req: 'Mandatory' },
+  let catData = {};
+  if (formData?.category_specific_data) {
+    try {
+      catData = typeof formData.category_specific_data === 'string'
+        ? JSON.parse(formData.category_specific_data)
+        : formData.category_specific_data;
+    } catch {}
+  }
+
+  const allDocDefs = [
+    { name: 'PAN Card Copy', keys: ['panDoc', 'pan_doc', 'panDocUrl'], req: 'Mandatory' },
+    { name: 'Aadhaar Card (Front/Back)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc', 'aadharDoc', 'aadhar_doc'], req: 'Mandatory' },
+    { name: 'Cancelled Cheque / Passbook', keys: ['bankDoc', 'bank_doc', 'bankDocUrl'], req: 'Mandatory' },
+    { name: 'GST REG-06 Certificate', keys: ['gstDoc', 'gst_doc', 'gstDocUrl'], req: 'Conditional' },
+    { name: 'Work Experience & Certificates', keys: ['expDoc', 'exp_doc', 'expDocUrl'], req: 'Mandatory' },
+    { name: 'Council of Architecture (COA) Cert', keys: ['coaCertificateDoc', 'coa_certificate_doc'], req: 'Architects' },
+    { name: 'Design Portfolio (PDF)', keys: ['portfolioDoc', 'portfolio_doc', 'portfolioUrl'], req: 'Consultants' },
+    { name: 'CA Certified Financial Cert', keys: ['caCertificateDoc', 'ca_certificate_doc', 'charteredCertDoc'], req: 'Financials' },
+    { name: 'Certificate of Incorporation', keys: ['incorporationDoc', 'incorporation_doc'], req: 'Corporate' },
+    { name: 'MSME Udyam Certificate', keys: ['msmeDoc', 'msme_doc'], req: 'MSME' },
+    { name: 'ISO Quality & Safety Cert', keys: ['isoCertDoc', 'iso_cert_doc'], req: 'Standard' },
+    { name: 'Structural Audit / NABL License', keys: ['structuralAuditDoc', 'structural_audit_doc'], req: 'Engineers' },
+    { name: 'Commercial Fleet RTO Permits', keys: ['rtoPermitDoc', 'rto_permit_doc'], req: 'Transporters' },
+    { name: 'FSSAI License Certificate', keys: ['fssaiDoc', 'fssai_doc'], req: 'Food/Agri' },
+    { name: 'Trade License / Brand Dealership', keys: ['tradeLicenseDoc', 'trade_license_doc', 'dealershipCertDoc'], req: 'Suppliers' },
+    { name: 'Authorized Signatory Photo', keys: ['passport_photo', 'passportPhoto', 'passportPhotoDoc'], req: 'Identity' },
   ];
+
+  const docRows = allDocDefs.map(def => {
+    let submitted = null;
+    if (formData) {
+      for (const k of def.keys) {
+        if (formData[k]) { submitted = formData[k]; break; }
+        if (catData[k]) { submitted = catData[k]; break; }
+      }
+    }
+    return submitted ? { name: def.name, submitted, req: def.req } : null;
+  }).filter(Boolean);
 
   const BLUE = '#0047AB';
   const DARK = '#0B1B3D';
