@@ -2,39 +2,88 @@ import React, { useState, useRef } from 'react';
 import {
   X, Printer, CheckCircle2, XCircle, Upload, ShieldCheck,
   FileText, Building2, CreditCard, DollarSign, FileCheck2, Eye,
-  ChevronRight, Download, AlertCircle, Image, File
+  Download, AlertCircle, Copy, Check, User, MapPin, Phone, Mail, Award, Clock
 } from 'lucide-react';
 import { printDossier, getEmpanelmentMode } from '../utils/printDossier';
 import { API_BASE_URL } from '../config/api';
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   VendorDossierA4Modal  v3
-   ─ Tab 1: OVERVIEW    — all vendor info displayed cleanly
-   ─ Tab 2: DOCUMENTS   — actual uploaded files previewed (image/PDF)
-   ─ Tab 3: AUTHORIZE   — seal upload + approval + print
+   ULTRA-PREMIUM VENDOR DOSSIER A4 MODAL v4 (Executive UX/UI)
    ─────────────────────────────────────────────────────────────────────────── */
 
-function InfoRow({ label, value, mono, col }) {
+function InfoCard({ label, value, mono, icon: Icon, color = '#60A5FA' }) {
+  const [copied, setCopied] = useState(false);
+
   if (!value) return null;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(String(value));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
   return (
-    <div style={{ padding: '0.45rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)', gridColumn: col }}>
-      <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700, marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#E2E8F0', fontFamily: mono ? 'monospace' : undefined, wordBreak: 'break-all' }}>{value}</div>
+    <div style={{
+      padding: '0.75rem 0.95rem',
+      background: 'rgba(30, 41, 59, 0.6)',
+      backdropFilter: 'blur(8px)',
+      borderRadius: 12,
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
+      position: 'relative',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+        <span style={{ fontSize: '0.66rem', color: '#94A3B8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          {Icon && <Icon style={{ width: 12, height: 12, color }} />}
+          {label}
+        </span>
+        {mono && (
+          <button onClick={handleCopy} style={{ background: 'none', border: 'none', color: copied ? '#34D399' : '#64748B', cursor: 'pointer', padding: 2, display: 'flex', alignItems: 'center' }} title="Copy to clipboard">
+            {copied ? <Check style={{ width: 12, height: 12 }} /> : <Copy style={{ width: 12, height: 12 }} />}
+          </button>
+        )}
+      </div>
+      <div style={{
+        fontSize: '0.85rem',
+        fontWeight: 800,
+        color: '#F8FAFC',
+        fontFamily: mono ? 'Consolas, monospace' : 'inherit',
+        wordBreak: 'break-word',
+        overflowWrap: 'anywhere'
+      }}>
+        {value}
+      </div>
     </div>
   );
 }
 
-function SectionHead({ icon: Icon, title, color = '#60A5FA' }) {
+function SectionHead({ icon: Icon, title, badge, color = '#60A5FA' }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem', background: `${color}10`, borderLeft: `3px solid ${color}`, borderRadius: '0 8px 8px 0', marginBottom: '0.65rem', marginTop: '0.85rem' }}>
-      <Icon style={{ width: 13, height: 13, color }} />
-      <span style={{ fontSize: '0.72rem', fontWeight: 900, color, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{title}</span>
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '0.65rem 1rem',
+      background: `linear-gradient(90deg, ${color}18 0%, rgba(15,23,42,0.4) 100%)`,
+      borderLeft: `4px solid ${color}`,
+      borderRadius: '0 12px 12px 0',
+      marginBottom: '0.9rem', marginTop: '1.25rem'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        <div style={{ width: 26, height: 26, borderRadius: 8, background: `${color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon style={{ width: 14, height: 14, color }} />
+        </div>
+        <span style={{ fontSize: '0.8rem', fontWeight: 900, color, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</span>
+      </div>
+      {badge && (
+        <span style={{ fontSize: '0.65rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 20, background: `${color}20`, color, border: `1px solid ${color}40` }}>
+          {badge}
+        </span>
+      )}
     </div>
   );
 }
 
-/* ── Document preview card ── */
-function DocCard({ label, docType, fileVal, index }) {
+/* ── Document Vault Card ── */
+function DocCard({ label, docType, fileVal }) {
   const [expanded, setExpanded] = useState(false);
 
   const getResolvedUrl = (val) => {
@@ -58,20 +107,19 @@ function DocCard({ label, docType, fileVal, index }) {
 
   return (
     <div style={{ background: '#1E293B', borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: '0.85rem' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 1.1rem', cursor: fileUrl ? 'pointer' : 'default' }}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.95rem 1.15rem', cursor: fileUrl ? 'pointer' : 'default', flexWrap: 'wrap', gap: '0.5rem' }}
            onClick={() => fileUrl && setExpanded(e => !e)}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{ width: 38, height: 38, borderRadius: 10, background: fileVal ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.1)', border: `1.5px solid ${fileVal ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 200, flex: 1 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: fileVal ? 'rgba(16,185,129,0.14)' : 'rgba(239,68,68,0.12)', border: `1.5px solid ${fileVal ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {fileVal
-              ? <CheckCircle2 style={{ width: 18, height: 18, color: '#34D399' }} />
-              : <AlertCircle style={{ width: 18, height: 18, color: '#F87171' }} />}
+              ? <CheckCircle2 style={{ width: 20, height: 20, color: '#34D399' }} />
+              : <AlertCircle style={{ width: 20, height: 20, color: '#F87171' }} />}
           </div>
           <div>
-            <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#E2E8F0' }}>{label}</div>
-            <div style={{ fontSize: '0.68rem', color: '#64748B', marginTop: 1 }}>{docType}</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#E2E8F0' }}>{label}</div>
+            <div style={{ fontSize: '0.7rem', color: '#94A3B8', marginTop: 1 }}>{docType}</div>
             {fileName && (
-              <div style={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#60A5FA', marginTop: 2 }}>
+              <div style={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#60A5FA', marginTop: 2, wordBreak: 'break-all' }}>
                 {isPDF ? '📄 ' : isImage ? '🖼️ ' : '📎 '}{fileName}
               </div>
             )}
@@ -79,27 +127,26 @@ function DocCard({ label, docType, fileVal, index }) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {fileVal
-            ? <span style={{ fontSize: '0.68rem', fontWeight: 900, padding: '0.2rem 0.6rem', background: 'rgba(16,185,129,0.15)', color: '#34D399', borderRadius: 20, border: '1px solid rgba(16,185,129,0.35)' }}>✓ SUBMITTED</span>
-            : <span style={{ fontSize: '0.68rem', fontWeight: 900, padding: '0.2rem 0.6rem', background: 'rgba(239,68,68,0.12)', color: '#F87171', borderRadius: 20, border: '1px solid rgba(239,68,68,0.35)' }}>✗ NOT UPLOADED</span>}
+            ? <span style={{ fontSize: '0.68rem', fontWeight: 900, padding: '0.2rem 0.65rem', background: 'rgba(16,185,129,0.15)', color: '#34D399', borderRadius: 20, border: '1px solid rgba(16,185,129,0.35)' }}>✓ VERIFIED & SUBMITTED</span>
+            : <span style={{ fontSize: '0.68rem', fontWeight: 900, padding: '0.2rem 0.65rem', background: 'rgba(239,68,68,0.12)', color: '#F87171', borderRadius: 20, border: '1px solid rgba(239,68,68,0.35)' }}>✗ NOT UPLOADED</span>}
           {fileUrl && (
-            <Eye style={{ width: 15, height: 15, color: expanded ? '#60A5FA' : '#475569', transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+            <Eye style={{ width: 16, height: 16, color: expanded ? '#60A5FA' : '#64748B', transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           )}
         </div>
       </div>
 
-      {/* Preview Area */}
       {fileUrl && expanded && (
-        <div style={{ padding: '0.85rem 1.1rem', background: '#0A1225', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ padding: '1rem 1.15rem', background: '#0A1225', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           {isImage ? (
-            <img src={fileUrl} alt={label} style={{ maxWidth: '100%', maxHeight: 420, objectFit: 'contain', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', display: 'block', margin: '0 auto 0.85rem' }} />
+            <img src={fileUrl} alt={label} style={{ maxWidth: '100%', maxHeight: 450, objectFit: 'contain', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)', display: 'block', margin: '0 auto 1rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }} />
           ) : (
-            <iframe src={fileUrl} title={label} style={{ width: '100%', height: 480, border: 'none', borderRadius: 8, background: 'white', marginBottom: '0.85rem' }} />
+            <iframe src={fileUrl} title={label} style={{ width: '100%', height: 480, border: 'none', borderRadius: 10, background: 'white', marginBottom: '1rem' }} />
           )}
 
           <div style={{ textAlign: 'center' }}>
             <a href={fileUrl} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.25rem', background: 'linear-gradient(135deg, #0047AB 0%, #3B82F6 100%)', color: 'white', borderRadius: 10, fontWeight: 800, fontSize: '0.8rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,71,171,0.3)' }}>
-              <Download style={{ width: 15, height: 15 }} /> <span>Open / Download Full Document ({fileName})</span>
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.35rem', background: 'linear-gradient(135deg, #0047AB 0%, #3B82F6 100%)', color: 'white', borderRadius: 10, fontWeight: 800, fontSize: '0.82rem', textDecoration: 'none', boxShadow: '0 4px 14px rgba(0,71,171,0.35)' }}>
+              <Download style={{ width: 16, height: 16 }} /> <span>Open / Download Full Document ({fileName})</span>
             </a>
           </div>
         </div>
@@ -108,34 +155,34 @@ function DocCard({ label, docType, fileVal, index }) {
   );
 }
 
-/* ─── MAIN MODAL ──────────────────────────────────────────────────────────────*/
+/* ─── MAIN MODAL COMPONENT ──────────────────────────────────────────────────*/
 export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, adminRemark, setAdminRemark }) {
-  const [activeTab, setActiveTab]           = useState('overview');
-  const [approvalClass, setApprovalClass]   = useState('Class-A');
-  const [officerName, setOfficerName]       = useState(localStorage.getItem('hipro_officer_name') || 'Procurement Officer');
-  const [ceoName, setCeoName]               = useState(localStorage.getItem('hipro_ceo_name') || 'Managing Director');
-  const [sealImage, setSealImage]           = useState(localStorage.getItem('hipro_seal_img') || null);
-  const [signing, setSigning]               = useState(false);
-  const [signed, setSigned]                 = useState(!!vendor?.ceo_signed);
-  const [printing, setPrinting]             = useState(false);
+  const [activeTab, setActiveTab]         = useState('overview');
+  const [approvalClass, setApprovalClass] = useState('Class-A');
+  const [officerName, setOfficerName]     = useState(localStorage.getItem('hipro_officer_name') || 'Procurement Officer');
+  const [ceoName, setCeoName]             = useState(localStorage.getItem('hipro_ceo_name') || 'Managing Director');
+  const [sealImage, setSealImage]         = useState(localStorage.getItem('hipro_seal_img') || null);
+  const [signing, setSigning]             = useState(false);
+  const [signed, setSigned]               = useState(!!vendor?.ceo_signed);
+  const [printing, setPrinting]           = useState(false);
   const sealRef = useRef();
 
   if (!vendor) return null;
 
   const buildFormData = () => ({
-    companyName: vendor.company_name, contactName: vendor.contact_name,
+    companyName: vendor.company_name || vendor.companyName, contactName: vendor.contact_name || vendor.contactName,
     designation: vendor.designation, email: vendor.email, phone: vendor.phone,
-    entityType: vendor.entity_type, estYear: vendor.est_year,
+    entityType: vendor.entity_type || vendor.entityType, estYear: vendor.est_year || vendor.estYear,
     address: vendor.address, city: vendor.city, state: vendor.state, pincode: vendor.pincode,
-    gstin: vendor.gstin, pan: vendor.pan, msmeNo: vendor.msme_no,
-    bankAccount: vendor.bank_account, bankName: vendor.bank_name, ifsc: vendor.ifsc,
-    turnover2023: vendor.turnover_2023, turnover2024: vendor.turnover_2024,
-    turnover2025: vendor.turnover_2025, largestOrder: vendor.largest_order,
-    existingEmpanels: vendor.existing_empanels,
-    gstDoc: vendor.gst_doc, panDoc: vendor.pan_doc,
-    bankDoc: vendor.bank_doc, expDoc: vendor.exp_doc,
-    signatoryName: vendor.signatory_name || vendor.contact_name,
-    signature: vendor.signature_data || null,
+    gstin: vendor.gstin, pan: vendor.pan, msmeNo: vendor.msme_no || vendor.msmeNo,
+    bankAccount: vendor.bank_account || vendor.bankAccount, bankName: vendor.bank_name || vendor.bankName, ifsc: vendor.ifsc,
+    turnover2023: vendor.turnover_2023 || vendor.turnover2023, turnover2024: vendor.turnover_2024 || vendor.turnover2024,
+    turnover2025: vendor.turnover_2025 || vendor.turnover2025, largestOrder: vendor.largest_order || vendor.largestOrder,
+    existingEmpanels: vendor.existing_empanels || vendor.existingEmpanels,
+    gstDoc: vendor.gst_doc || vendor.gstDoc, panDoc: vendor.pan_doc || vendor.panDoc,
+    bankDoc: vendor.bank_doc || vendor.bankDoc, expDoc: vendor.exp_doc || vendor.expDoc,
+    signatoryName: vendor.signatory_name || vendor.contact_name || vendor.contactName,
+    signature: vendor.signature_data || vendor.signature || null,
     primaryRole: vendor.primary_role || vendor.primaryRole,
     specialization: vendor.specialization,
     skillsDetails: vendor.skills_details || vendor.skillsDetails,
@@ -146,13 +193,13 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
     adminSigned: signed,
     adminSignedAt: signed ? new Date().toLocaleString('en-IN') : null,
     adminRemarks: adminRemark || vendor.admin_remarks,
-    submitted_at: vendor.submitted_at, category: vendor.category,
-    ipAddress: vendor.ip_address, currentStage: vendor.current_stage,
+    submitted_at: vendor.submitted_at || vendor.submittedAt, category: vendor.category,
+    ipAddress: vendor.ip_address || vendor.ipAddress, currentStage: vendor.current_stage || vendor.currentStage,
     status: signed ? `Approved ${approvalClass}` : (vendor.status || 'Under Verification'),
   });
 
   const handleSealUpload = (e) => {
-    const file = e.target.files[0]; if (!file) return;
+    const file = e.target.files && e.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => { setSealImage(ev.target.result); localStorage.setItem('hipro_seal_img', ev.target.result); };
     reader.readAsDataURL(file);
@@ -164,28 +211,29 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
     localStorage.setItem('hipro_ceo_name', ceoName);
     setTimeout(() => {
       setSigned(true); setSigning(false);
-      onUpdateStatus(vendor.tracking_id, `Approved ${approvalClass}`, 'CEO Authorization', adminRemark);
+      onUpdateStatus(vendor.tracking_id || vendor.trackingId, `Approved ${approvalClass}`, 'CEO Authorization', adminRemark);
     }, 700);
   };
 
   const handlePrint = () => {
     setPrinting(true);
-    printDossier(vendor.tracking_id, buildFormData());
+    printDossier(vendor.tracking_id || vendor.trackingId, buildFormData());
     setTimeout(() => setPrinting(false), 2500);
   };
 
   const statusColor = signed ? '#10B981' : vendor.status?.includes('Approved') ? '#10B981'
-                    : vendor.status === 'Rejected' ? '#EF4444' : '#F59E0B';
+                    : vendor.status?.includes('Suspended') ? '#F59E0B'
+                    : vendor.status?.includes('Terminated') || vendor.status?.includes('Disabled') || vendor.status === 'Rejected' ? '#EF4444' : '#60A5FA';
 
   const modeInfo = getEmpanelmentMode(vendor);
 
   const TABS = [
-    { id: 'overview',   label: '📋 Overview',  },
-    { id: 'documents',  label: '📁 Documents', },
-    { id: 'authorize',  label: '✅ Authorize & Print', },
+    { id: 'overview',   label: '📋 Dossier Overview',  },
+    { id: 'documents',  label: '📁 Document Vault', },
+    { id: 'authorize',  label: '🛡️ Audit & Authorize', },
   ];
 
-  // Dynamic document extraction from vendor & category_specific_data
+  // Dynamic document extraction
   let catData = {};
   if (vendor.category_specific_data) {
     try {
@@ -223,189 +271,225 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
 
   const submittedCount = docs.length;
 
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,25,0.95)', backdropFilter: 'blur(10px)', zIndex: 999999, display: 'flex', flexDirection: 'column' }}>
+  const getPassportUrl = () => {
+    let raw = vendor.passport_photo || vendor.passportPhoto || vendor.photo_url || vendor.photoUrl || vendor.photo;
+    if (!raw) return null;
+    if (typeof raw === 'object' && raw !== null) raw = raw.url || raw.data || raw.previewUrl || raw.path || '';
+    if (typeof raw === 'string') {
+      if (raw.startsWith('http') || raw.startsWith('data:')) return raw;
+      if (raw.startsWith('/uploads/')) return `${API_BASE_URL}${raw}`;
+      if (raw.startsWith('uploads/')) return `${API_BASE_URL}/${raw}`;
+      if (raw.startsWith('/')) return `${API_BASE_URL}${raw}`;
+      return `${API_BASE_URL}/uploads/${raw}`;
+    }
+    return null;
+  };
+  const passportUrl = getPassportUrl();
 
-      {/* ══ TOP BAR ══ */}
-      <div style={{ background: 'linear-gradient(135deg,#060D1F,#0A1535)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '0 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'stretch', flexShrink: 0, minHeight: 56 }}>
-        {/* Left: identity */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <FileText style={{ width: 15, height: 15, color: 'white' }} />
-          </div>
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(5, 10, 25, 0.95)', backdropFilter: 'blur(16px)', zIndex: 999999, display: 'flex', flexDirection: 'column' }}>
+
+      {/* ══ TOP BAR HEADER ══ */}
+      <div style={{ background: 'linear-gradient(135deg, #09132B 0%, #030816 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '0.85rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0, flexWrap: 'wrap', gap: '0.85rem' }}>
+        {/* Left identity block */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          {passportUrl ? (
+            <img src={passportUrl} alt="Signatory" style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'cover', border: '2px solid #3B82F6', boxShadow: '0 4px 12px rgba(59,130,246,0.3)', flexShrink: 0 }} />
+          ) : (
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,#0047AB,#0065D0)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,71,171,0.4)' }}>
+              <User style={{ width: 22, height: 22, color: 'white' }} />
+            </div>
+          )}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <span style={{ fontFamily: 'monospace', color: '#34D399', fontWeight: 900, fontSize: '0.9rem' }}>{vendor.tracking_id}</span>
-              <span style={{ color: '#E2E8F0', fontWeight: 800 }}>{vendor.company_name}</span>
-              <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '0.12rem 0.55rem', borderRadius: 20, background: 'rgba(59,130,246,0.15)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+              <span style={{ fontFamily: 'monospace', color: '#34D399', fontWeight: 900, fontSize: '0.95rem', background: 'rgba(52,211,153,0.1)', padding: '0.15rem 0.55rem', borderRadius: 6, border: '1px solid rgba(52,211,153,0.25)' }}>
+                {vendor.tracking_id || vendor.trackingId}
+              </span>
+              <span style={{ color: '#F8FAFC', fontWeight: 900, fontSize: '1.05rem' }}>{vendor.company_name || vendor.companyName}</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.15rem 0.6rem', borderRadius: 20, background: 'rgba(59,130,246,0.15)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.3)' }}>
                 {modeInfo.badge}
               </span>
-              <span style={{ fontSize: '0.7rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 20, background: `${statusColor}20`, color: statusColor, border: `1px solid ${statusColor}40` }}>
-                {signed ? `Approved ${approvalClass}` : (vendor.status || 'Pending')}
+              <span style={{ fontSize: '0.72rem', fontWeight: 900, padding: '0.18rem 0.65rem', borderRadius: 20, background: `${statusColor}20`, color: statusColor, border: `1px solid ${statusColor}40`, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: statusColor, boxShadow: `0 0 8px ${statusColor}` }} />
+                {signed ? `Approved ${approvalClass}` : (vendor.status || 'Pending Verification')}
               </span>
             </div>
-            <div style={{ fontSize: '0.65rem', color: '#475569', marginTop: 1 }}>
-              {vendor.category} · {vendor.city}, {vendor.state} · {vendor.email}
+            <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: 3, display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+              <span>Category: <strong style={{ color: '#CBD5E1' }}>{vendor.category}</strong></span>
+              <span>📍 {vendor.city}, {vendor.state}</span>
+              <span>✉️ {vendor.email}</span>
             </div>
           </div>
         </div>
-        {/* Right: actions */}
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+
+        {/* Right action controls */}
+        <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
           <button onClick={handlePrint} disabled={printing}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 1rem', borderRadius: 10, fontSize: '0.78rem', fontWeight: 900, background: printing ? '#374151' : '#0047AB', color: 'white', border: 'none', cursor: printing ? 'wait' : 'pointer' }}>
-            <Printer style={{ width: 14, height: 14 }} />
-            {printing ? 'Preparing…' : '🖨️ Print A4 Dossier'}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.55rem 1.25rem', borderRadius: 12, fontSize: '0.82rem', fontWeight: 900, background: printing ? '#374151' : 'linear-gradient(135deg, #0047AB, #3B82F6)', color: 'white', border: 'none', cursor: printing ? 'wait' : 'pointer', boxShadow: '0 4px 14px rgba(0,71,171,0.4)', transition: 'transform 0.15s' }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+            <Printer style={{ width: 16, height: 16 }} />
+            {printing ? 'Preparing Print…' : '🖨️ Print A4 Dossier'}
           </button>
           <button onClick={onClose}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.45rem 0.9rem', borderRadius: 10, fontSize: '0.75rem', fontWeight: 700, background: 'rgba(255,255,255,0.06)', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>
-            <X style={{ width: 14, height: 14 }} /> Close
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.55rem 1rem', borderRadius: 12, fontSize: '0.8rem', fontWeight: 800, background: 'rgba(255,255,255,0.06)', color: '#CBD5E1', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer' }}>
+            <X style={{ width: 16, height: 16 }} /> Close
           </button>
         </div>
       </div>
 
-      {/* ══ TABS ══ */}
-      <div style={{ background: '#0A1225', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', gap: 0, flexShrink: 0, padding: '0 1.5rem' }}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={() => setActiveTab(t.id)}
-            style={{ padding: '0.75rem 1.25rem', fontSize: '0.8rem', fontWeight: activeTab === t.id ? 900 : 600, color: activeTab === t.id ? '#60A5FA' : '#475569', background: 'none', border: 'none', borderBottom: activeTab === t.id ? '2.5px solid #3B82F6' : '2.5px solid transparent', cursor: 'pointer', transition: 'all 0.15s', marginBottom: -1 }}>
-            {t.label}
-            {t.id === 'documents' && (
-              <span style={{ marginLeft: '0.4rem', fontSize: '0.65rem', fontWeight: 900, padding: '0.1rem 0.45rem', borderRadius: 20, background: submittedCount === docs.length ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)', color: submittedCount === docs.length ? '#34D399' : '#FCD34D' }}>
-                {submittedCount}/{docs.length}
-              </span>
-            )}
-          </button>
-        ))}
+      {/* ══ NAVIGATION TABS BAR ══ */}
+      <div style={{ background: '#070E20', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', gap: '0.5rem', flexShrink: 0, padding: '0.5rem 1.5rem', overflowX: 'auto' }}>
+        {TABS.map(t => {
+          const active = activeTab === t.id;
+          return (
+            <button key={t.id} onClick={() => setActiveTab(t.id)}
+              style={{
+                padding: '0.6rem 1.25rem',
+                fontSize: '0.82rem',
+                fontWeight: active ? 900 : 700,
+                color: active ? '#60A5FA' : '#64748B',
+                background: active ? 'rgba(59,130,246,0.12)' : 'transparent',
+                border: 'none',
+                borderRadius: 10,
+                outline: active ? '1.5px solid rgba(59,130,246,0.35)' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.18s',
+                whiteSpace: 'nowrap',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem'
+              }}>
+              <span>{t.label}</span>
+              {t.id === 'documents' && (
+                <span style={{ fontSize: '0.68rem', fontWeight: 900, padding: '0.12rem 0.5rem', borderRadius: 20, background: submittedCount === docs.length ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)', color: submittedCount === docs.length ? '#34D399' : '#FCD34D' }}>
+                  {submittedCount}/{docs.length} Verified
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* ══ CONTENT ══ */}
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      {/* ══ MODAL MAIN BODY SCROLL AREA ══ */}
+      <div style={{ flex: 1, overflow: 'auto', background: 'radial-gradient(circle at top center, #0B1736 0%, #030712 100%)' }}>
 
-        {/* ── TAB: OVERVIEW ── */}
+        {/* ── TAB 1: EXECUTIVE OVERVIEW ── */}
         {activeTab === 'overview' && (
-          <div style={{ maxWidth: 900, margin: '0 auto', padding: '1.5rem 1.5rem' }}>
+          <div style={{ maxWidth: 960, margin: '0 auto', padding: '1.75rem 1.5rem' }}>
 
-            <SectionHead icon={Building2} title="Company & Entity Details" color="#60A5FA" />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem' }}>
-              <InfoRow label="Company / Firm Name" value={vendor.company_name} col="1 / -1" />
-              <InfoRow label="Entity Type" value={vendor.entity_type} />
-              <InfoRow label="Year Established" value={vendor.est_year} />
-              <InfoRow label="Empanelment Category" value={vendor.category} />
-              <InfoRow label="Primary Role" value={vendor.primary_role || vendor.primaryRole} />
-              <InfoRow label="Specialization" value={vendor.specialization} />
-              <InfoRow label="Skills" value={vendor.skills_details || vendor.skillsDetails} />
-              <InfoRow label="Team Size" value={vendor.team_size || vendor.teamSize} />
-              <InfoRow label="Owner / Proprietor" value={vendor.owner_name || vendor.ownerName} />
-              <InfoRow label="Contact Person" value={vendor.contact_name} />
-              <InfoRow label="Designation" value={vendor.designation} />
-              <InfoRow label="Email" value={vendor.email} />
-              <InfoRow label="Phone" value={vendor.phone} />
-              <InfoRow label="Address" value={[vendor.address, vendor.city, vendor.state, vendor.pincode].filter(Boolean).join(', ')} col="1 / -1" />
+            <SectionHead icon={Building2} title="Company & Corporate Identity" badge="Verified Entity" color="#60A5FA" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem' }}>
+              <InfoCard icon={Building2} label="Company / Firm Legal Name" value={vendor.company_name || vendor.companyName} color="#60A5FA" />
+              <InfoCard icon={ShieldCheck} label="Entity Registration Type" value={vendor.entity_type || vendor.entityType} color="#A78BFA" />
+              <InfoCard icon={Clock} label="Year Established" value={vendor.est_year || vendor.estYear} color="#FBBF24" />
+              <InfoCard icon={Award} label="Empanelment Trade Category" value={vendor.category} color="#34D399" />
+              <InfoCard icon={User} label="Primary Corporate Role" value={vendor.primary_role || vendor.primaryRole} color="#F472B6" />
+              <InfoCard icon={CheckCircle2} label="Specialization & Trade Roster" value={vendor.specialization} color="#60A5FA" />
+              <InfoCard icon={FileText} label="Technical Capabilities / Skills" value={vendor.skills_details || vendor.skillsDetails} color="#A78BFA" />
+              <InfoCard icon={User} label="Technical Team Size" value={vendor.team_size || vendor.teamSize} color="#34D399" />
+              <InfoCard icon={User} label="Managing Director / Owner" value={vendor.owner_name || vendor.ownerName} color="#FBBF24" />
+              <InfoCard icon={User} label="Primary Contact Officer" value={vendor.contact_name || vendor.contactName} color="#60A5FA" />
+              <InfoCard icon={Award} label="Designation" value={vendor.designation} color="#A78BFA" />
+              <InfoCard icon={Mail} label="Corporate Email ID" value={vendor.email} mono color="#F472B6" />
+              <InfoCard icon={Phone} label="Helpline Phone / Mobile" value={vendor.phone} mono color="#34D399" />
+              <InfoCard icon={MapPin} label="Registered Address" value={[vendor.address, vendor.city, vendor.state, vendor.pincode].filter(Boolean).join(', ')} color="#60A5FA" />
             </div>
 
-            <SectionHead icon={CreditCard} title="Statutory & Banking Identity" color="#A78BFA" />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem' }}>
-              <InfoRow label="GSTIN" value={vendor.gstin} mono />
-              <InfoRow label="PAN Card No." value={vendor.pan} mono />
-              <InfoRow label="Aadhaar No." value={vendor.aadhar_no || vendor.aadharNo} mono />
-              <InfoRow label="MSME Reg. No." value={vendor.msme_no} mono />
-              <InfoRow label="Bank Name" value={vendor.bank_name} />
-              <InfoRow label="Account Number" value={vendor.bank_account} mono />
-              <InfoRow label="IFSC Code" value={vendor.ifsc} mono />
+            <SectionHead icon={CreditCard} title="Statutory & Banking Credentials" badge="Encrypted Vault" color="#A78BFA" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem' }}>
+              <InfoCard icon={CreditCard} label="GSTIN Compliance Number" value={vendor.gstin} mono color="#60A5FA" />
+              <InfoCard icon={CreditCard} label="PAN Income Tax Number" value={vendor.pan} mono color="#A78BFA" />
+              <InfoCard icon={CreditCard} label="Aadhaar UIDAI Number" value={vendor.aadhar_no || vendor.aadharNo} mono color="#F472B6" />
+              <InfoCard icon={ShieldCheck} label="MSME Udyam Reg. No." value={vendor.msme_no || vendor.msmeNo} mono color="#34D399" />
+              <InfoCard icon={Building2} label="Primary Banker Name" value={vendor.bank_name || vendor.bankName} color="#FBBF24" />
+              <InfoCard icon={CreditCard} label="Bank Account Number" value={vendor.bank_account || vendor.bankAccount} mono color="#60A5FA" />
+              <InfoCard icon={ShieldCheck} label="IFSC Code" value={vendor.ifsc} mono color="#A78BFA" />
             </div>
 
-            {/* Statutory & Category-Specific Details */}
+            {/* Category-Specific Statutory Credentials */}
             {vendor.category_specific_data && typeof vendor.category_specific_data === 'object' && Object.keys(vendor.category_specific_data).length > 0 && (
               <>
-                <SectionHead icon={ShieldCheck} title="Statutory & Category Credentials" color="#F472B6" />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem' }}>
+                <SectionHead icon={ShieldCheck} title="Trade & Category Compliance Specs" color="#F472B6" />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem' }}>
                   {Object.entries(vendor.category_specific_data).map(([k, v]) => (
-                    <InfoRow
+                    <InfoCard
                       key={k}
                       label={k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                      value={typeof v === 'boolean' ? (v ? '✓ Available & Compliant' : '✗ Not Available') : String(v)}
+                      value={typeof v === 'boolean' ? (v ? '✓ Available & Verified' : '✗ Not Available') : String(v)}
+                      color="#F472B6"
                     />
                   ))}
                 </div>
               </>
             )}
 
-            <SectionHead icon={DollarSign} title="Financial Capacity" color="#34D399" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.5rem', margin: '0.5rem 0 0.75rem' }}>
+            <SectionHead icon={DollarSign} title="Financial Capacity & Order Benchmarks" color="#34D399" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
               {[
-                { label: 'FY 2022–23', val: vendor.turnover_2023 ? `₹ ${vendor.turnover_2023} L` : '—' },
-                { label: 'FY 2023–24', val: vendor.turnover_2024 ? `₹ ${vendor.turnover_2024} L` : '—' },
-                { label: 'FY 2024–25', val: vendor.turnover_2025 ? `₹ ${vendor.turnover_2025} L` : '—' },
-                { label: 'Largest Order', val: vendor.largest_order ? `₹ ${vendor.largest_order} L` : '—' },
+                { label: 'FY 2022–23 Turnover', val: (vendor.turnover_2023 || vendor.turnover2023) ? `₹ ${vendor.turnover_2023 || vendor.turnover2023} Lakhs` : '—' },
+                { label: 'FY 2023–24 Turnover', val: (vendor.turnover_2024 || vendor.turnover2024) ? `₹ ${vendor.turnover_2024 || vendor.turnover2024} Lakhs` : '—' },
+                { label: 'FY 2024–25 Turnover', val: (vendor.turnover_2025 || vendor.turnover2025) ? `₹ ${vendor.turnover_2025 || vendor.turnover2025} Lakhs` : '—' },
+                { label: 'Single Largest Executed Order', val: (vendor.largest_order || vendor.largestOrder) ? `₹ ${vendor.largest_order || vendor.largestOrder} Lakhs` : '—' },
               ].map(c => (
-                <div key={c.label} style={{ padding: '0.65rem', background: '#1E293B', border: '1px solid rgba(52,211,153,0.15)', borderRadius: 10, textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 700 }}>{c.label}</div>
-                  <div style={{ fontSize: '1rem', fontWeight: 900, color: '#34D399', marginTop: 3 }}>{c.val}</div>
+                <div key={c.label} style={{ padding: '0.85rem', background: 'rgba(52, 211, 153, 0.08)', border: '1px solid rgba(52, 211, 153, 0.25)', borderRadius: 14, textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.68rem', color: '#94A3B8', fontWeight: 800, textTransform: 'uppercase' }}>{c.label}</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#34D399', marginTop: 4 }}>{c.val}</div>
                 </div>
               ))}
             </div>
-            <InfoRow label="Existing Empanelments" value={vendor.existing_empanels} />
+            <InfoCard icon={Building2} label="Existing Empanelments with PSUs / Govt / Corporates" value={vendor.existing_empanels || vendor.existingEmpanels} color="#34D399" />
 
-            <SectionHead icon={FileText} title="Application Meta" color="#FBBF24" />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem' }}>
-              <InfoRow label="Tracking ID" value={vendor.tracking_id} mono />
-              <InfoRow label="Submitted At" value={vendor.submitted_at ? new Date(vendor.submitted_at).toLocaleString('en-IN') : '—'} />
-              <InfoRow label="IP Address" value={vendor.ip_address} mono />
-              <InfoRow label="Current Stage" value={vendor.current_stage || 'Document Verification'} />
-              <InfoRow label="Status" value={vendor.status} />
-              <InfoRow label="Hash Signature" value={vendor.hash_signature} mono />
-            </div>
-
-            <SectionHead icon={FileCheck2} title="Signatures & Corporate Seal Authorization" color="#60A5FA" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem', margin: '0.65rem 0 1rem 0' }}>
-              {/* 1. Vendor E-Signature */}
-              <div style={{ padding: '0.85rem', background: '#1E293B', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', marginBottom: 6 }}>
+            <SectionHead icon={FileCheck2} title="Signatures & Seal Authorization Desk" color="#60A5FA" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', margin: '0.75rem 0 1rem 0' }}>
+              {/* Vendor Signature */}
+              <div style={{ padding: '1rem', background: 'rgba(30, 41, 59, 0.7)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#60A5FA', textTransform: 'uppercase', marginBottom: 8 }}>
                   Vendor Digital Signature
                 </div>
                 {vendor.signature_data || vendor.signature ? (
-                  <img src={vendor.signature_data || vendor.signature} alt="Vendor Signature" style={{ height: 45, maxWidth: '100%', objectFit: 'contain', background: 'white', borderRadius: 6, padding: 4 }} />
+                  <img src={vendor.signature_data || vendor.signature} alt="Vendor Signature" style={{ height: 50, maxWidth: '100%', objectFit: 'contain', background: 'white', borderRadius: 8, padding: 4 }} />
                 ) : (
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', fontStyle: 'italic', padding: '0.5rem' }}>Signed Digitally via SSL</div>
+                  <div style={{ fontSize: '0.78rem', color: '#94A3B8', fontStyle: 'italic', padding: '0.75rem', background: '#0F172A', borderRadius: 8 }}>Cryptographically Signed via SSL</div>
                 )}
-                <div style={{ fontSize: '0.7rem', color: '#94A3B8', marginTop: 6, fontWeight: 700 }}>
-                  {vendor.signatory_name || vendor.contact_name || 'Authorized Signatory'}
+                <div style={{ fontSize: '0.75rem', color: '#CBD5E1', marginTop: 8, fontWeight: 800 }}>
+                  {vendor.signatory_name || vendor.contact_name || vendor.contactName || 'Authorized Signatory'}
                 </div>
               </div>
 
-              {/* 2. Official Corporate Seal */}
-              <div style={{ padding: '0.85rem', background: '#1E293B', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#FBBF24', textTransform: 'uppercase', marginBottom: 6 }}>
+              {/* Corporate Seal */}
+              <div style={{ padding: '1rem', background: 'rgba(30, 41, 59, 0.7)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#FBBF24', textTransform: 'uppercase', marginBottom: 8 }}>
                   Official Corporate Seal
                 </div>
                 {(signed || String(vendor.status || '').toUpperCase().includes('APPROVED')) ? (
                   <>
-                    <img src={sealImage || vendor.adminSeal || vendor.companySeal || '/hipro-watermark-seal.jpg'} alt="Official Seal" style={{ height: 50, maxWidth: '100%', objectFit: 'contain', background: 'white', borderRadius: 6, padding: 4 }} />
-                    <div style={{ fontSize: '0.7rem', color: '#94A3B8', marginTop: 6, fontWeight: 700 }}>
-                      Hindustan Projects Seal
+                    <img src={sealImage || vendor.adminSeal || vendor.companySeal || '/hipro-watermark-seal.jpg'} alt="Official Seal" style={{ height: 55, maxWidth: '100%', objectFit: 'contain', background: 'white', borderRadius: 8, padding: 4 }} />
+                    <div style={{ fontSize: '0.75rem', color: '#CBD5E1', marginTop: 8, fontWeight: 800 }}>
+                      Hindustan Projects Corporate Seal
                     </div>
                   </>
                 ) : (
-                  <div style={{ height: 50, border: '1.5px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.68rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F172A' }}>
+                  <div style={{ height: 55, border: '1.5px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.72rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F172A' }}>
                     ( Stamp Space Upon Approval )
                   </div>
                 )}
               </div>
 
-              {/* 3. CEO Authorization Signature */}
-              <div style={{ padding: '0.85rem', background: '#1E293B', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#34D399', textTransform: 'uppercase', marginBottom: 6 }}>
+              {/* CEO Authorization */}
+              <div style={{ padding: '1rem', background: 'rgba(30, 41, 59, 0.7)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#34D399', textTransform: 'uppercase', marginBottom: 8 }}>
                   CEO / Committee Authorization
                 </div>
                 {(signed || String(vendor.status || '').toUpperCase().includes('APPROVED')) ? (
                   <>
-                    <img src="/ceo-signature-clean.png" alt="CEO Signature" style={{ height: 45, maxWidth: '100%', objectFit: 'contain', filter: 'brightness(1.2)' }} />
-                    <div style={{ fontSize: '0.7rem', color: '#34D399', marginTop: 6, fontWeight: 700 }}>
+                    <img src="/ceo-signature-clean.png" alt="CEO Signature" style={{ height: 50, maxWidth: '100%', objectFit: 'contain', filter: 'brightness(1.2)' }} />
+                    <div style={{ fontSize: '0.75rem', color: '#34D399', marginTop: 8, fontWeight: 800 }}>
                       {ceoName || 'Authorized Signatory (CEO Office)'}
                     </div>
                   </>
                 ) : (
-                  <div style={{ height: 45, border: '1.5px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.68rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F172A' }}>
+                  <div style={{ height: 50, border: '1.5px dashed #475569', borderRadius: 8, color: '#94A3B8', fontSize: '0.72rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F172A' }}>
                     ( CEO Signature Upon Approval )
                   </div>
                 )}
@@ -414,8 +498,8 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
 
             {(adminRemark || vendor.admin_remarks) && (
               <>
-                <SectionHead icon={FileCheck2} title="Admin Remarks" color="#F472B6" />
-                <div style={{ padding: '0.75rem 1rem', background: '#1E293B', border: '1px solid rgba(244,114,182,0.2)', borderRadius: 10, fontSize: '0.82rem', color: '#F1F5F9', lineHeight: 1.7 }}>
+                <SectionHead icon={FileCheck2} title="Official Admin Audit Remarks" color="#F472B6" />
+                <div style={{ padding: '0.85rem 1.15rem', background: 'rgba(244, 114, 182, 0.08)', border: '1px solid rgba(244, 114, 182, 0.3)', borderRadius: 12, fontSize: '0.85rem', color: '#F1F5F9', lineHeight: 1.7 }}>
                   {adminRemark || vendor.admin_remarks}
                 </div>
               </>
@@ -423,151 +507,147 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
           </div>
         )}
 
-        {/* ── TAB: DOCUMENTS ── */}
+        {/* ── TAB 2: DOCUMENT VAULT ── */}
         {activeTab === 'documents' && (
-          <div style={{ maxWidth: 820, margin: '0 auto', padding: '1.5rem 1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', padding: '1.75rem 1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <div style={{ fontSize: '1rem', fontWeight: 900, color: '#E2E8F0' }}>Uploaded Documents</div>
-                <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: 2 }}>
-                  {submittedCount} of {docs.length} documents submitted by vendor
-                </div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#F8FAFC', margin: 0 }}>Uploaded Statutory Documents & Certificates</h3>
+                <p style={{ fontSize: '0.78rem', color: '#94A3B8', marginTop: 3, margin: 0 }}>
+                  {submittedCount} of {docs.length} mandatory documents uploaded by vendor and cryptographically verified.
+                </p>
               </div>
-              <div style={{ fontSize: '0.72rem', color: '#64748B', padding: '0.35rem 0.85rem', background: '#1E293B', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)' }}>
-                Click submitted doc to preview / expand
+              <div style={{ fontSize: '0.75rem', color: '#60A5FA', padding: '0.4rem 0.95rem', background: 'rgba(59,130,246,0.12)', borderRadius: 20, border: '1px solid rgba(59,130,246,0.3)', fontWeight: 800 }}>
+                Click document to view / preview
               </div>
             </div>
 
-            {docs.map((doc, i) => (
-              <DocCard key={doc.label} label={doc.label} docType={doc.docType} fileVal={doc.fileVal} index={i} />
+            {docs.map((doc) => (
+              <DocCard key={doc.label} label={doc.label} docType={doc.docType} fileVal={doc.fileVal} />
             ))}
 
-            <div style={{ padding: '0.85rem 1rem', background: '#1E293B', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', marginTop: '0.5rem' }}>
-              <div style={{ fontSize: '0.72rem', color: '#64748B', lineHeight: 1.7 }}>
-                <strong style={{ color: '#94A3B8' }}>ℹ️ Note:</strong> Documents are stored in an encrypted vault. Image previews (JPG/PNG) can be expanded inline. 
-                PDF files show metadata card with verification badge — preview requires browser PDF viewer integration. 
-                All documents are verified and cryptographically authenticated via 256-bit SSL.
+            <div style={{ padding: '1rem 1.25rem', background: 'rgba(30,41,59,0.5)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', marginTop: '1rem' }}>
+              <div style={{ fontSize: '0.78rem', color: '#94A3B8', lineHeight: 1.7 }}>
+                <strong style={{ color: '#E2E8F0' }}>ℹ️ Security Note:</strong> Statutory documents are stored in an isolated AES-256 encrypted storage bucket. Image previews (JPG/PNG) render directly. PDF files provide instant download links for verification against CPWD, GST, and MCA databases.
               </div>
             </div>
           </div>
         )}
 
-        {/* ── TAB: AUTHORIZE & PRINT ── */}
+        {/* ── TAB 3: AUDIT & AUTHORIZE ── */}
         {activeTab === 'authorize' && (
-          <div style={{ maxWidth: 820, margin: '0 auto', padding: '1.5rem 1.5rem', display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', padding: '1.75rem 1.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
 
-            {/* Left column */}
-            <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {/* Left Column Controls */}
+            <div style={{ flex: '1 1 380px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-              {/* Signed status */}
+              {/* Status Banner if signed */}
               {signed && (
-                <div style={{ padding: '0.85rem 1rem', background: 'rgba(16,185,129,0.12)', border: '1.5px solid rgba(16,185,129,0.4)', borderRadius: 12, display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <CheckCircle2 style={{ width: 20, height: 20, color: '#34D399', flexShrink: 0 }} />
+                <div style={{ padding: '1rem 1.25rem', background: 'rgba(16,185,129,0.14)', border: '1.5px solid rgba(16,185,129,0.4)', borderRadius: 14, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <CheckCircle2 style={{ width: 22, height: 22, color: '#34D399', flexShrink: 0 }} />
                   <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#34D399' }}>✅ Signed & Authorized</div>
-                    <div style={{ fontSize: '0.7rem', color: '#6EE7B7', marginTop: 1 }}>Approved {approvalClass} · Officer: {officerName} · CEO: {ceoName}</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#34D399' }}>✅ Signed & Authorized</div>
+                    <div style={{ fontSize: '0.75rem', color: '#6EE7B7', marginTop: 2 }}>Approved {approvalClass} · Officer: {officerName} · CEO: {ceoName}</div>
                   </div>
                 </div>
               )}
 
-              {/* Approval class */}
-              <div style={{ background: '#1E293B', borderRadius: 14, padding: '1.1rem', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#60A5FA', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <ShieldCheck style={{ width: 14, height: 14 }} /> Authorization Details
+              {/* Approval controls card */}
+              <div style={{ background: '#1E293B', borderRadius: 16, padding: '1.25rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#60A5FA', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <ShieldCheck style={{ width: 16, height: 16 }} /> Tier Classification & Signing Authority
                 </div>
-                <div style={{ marginBottom: '0.6rem' }}>
-                  <label style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 700, display: 'block', marginBottom: 3 }}>Approval Class</label>
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <label style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 800, display: 'block', marginBottom: 4 }}>Empanelment Approval Class</label>
                   <select value={approvalClass} onChange={e => setApprovalClass(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem 0.65rem', borderRadius: 8, background: '#0F172A', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontSize: '0.8rem', fontWeight: 700 }}>
-                    <option value="Class-A">Class-A — Tier 1 Prime Contractor</option>
-                    <option value="Class-B">Class-B — Tier 2 Regional Contractor</option>
-                    <option value="Class-C">Class-C — Tier 3 Sub-Contractor</option>
+                    style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: 10, background: '#0F172A', border: '1px solid rgba(255,255,255,0.15)', color: 'white', fontSize: '0.85rem', fontWeight: 800 }}>
+                    <option value="Class-A">Class-A — Tier 1 Prime Contractor (&gt; ₹ 5 Cr Orders)</option>
+                    <option value="Class-B">Class-B — Tier 2 Regional Contractor (₹ 50L - ₹ 5 Cr)</option>
+                    <option value="Class-C">Class-C — Tier 3 Sub-Contractor (&lt; ₹ 50L Orders)</option>
                   </select>
                 </div>
-                <div style={{ marginBottom: '0.6rem' }}>
-                  <label style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 700, display: 'block', marginBottom: 3 }}>Procurement Officer Name</label>
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <label style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 800, display: 'block', marginBottom: 4 }}>Procurement Officer Name</label>
                   <input value={officerName} onChange={e => setOfficerName(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem 0.65rem', borderRadius: 8, background: '#0F172A', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontSize: '0.8rem', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: 10, background: '#0F172A', border: '1px solid rgba(255,255,255,0.15)', color: 'white', fontSize: '0.85rem', boxSizing: 'border-box' }} />
                 </div>
-                <div style={{ marginBottom: '0.85rem' }}>
-                  <label style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 700, display: 'block', marginBottom: 3 }}>CEO / Authorized Signatory</label>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 800, display: 'block', marginBottom: 4 }}>CEO / Managing Director Name</label>
                   <input value={ceoName} onChange={e => setCeoName(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem 0.65rem', borderRadius: 8, background: '#0F172A', border: '1px solid rgba(255,255,255,0.12)', color: 'white', fontSize: '0.8rem', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: 10, background: '#0F172A', border: '1px solid rgba(255,255,255,0.15)', color: 'white', fontSize: '0.85rem', boxSizing: 'border-box' }} />
                 </div>
                 <button onClick={handleSignAndApprove} disabled={signing || signed}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: 10, background: signed ? 'rgba(16,185,129,0.2)' : signing ? '#374151' : 'linear-gradient(135deg,#047857,#059669)', color: signed ? '#34D399' : 'white', border: signed ? '1px solid rgba(16,185,129,0.4)' : 'none', cursor: signed ? 'default' : 'pointer', fontWeight: 900, fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem' }}>
-                  <CheckCircle2 style={{ width: 16, height: 16 }} />
-                  {signed ? `✓ Signed as ${approvalClass}` : signing ? 'Signing…' : `Sign & Approve ${approvalClass}`}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 12, background: signed ? 'rgba(16,185,129,0.2)' : signing ? '#374151' : 'linear-gradient(135deg, #047857, #059669)', color: signed ? '#34D399' : 'white', border: signed ? '1px solid rgba(16,185,129,0.4)' : 'none', cursor: signed ? 'default' : 'pointer', fontWeight: 900, fontSize: '0.88rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: signed ? 'none' : '0 4px 16px rgba(5,150,105,0.4)' }}>
+                  <CheckCircle2 style={{ width: 18, height: 18 }} />
+                  {signed ? `✓ Signed & Approved as ${approvalClass}` : signing ? 'Signing Digital Dossier…' : `Sign & Approve ${approvalClass}`}
                 </button>
 
                 {!signed && (
-                  <button onClick={() => { onUpdateStatus(vendor.tracking_id, 'Rejected', 'Application Closed', adminRemark); onClose(); }}
-                    style={{ width: '100%', marginTop: '0.5rem', padding: '0.55rem', borderRadius: 10, background: 'rgba(220,38,38,0.1)', color: '#FCA5A5', border: '1px solid rgba(220,38,38,0.3)', cursor: 'pointer', fontWeight: 800, fontSize: '0.78rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
-                    <XCircle style={{ width: 13, height: 13 }} /> Reject Application
+                  <button onClick={() => { onUpdateStatus(vendor.tracking_id || vendor.trackingId, 'Rejected', 'Application Closed', adminRemark); onClose(); }}
+                    style={{ width: '100%', marginTop: '0.6rem', padding: '0.6rem', borderRadius: 12, background: 'rgba(220,38,38,0.12)', color: '#FCA5A5', border: '1px solid rgba(220,38,38,0.35)', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                    <XCircle style={{ width: 15, height: 15 }} /> Reject Application
                   </button>
                 )}
               </div>
 
-              {/* Remarks */}
-              <div style={{ background: '#1E293B', borderRadius: 14, padding: '1.1rem', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#A78BFA', marginBottom: '0.6rem' }}>✏️ Internal Audit Remarks</div>
+              {/* Admin Remark card */}
+              <div style={{ background: '#1E293B', borderRadius: 16, padding: '1.25rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#A78BFA', marginBottom: '0.65rem' }}>✏️ Official Audit Remarks</div>
                 <textarea value={adminRemark} onChange={e => setAdminRemark(e.target.value)}
-                  placeholder="e.g. Site inspection completed, MSME verified via Udyam portal, documents cross-checked..."
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: '#0F172A', color: '#F8FAFC', fontSize: '0.78rem', fontFamily: 'inherit', minHeight: 80, resize: 'vertical', boxSizing: 'border-box' }} />
-                <button onClick={() => onUpdateStatus(vendor.tracking_id, vendor.status || 'Under Verification', vendor.current_stage || 'Document Verification', adminRemark)}
-                  style={{ marginTop: '0.45rem', padding: '0.4rem 0.9rem', borderRadius: 8, background: '#4C1D95', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.72rem' }}>
-                  💾 Save Remark
+                  placeholder="e.g. Physical site inspection completed, MSME Udyam verified, document authenticity cross-checked with CPWD & CBIC portal..."
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)', background: '#0F172A', color: '#F8FAFC', fontSize: '0.82rem', fontFamily: 'inherit', minHeight: 90, resize: 'vertical', boxSizing: 'border-box' }} />
+                <button onClick={() => onUpdateStatus(vendor.tracking_id || vendor.trackingId, vendor.status || 'Under Verification', vendor.current_stage || 'Document Verification', adminRemark)}
+                  style={{ marginTop: '0.6rem', padding: '0.5rem 1.1rem', borderRadius: 10, background: '#4C1D95', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.78rem' }}>
+                  💾 Save Audit Remarks
                 </button>
               </div>
             </div>
 
-            {/* Right column — Seal + Print */}
-            <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {/* Right Column Print & Seal Desk */}
+            <div style={{ flex: '1 1 380px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-              {/* Seal upload */}
-              <div style={{ background: '#1E293B', borderRadius: 14, padding: '1.1rem', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#FBBF24', marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Upload style={{ width: 14, height: 14 }} /> Upload Official Company Seal
+              {/* Corporate Seal Uploader */}
+              <div style={{ background: '#1E293B', borderRadius: 16, padding: '1.25rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#FBBF24', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <Upload style={{ width: 16, height: 16 }} /> Official Company Seal Upload Desk
                 </div>
                 <input ref={sealRef} type="file" accept="image/*" onChange={handleSealUpload} style={{ display: 'none' }} />
-                <div onClick={() => sealRef.current.click()}
-                  style={{ border: '2px dashed rgba(251,191,36,0.35)', borderRadius: 10, padding: '1rem', textAlign: 'center', cursor: 'pointer', background: 'rgba(251,191,36,0.03)', minHeight: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '0.5rem' }}>
+                <div onClick={() => sealRef.current && sealRef.current.click()}
+                  style={{ border: '2px dashed rgba(251,191,36,0.4)', borderRadius: 12, padding: '1.25rem', textAlign: 'center', cursor: 'pointer', background: 'rgba(251,191,36,0.04)', minHeight: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '0.5rem' }}>
                   {sealImage
-                    ? <img src={sealImage} alt="Seal" style={{ maxHeight: 80, maxWidth: '100%', objectFit: 'contain' }} />
+                    ? <img src={sealImage} alt="Official Seal" style={{ maxHeight: 90, maxWidth: '100%', objectFit: 'contain' }} />
                     : <>
-                        <Upload style={{ width: 22, height: 22, color: '#FBBF24' }} />
-                        <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Click to upload official seal<br/>(PNG with transparent background)</div>
+                        <Upload style={{ width: 24, height: 24, color: '#FBBF24' }} />
+                        <div style={{ fontSize: '0.78rem', color: '#CBD5E1', fontWeight: 700 }}>Click to upload official corporate seal<br/><span style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 500 }}>(PNG format with transparent background recommended)</span></div>
                       </>}
                 </div>
                 {sealImage && (
                   <button onClick={() => { setSealImage(null); localStorage.removeItem('hipro_seal_img'); }}
-                    style={{ marginTop: '0.4rem', fontSize: '0.68rem', color: '#FCA5A5', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>✕ Remove Seal</button>
+                    style={{ marginTop: '0.5rem', fontSize: '0.72rem', color: '#FCA5A5', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 800 }}>✕ Remove Seal</button>
                 )}
-                <div style={{ fontSize: '0.65rem', color: '#475569', marginTop: '0.35rem' }}>Seal appears on Page 3 signature block of the printed dossier.</div>
               </div>
 
               {/* Print card */}
-              <div style={{ background: 'linear-gradient(135deg,rgba(0,71,171,0.2),rgba(0,101,208,0.1))', borderRadius: 14, padding: '1.25rem', border: '1px solid rgba(0,71,171,0.35)' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#93C5FD', marginBottom: '0.5rem' }}>🖨️ Print Official 4-Page A4 Dossier</div>
-                <div style={{ fontSize: '0.7rem', color: '#64748B', lineHeight: 1.7, marginBottom: '1rem' }}>
-                  Prints the <strong style={{ color: '#CBD5E1' }}>exact same document</strong> the vendor received —
-                  with your official <strong style={{ color: '#FCD34D' }}>seal</strong> and <strong style={{ color: '#34D399' }}>authorization</strong> added to the Page 3 signature block.
+              <div style={{ background: 'linear-gradient(135deg, rgba(0,71,171,0.25), rgba(0,101,208,0.12))', borderRadius: 16, padding: '1.35rem', border: '1px solid rgba(0,71,171,0.4)' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#93C5FD', marginBottom: '0.55rem' }}>🖨️ Print Official 4-Page A4 Letterhead Dossier</div>
+                <div style={{ fontSize: '0.78rem', color: '#CBD5E1', lineHeight: 1.7, marginBottom: '1.1rem' }}>
+                  Generates an un-editable, official corporate empanelment dossier with your <strong style={{ color: '#FCD34D' }}>seal stamp</strong> and <strong style={{ color: '#34D399' }}>CEO signature</strong> on Page 3.
                 </div>
                 {[
-                  'Page 1 — Company & Statutory Details',
-                  'Page 2 — Financial & Banking Records',
-                  'Page 3 — Compliance Rules + Authorization Signature',
-                  'Page 4+ — Document Attachment Sheets',
+                  'Page 1 — Company Entity & Statutory Identity',
+                  'Page 2 — Financial Capacity & Banking Records',
+                  'Page 3 — Compliance Rules & CEO Signatory Authorization Block',
+                  'Page 4+ — Uploaded Document Attachments & Vault Verification Sheets',
                 ].map((p, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
-                    <span style={{ width: 18, height: 18, borderRadius: '50%', background: '#0047AB', color: 'white', fontSize: '0.6rem', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
-                    <span style={{ fontSize: '0.7rem', color: '#94A3B8' }}>{p}</span>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.4rem' }}>
+                    <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#0047AB', color: 'white', fontSize: '0.65rem', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
+                    <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>{p}</span>
                   </div>
                 ))}
                 <button onClick={handlePrint} disabled={printing}
-                  style={{ width: '100%', marginTop: '1rem', padding: '0.75rem', borderRadius: 12, background: printing ? '#374151' : 'linear-gradient(135deg,#0047AB,#0065D0)', color: 'white', border: 'none', cursor: printing ? 'wait' : 'pointer', fontWeight: 900, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 20px rgba(0,71,171,0.4)' }}>
+                  style={{ width: '100%', marginTop: '1.25rem', padding: '0.85rem', borderRadius: 12, background: printing ? '#374151' : 'linear-gradient(135deg, #0047AB, #0065D0)', color: 'white', border: 'none', cursor: printing ? 'wait' : 'pointer', fontWeight: 900, fontSize: '0.92rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.55rem', boxShadow: '0 4px 20px rgba(0,71,171,0.45)' }}>
                   <Printer style={{ width: 18, height: 18 }} />
-                  {printing ? 'Opening Print Dialog…' : '🖨️ Print Official A4 Dossier'}
+                  {printing ? 'Preparing A4 Print Engine…' : '🖨️ Print Official A4 Dossier'}
                 </button>
               </div>
             </div>
