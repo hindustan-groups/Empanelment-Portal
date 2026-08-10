@@ -100,6 +100,14 @@ const sendRejectionNotice = async (vendorData) => {
   return await sendEmail(vendorData.email, templates.rejectionNotice(vendorData));
 };
 
+/**
+ * 6️⃣ Send official admin reply to user contact inquiry
+ */
+const sendSupportReplyToUser = async (replyData) => {
+  const recipient = replyData.to || replyData.email;
+  return await sendEmail(recipient, templates.supportReplyToUser(replyData));
+};
+
 module.exports = {
   sendEmail,
   sendSubmissionConfirmation,
@@ -107,4 +115,5 @@ module.exports = {
   sendApprovalWithCredentials,
   sendResubmissionRequest,
   sendRejectionNotice,
+  sendSupportReplyToUser,
 };

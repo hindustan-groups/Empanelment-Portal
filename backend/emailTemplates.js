@@ -567,10 +567,66 @@ ${emailFooter()}
   };
 };
 
+// ════════════════════════════════════════════════════════════════
+// EMAIL 6: ADMIN OFFICIAL REPLY TO USER SUPPORT INQUIRY
+// ════════════════════════════════════════════════════════════════
+const supportReplyToUser = (data = {}) => {
+  const name = data.name || 'Valued Applicant';
+  const subject = data.subject || 'Response to your Support Inquiry — Hindustan Projects';
+  const message = data.message || '';
+  const dateStr = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  return {
+    subject: subject,
+    html: `
+${emailHeader()}
+
+    <!-- SUBJECT BANNER -->
+    <tr>
+      <td style="background:#eef6ff;border-left:4px solid #1a3a6b;padding:16px 36px;margin:0;">
+        <div style="font-size:13px;font-weight:700;color:#1a3a6b;letter-spacing:0.5px;text-transform:uppercase;">OFFICIAL SUPPORT DESK RESPONSE</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px;">Procurement &amp; Empanelment Nodal Desk | Date: ${dateStr}</div>
+      </td>
+    </tr>
+
+    <!-- GREETING & CONTENT -->
+    <tr>
+      <td style="padding:28px 36px 16px 36px;">
+        <p style="margin:0 0 16px 0;font-size:15px;color:#1e293b;">Dear <strong>${name}</strong>,</p>
+        
+        <p style="margin:0 0 16px 0;font-size:14px;color:#334155;line-height:1.6;">
+          Thank you for reaching out to the <strong>Hindustan Projects Procurement Nodal Committee</strong>. Our officer has reviewed your inquiry and provided the following official response:
+        </p>
+
+        <!-- RESPONSE HIGHLIGHT BOX -->
+        <div style="background:#f8fafc;border:1.5px solid #cbd5e1;border-left:4px solid #c8102e;padding:20px;border-radius:10px;margin:20px 0;">
+          <div style="font-size:11px;font-weight:800;color:#c8102e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+            💬 OFFICIAL OFFICER REMARKS &amp; GUIDANCE
+          </div>
+          <div style="font-size:14px;color:#0f172a;line-height:1.7;white-space:pre-wrap;">${message}</div>
+        </div>
+
+        <p style="margin:20px 0 0 0;font-size:13px;color:#475569;line-height:1.6;">
+          If you have further questions or require document re-submission assistance, you can track your status anytime on our official empanelment portal at <a href="${PORTAL_URL}" style="color:#1a3a6b;font-weight:700;text-decoration:none;">empanelment.hindustanprojects.in</a>.
+        </p>
+
+        <div style="margin-top:28px;padding-top:20px;border-top:1px solid #e2e8f0;">
+          <div style="font-size:13px;font-weight:800;color:#0f172a;">Procurement &amp; Vendor Verification Committee</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px;">Hindustan Projects Limited | Rajasthan &amp; Pan-India Operations</div>
+        </div>
+      </td>
+    </tr>
+
+${emailFooter()}
+  `
+  };
+};
+
 module.exports = {
   submissionConfirmationToVendor,
   newApplicationAlertToAdmin,
   approvalWithCredentials,
   resubmissionRequest,
-  rejectionNotice
+  rejectionNotice,
+  supportReplyToUser
 };

@@ -966,20 +966,18 @@ app.post('/api/empanelment/admin/reply-contact', adminAuthMiddleware, async (req
     return res.status(400).json({ success: false, error: 'Valid recipient email and reply message are required' });
   }
   try {
-    const transporter = getTransporter();
-    const sender = process.env.ALIAS_EMAIL || 'industrial@hindustanprojects.in';
-    const replySubject = subject || 'Response to your Inquiry — Hindustan Projects Empanelment Desk';
-    const info = await transporter.sendMail({
-      from: `"Hindustan Projects — Officer Response" <${sender}>`,
+    const result = await emailService.sendSupportReplyToUser({
       to,
-      subject: replySubject,
-      html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0"><div style="background:#0047AB;color:white;padding:20px 28px"><h2 style="margin:0;font-size:20px">Hindustan Projects</h2><p style="margin:4px 0 0;opacity:.85;font-size:13px">Official Response from Empanelment Support Desk</p></div><div style="background:white;padding:28px"><p style="color:#334155;font-size:15px;margin-top:0">Dear <strong>${name || 'Valued User'}</strong>,</p><p style="color:#334155;font-size:14px">Regarding your support inquiry:</p><div style="background:#F8FAFC;border-left:4px solid #0047AB;padding:14px 18px;margin:18px 0;border-radius:0 8px 8px 0;color:#1E293B;font-size:14px;line-height:1.6;white-space:pre-wrap">${message}</div><p style="color:#94A3B8;font-size:12px">Warm regards,<br><strong>Procurement &amp; Support Committee</strong><br>Hindustan Projects Limited</p></div></div>`
+      name: name || 'Valued Applicant',
+      subject: subject || 'Response to your Inquiry — Hindustan Projects Empanelment Desk',
+      message
     });
+
     if (contactId) {
       db.run(`UPDATE contact_messages SET status = 'RESOLVED' WHERE id = ?`, [contactId]);
     }
-    console.log('✅ Admin reply email sent to ' + to);
-    return res.json({ success: true, messageId: info.messageId, to });
+    console.log('✅ Admin reply email dispatched successfully to ' + to);
+    return res.json({ success: true, messageId: result.messageId || 'SENT', to });
   } catch (err) {
     console.error('❌ Admin reply email failed:', err.message);
     return res.status(500).json({ success: false, error: err.message });

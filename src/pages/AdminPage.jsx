@@ -481,14 +481,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     setReplyStatusMsg('');
 
     const backendUrl = API_BASE_URL;
-    const adminKey = ADMIN_API_KEY;
     let emailSentSuccessfully = false;
 
-    // 1. Try Live VPS Backend Nodemailer API First
+    // 1. Send via Official Live VPS Backend Nodemailer SMTP API
     try {
       const res = await fetch(`${backendUrl}/api/empanelment/admin/reply-contact`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        headers: { 'Content-Type': 'application/json', ...getAdminAuthHeader() },
         body: JSON.stringify({
           contactId: replyModalData.id,
           to: replyModalData.email,
@@ -498,43 +497,34 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         })
       });
       if (res.ok) {
-        const text = await res.text();
-        if (text && text.trim() !== 'PRO FEATURE ONLY') {
-          const data = JSON.parse(text);
-          if (data.success) {
-            emailSentSuccessfully = true;
-          }
+        const data = await res.json();
+        if (data.success) {
+          emailSentSuccessfully = true;
         }
       }
     } catch (err) {
-      console.warn('Backend reply email notice, trying web fallback:', err);
+      console.warn('Backend reply email notice:', err);
     }
 
-    // 2. Fallback: Auto-launch Mail App (mailto:) if backend SMTP credentials are not set
-    if (!emailSentSuccessfully) {
-      try {
-        const mailtoUrl = `mailto:${replyModalData.email}?subject=${encodeURIComponent(replySubject)}&body=${encodeURIComponent(replyText)}`;
-        window.open(mailtoUrl, '_blank');
-        emailSentSuccessfully = true;
-      } catch (e) {
-        console.warn('Mailto fallback notice:', e);
-      }
-    }
+    if (emailSentSuccessfully) {
+      // Update status to RESOLVED in local state
+      setContactMessages(prev => {
+        const updated = prev.map(c => c.id === replyModalData.id ? { ...c, status: 'RESOLVED' } : c);
+        try {
+          localStorage.setItem('hipro_contact_submissions', JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
 
-    // 3. Update status & UI
-    setContactMessages(prev => {
-      const updated = prev.map(c => c.id === replyModalData.id ? { ...c, status: 'RESOLVED' } : c);
-      try {
-        localStorage.setItem('hipro_contact_submissions', JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
-
-    setReplyStatusMsg(`✅ Response recorded & email sent to ${replyModalData.email}!`);
-    setTimeout(() => {
-      setReplyModalData(null);
+      setReplyStatusMsg(`✅ Official Corporate Email dispatched to ${replyModalData.email}!`);
+      setTimeout(() => {
+        setReplyModalData(null);
+        setReplySending(false);
+      }, 1500);
+    } else {
+      setReplyStatusMsg(`❌ Email dispatch failed. Please check internet connection or SMTP settings.`);
       setReplySending(false);
-    }, 1800);
+    }
   };
 
   const fetchContactMessages = async () => {
