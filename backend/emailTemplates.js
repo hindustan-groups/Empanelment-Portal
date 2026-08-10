@@ -221,6 +221,15 @@ ${emailHeader()}
       </td>
     </tr>
 
+    <!-- PRINT DOSSIER BUTTON -->
+    <tr>
+      <td align="center" style="padding:10px 36px 18px 36px;">
+        <a href="${PORTAL_URL}/track?code=${trackingId}&autoPrint=true" target="_blank" style="background:#0047AB;color:#ffffff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:800;font-size:13px;display:inline-block;box-shadow:0 4px 12px rgba(0,71,171,0.3);">
+          🖨️ Download / Print Official Empanelment Dossier (A4 PDF)
+        </a>
+      </td>
+    </tr>
+
     <!-- TRACK STATUS CTA -->
     <tr>
       <td style="padding:12px 36px 28px 36px;text-align:center;">

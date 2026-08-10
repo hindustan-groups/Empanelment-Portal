@@ -108,9 +108,9 @@ export default function TrackPage() {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [qrScanned, setQrScanned] = useState(false);
 
-  // ── Auto-search when QR code is scanned (URL has ?id=HP-EMP-XXX) ──
+  // ── Auto-search when link/QR is opened (URL has ?code=HP-EMP-XXX or ?id=HP-EMP-XXX) ──
   useEffect(() => {
-    const idFromUrl = searchParams.get('id') || searchParams.get('track') || searchParams.get('ref');
+    const idFromUrl = searchParams.get('code') || searchParams.get('id') || searchParams.get('track') || searchParams.get('ref');
     if (idFromUrl && idFromUrl.trim()) {
       setSearchInput(idFromUrl.trim());
       setQrScanned(true);

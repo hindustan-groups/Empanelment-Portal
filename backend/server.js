@@ -50,7 +50,7 @@ const apiLimiter = rateLimit({
 // Strict limiter ONLY for heavy write/submit endpoints to prevent abuse
 const submitLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10,
+  max: 100,
   message: { success: false, error: 'Submission limit reached for this IP. Please try again later.' }
 });
 
@@ -94,7 +94,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB File Limit
+const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB File Limit
 
 // ─── 5.1 CLOUDINARY FILE STORAGE & RATE LIMITER ─────────────────
 let cloudinary = null;
@@ -684,7 +684,17 @@ app.get('/api/empanelment/application/:trackingId', (req, res) => {
 // POST /api/empanelment/submit
 // Submit application → save to DB → send 2 emails (vendor + admin)
 // ─────────────────────────────────────────────────────────────────
-app.post('/api/empanelment/submit', submitLimiter, upload.any(), async (req, res) => {
+const handleFileUpload = (req, res, next) => {
+  upload.any()(req, res, (err) => {
+    if (err) {
+      console.error('❌ Multer upload error:', err.message);
+      return res.status(400).json({ success: false, error: `File Upload Failure: ${err.message}` });
+    }
+    next();
+  });
+};
+
+app.post('/api/empanelment/submit', submitLimiter, handleFileUpload, async (req, res) => {
   try {
     const data = req.body;
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';

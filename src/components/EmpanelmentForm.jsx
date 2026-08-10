@@ -734,34 +734,47 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       if (signatureData) fd.append('signature', signatureData);
 
       const res = await fetch(`${backendUrl}/api/empanelment/submit`, { method: 'POST', body: fd });
-      if (res.ok) {
-        const result = await res.json();
-        if (result.success && result.trackingId) {
-          serverTrackingId = result.trackingId;
-        }
+      const result = await res.json().catch(() => null);
+
+      if (res.ok && result && result.success && result.trackingId) {
+        serverTrackingId = result.trackingId;
+      } else {
+        const errorMsg = (result && result.error) || `Server returned error status ${res.status}`;
+        console.error('Backend submission failed:', errorMsg);
+        alert(`❌ Empanelment Submission Error:\n\n${errorMsg}\n\nPlease check your files/connection and try again.`);
+        clearTimeout(pTimer1);
+        clearTimeout(pTimer2);
+        clearTimeout(pTimer3);
+        setIsSubmitting(false);
+        return;
       }
     } catch (err) {
-      console.warn('Backend submit notice, using backup:', err);
-    } finally {
-      // Un-blacklist this ID if it was previously in deleted list
-      try {
-        const targetId = serverTrackingId || payload.tracking_id || payload.trackingId;
-        if (targetId) {
-          const deleted = JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]');
-          const cleanDeleted = deleted.filter(id => String(id).trim() !== String(targetId).trim());
-          localStorage.setItem('hipro_deleted_applications', JSON.stringify(cleanDeleted));
-        }
-      } catch (e) {}
-
+      console.error('Backend submission network error:', err);
+      alert(`❌ Network Connection Error:\n\n${err.message || 'Failed to reach server'}. Please check internet connection.`);
       clearTimeout(pTimer1);
       clearTimeout(pTimer2);
       clearTimeout(pTimer3);
-      setSubmitProgressStep(4);
-      setTimeout(() => {
-        setIsSubmitting(false);
-        onFormSubmit({ ...payload, signature: signatureData }, serverTrackingId);
-      }, 400);
+      setIsSubmitting(false);
+      return;
     }
+
+    // Un-blacklist this ID if it was previously in deleted list
+    try {
+      if (serverTrackingId) {
+        const deleted = JSON.parse(localStorage.getItem('hipro_deleted_applications') || '[]');
+        const cleanDeleted = deleted.filter(id => String(id).trim() !== String(serverTrackingId).trim());
+        localStorage.setItem('hipro_deleted_applications', JSON.stringify(cleanDeleted));
+      }
+    } catch (e) {}
+
+    clearTimeout(pTimer1);
+    clearTimeout(pTimer2);
+    clearTimeout(pTimer3);
+    setSubmitProgressStep(4);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      onFormSubmit({ ...payload, signature: signatureData }, serverTrackingId);
+    }, 400);
   };
 
   /* Determine total steps: sole prop = 4, corporate = 4 (we removed a step to keep it lean) */

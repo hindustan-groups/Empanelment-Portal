@@ -110,20 +110,20 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
       >
 
         {/* ── TOP HEADER ── */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg,#10B981,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16,185,129,0.35)', flexShrink: 0 }}>
-              <CheckCircle2 style={{ width: 26, height: 26, color: 'white' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg,#10B981,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16,185,129,0.35)', flexShrink: 0 }}>
+              <CheckCircle2 style={{ width: 24, height: 24, color: 'white' }} />
             </div>
             <div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 900, color: DARK }}>Application Submitted Successfully!</div>
-              <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600, marginTop: 2 }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: DARK, lineHeight: 1.25 }}>Application Submitted Successfully!</div>
+              <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600, marginTop: 2 }}>
                 Your 4-page official dossier is ready to print below
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0, width: '100%', justifyContent: 'space-between', marginTop: '0.25rem' }}>
             <button
               onClick={handlePrint}
               disabled={printing}
@@ -132,13 +132,13 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
                 padding: '0.6rem 1.2rem', borderRadius: 10, border: 'none', cursor: printing ? 'wait' : 'pointer',
                 background: printing ? '#94A3B8' : BLUE, color: 'white',
                 fontSize: '0.85rem', fontWeight: 800, boxShadow: '0 4px 12px rgba(0,71,171,0.3)',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s', flex: 1, justifyContent: 'center'
               }}
             >
               <Printer style={{ width: 16, height: 16 }} />
               <span>{printing ? 'Preparing Print...' : 'Print Official Dossier (A4)'}</span>
             </button>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem', fontWeight: 800, color: '#94A3B8', lineHeight: 1, padding: '0.25rem' }}>✕</button>
+            <button onClick={onClose} style={{ background: '#F1F5F9', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: '1.2rem', fontWeight: 800, color: '#64748B', lineHeight: 1, padding: '0.5rem 0.75rem' }}>✕</button>
           </div>
         </div>
 
