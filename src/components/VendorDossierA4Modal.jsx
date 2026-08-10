@@ -162,10 +162,12 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
   const [officerName, setOfficerName]     = useState(localStorage.getItem('hipro_officer_name') || 'Procurement Officer');
   const [ceoName, setCeoName]             = useState(localStorage.getItem('hipro_ceo_name') || 'Managing Director');
   const [sealImage, setSealImage]         = useState(localStorage.getItem('hipro_seal_img') || null);
+  const [ceoSignature, setCeoSignature]   = useState(localStorage.getItem('hipro_ceo_sig') || null);
   const [signing, setSigning]             = useState(false);
   const [signed, setSigned]               = useState(!!vendor?.ceo_signed);
   const [printing, setPrinting]           = useState(false);
-  const sealRef = useRef();
+  const sealRef   = useRef();
+  const ceoSigRef = useRef();
 
   if (!vendor) return null;
 
@@ -188,7 +190,7 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
     skillsDetails: vendor.skills_details || vendor.skillsDetails,
     teamSize: vendor.team_size || vendor.teamSize,
     ownerName: vendor.owner_name || vendor.ownerName,
-    adminSeal: sealImage, adminOfficerName: officerName, adminCeoName: ceoName,
+    adminSeal: sealImage, adminCeoSignature: ceoSignature, adminOfficerName: officerName, adminCeoName: ceoName,
     adminApprovalClass: signed ? `Approved ${approvalClass}` : vendor.status,
     adminSigned: signed,
     adminSignedAt: signed ? new Date().toLocaleString('en-IN') : null,
@@ -202,6 +204,13 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
     const file = e.target.files && e.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => { setSealImage(ev.target.result); localStorage.setItem('hipro_seal_img', ev.target.result); };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCeoSigUpload = (e) => {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => { setCeoSignature(ev.target.result); localStorage.setItem('hipro_ceo_sig', ev.target.result); };
     reader.readAsDataURL(file);
   };
 
@@ -499,7 +508,14 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
                   </div>
                   {(signed || String(vendor.status || '').toUpperCase().includes('APPROVED')) ? (
                     <>
-                      <img src="/ceo-signature-clean.png" alt="CEO Signature" style={{ height: 50, maxWidth: '100%', objectFit: 'contain' }} />
+                      {ceoSignature ? (
+                        <img src={ceoSignature} alt="CEO Signature" style={{ height: 55, maxWidth: '100%', objectFit: 'contain', background: 'white', borderRadius: 8, padding: 4, border: '1px solid #CBD5E1' }} />
+                      ) : (
+                        <div style={{ height: 55, border: '1.5px dashed #A7F3D0', borderRadius: 8, color: '#059669', fontSize: '0.72rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ECFDF5', flexDirection: 'column', gap: 4 }}>
+                          <span>✍️ CEO Signature</span>
+                          <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 600 }}>Upload in Authorize tab</span>
+                        </div>
+                      )}
                       <div style={{ fontSize: '0.75rem', color: '#059669', marginTop: 8, fontWeight: 800 }}>
                         {ceoName || 'Authorized Signatory (CEO Office)'}
                       </div>
@@ -640,6 +656,35 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
                   {sealImage && (
                     <button onClick={() => { setSealImage(null); localStorage.removeItem('hipro_seal_img'); }}
                       style={{ marginTop: '0.5rem', fontSize: '0.72rem', color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 800 }}>✕ Remove Seal</button>
+                  )}
+                </div>
+
+                {/* ✍️ CEO Signature Uploader */}
+                <div style={{ background: '#F0FDF4', borderRadius: 16, padding: '1.25rem', border: '1.5px solid #A7F3D0' }}>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#059669', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <FileCheck2 style={{ width: 16, height: 16 }} /> CEO / MD Signature Upload
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#065F46', marginBottom: '0.75rem', lineHeight: 1.55 }}>
+                    Upload the official <strong>handwritten or digital signature</strong> of the CEO / Managing Director. This will appear on the printed A4 dossier and dossier overview.
+                  </div>
+                  <input ref={ceoSigRef} type="file" accept="image/*" onChange={handleCeoSigUpload} style={{ display: 'none' }} />
+                  <div onClick={() => ceoSigRef.current && ceoSigRef.current.click()}
+                    style={{ border: `2px dashed ${ceoSignature ? '#34D399' : '#86EFAC'}`, borderRadius: 12, padding: '1.1rem', textAlign: 'center', cursor: 'pointer', background: ceoSignature ? '#ECFDF5' : '#F0FDF4', minHeight: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '0.5rem', transition: 'all 0.2s' }}>
+                    {ceoSignature ? (
+                      <>
+                        <img src={ceoSignature} alt="CEO Signature" style={{ maxHeight: 70, maxWidth: '90%', objectFit: 'contain', background: 'white', borderRadius: 8, padding: '4px 8px', border: '1px solid #A7F3D0' }} />
+                        <span style={{ fontSize: '0.7rem', color: '#047857', fontWeight: 700 }}>✓ CEO Signature Uploaded — Click to replace</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload style={{ width: 22, height: 22, color: '#059669' }} />
+                        <div style={{ fontSize: '0.78rem', color: '#065F46', fontWeight: 700 }}>Click to upload CEO / MD signature image<br/><span style={{ fontSize: '0.67rem', color: '#6B7280', fontWeight: 500 }}>JPG / PNG with white or transparent background</span></div>
+                      </>
+                    )}
+                  </div>
+                  {ceoSignature && (
+                    <button onClick={() => { setCeoSignature(null); localStorage.removeItem('hipro_ceo_sig'); }}
+                      style={{ marginTop: '0.5rem', fontSize: '0.72rem', color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 800 }}>✕ Remove CEO Signature</button>
                   )}
                 </div>
 
