@@ -68,44 +68,58 @@ const sendEmail = async (to, templateResult) => {
 const sendSubmissionConfirmation = async (vendorData) => {
   try { delete require.cache[require.resolve('./emailTemplates')]; } catch (e) {}
   const freshTemplates = require('./emailTemplates');
-  return await sendEmail(vendorData.email, freshTemplates.submissionConfirmationToVendor(vendorData));
+  const recipient = vendorData.email || vendorData.loginEmail || vendorData.to;
+  return await sendEmail(recipient, freshTemplates.submissionConfirmationToVendor(vendorData));
 };
 
 /**
  * 2️⃣ Send new application alert to Admin
  */
 const sendNewApplicationAlertToAdmin = async (vendorData) => {
+  try { delete require.cache[require.resolve('./emailTemplates')]; } catch (e) {}
+  const freshTemplates = require('./emailTemplates');
   const adminEmail = process.env.ADMIN_EMAIL || 'industrial@hindustanprojects.in';
-  return await sendEmail(adminEmail, templates.newApplicationAlertToAdmin(vendorData));
+  return await sendEmail(adminEmail, freshTemplates.newApplicationAlertToAdmin(vendorData));
 };
 
 /**
  * 3️⃣ Send approval email with login credentials to vendor
  */
 const sendApprovalWithCredentials = async (vendorData) => {
-  return await sendEmail(vendorData.email, templates.approvalWithCredentials(vendorData));
+  try { delete require.cache[require.resolve('./emailTemplates')]; } catch (e) {}
+  const freshTemplates = require('./emailTemplates');
+  const recipient = vendorData.email || vendorData.loginEmail || vendorData.to;
+  return await sendEmail(recipient, freshTemplates.approvalWithCredentials(vendorData));
 };
 
 /**
  * 4️⃣ Send re-submission request email to vendor
  */
 const sendResubmissionRequest = async (vendorData) => {
-  return await sendEmail(vendorData.email, templates.resubmissionRequest(vendorData));
+  try { delete require.cache[require.resolve('./emailTemplates')]; } catch (e) {}
+  const freshTemplates = require('./emailTemplates');
+  const recipient = vendorData.email || vendorData.loginEmail || vendorData.to;
+  return await sendEmail(recipient, freshTemplates.resubmissionRequest(vendorData));
 };
 
 /**
  * 5️⃣ Send rejection notice to vendor
  */
 const sendRejectionNotice = async (vendorData) => {
-  return await sendEmail(vendorData.email, templates.rejectionNotice(vendorData));
+  try { delete require.cache[require.resolve('./emailTemplates')]; } catch (e) {}
+  const freshTemplates = require('./emailTemplates');
+  const recipient = vendorData.email || vendorData.loginEmail || vendorData.to;
+  return await sendEmail(recipient, freshTemplates.rejectionNotice(vendorData));
 };
 
 /**
  * 6️⃣ Send official admin reply to user contact inquiry
  */
 const sendSupportReplyToUser = async (replyData) => {
-  const recipient = replyData.to || replyData.email;
-  return await sendEmail(recipient, templates.supportReplyToUser(replyData));
+  try { delete require.cache[require.resolve('./emailTemplates')]; } catch (e) {}
+  const freshTemplates = require('./emailTemplates');
+  const recipient = replyData.to || replyData.email || replyData.loginEmail;
+  return await sendEmail(recipient, freshTemplates.supportReplyToUser(replyData));
 };
 
 module.exports = {

@@ -856,7 +856,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           'Content-Type': 'application/json',
           'x-admin-key': adminKey
         },
-        body: JSON.stringify({ trackingId, status: newStatus, currentStage: stage, ceoSigned, ceoDate }),
+        body: JSON.stringify({ trackingId, status: newStatus, currentStage: stage, adminRemark: remark, admin_remarks: remark, ceoSigned, ceoDate }),
       });
     } catch { /* local fallback */ }
 
@@ -1023,7 +1023,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         status = 'Clarification Required'; stage = 'Document Re-verification';
         body = { trackingId: selectedVendor.tracking_id, status: 'Resubmission Required', currentStage: stage, missingDetails, adminNote };
       }
-      const adminKey = import.meta.env.VITE_ADMIN_API_KEY || 'hipro_admin_vps_key_99201';
+      const adminKey = ADMIN_API_KEY;
       const res = await fetch(`${backendUrl}/api/empanelment/admin/status`, {
         method: 'PATCH',
         headers: {
