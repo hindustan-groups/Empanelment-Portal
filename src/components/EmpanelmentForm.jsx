@@ -790,7 +790,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
         <div className="form-header-banner">
           <div className="form-header-top">
             <div>
-              <div className="form-header-tag">🏛️ Official Empanelment Registration • {progress}% Completed</div>
+              <div className="form-header-tag">🏛️ Official Empanelment Registration</div>
               <h2 className="form-header-title">Hindustan Projects Vendor Empanelment Portal</h2>
             </div>
             <button type="button" onClick={handleSaveDraft} className="btn-draft">
