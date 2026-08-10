@@ -676,13 +676,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     if (!window.confirm(`Are you sure you want to permanently delete tender "${title}"?`)) return;
 
     setTenders(prev => {
-      const updated = prev.filter(t => t.id !== id);
+      const updated = prev.filter(t => t.id !== id && t.tender_no !== id && String(t.id) !== String(id));
       try { localStorage.setItem('hipro_tenders', JSON.stringify(updated)); } catch {}
       return updated;
     });
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/tenders/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/tenders/${encodeURIComponent(id)}`, {
         method: 'DELETE',
         headers: getAdminAuthHeader()
       });
@@ -690,7 +690,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
       if (data.success) {
         fetchTenders();
       } else {
-        alert(`Error deleting tender: ${data.error}`);
+        console.warn('Tender delete API notice:', data.error);
         fetchTenders();
       }
     } catch (err) {

@@ -172,8 +172,18 @@ const db = new sqlite3.Database(dbPath, (err) => {
   } else {
     console.log('🔒 Connected to Secure VPS SQLite Database at:', dbPath);
     db.run('PRAGMA journal_mode=WAL;');
+    db.run('PRAGMA synchronous = NORMAL;');
   }
 });
+
+const checkpointDb = () => {
+  if (db) {
+    db.run('PRAGMA wal_checkpoint(FULL);', [], (err) => {
+      if (err) console.warn('WAL Checkpoint notice:', err.message);
+      else console.log('💾 WAL Checkpoint executed — all writes synced to empanelment.db');
+    });
+  }
+};
 
 db.serialize(() => {
   // 1. Create table with full updated schema if not exists
@@ -839,6 +849,8 @@ app.post('/api/empanelment/submit', submitLimiter, upload.any(), async (req, res
         return res.status(500).json({ success: false, error: err.message });
       }
 
+      checkpointDb();
+
       // ── EMAIL 1: Send confirmation to vendor ──
       emailService.sendSubmissionConfirmation({
         companyName: data.companyName,
@@ -900,6 +912,8 @@ app.post('/api/empanelment/contact', async (req, res) => {
       console.error('Contact DB insert error:', err.message);
       return res.status(500).json({ success: false, error: err.message });
     }
+
+    checkpointDb();
 
     // Immediate HTTP response so client form finishes instantly without hanging
     res.json({ success: true, id: this.lastID, message: 'Inquiry submitted and logged to Admin control panel successfully.' });
@@ -1368,8 +1382,9 @@ app.post('/api/tenders', adminAuthMiddleware, (req, res) => {
     return res.status(400).json({ success: false, error: 'Tender No, Title, and Category are required.' });
   }
   const query = `INSERT INTO tenders (tender_no, title, category, estimated_value, location, due_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  db.run(query, [tender_no, title, category, estimated_value || 'TBD', location || 'PAN India', due_date || 'Open', status || 'Active'], function(err) {
+  db.run(query, [tender_no, title, category, estimated_value || 'TBD', location || 'PAN India', due_date || 'Open', status || 'ACTIVE'], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
+    checkpointDb();
     res.status(201).json({ success: true, id: this.lastID, message: 'Tender created successfully ✅' });
   });
 });
@@ -1379,9 +1394,10 @@ app.put('/api/tenders/:id', adminAuthMiddleware, (req, res) => {
   const { id } = req.params;
   const { tender_no, title, category, estimated_value, location, due_date, status } = req.body;
   
-  const query = `UPDATE tenders SET tender_no = ?, title = ?, category = ?, estimated_value = ?, location = ?, due_date = ?, status = ? WHERE id = ?`;
-  db.run(query, [tender_no, title, category, estimated_value, location, due_date, status || 'ACTIVE', id], function(err) {
+  const query = `UPDATE tenders SET tender_no = ?, title = ?, category = ?, estimated_value = ?, location = ?, due_date = ?, status = ? WHERE id = ? OR tender_no = ?`;
+  db.run(query, [tender_no, title, category, estimated_value, location, due_date, status || 'ACTIVE', id, id], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
+    checkpointDb();
     res.json({ success: true, updated: this.changes, message: 'Tender updated successfully ✅' });
   });
 });
@@ -1394,17 +1410,20 @@ app.patch('/api/tenders/:id/status', adminAuthMiddleware, (req, res) => {
     return res.status(400).json({ success: false, error: 'Status is required' });
   }
 
-  db.run(`UPDATE tenders SET status = ? WHERE id = ?`, [status, id], function(err) {
+  db.run(`UPDATE tenders SET status = ? WHERE id = ? OR tender_no = ?`, [status, id, id], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
+    checkpointDb();
     res.json({ success: true, updated: this.changes, status });
   });
 });
 
 // DELETE /api/tenders/:id — Delete a tender (PROTECTED)
 app.delete('/api/tenders/:id', adminAuthMiddleware, (req, res) => {
-  db.run(`DELETE FROM tenders WHERE id = ?`, [req.params.id], function(err) {
+  const { id } = req.params;
+  db.run(`DELETE FROM tenders WHERE id = ? OR tender_no = ?`, [id, id], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json({ success: true, message: 'Tender removed successfully.' });
+    checkpointDb();
+    res.json({ success: true, deleted: this.changes, message: 'Tender removed successfully.' });
   });
 });
 
@@ -1505,7 +1524,7 @@ app.post('/api/deploy-webhook', (req, res) => {
   const { exec } = require('child_process');
   console.log('🔄 GitHub Push Webhook Triggered: Auto-deploying latest master code...');
 
-  exec('cd /var/www/Empanelment-Portal && rm -f backend/empanelment.db-shm backend/empanelment.db-wal && git checkout . && git pull origin master && npm run build && pm2 restart all', (error, stdout, stderr) => {
+  exec('cd /var/www/Empanelment-Portal && git checkout . && git pull origin master && npm run build && pm2 restart all', (error, stdout, stderr) => {
     if (error) {
       console.error('❌ Auto-deploy failed:', error.message);
       return res.status(500).json({ success: false, error: error.message });
