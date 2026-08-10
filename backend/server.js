@@ -898,22 +898,26 @@ app.post('/api/empanelment/contact', async (req, res) => {
   db.run(sql, [name, email, phone || 'N/A', company || 'N/A', dept, message], function(err) {
     if (err) {
       console.error('Contact DB insert error:', err.message);
+      return res.status(500).json({ success: false, error: err.message });
     }
+
+    // Immediate HTTP response so client form finishes instantly without hanging
+    res.json({ success: true, id: this.lastID, message: 'Inquiry submitted and logged to Admin control panel successfully.' });
+
+    // Non-blocking background email notification to admin
+    setImmediate(async () => {
+      try {
+        if (emailService && emailService.sendEmail) {
+          await emailService.sendEmail(adminEmail, {
+            subject: `[Contact Support] ${dept} — ${name} (${company || 'Individual'})`,
+            html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Company:</strong> ${company}</p><p><strong>Department:</strong> ${dept}</p><p><strong>Message:</strong> ${message}</p>`
+          });
+        }
+      } catch (err) {
+        console.error('Contact mail background notice:', err.message);
+      }
+    });
   });
-
-  // 2. Send Alert Mail to Admin
-  try {
-    if (emailService && emailService.sendEmail) {
-      await emailService.sendEmail(adminEmail, {
-        subject: `[Contact Support] ${dept} — ${name} (${company || 'Individual'})`,
-        html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Company:</strong> ${company}</p><p><strong>Department:</strong> ${dept}</p><p><strong>Message:</strong> ${message}</p>`
-      });
-    }
-  } catch (err) {
-    console.error('Contact mail notice:', err.message);
-  }
-
-  res.json({ success: true, message: 'Inquiry submitted and logged to Admin control panel successfully.' });
 });
 
 // ─────────────────────────────────────────────────────────────────

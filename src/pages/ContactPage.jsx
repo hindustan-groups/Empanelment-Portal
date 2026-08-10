@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, Building2, ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert, RefreshCw } from 'lucide-react';
 import SecurityCaptcha from '../components/SecurityCaptcha';
 import { loadSiteConfig, getSiteConfigSync } from '../config/siteConfigService';
+import { API_BASE_URL } from '../config/api';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -81,6 +82,22 @@ export default function ContactPage() {
       }
     } catch (err) {
       console.error('Contact submission error:', err);
+      // Backup local storage fallback
+      try {
+        const local = JSON.parse(localStorage.getItem('hipro_contact_submissions') || '[]');
+        local.unshift({
+          id: Date.now(),
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          company: formData.company,
+          department: formData.department === 'Other' ? (formData.customDepartment || 'Other') : formData.department,
+          message: formData.message,
+          status: 'NEW',
+          submitted_at: new Date().toISOString()
+        });
+        localStorage.setItem('hipro_contact_submissions', JSON.stringify(local));
+      } catch {}
     } finally {
       setIsSending(false);
     }
@@ -326,7 +343,7 @@ export default function ContactPage() {
                   <option value="ID Card & QR Code">Smart ID Card & Verification Issue</option>
                   <option value="Active Tenders">Active Tender Bidding Query</option>
                   <option value="Billing & Accounts">Billing & Accounts Inquiry</option>
-                  <option value="Other">✏️ Other – Specify Custom Department</option>
+                  <option value="Other">✏️ Other – Custom Inquiry</option>
                 </select>
 
                 {formData.department === 'Other' && (

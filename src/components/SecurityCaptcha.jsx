@@ -54,8 +54,8 @@ export default function SecurityCaptcha({ onCaptchaVerify, onVerify }) {
         </button>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-        <div style={{ padding: '0.5rem 1rem', borderRadius: 8, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', fontFamily: 'monospace', fontWeight: 900, fontSize: '1.1rem', letterSpacing: '0.05em' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ padding: '0.5rem 0.85rem', borderRadius: 8, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-card)', fontFamily: 'monospace', fontWeight: 900, fontSize: '1.1rem', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
           {num1} + {num2} = ?
         </div>
 
@@ -65,12 +65,12 @@ export default function SecurityCaptcha({ onCaptchaVerify, onVerify }) {
           onChange={(e) => handleInputChange(e.target.value)}
           placeholder="Enter Answer"
           className="form-input"
-          style={{ width: 140, fontSize: '1rem', fontWeight: 800, textAlign: 'center' }}
+          style={{ width: '120px', minWidth: '100px', flex: '1 1 100px', fontSize: '1rem', fontWeight: 800, textAlign: 'center' }}
         />
 
         {isVerified && (
-          <span style={{ color: '#10B981', fontWeight: 800, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            <ShieldCheck style={{ width: 18, height: 18 }} />
+          <span style={{ color: '#10B981', fontWeight: 800, fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}>
+            <ShieldCheck style={{ width: 18, height: 18, flexShrink: 0 }} />
             <span>Human Verified</span>
           </span>
         )}
