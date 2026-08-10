@@ -353,19 +353,7 @@ db.serialize(() => {
       status TEXT DEFAULT 'ACTIVE',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
-  `, () => {
-    // Seed Default Tenders if table is empty
-    db.get(`SELECT COUNT(*) as count FROM tenders`, [], (err, row) => {
-      if (!err && row && row.count === 0) {
-        const stmt = db.prepare(`INSERT INTO tenders (tender_no, title, category, location, estimated_value, due_date) VALUES (?, ?, ?, ?, ?, ?)`);
-        stmt.run('HIPRO-TND-2026-001', 'Construction & Structural Civil Works for Commercial Complex', 'Civil & Structural Execution', 'Bhilwara, Rajasthan', '₹ 14.50 Crore', '2026-08-25');
-        stmt.run('HIPRO-TND-2026-002', 'Supply & Installation of High-Voltage Electrical Substation & HVAC', 'MEP & Electrical Services', 'Jaipur / Bhilwara, Rajasthan', '₹ 4.80 Crore', '2026-08-20');
-        stmt.run('HIPRO-TND-2026-003', 'Architectural Consultancy & Structural Audit Services', 'Architecture & Design Consultancy', 'Corporate HQ, Bhilwara', '₹ 85.00 Lakhs', '2026-08-30');
-        stmt.run('HIPRO-TND-2026-004', 'Supply of Ready Mix Concrete (RMC) & TMT Steel Bars', 'Material Supply & Rental', 'Various Project Sites (Rajasthan)', '₹ 8.20 Crore', '2026-08-15');
-        stmt.finalize();
-      }
-    });
-  });
+  `);
 });
 
 // ─── 7. ADMIN AUTHENTICATION MIDDLEWARE ───────────────────────────
