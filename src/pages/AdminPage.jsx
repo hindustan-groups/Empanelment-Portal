@@ -463,6 +463,27 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const [contactMessages, setContactMessages] = useState([]);
   const [selectedContactMsg, setSelectedContactMsg] = useState(null);
 
+  /* Vendor Bids State */
+  const [bids, setBids] = useState([]);
+
+  /* Work Orders State */
+  const [workOrdersList, setWorkOrdersList] = useState([]);
+  const [showIssueWoModal, setShowIssueWoModal] = useState(false);
+  const [woForm, setWoForm] = useState({
+    vendor_tracking_id: '',
+    vendor_name: '',
+    project_name: 'Hindustan Commercial Tower (Phase 2)',
+    package_name: 'Civil & Structural EPC Package',
+    amount: '₹ 1,50,00,000',
+    start_date: new Date().toLocaleDateString('en-IN'),
+    end_date: '30 May 2027',
+    status: 'IN EXECUTION',
+    progress: 15
+  });
+
+  /* Gate Passes State */
+  const [gatePassesList, setGatePassesList] = useState([]);
+
   /* Contact Reply Modal State */
   const [replyModalData, setReplyModalData] = useState(null);
   const [replyText, setReplyText] = useState('');
@@ -746,6 +767,84 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     } catch {}
   };
 
+  const fetchBids = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/bids`);
+      const data = await res.json();
+      if (data.success) setBids(data.data || []);
+    } catch (e) {}
+  };
+
+  const fetchWorkOrders = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/work-orders`);
+      const data = await res.json();
+      if (data.success) setWorkOrdersList(data.data || []);
+    } catch (e) {}
+  };
+
+  const fetchGatePasses = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/gate-passes`);
+      const data = await res.json();
+      if (data.success) setGatePassesList(data.data || []);
+    } catch (e) {}
+  };
+
+  const handleUpdateBidStatus = async (id, newStatus) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/bids/${id}/status`, {
+        method: 'PATCH',
+        headers: getAdminAuthHeader(),
+        body: JSON.stringify({ status: newStatus })
+      });
+      fetchBids();
+    } catch (e) {}
+  };
+
+  const handleIssueWorkOrder = async (e) => {
+    e.preventDefault();
+    if (!woForm.vendor_tracking_id || !woForm.amount) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/work-orders`, {
+        method: 'POST',
+        headers: getAdminAuthHeader(),
+        body: JSON.stringify(woForm)
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchWorkOrders();
+        setShowIssueWoModal(false);
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      alert(`Failed to issue work order: ${err.message}`);
+    }
+  };
+
+  const handleDeleteWorkOrder = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this work order?')) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/work-orders/${id}`, {
+        method: 'DELETE',
+        headers: getAdminAuthHeader()
+      });
+      fetchWorkOrders();
+    } catch (e) {}
+  };
+
+  const handleUpdateGatePassStatus = async (id, newStatus) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/gate-passes/${id}/status`, {
+        method: 'PATCH',
+        headers: getAdminAuthHeader(),
+        body: JSON.stringify({ status: newStatus })
+      });
+      fetchGatePasses();
+    } catch (e) {}
+  };
+
   /* Sync to localStorage */
   useEffect(() => { localStorage.setItem('hipro_custom_categories', JSON.stringify(categories)); }, [categories]);
   useEffect(() => { localStorage.setItem('hipro_site_config', JSON.stringify(siteConfig)); }, [siteConfig]);
@@ -756,6 +855,9 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     fetchContactMessages();
     fetchTenders();
     fetchInvoices();
+    fetchBids();
+    fetchWorkOrders();
+    fetchGatePasses();
 
     // Hydrate siteConfig & customCategories from VPS Database on mount so Admin Panel starts with live DB config!
     fetch(`${API_BASE_URL}/api/empanelment/public/site-config`)
@@ -1224,14 +1326,17 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
   const TABS = [
     { id: 'applications',     label: 'Applications',            count: totalApps,              icon: Database,      color: '#0047AB', bg: 'rgba(0,71,171,0.1)' },
-    { id: 'db_inspector',     label: 'Live DB Inspector',       count: totalApps,              icon: ShieldCheck,   color: '#047857', bg: 'rgba(4,120,87,0.1)' },
-    { id: 'contact_messages', label: 'Contact Inquiries',       count: contactMessages.length, icon: Mail,          color: '#7C3AED', bg: 'rgba(124,58,237,0.1)' },
-    { id: 'payout_approvals', label: 'RA Bills & RTGS',                                        icon: DollarSign,    color: '#D97706', bg: 'rgba(217,119,6,0.1)' },
-    { id: 'support_tickets',  label: 'Support Tickets',                                        icon: MessageSquare, color: '#0891B2', bg: 'rgba(8,145,178,0.1)' },
-    { id: 'site_cms',         label: 'Website CMS',                                            icon: Settings,      color: '#6366F1', bg: 'rgba(99,102,241,0.1)' },
+    { id: 'bids_manager',     label: 'Vendor Bids (Live)',      count: bids.length,            icon: FileCheck2,    color: '#047857', bg: 'rgba(4,120,87,0.1)' },
+    { id: 'work_orders',      label: 'Work Orders',             count: workOrdersList.length,  icon: Briefcase,     color: '#7C3AED', bg: 'rgba(124,58,237,0.1)' },
+    { id: 'gate_passes',      label: 'Gate Passes (QR)',        count: gatePassesList.length,  icon: ShieldCheck,   color: '#2563EB', bg: 'rgba(37,99,235,0.1)' },
+    { id: 'payout_approvals', label: 'RA Bills & RTGS',         count: invoices.length,        icon: DollarSign,    color: '#D97706', bg: 'rgba(217,119,6,0.1)' },
+    { id: 'support_tickets',  label: 'Support Tickets',         count: tickets.length,         icon: MessageSquare, color: '#0891B2', bg: 'rgba(8,145,178,0.1)' },
+    { id: 'contact_messages', label: 'Contact Inquiries',       count: contactMessages.length, icon: Mail,          color: '#E11D48', bg: 'rgba(225,29,72,0.1)' },
+    { id: 'tenders',          label: 'Tenders Master',          count: tenders.length,         icon: FileText,      color: '#DC2626', bg: 'rgba(220,38,38,0.1)' },
     { id: 'categories',       label: 'Categories',              count: categories.length,      icon: Layers,        color: '#059669', bg: 'rgba(5,150,105,0.1)' },
-    { id: 'tenders',          label: 'Tenders',                 count: tenders.length,         icon: FileText,      color: '#DC2626', bg: 'rgba(220,38,38,0.1)' },
-    { id: 'security',         label: 'Security & Logs',                                        icon: Lock,          color: '#475569', bg: 'rgba(71,85,105,0.1)' },
+    { id: 'site_cms',         label: 'Website CMS',                                            icon: Settings,      color: '#6366F1', bg: 'rgba(99,102,241,0.1)' },
+    { id: 'db_inspector',     label: 'Live DB Inspector',       count: totalApps,              icon: ShieldCheck,   color: '#475569', bg: 'rgba(71,85,105,0.1)' },
+    { id: 'security',         label: 'Security & Logs',                                        icon: Lock,          color: '#334155', bg: 'rgba(51,65,85,0.1)' },
   ];
 
   return (
@@ -1756,7 +1861,241 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
           </div>
         )}
 
-        {/* ════════════════ TAB: LIVE DB INSPECTOR & SYSTEM AUDIT ════════════════ */}
+        {/* ════════════════ TAB: LIVE VENDOR BIDS MANAGER ════════════════ */}
+        {activeTab === 'bids_manager' && (
+          <div>
+            <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <FileCheck2 style={{ width: 20, height: 20, color: '#047857' }} />
+                  <span>Vendor Tender Commercial Bids ({bids.length}):</span>
+                </h3>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Review commercial proposals submitted by vendors across active tenders. Award contract to winning bidder.
+                </p>
+              </div>
+              <button onClick={fetchBids} className="btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.75rem' }}>
+                <RefreshCw style={{ width: 14, height: 14 }} />
+                <span>Refresh Bids</span>
+              </button>
+            </div>
+
+            <div style={{ overflowX: 'auto', borderRadius: 14, border: '1px solid var(--border-color)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '0.04em' }}>
+                    <th style={{ padding: '0.85rem 1rem' }}>Tender Ref</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Vendor Company &amp; ID</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Quoted Bid Amount</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Remarks</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Submitted At</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Status</th>
+                    <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bids.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        No commercial tender bids submitted yet by vendors.
+                      </td>
+                    </tr>
+                  ) : (
+                    bids.map(b => (
+                      <tr key={b.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontWeight: 800, color: '#0047AB' }}>{b.tender_no}</td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <div style={{ fontWeight: 800, color: '#0F172A' }}>{b.vendor_name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{b.vendor_tracking_id}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', fontWeight: 900, color: '#047857', fontSize: '0.95rem' }}>{b.bid_amount}</td>
+                        <td style={{ padding: '0.85rem 1rem', color: 'var(--text-muted)', fontSize: '0.78rem' }}>{b.remarks || 'Standard commercial quote'}</td>
+                        <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>{b.submitted_at ? new Date(b.submitted_at).toLocaleString('en-IN') : 'Recent'}</td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <span style={{ fontSize: '0.725rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: b.status === 'ACCEPTED' ? 'rgba(16,185,129,0.15)' : b.status === 'REJECTED' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)', color: b.status === 'ACCEPTED' ? '#047857' : b.status === 'REJECTED' ? '#DC2626' : '#B45309' }}>
+                            {b.status || 'UNDER REVIEW'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
+                            {b.status !== 'ACCEPTED' && (
+                              <button onClick={() => handleUpdateBidStatus(b.id, 'ACCEPTED')} style={{ padding: '0.3rem 0.65rem', fontSize: '0.72rem', borderRadius: 6, background: '#16a34a', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
+                                Accept &amp; Award
+                              </button>
+                            )}
+                            {b.status !== 'REJECTED' && (
+                              <button onClick={() => handleUpdateBidStatus(b.id, 'REJECTED')} style={{ padding: '0.3rem 0.65rem', fontSize: '0.72rem', borderRadius: 6, background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
+                                Reject
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ TAB: WORK ORDERS & CONTRACTS CONTROL ════════════════ */}
+        {activeTab === 'work_orders' && (
+          <div>
+            <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Briefcase style={{ width: 20, height: 20, color: '#7C3AED' }} />
+                  <span>Work Orders &amp; Construction Execution Contracts ({workOrdersList.length}):</span>
+                </h3>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Issue official Work Orders, assign project packages to empanelled vendors, and track progress.
+                </p>
+              </div>
+              <button onClick={() => setShowIssueWoModal(true)} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.78rem', borderRadius: 10 }}>
+                <PlusCircle style={{ width: 15, height: 15 }} />
+                <span>Issue New Work Order</span>
+              </button>
+            </div>
+
+            <div style={{ overflowX: 'auto', borderRadius: 14, border: '1px solid var(--border-color)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '0.04em' }}>
+                    <th style={{ padding: '0.85rem 1rem' }}>WO Code</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Vendor Name &amp; ID</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Project &amp; Package</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Contract Value</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Dates</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Status &amp; Progress</th>
+                    <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {workOrdersList.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        No active work orders issued yet. Click "Issue New Work Order" to assign a contract.
+                      </td>
+                    </tr>
+                  ) : (
+                    workOrdersList.map(wo => (
+                      <tr key={wo.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontWeight: 800, color: '#7C3AED' }}>{wo.work_order_no}</td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <div style={{ fontWeight: 800, color: '#0F172A' }}>{wo.vendor_name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{wo.vendor_tracking_id}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <div style={{ fontWeight: 700, color: '#0F172A' }}>{wo.project_name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{wo.package_name}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', fontWeight: 900, color: '#047857' }}>{wo.amount}</td>
+                        <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          <div>Start: {wo.start_date}</div>
+                          <div>End: {wo.end_date}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <span style={{ fontSize: '0.725rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: 'rgba(124,58,237,0.12)', color: '#7C3AED' }}>
+                            {wo.status || 'IN EXECUTION'}
+                          </span>
+                          <div style={{ width: 100, height: 5, borderRadius: 99, background: '#E2E8F0', marginTop: 4, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${wo.progress || 0}%`, background: '#7C3AED' }} />
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                          <button onClick={() => handleDeleteWorkOrder(wo.id)} style={{ padding: '0.35rem 0.65rem', fontSize: '0.72rem', borderRadius: 6, background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', cursor: 'pointer', fontWeight: 700 }}>
+                            <Trash2 style={{ width: 12, height: 12, display: 'inline', marginRight: 3 }} /> Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════ TAB: SITE SECURITY GATE PASSES CONTROL ════════════════ */}
+        {activeTab === 'gate_passes' && (
+          <div>
+            <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <ShieldCheck style={{ width: 20, height: 20, color: '#2563EB' }} />
+                  <span>Construction Site Security QR Gate Passes ({gatePassesList.length}):</span>
+                </h3>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Audit daily supervisor, worker, and vehicle entry gate passes requested by vendors. Revoke access instantly if required.
+                </p>
+              </div>
+              <button onClick={fetchGatePasses} className="btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.75rem' }}>
+                <RefreshCw style={{ width: 14, height: 14 }} />
+                <span>Refresh Passes</span>
+              </button>
+            </div>
+
+            <div style={{ overflowX: 'auto', borderRadius: 14, border: '1px solid var(--border-color)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '0.04em' }}>
+                    <th style={{ padding: '0.85rem 1rem' }}>Pass Code</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Vendor Firm &amp; ID</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Supervisor / Visitor</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Workers &amp; Vehicle</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Site Location</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Valid Till</th>
+                    <th style={{ padding: '0.85rem 1rem' }}>Status</th>
+                    <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gatePassesList.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        No daily site gate passes generated yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    gatePassesList.map(gp => (
+                      <tr key={gp.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontWeight: 800, color: '#2563EB' }}>{gp.pass_code}</td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <div style={{ fontWeight: 800, color: '#0F172A' }}>{gp.vendor_name}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{gp.vendor_tracking_id}</div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: '#0F172A' }}>{gp.visitor_name}</td>
+                        <td style={{ padding: '0.85rem 1rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                          <div>👥 Workers: <strong>{gp.worker_count || 1}</strong></div>
+                          <div>🚛 Vehicle: <strong>{gp.vehicle_no || 'N/A'}</strong></div>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', fontSize: '0.78rem' }}>{gp.site_location}</td>
+                        <td style={{ padding: '0.85rem 1rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>{gp.valid_till}</td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <span style={{ fontSize: '0.725rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: 6, backgroundColor: gp.status === 'REVOKED' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', color: gp.status === 'REVOKED' ? '#DC2626' : '#047857' }}>
+                            {gp.status || 'APPROVED'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                          {gp.status !== 'REVOKED' ? (
+                            <button onClick={() => handleUpdateGatePassStatus(gp.id, 'REVOKED')} style={{ padding: '0.35rem 0.65rem', fontSize: '0.72rem', borderRadius: 6, background: '#dc2626', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
+                              🔴 Revoke Access
+                            </button>
+                          ) : (
+                            <button onClick={() => handleUpdateGatePassStatus(gp.id, 'APPROVED')} style={{ padding: '0.35rem 0.65rem', fontSize: '0.72rem', borderRadius: 6, background: '#16a34a', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
+                              ✓ Validate Pass
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
         {activeTab === 'db_inspector' && (
           <div style={{ padding: '1.5rem', background: 'var(--bg-surface)', borderRadius: 20, border: '2px solid #0047AB' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -3473,6 +3812,124 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   >
                     <Save style={{ width: 16, height: 16 }} />
                     <span>{editingCat ? 'Save Category Changes' : '🚀 Save New Category'}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Issue Work Order Modal */}
+        {showIssueWoModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+          }}>
+            <div style={{
+              width: '100%', maxWidth: 580, backgroundColor: '#FFFFFF', borderRadius: 20,
+              padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid #E2E8F0'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Briefcase style={{ width: 22, height: 22, color: '#7C3AED' }} />
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0F172A', margin: 0 }}>
+                    Issue Official Work Order
+                  </h3>
+                </div>
+                <button type="button" onClick={() => setShowIssueWoModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#64748B' }}>
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleIssueWorkOrder} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                    Select Empanelled Vendor *
+                  </label>
+                  <select
+                    value={woForm.vendor_tracking_id}
+                    onChange={e => {
+                      const selected = vendors.find(v => (v.tracking_id || v.id) === e.target.value);
+                      setWoForm({
+                        ...woForm,
+                        vendor_tracking_id: e.target.value,
+                        vendor_name: selected ? (selected.company_name || selected.contact_name) : ''
+                      });
+                    }}
+                    required
+                    style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', borderRadius: 10, border: '1.5px solid #CBD5E1', boxSizing: 'border-box', fontWeight: 700 }}
+                  >
+                    <option value="">-- Select Approved Empanelled Vendor --</option>
+                    {vendors.map(v => (
+                      <option key={getAppId(v)} value={getAppId(v)}>
+                        {v.company_name || v.companyName} ({getAppId(v)}) — {v.category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Project Location / Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={woForm.project_name}
+                      onChange={e => setWoForm({ ...woForm, project_name: e.target.value })}
+                      required
+                      className="form-input"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Work Package Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={woForm.package_name}
+                      onChange={e => setWoForm({ ...woForm, package_name: e.target.value })}
+                      required
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Total Contract Value (₹) *
+                    </label>
+                    <input
+                      type="text"
+                      value={woForm.amount}
+                      onChange={e => setWoForm({ ...woForm, amount: e.target.value })}
+                      required
+                      className="form-input"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#334155', marginBottom: 4 }}>
+                      Initial Execution Progress (%)
+                    </label>
+                    <input
+                      type="number"
+                      min="0" max="100"
+                      value={woForm.progress}
+                      onChange={e => setWoForm({ ...woForm, progress: parseInt(e.target.value, 10) || 0 })}
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                  <button type="button" onClick={() => setShowIssueWoModal(false)} style={{ padding: '0.65rem 1.1rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10, border: '1px solid #CBD5E1', background: '#FFFFFF', color: '#475569', cursor: 'pointer' }}>
+                    Cancel
+                  </button>
+                  <button type="submit" style={{ padding: '0.65rem 1.5rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #7C3AED 0%, #4C1D95 100%)', color: '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Briefcase style={{ width: 16, height: 16 }} />
+                    <span>Issue Work Order</span>
                   </button>
                 </div>
               </form>

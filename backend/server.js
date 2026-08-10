@@ -354,6 +354,55 @@ db.serialize(() => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // 8. Vendor Bids Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS bids (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tender_no TEXT NOT NULL,
+      vendor_tracking_id TEXT NOT NULL,
+      vendor_name TEXT NOT NULL,
+      bid_amount TEXT NOT NULL,
+      remarks TEXT,
+      status TEXT DEFAULT 'UNDER REVIEW',
+      submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // 9. Work Orders Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS work_orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      work_order_no TEXT UNIQUE NOT NULL,
+      vendor_tracking_id TEXT NOT NULL,
+      vendor_name TEXT NOT NULL,
+      project_name TEXT NOT NULL,
+      package_name TEXT NOT NULL,
+      amount TEXT NOT NULL,
+      start_date TEXT,
+      end_date TEXT,
+      status TEXT DEFAULT 'IN EXECUTION',
+      progress INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // 10. Site Gate Passes Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS gate_passes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pass_code TEXT UNIQUE NOT NULL,
+      vendor_tracking_id TEXT NOT NULL,
+      vendor_name TEXT NOT NULL,
+      visitor_name TEXT NOT NULL,
+      worker_count TEXT,
+      vehicle_no TEXT,
+      site_location TEXT NOT NULL,
+      valid_till TEXT NOT NULL,
+      status TEXT DEFAULT 'APPROVED',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 });
 
 // ─── 7. ADMIN AUTHENTICATION MIDDLEWARE ───────────────────────────
@@ -1520,6 +1569,126 @@ app.patch('/api/tickets/:id/reply', adminAuthMiddleware, (req, res) => {
   db.run(`UPDATE tickets SET reply = ?, status = ? WHERE id = ?`, [reply, status || 'RESOLVED', req.params.id], function(err) {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, message: 'Ticket reply saved and marked as resolved.' });
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+//                   BIDS MANAGEMENT API
+// ════════════════════════════════════════════════════════════════
+
+// GET /api/bids — Fetch bids (filtered by tender_no or vendor_tracking_id or all for admin)
+app.get('/api/bids', (req, res) => {
+  const { tender_no, vendor_tracking_id } = req.query;
+  let sql = `SELECT * FROM bids`;
+  let params = [];
+  if (tender_no) {
+    sql += ` WHERE tender_no = ?`;
+    params.push(tender_no);
+  } else if (vendor_tracking_id) {
+    sql += ` WHERE vendor_tracking_id = ?`;
+    params.push(vendor_tracking_id);
+  }
+  sql += ` ORDER BY id DESC`;
+  db.all(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
+});
+
+// POST /api/empanelment/vendor/bids — Vendor submits a tender bid
+app.post('/api/empanelment/vendor/bids', (req, res) => {
+  const { tender_no, vendor_tracking_id, vendor_name, bid_amount, remarks } = req.body;
+  if (!tender_no || !vendor_tracking_id || !bid_amount) {
+    return res.status(400).json({ success: false, error: 'Tender No, Vendor Tracking ID, and Bid Amount are required.' });
+  }
+  const sql = `INSERT INTO bids (tender_no, vendor_tracking_id, vendor_name, bid_amount, remarks, status) VALUES (?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [tender_no, vendor_tracking_id, vendor_name || 'Vendor', bid_amount, remarks || '', 'UNDER REVIEW'], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.status(201).json({ success: true, id: this.lastID, message: 'Bid submitted successfully ✅' });
+  });
+});
+
+// PATCH /api/bids/:id/status — Admin accepts/rejects bid
+app.patch('/api/bids/:id/status', adminAuthMiddleware, (req, res) => {
+  const { status } = req.body;
+  db.run(`UPDATE bids SET status = ? WHERE id = ?`, [status || 'ACCEPTED', req.params.id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: 'Bid status updated.' });
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+//                WORK ORDERS MANAGEMENT API
+// ════════════════════════════════════════════════════════════════
+
+// GET /api/work-orders — Fetch work orders
+app.get('/api/work-orders', (req, res) => {
+  const { vendor_tracking_id } = req.query;
+  const sql = vendor_tracking_id ? `SELECT * FROM work_orders WHERE vendor_tracking_id = ? ORDER BY id DESC` : `SELECT * FROM work_orders ORDER BY id DESC`;
+  const params = vendor_tracking_id ? [vendor_tracking_id] : [];
+  db.all(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
+});
+
+// POST /api/work-orders — Admin issues new work order
+app.post('/api/work-orders', adminAuthMiddleware, (req, res) => {
+  const { work_order_no, vendor_tracking_id, vendor_name, project_name, package_name, amount, start_date, end_date, status, progress } = req.body;
+  const woNo = work_order_no || `HP-WO-2026-${Math.floor(100 + Math.random() * 900)}`;
+  if (!vendor_tracking_id || !project_name || !amount) {
+    return res.status(400).json({ success: false, error: 'Vendor Tracking ID, Project Name, and Amount are required.' });
+  }
+  const sql = `INSERT INTO work_orders (work_order_no, vendor_tracking_id, vendor_name, project_name, package_name, amount, start_date, end_date, status, progress) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [woNo, vendor_tracking_id, vendor_name || 'Vendor', project_name, package_name || 'Execution Contract', amount, start_date || '01 Jun 2026', end_date || '30 May 2027', status || 'IN EXECUTION', progress || 0], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.status(201).json({ success: true, workOrderNo: woNo, id: this.lastID, message: 'Work order issued successfully ✅' });
+  });
+});
+
+// DELETE /api/work-orders/:id — Delete work order
+app.delete('/api/work-orders/:id', adminAuthMiddleware, (req, res) => {
+  db.run(`DELETE FROM work_orders WHERE id = ? OR work_order_no = ?`, [req.params.id, req.params.id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: 'Work order removed.' });
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+//                SITE GATE PASSES MANAGEMENT API
+// ════════════════════════════════════════════════════════════════
+
+// GET /api/gate-passes — Fetch gate passes
+app.get('/api/gate-passes', (req, res) => {
+  const { vendor_tracking_id } = req.query;
+  const sql = vendor_tracking_id ? `SELECT * FROM gate_passes WHERE vendor_tracking_id = ? ORDER BY id DESC` : `SELECT * FROM gate_passes ORDER BY id DESC`;
+  const params = vendor_tracking_id ? [vendor_tracking_id] : [];
+  db.all(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, count: rows.length, data: rows });
+  });
+});
+
+// POST /api/empanelment/vendor/gate-passes — Request/Create Gate Pass
+app.post('/api/empanelment/vendor/gate-passes', (req, res) => {
+  const { pass_code, vendor_tracking_id, vendor_name, visitor_name, worker_count, vehicle_no, site_location, valid_till } = req.body;
+  const passCode = pass_code || `HP-PASS-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+  if (!vendor_tracking_id || !visitor_name || !site_location) {
+    return res.status(400).json({ success: false, error: 'Vendor Tracking ID, Visitor Name, and Site Location are required.' });
+  }
+  const sql = `INSERT INTO gate_passes (pass_code, vendor_tracking_id, vendor_name, visitor_name, worker_count, vehicle_no, site_location, valid_till, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  db.run(sql, [passCode, vendor_tracking_id, vendor_name || 'Vendor', visitor_name, worker_count || '1', vehicle_no || 'N/A', site_location, valid_till || '24 Hours', 'APPROVED'], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.status(201).json({ success: true, passCode, id: this.lastID, message: 'Gate pass generated successfully ✅' });
+  });
+});
+
+// PATCH /api/gate-passes/:id/status — Admin Revoke/Approve Gate Pass
+app.patch('/api/gate-passes/:id/status', adminAuthMiddleware, (req, res) => {
+  const { status } = req.body;
+  db.run(`UPDATE gate_passes SET status = ? WHERE id = ? OR pass_code = ?`, [status || 'REVOKED', req.params.id, req.params.id], function(err) {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: 'Gate pass status updated.' });
   });
 });
 

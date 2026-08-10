@@ -17,7 +17,7 @@ export default function GatePassModal({ isOpen, onClose, vendorData, onPassGener
   const expiryDateObj = new Date(Date.now() + (daysNum * 86400000));
   const expiryStr = expiryDateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
-  const handleGenerate = (e) => {
+  const handleGenerate = async (e) => {
     e.preventDefault();
     if (!visitorName) return;
     const passCode = `HP-PASS-2026-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -35,7 +35,27 @@ export default function GatePassModal({ isOpen, onClose, vendorData, onPassGener
 
     setGeneratedPass(passObj);
 
-    // Save to local storage for Vendor Dashboard persistence
+    // Save to VPS API & Local storage for persistence
+    try {
+      const { API_BASE_URL } = require('../config/api');
+      await fetch(`${API_BASE_URL}/api/empanelment/vendor/gate-passes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pass_code: passCode,
+          vendor_tracking_id: vendorData?.tracking_id || vendorData?.trackingId || 'HP-EMP-025',
+          vendor_name: vendorData?.company_name || vendorData?.contact_name || 'Empanelled Vendor',
+          visitor_name: visitorName,
+          worker_count: workerCount,
+          vehicle_no: vehicleNo || 'N/A',
+          site_location: siteLocation,
+          valid_till: `${expiryStr} 23:59 IST`
+        })
+      });
+    } catch (err) {
+      console.warn('Gate Pass API notice:', err);
+    }
+
     try {
       const existing = JSON.parse(localStorage.getItem('hipro_vendor_site_passes') || '[]');
       const updated = [passObj, ...existing];

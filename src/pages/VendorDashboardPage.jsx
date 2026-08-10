@@ -219,9 +219,26 @@ export default function VendorDashboardPage() {
     navigate('/vendor-login');
   };
 
-  const handleCreateBid = (e) => {
+  const handleCreateBid = async (e) => {
     e.preventDefault();
-    if (!bidAmount) return;
+    if (!bidAmount || !biddingTender) return;
+
+    try {
+      await fetch(`${API_BASE_URL}/api/empanelment/vendor/bids`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tender_no: biddingTender.ref,
+          vendor_tracking_id: vendor.tracking_id,
+          vendor_name: vendor.company_name || vendor.contact_name,
+          bid_amount: bidAmount,
+          remarks: bidRemarks || 'Commercial bid submitted.'
+        })
+      });
+    } catch (err) {
+      console.warn('Bid API notice:', err);
+    }
+
     const newBid = {
       ref: biddingTender.ref,
       title: biddingTender.title,
