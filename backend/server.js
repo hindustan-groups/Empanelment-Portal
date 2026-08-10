@@ -1556,7 +1556,23 @@ if (fs.existsSync(distPath)) {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// START SERVER
+// START SERVER & AUTOMATED DATABASE BACKUP GUARD
+// ─────────────────────────────────────────────────────────────────
+try {
+  require('./backup.js');
+} catch (e) {}
+
+setInterval(() => {
+  try {
+    const backupScript = path.join(__dirname, 'backup.js');
+    if (fs.existsSync(backupScript)) {
+      delete require.cache[require.resolve('./backup.js')];
+      require('./backup.js');
+    }
+  } catch (err) {
+    console.error('Periodic DB backup notice:', err.message);
+  }
+}, 6 * 60 * 60 * 1000);
 // ─────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`====================================================`);
