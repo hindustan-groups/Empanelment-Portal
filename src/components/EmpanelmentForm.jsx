@@ -417,10 +417,43 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File size exceeds maximum limit of 10 MB');
+
+    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    const maxSingleFileMB = 15; // 15MB limit per individual file
+
+    if (file.size > maxSingleFileMB * 1024 * 1024) {
+      const errText = `⚠️ File "${file.name}" is too large (${fileSizeMB} MB). Maximum size allowed per file is ${maxSingleFileMB} MB. Please compress or select a smaller photo/PDF.`;
+      alert(errText);
+      setErrors(prev => ({ ...prev, [field]: errText }));
       return;
     }
+
+    // Extension & Type Validation
+    const allowedExts = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!allowedExts.includes(ext) && file.type && !file.type.startsWith('image/') && !file.type.includes('pdf')) {
+      const errText = `⚠️ Unsupported file format (${ext}). Allowed formats: PDF, JPG, PNG, WEBP, HEIC.`;
+      alert(errText);
+      setErrors(prev => ({ ...prev, [field]: errText }));
+      return;
+    }
+
+    // Cumulative Total Size Validation (Max 50MB across all form attachments)
+    let currentTotalSize = file.size;
+    Object.keys(formData).forEach(k => {
+      if (k !== field && formData[k] && typeof formData[k] === 'object' && formData[k].size) {
+        currentTotalSize += formData[k].size;
+      }
+    });
+
+    const totalMB = (currentTotalSize / (1024 * 1024)).toFixed(1);
+    if (currentTotalSize > 50 * 1024 * 1024) {
+      const errText = `⚠️ Total size of all uploaded documents (${totalMB} MB) exceeds maximum combined limit of 50 MB. Please compress your files before attaching.`;
+      alert(errText);
+      setErrors(prev => ({ ...prev, [field]: errText }));
+      return;
+    }
+
     const previewUrl = URL.createObjectURL(file);
     const reader = new FileReader();
     reader.onloadend = () => {
