@@ -1518,7 +1518,7 @@ app.post('/api/deploy-webhook', (req, res) => {
   const { exec } = require('child_process');
   console.log('🔄 GitHub Push Webhook Triggered: Auto-deploying latest master code...');
 
-  exec('cd /var/www/Empanelment-Portal && git checkout . && git pull origin master && npm run build && (sudo sed -i "s/client_max_body_size.*/client_max_body_size 100M;/g" /etc/nginx/nginx.conf /etc/nginx/sites-available/* /etc/nginx/conf.d/*.conf 2>/dev/null || true) && (sudo nginx -s reload 2>/dev/null || true) && pm2 restart all', (error, stdout, stderr) => {
+  exec('cd /var/www/Empanelment-Portal && git checkout . && git pull origin master && npm run build && (grep -q "client_max_body_size" /etc/nginx/nginx.conf || sudo sed -i "/http {/a \\    client_max_body_size 100M;" /etc/nginx/nginx.conf 2>/dev/null || true) && (sudo sed -i "s/client_max_body_size.*/client_max_body_size 100M;/g" /etc/nginx/nginx.conf /etc/nginx/sites-available/* /etc/nginx/conf.d/*.conf 2>/dev/null || true) && (sudo nginx -s reload 2>/dev/null || true) && pm2 restart all', (error, stdout, stderr) => {
     if (error) {
       console.error('❌ Auto-deploy failed:', error.message);
       return res.status(500).json({ success: false, error: error.message });

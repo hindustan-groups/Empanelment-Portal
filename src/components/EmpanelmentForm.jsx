@@ -9,6 +9,59 @@ import DigitalSignature from './DigitalSignature';
 import { CATEGORY_SCHEMAS } from '../config/categoryFieldsConfig';
 import { API_BASE_URL } from '../config/api';
 
+/* ─── Image Compression Helper (Canvas HD Resizer) ─────────────────── */
+const compressImage = (file, maxWidth = 1920, maxHeight = 1920, quality = 0.82) => {
+  return new Promise((resolve) => {
+    if (!file || !file.type || !file.type.startsWith('image/')) {
+      return resolve(file); // Return original PDF or non-image file
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob && blob.size < file.size) {
+              const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+};
+
 /* ─── Static Data ─────────────────────────────────────────────────── */
 const ENTITY_TYPES = [
   { value: 'sole_proprietor', label: '👤 Sole Proprietor / Individual Freelancer', single: true },
@@ -411,18 +464,28 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     });
   };
 
-  const handleFile = (field, file) => {
+  const handleFile = async (field, file) => {
     if (!file) {
       setFormData(prev => ({ ...prev, [field]: null }));
       if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
       return;
     }
 
-    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    // Auto-compress mobile camera photos to ~400KB before storing
+    let processedFile = file;
+    if (file.type && file.type.startsWith('image/')) {
+      try {
+        processedFile = await compressImage(file);
+      } catch (err) {
+        console.warn('Image compression fallback:', err);
+      }
+    }
+
+    const fileSizeMB = (processedFile.size / (1024 * 1024)).toFixed(1);
     const maxSingleFileMB = 15; // 15MB limit per individual file
 
-    if (file.size > maxSingleFileMB * 1024 * 1024) {
-      const errText = `⚠️ File "${file.name}" is too large (${fileSizeMB} MB). Maximum size allowed per file is ${maxSingleFileMB} MB. Please compress or select a smaller photo/PDF.`;
+    if (processedFile.size > maxSingleFileMB * 1024 * 1024) {
+      const errText = `⚠️ File "${processedFile.name}" is too large (${fileSizeMB} MB). Maximum size allowed per file is ${maxSingleFileMB} MB. Please compress or select a smaller photo/PDF.`;
       alert(errText);
       setErrors(prev => ({ ...prev, [field]: errText }));
       return;
@@ -430,8 +493,8 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
     // Extension & Type Validation
     const allowedExts = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
-    const ext = '.' + file.name.split('.').pop().toLowerCase();
-    if (!allowedExts.includes(ext) && file.type && !file.type.startsWith('image/') && !file.type.includes('pdf')) {
+    const ext = '.' + processedFile.name.split('.').pop().toLowerCase();
+    if (!allowedExts.includes(ext) && processedFile.type && !processedFile.type.startsWith('image/') && !processedFile.type.includes('pdf')) {
       const errText = `⚠️ Unsupported file format (${ext}). Allowed formats: PDF, JPG, PNG, WEBP, HEIC.`;
       alert(errText);
       setErrors(prev => ({ ...prev, [field]: errText }));
@@ -439,7 +502,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     }
 
     // Cumulative Total Size Validation (Max 50MB across all form attachments)
-    let currentTotalSize = file.size;
+    let currentTotalSize = processedFile.size;
     Object.keys(formData).forEach(k => {
       if (k !== field && formData[k] && typeof formData[k] === 'object' && formData[k].size) {
         currentTotalSize += formData[k].size;
@@ -454,22 +517,22 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       return;
     }
 
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(processedFile);
     const reader = new FileReader();
     reader.onloadend = () => {
       setFormData(prev => ({
         ...prev,
         [field]: {
-          name: file.name || 'document.pdf',
-          size: file.size || 0,
-          type: file.type || 'application/pdf',
+          name: processedFile.name || 'document.pdf',
+          size: processedFile.size || 0,
+          type: processedFile.type || 'application/pdf',
           previewUrl,
           data: reader.result,
-          rawFile: file
+          rawFile: processedFile
         }
       }));
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(processedFile);
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
   };
 
@@ -2032,12 +2095,12 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
           justifyContent: 'center',
           padding: '1.5rem'
         }}>
-          <div style={{
+          <div className="processing-modal-box" style={{
             background: '#FFFFFF',
-            borderRadius: 24,
-            padding: '2.25rem 1.75rem',
-            maxWidth: 440,
-            width: '100%',
+            borderRadius: 20,
+            padding: '1.5rem 1.25rem',
+            maxWidth: 380,
+            width: '90%',
             textAlign: 'center',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             animation: 'modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'

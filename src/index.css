@@ -3507,6 +3507,30 @@ body {
   }
 }
 
+/* ── Mobile Form & Upload Cards Overhaul ── */
+@media (max-width: 640px) {
+  .upload-card {
+    padding: 0.85rem !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+  .upload-btn {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+    font-size: 0.78rem !important;
+    padding: 0.65rem 0.5rem !important;
+  }
+  .processing-modal-box {
+    padding: 1.25rem 1rem !important;
+    max-width: 360px !important;
+    width: 92% !important;
+    border-radius: 20px !important;
+  }
+}
+
 /* ── Keyframe Animations ── */
 @keyframes spin {
   0% { transform: rotate(0deg); }
