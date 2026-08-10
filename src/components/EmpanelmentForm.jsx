@@ -854,7 +854,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
             First — Who are you? Select your entity type:
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.55rem' }}>
             {ENTITY_TYPES.map(et => {
               const isSelected = formData.entityType === et.value;
               return (
@@ -865,19 +865,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                     setFormData(prev => ({ ...prev, entityType: et.value, otherEntityType: '' }));
                     setErrors({});
                   }}
-                  style={{
-                    padding: '0.45rem 1rem',
-                    borderRadius: 99,
-                    fontSize: '0.82rem',
-                    fontWeight: isSelected ? 800 : 600,
-                    cursor: 'pointer',
-                    border: isSelected ? '2px solid #0047AB' : '1.5px solid #CBD5E1',
-                    background: isSelected ? '#0047AB' : '#F8FAFC',
-                    color: isSelected ? '#FFFFFF' : '#334155',
-                    boxShadow: isSelected ? '0 2px 10px rgba(0,71,171,0.25)' : 'none',
-                    transition: 'all 0.18s ease',
-                    lineHeight: 1.4,
-                  }}
+                  className={`entity-pill-btn${isSelected ? ' selected' : ''}`}
                 >
                   {et.label}
                 </button>
@@ -899,19 +887,25 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
           {errors.otherEntityType && <span className="error-text">{errors.otherEntityType}</span>}
 
           {isFreelanceMode ? (
-            <div style={{ marginTop: '0.85rem', padding: '0.65rem 1rem', borderRadius: 10, background: '#ECFDF5', border: '1.5px solid #10B981', fontSize: '0.82rem', fontWeight: 800, color: '#047857', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>👤 Freelancer / Individual Professional Mode Activated:</span>
-              <span>Form is auto-customized for Individual Consultants, Architects & Freelancers. Asks for Day Rates, Personal Portfolio, PAN & Aadhaar. Unnecessary corporate fields (CIN, EPF, heavy machinery) hidden!</span>
+            <div className="mode-info-banner freelance">
+              <span style={{ fontSize: '1.1rem' }}>👤</span>
+              <div>
+                <strong>Freelancer / Individual Professional Mode Activated:</strong> Form is auto-customized for Individual Consultants, Architects &amp; Freelancers. Day Rates, Portfolio, PAN &amp; Aadhaar enabled. Corporate fields (CIN, EPF, heavy machinery) hidden.
+              </div>
             </div>
           ) : isSupplierMode ? (
-            <div style={{ marginTop: '0.85rem', padding: '0.65rem 1rem', borderRadius: 10, background: '#FEF3C7', border: '1.5px solid #F59E0B', fontSize: '0.82rem', fontWeight: 800, color: '#92400E', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>🚚 Material Supplier & Logistics Mode Activated:</span>
-              <span>Form is customized for Material Suppliers, Transporters & Fresh Produce Vendors. Supply Capacity & Vehicle Fleet details enabled!</span>
+            <div className="mode-info-banner supplier">
+              <span style={{ fontSize: '1.1rem' }}>🚚</span>
+              <div>
+                <strong>Material Supplier &amp; Logistics Mode Activated:</strong> Form is customized for Material Suppliers, Transporters &amp; Fresh Produce Vendors. Supply Capacity &amp; Fleet details enabled.
+              </div>
             </div>
           ) : (
-            <div style={{ marginTop: '0.85rem', padding: '0.65rem 1rem', borderRadius: 10, background: '#EFF6FF', border: '1.5px solid #3B82F6', fontSize: '0.82rem', fontWeight: 800, color: '#1E40AF', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>🏗️ Corporate Contractor & Turnkey Mode Activated:</span>
-              <span>Full corporate credential fields enabled (Firm Name, CIN/LLPIN, Machinery Checklist, EPF, and 3-Year Corporate Turnovers).</span>
+            <div className="mode-info-banner contractor">
+              <span style={{ fontSize: '1.1rem' }}>🏗️</span>
+              <div>
+                <strong>Corporate Contractor &amp; Turnkey Mode Activated:</strong> Full corporate credential fields enabled (Firm Name, CIN/LLPIN, Machinery Checklist, EPF, and 3-Year Corporate Turnovers).
+              </div>
             </div>
           )}
         </div>
