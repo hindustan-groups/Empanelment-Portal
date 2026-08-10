@@ -249,7 +249,7 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin
             </div>
 
             {/* 3D ASSEMBLY CANVAS */}
-            <div style={{ position: 'relative', width: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
 
               {/* ══ OFFICIAL LANYARD RIBBON PRODUCT PHOTO ══ */}
               <div style={{ width: '100%', textAlign: 'center', marginBottom: 0 }}>

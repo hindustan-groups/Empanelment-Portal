@@ -3145,6 +3145,7 @@ body {
     margin-bottom: 2rem !important;
     border-radius: 14px !important;
   }
+}
 
 /* ── Tablet & Small Screens (≤ 768px) ── */
 @media (max-width: 768px) {
@@ -3532,6 +3533,23 @@ body {
     box-sizing: border-box !important;
     border-radius: 20px !important;
   }
+  .vendor-login-card {
+    padding: 1.25rem 1rem !important;
+    border-radius: 18px !important;
+  }
+  .id-card-modal-overlay {
+    padding: 0.5rem !important;
+  }
+  .id-card-modal-container {
+    padding: 1.1rem 0.75rem !important;
+    border-radius: 18px !important;
+  }
+  .printable-id-card-wrapper {
+    gap: 1.25rem !important;
+  }
+  .track-status-banner {
+    padding: 1.25rem 0.85rem !important;
+  }
 }
 
 /* ── Keyframe Animations ── */
@@ -3544,4 +3562,5 @@ body {
   0% { opacity: 0; transform: translateY(30px) scale(0.95); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
+
 

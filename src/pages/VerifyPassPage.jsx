@@ -67,7 +67,7 @@ export default function VerifyPassPage() {
         </div>
 
         {/* Security Token Code Banner */}
-        <div style={{ padding: '1.25rem 1.5rem', backgroundColor: '#F0FDF4', borderBottom: '1px solid #DCFCE7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '1.25rem 1.5rem', backgroundColor: '#F0FDF4', borderBottom: '1px solid #DCFCE7', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
             <div style={{ fontSize: '0.725rem', color: '#047857', fontWeight: 800 }}>SECURITY TOKEN ID</div>
             <div style={{ fontSize: '1.15rem', fontWeight: 900, fontFamily: 'monospace', color: '#065F46' }}>{activeCode}</div>
