@@ -648,8 +648,11 @@ app.post('/api/empanelment/vendor/login', (req, res) => {
       if (status.includes('Rejected')) {
         return res.status(403).json({ success: false, error: `❌ Application Rejected: Your empanelment application ${vendor.tracking_id} was rejected by the Procurement Committee.` });
       }
-      if (status.includes('Clarification')) {
+      if (status.includes('Clarification') || status.includes('Resubmission')) {
         return res.status(403).json({ success: false, error: `⚠️ Clarification Required: Your application ${vendor.tracking_id} is on hold pending document clarification.` });
+      }
+      if (status.includes('Suspended') || status.includes('Terminated') || status.includes('Disabled') || status.includes('Debarred')) {
+        return res.status(403).json({ success: false, error: `🚫 Account Suspended / Disabled: Vendor empanelment ${vendor.tracking_id} has been suspended/disabled by Hindustan Projects administration.` });
       }
       return res.status(403).json({ success: false, error: `⏳ Review Pending: Application ${vendor.tracking_id} is under audit by the Procurement Committee & CEO Office. Dashboard access will unlock upon CEO Approval.` });
     }

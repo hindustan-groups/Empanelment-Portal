@@ -77,6 +77,8 @@ const STATUS_OPTIONS = [
   { value: 'Approved Class-B',    label: 'Approved Class-B',    color: '#0047AB', bg: 'rgba(0,71,171,0.10)' },
   { value: 'Approved Class-C',    label: 'Approved Class-C',    color: '#6B7280', bg: 'rgba(107,114,128,0.10)' },
   { value: 'Clarification Required', label: 'Clarification Required', color: '#7C3AED', bg: 'rgba(124,58,237,0.10)' },
+  { value: 'Suspended / On Hold', label: 'Suspended / On Hold', color: '#B45309', bg: 'rgba(245,158,11,0.18)' },
+  { value: 'Terminated / Disabled', label: 'Terminated / Disabled', color: '#991B1B', bg: 'rgba(239,68,68,0.18)' },
   { value: 'Rejected',            label: 'Rejected',            color: '#ED1C24', bg: 'rgba(237,28,36,0.10)' },
 ];
 

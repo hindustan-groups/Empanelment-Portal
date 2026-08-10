@@ -140,6 +140,10 @@ export default function VendorDashboardPage() {
               const fullVendor = { ...parsed, ...data.data };
               setVendor(fullVendor);
               localStorage.setItem('hipro_vendor_session', JSON.stringify(fullVendor));
+            } else if (data.status === 404 || data.error?.includes('not found')) {
+              // Vendor was deleted by admin! Purge session & redirect to login
+              localStorage.removeItem('hipro_vendor_session');
+              navigate('/vendor-login');
             }
           })
           .catch(() => {});
@@ -599,6 +603,16 @@ export default function VendorDashboardPage() {
           })}
         </nav>
       </header>
+
+      {/* ⚠️ SUSPENDED / DISABLED ACCOUNT WARNING BANNER */}
+      {(vendor.status?.includes('Suspended') || vendor.status?.includes('Terminated') || vendor.status?.includes('Disabled') || vendor.status?.includes('Debarred') || vendor.status?.includes('Rejected')) && (
+        <div style={{ background: 'linear-gradient(90deg, #7F1D1D, #DC2626)', color: '#FFFFFF', padding: '0.85rem 1.25rem', textAlign: 'center', fontWeight: 800, fontSize: '0.825rem', borderBottom: '2px solid #EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+          <Shield style={{ width: 18, height: 18, flexShrink: 0, color: '#FCA5A5' }} />
+          <span>
+            <strong>EMPANELED ACCOUNT STATUS: {(vendor.status || 'DISABLED').toUpperCase()}</strong> — Your vendor empanelment account has been disabled/suspended by Hindustan Projects procurement administration. Active bidding, gate pass creation, and financial claims are restricted. Contact Helpdesk (+91-7597000601).
+          </span>
+        </div>
+      )}
 
       {/* ════════════════ MAIN CONTENT ════════════════ */}
       <main style={{ maxWidth: 1240, margin: '1.25rem auto 2rem auto', padding: isMobile ? '0 1rem' : '0 1.5rem' }}>
