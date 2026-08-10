@@ -61,31 +61,33 @@ export default function VendorDashboardPage() {
   });
 
   /* Live Tenders State */
-  const [liveTenders, setLiveTenders] = useState(() => {
-    const saved = localStorage.getItem('hipro_tenders');
-    if (saved) {
+  const [liveTenders, setLiveTenders] = useState([]);
+
+  useEffect(() => {
+    const fetchTenders = async () => {
       try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map(t => ({
-            ref: t.id || t.ref || 'HP-TND-2026-101',
-            title: t.title || 'Tender Notice',
-            val: t.estimatedCost || t.val || '₹ 5.00 Cr',
-            location: t.location || 'Rajasthan Site',
-            end: t.dueDate || t.end || '15 Aug 2026',
-            scope: t.eligibility || t.scope || 'Empanelled contractor package bidding.',
-            category: (t.category || t.title || '').toLowerCase().includes('electrical') ? 'electrical' : 
-                      (t.category || t.title || '').toLowerCase().includes('bim') || (t.category || t.title || '').toLowerCase().includes('hvac') ? 'mep' : 'civil'
-          }));
+        const res = await fetch(`${API_BASE_URL}/api/tenders`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          const mapped = data.data
+            .filter(t => (t.status || 'ACTIVE').toUpperCase() === 'ACTIVE')
+            .map(t => ({
+              ref: t.tender_no || `HP-TND-2026-${t.id}`,
+              title: t.title,
+              val: t.estimated_value ? `₹ ${t.estimated_value}` : 'TBD',
+              location: t.location || 'Bhilwara, Rajasthan',
+              end: t.due_date || 'Open',
+              scope: t.category || 'Empanelled contractor package bidding.',
+              category: (t.category || '').toLowerCase().includes('electrical') ? 'electrical' : 
+                        (t.category || '').toLowerCase().includes('bim') || (t.category || '').toLowerCase().includes('hvac') ? 'mep' : 'civil'
+            }));
+          setLiveTenders(mapped);
+          localStorage.setItem('hipro_tenders', JSON.stringify(data.data));
         }
-      } catch {}
-    }
-    return [
-      { ref: 'HP-TND-2026-101', title: 'Jaipur Commercial Tower — Turnkey Civil & Structural Package', val: '₹ 14.50 Cr', location: 'Jaipur, Rajasthan', end: '08 Aug 2026', scope: 'RCC superstructure, basement waterproofing, and structural fabrication.', category: 'civil' },
-      { ref: 'HP-TND-2026-102', title: 'Bhilwara Industrial Park — High-Tension Electrical & Substation Installation', val: '₹ 3.80 Cr', location: 'Bhilwara, Rajasthan', end: '12 Aug 2026', scope: '11kV Substation installation, HT cable laying, transformer commissioning.', category: 'electrical' },
-      { ref: 'HP-TND-2026-103', title: 'Luxury Township — BIM Architectural & HVAC Consultancy', val: '₹ 1.20 Cr', location: 'Udaipur, Rajasthan', end: '15 Aug 2026', scope: 'Revit 3D BIM modeling, VRF HVAC layout design, fire safety documentation.', category: 'mep' }
-    ];
-  });
+      } catch (e) {}
+    };
+    fetchTenders();
+  }, []);
 
   /* Invoices State */
   const [invoiceForm, setInvoiceForm] = useState({ invoiceNo: '', milestone: 'Milestone 1: Progress Claim', amt: '', file: null });

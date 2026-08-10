@@ -33,7 +33,7 @@ export default function ActiveTenders({ onEmpanelCategory }) {
               status: 'OPEN FOR BIDDING'
             }));
           setLiveTenders(active);
-          localStorage.setItem('hipro_tenders', JSON.stringify(active));
+          localStorage.setItem('hipro_tenders', JSON.stringify(data.data));
           return;
         }
       } catch (err) {

@@ -52,10 +52,7 @@ const DUMMY_TENDERS = [
 
 export default function TendersPage() {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
-  const [tenders, setTenders] = useState(() => {
-    const saved = localStorage.getItem('hipro_tenders');
-    return saved ? JSON.parse(saved) : DUMMY_TENDERS;
-  });
+  const [tenders, setTenders] = useState([]);
 
   React.useEffect(() => {
     const fetchTenders = async () => {
