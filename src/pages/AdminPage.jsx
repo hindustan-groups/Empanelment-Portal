@@ -1463,17 +1463,16 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
         </div>
 
-        {/* ══════════ Premium Admin Navigation Tabs ══════════ */}
+        {/* ══════════ Premium Admin Navigation Tabs (Multi-line Clean Wrap — No Overflow Scroll) ══════════ */}
         <div style={{
           marginBottom: '1.75rem',
           background: 'var(--bg-surface)',
           border: '1px solid var(--border-color)',
           borderRadius: 18,
-          padding: '0.5rem',
+          padding: '0.65rem 0.85rem',
           boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-          overflowX: 'auto',
         }}>
-          <div style={{ display: 'flex', gap: '0.3rem', minWidth: 'max-content' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', alignItems: 'center' }}>
             {TABS.map(tab => {
               const Icon = tab.icon;
               const active = activeTab === tab.id;
@@ -1484,22 +1483,23 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   style={{
                     position: 'relative',
                     display: 'inline-flex',
-                    flexDirection: 'column',
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    gap: '0.3rem',
-                    padding: '0.7rem 1.1rem 0.6rem',
-                    borderRadius: 13,
+                    gap: '0.45rem',
+                    padding: '0.55rem 0.95rem',
+                    borderRadius: 12,
                     border: 'none',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
-                    minWidth: 90,
+                    flex: '1 1 auto',
+                    justifyContent: 'center',
                     background: active
                       ? `linear-gradient(145deg, ${tab.color}18 0%, ${tab.color}08 100%)`
-                      : 'transparent',
-                    outline: active ? `1.5px solid ${tab.color}30` : '1.5px solid transparent',
+                      : 'rgba(0,0,0,0.02)',
+                    outline: active ? `1.5px solid ${tab.color}40` : '1px solid var(--border-color)',
                     transition: 'all 0.18s cubic-bezier(0.4,0,0.2,1)',
                     transform: active ? 'translateY(-1px)' : 'translateY(0)',
-                    boxShadow: active ? `0 4px 16px ${tab.color}20` : 'none',
+                    boxShadow: active ? `0 4px 14px ${tab.color}20` : 'none',
                   }}
                   onMouseEnter={e => {
                     if (!active) {
@@ -1509,7 +1509,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   }}
                   onMouseLeave={e => {
                     if (!active) {
-                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.background = 'rgba(0,0,0,0.02)';
                       e.currentTarget.style.transform = 'translateY(0)';
                     }
                   }}
@@ -1517,53 +1517,48 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                   {/* Active bottom indicator bar */}
                   {active && (
                     <span style={{
-                      position: 'absolute', bottom: 0, left: '20%', right: '20%',
+                      position: 'absolute', bottom: 0, left: '15%', right: '15%',
                       height: 3, borderRadius: 99,
                       background: `linear-gradient(90deg, ${tab.color}, ${tab.color}88)`,
                       boxShadow: `0 0 8px ${tab.color}60`,
                     }} />
                   )}
 
-                  {/* Icon + Count row */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    {/* Icon bubble */}
-                    <span style={{
-                      width: 28, height: 28, borderRadius: 8,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: active ? tab.color : tab.bg,
-                      flexShrink: 0,
-                      transition: 'background 0.18s',
-                    }}>
-                      <Icon style={{ width: 14, height: 14, color: active ? '#fff' : tab.color }} />
-                    </span>
-
-                    {/* Count badge */}
-                    {tab.count !== undefined && (
-                      <span style={{
-                        fontSize: '0.68rem', fontWeight: 900,
-                        padding: '0.1rem 0.42rem', borderRadius: 99,
-                        background: active ? tab.color : tab.bg,
-                        color: active ? '#fff' : tab.color,
-                        lineHeight: 1.6,
-                        border: active ? 'none' : `1px solid ${tab.color}30`,
-                      }}>
-                        {tab.count}
-                      </span>
-                    )}
-                  </div>
+                  {/* Icon bubble */}
+                  <span style={{
+                    width: 24, height: 24, borderRadius: 7,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: active ? tab.color : tab.bg,
+                    flexShrink: 0,
+                    transition: 'background 0.18s',
+                  }}>
+                    <Icon style={{ width: 13, height: 13, color: active ? '#fff' : tab.color }} />
+                  </span>
 
                   {/* Label */}
                   <span style={{
-                    fontSize: '0.72rem',
-                    fontWeight: active ? 800 : 600,
+                    fontSize: '0.75rem',
+                    fontWeight: active ? 800 : 650,
                     color: active ? tab.color : 'var(--text-secondary)',
-                    letterSpacing: active ? '0.01em' : '0',
-                    transition: 'color 0.18s',
                     lineHeight: 1.2,
-                    textAlign: 'center',
                   }}>
                     {tab.label}
                   </span>
+
+                  {/* Count badge */}
+                  {tab.count !== undefined && (
+                    <span style={{
+                      fontSize: '0.65rem', fontWeight: 900,
+                      padding: '0.08rem 0.38rem', borderRadius: 99,
+                      background: active ? tab.color : tab.bg,
+                      color: active ? '#fff' : tab.color,
+                      lineHeight: 1.5,
+                      border: active ? 'none' : `1px solid ${tab.color}30`,
+                      marginLeft: 2,
+                    }}>
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               );
             })}
