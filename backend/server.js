@@ -63,8 +63,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-admin-key']
 }));
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // ─── 4. UPLOADS DIRECTORY ───────────────────────────────────────
 const uploadDir = path.join(__dirname, 'uploads');
@@ -94,7 +94,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB File Limit
+const upload = multer({ storage, fileFilter, limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB File Limit
 
 // ─── 5.1 CLOUDINARY FILE STORAGE & RATE LIMITER ─────────────────
 let cloudinary = null;
@@ -1518,7 +1518,7 @@ app.post('/api/deploy-webhook', (req, res) => {
   const { exec } = require('child_process');
   console.log('🔄 GitHub Push Webhook Triggered: Auto-deploying latest master code...');
 
-  exec('cd /var/www/Empanelment-Portal && git checkout . && git pull origin master && npm run build && pm2 restart all', (error, stdout, stderr) => {
+  exec('cd /var/www/Empanelment-Portal && git checkout . && git pull origin master && npm run build && (sudo sed -i "s/client_max_body_size.*/client_max_body_size 100M;/g" /etc/nginx/nginx.conf /etc/nginx/sites-available/* /etc/nginx/conf.d/*.conf 2>/dev/null || true) && (sudo nginx -s reload 2>/dev/null || true) && pm2 restart all', (error, stdout, stderr) => {
     if (error) {
       console.error('❌ Auto-deploy failed:', error.message);
       return res.status(500).json({ success: false, error: error.message });

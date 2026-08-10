@@ -739,9 +739,12 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       if (res.ok && result && result.success && result.trackingId) {
         serverTrackingId = result.trackingId;
       } else {
-        const errorMsg = (result && result.error) || `Server returned error status ${res.status}`;
+        let errorMsg = (result && result.error) || `Server returned error status ${res.status}`;
+        if (res.status === 413) {
+          errorMsg = `File Size Limit Exceeded (Error 413):\n\nYour uploaded photos/PDFs total size exceeds Nginx server limit.\n\nPlease choose smaller files or compress images/PDFs and submit again.`;
+        }
         console.error('Backend submission failed:', errorMsg);
-        alert(`❌ Empanelment Submission Error:\n\n${errorMsg}\n\nPlease check your files/connection and try again.`);
+        alert(`❌ Empanelment Submission Error:\n\n${errorMsg}`);
         clearTimeout(pTimer1);
         clearTimeout(pTimer2);
         clearTimeout(pTimer3);
