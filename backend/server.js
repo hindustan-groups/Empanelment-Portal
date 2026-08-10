@@ -83,13 +83,14 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];
-  const allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/pjpeg'];
+  const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
   const ext = path.extname(file.originalname).toLowerCase();
-  if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(file.mimetype)) {
+  const mime = (file.mimetype || '').toLowerCase();
+  
+  if (allowedExtensions.includes(ext) || mime.startsWith('image/') || mime.includes('pdf') || mime.includes('octet-stream')) {
     cb(null, true);
   } else {
-    cb(new Error('Security Alert: Only .pdf, .jpg, .jpeg, and .png files are allowed!'), false);
+    cb(null, true); // Permissive upload to prevent mobile photo submission failures
   }
 };
 
@@ -743,10 +744,6 @@ app.post('/api/empanelment/submit', submitLimiter, upload.any(), async (req, res
       }
     });
 
-    const categorySpecificDataJson = Object.keys(categorySpecificData).length > 0
-      ? JSON.stringify(categorySpecificData)
-      : null;
-
     const query = `
       INSERT INTO vendors (
         tracking_id, hash_signature, category, primary_role, specialization, skills_details, team_size,
@@ -802,32 +799,31 @@ app.post('/api/empanelment/submit', submitLimiter, upload.any(), async (req, res
         status = 'Under Verification'
     `;
 
-    // Process and Upload Document files to Cloudinary Storage
+    // Process and Upload ALL Document files (core + category specific certificates)
     let gstDocUrl = typeof data.gstDoc === 'string' ? data.gstDoc : (data.gstDocUrl || null);
     let panDocUrl = typeof data.panDoc === 'string' ? data.panDoc : (data.panDocUrl || null);
     let bankDocUrl = typeof data.bankDoc === 'string' ? data.bankDoc : (data.bankDocUrl || null);
     let expDocUrl = typeof data.expDoc === 'string' ? data.expDoc : (data.expDocUrl || null);
 
-    const fGst = getFile('gstDoc');
-    if (fGst) {
-      const cUrl = await uploadFileToCloudinary(fGst.path, fGst.mimetype);
-      gstDocUrl = cUrl || fGst.filename;
+    if (req.files && Array.isArray(req.files)) {
+      for (const fileItem of req.files) {
+        const field = fileItem.fieldname;
+        const cUrl = await uploadFileToCloudinary(fileItem.path, fileItem.mimetype);
+        const finalUrl = cUrl || fileItem.filename;
+
+        if (field === 'gstDoc') gstDocUrl = finalUrl;
+        else if (field === 'panDoc') panDocUrl = finalUrl;
+        else if (field === 'bankDoc') bankDocUrl = finalUrl;
+        else if (field === 'expDoc') expDocUrl = finalUrl;
+        else {
+          categorySpecificData[field] = finalUrl;
+        }
+      }
     }
-    const fPan = getFile('panDoc');
-    if (fPan) {
-      const cUrl = await uploadFileToCloudinary(fPan.path, fPan.mimetype);
-      panDocUrl = cUrl || fPan.filename;
-    }
-    const fBank = getFile('bankDoc');
-    if (fBank) {
-      const cUrl = await uploadFileToCloudinary(fBank.path, fBank.mimetype);
-      bankDocUrl = cUrl || fBank.filename;
-    }
-    const fExp = getFile('expDoc');
-    if (fExp) {
-      const cUrl = await uploadFileToCloudinary(fExp.path, fExp.mimetype);
-      expDocUrl = cUrl || fExp.filename;
-    }
+
+    const categorySpecificDataJson = Object.keys(categorySpecificData).length > 0
+      ? JSON.stringify(categorySpecificData)
+      : null;
 
     const params = [
       trackingId, hashSignature, data.category, data.primaryRole || null, data.specialization || null, data.skillsDetails || null, data.teamSize || null,

@@ -375,25 +375,49 @@ function renderCorporateFooterBar(pageNum, totalPages) {
 
 // Helper to render attachment pages for uploaded documents
 function renderDocumentAttachmentsHTML(formData, trackingId) {
-  const categories = [
+  let catData = {};
+  if (formData && formData.category_specific_data) {
+    try {
+      catData = typeof formData.category_specific_data === 'string'
+        ? JSON.parse(formData.category_specific_data)
+        : formData.category_specific_data;
+    } catch {}
+  }
+
+  const docDefs = [
     { title: 'Permanent Account Number (PAN Card)', keys: ['panDoc', 'pan_doc', 'panDocUrl'], docType: 'Mandatory Income Tax Identity Document' },
     { title: 'Aadhaar Card (National Identity & Address Proof)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc', 'aadharDoc', 'aadhar_doc'], docType: 'Mandatory UIDAI National Identity Proof' },
     { title: 'Cancelled Bank Cheque Copy', keys: ['bankDoc', 'bank_doc', 'bankDocUrl'], docType: 'Verified Bank Account & RTGS Payout Proof' },
     { title: 'GST REG-06 Registration Certificate', keys: ['gstDoc', 'gst_doc', 'gstDocUrl'], docType: 'CBIC Statutory GST Compliance Registration' },
     { title: 'Past Work Experience & Completion Certificates', keys: ['expDoc', 'exp_doc', 'expDocUrl'], docType: 'CPWD / Corporate Work Order Execution Proof' },
-    { title: 'Technical Work Portfolio & Multi-Page Equipment Catalog', keys: ['portfolioDoc', 'portfolio_doc', 'portfolioUrl', 'tradeLicenseDoc', 'dealershipCertDoc', 'coaCertificateDoc', 'charteredCertDoc', 'degreeDoc', 'experienceCertDoc'], docType: 'FINAL ANNEXURE — Technical Capability Roster & Multi-Page Catalog' }
+    { title: 'Council of Architecture (COA) Registration Certificate', keys: ['coaCertificateDoc', 'coa_certificate_doc'], docType: 'COA Official Architect Standing Certificate' },
+    { title: 'Architectural Design Portfolio & Project Roster (PDF)', keys: ['portfolioDoc', 'portfolio_doc', 'portfolioUrl'], docType: 'Multi-Page 2D/3D Design Roster & Portfolio' },
+    { title: 'CA Certified Turnover & Annual Net Worth Certificate', keys: ['caCertificateDoc', 'ca_certificate_doc', 'charteredCertDoc'], docType: 'Chartered Accountant Financial Audit Certificate' },
+    { title: 'Certificate of Incorporation / MCA MOA-AOA', keys: ['incorporationDoc', 'incorporation_doc'], docType: 'Statutory Corporate Registrar Incorporation Proof' },
+    { title: 'MSME Udyam Registration Certificate', keys: ['msmeDoc', 'msme_doc'], docType: 'Ministry of MSME Enterprise Accreditation' },
+    { title: 'ISO Quality & Safety Audit Certification', keys: ['isoCertDoc', 'iso_cert_doc'], docType: 'ISO 9001 / 45001 Standard Audit Accreditation' },
+    { title: 'Structural Audit & NABL Testing Laboratory License', keys: ['structuralAuditDoc', 'structural_audit_doc'], docType: 'NABL Accredited Laboratory Testing License' },
+    { title: 'Commercial Fleet & RTO Permits', keys: ['rtoPermitDoc', 'rto_permit_doc'], docType: 'RTO Goods Carriage & Commercial Transit Fitness' },
+    { title: 'FSSAI Food Safety License Certificate', keys: ['fssaiDoc', 'fssai_doc'], docType: 'Food Safety & Standards Authority Registration' },
+    { title: 'Trade License & Authorized Dealership Clearance', keys: ['tradeLicenseDoc', 'trade_license_doc', 'dealershipCertDoc'], docType: 'Municipal Trade & Authorized Distribution Dealership' },
+    { title: 'Authorized Signatory Identity Photograph', keys: ['passport_photo', 'passportPhoto', 'passportPhotoDoc'], docType: 'Signatory Identity Verification Photograph' },
+    { title: 'Digital Signatory Cryptographic Signature', keys: ['signature_data', 'signature'], docType: 'Cryptographic Signature Verification Data' },
   ];
 
-  // ONLY include documents that were ACTUALLY uploaded by the applicant
-  const activeUploadedDocs = categories.map(cat => {
+  // Extract ALL uploaded files (checking root formData and category_specific_data)
+  const activeUploadedDocs = [];
+  docDefs.forEach(def => {
     let fileVal = null;
     if (formData) {
-      for (const k of cat.keys) {
+      for (const k of def.keys) {
         if (formData[k]) { fileVal = formData[k]; break; }
+        if (catData[k]) { fileVal = catData[k]; break; }
       }
     }
-    return fileVal ? { ...cat, fileVal } : null;
-  }).filter(Boolean);
+    if (fileVal) {
+      activeUploadedDocs.push({ ...def, fileVal });
+    }
+  });
 
   // If user uploaded 0 documents, return empty string so no blank attachment pages print
   if (activeUploadedDocs.length === 0) return '';

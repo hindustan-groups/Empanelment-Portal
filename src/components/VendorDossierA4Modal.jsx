@@ -221,13 +221,41 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
     { id: 'authorize',  label: '✅ Authorize & Print', },
   ];
 
-  const docs = [
-    { label: 'GST REG-06 Registration Certificate', docType: 'CBIC Statutory GST Compliance Registration', fileVal: vendor.gst_doc },
-    { label: 'PAN Card Copy', docType: 'Mandatory Income Tax Identity Document', fileVal: vendor.pan_doc },
-    { label: 'Cancelled Bank Cheque / Passbook', docType: 'Verified Bank Account & RTGS Payout Proof', fileVal: vendor.bank_doc },
-    { label: 'Work Experience & Completion Certificates', docType: 'CPWD / Corporate Work Order Execution Proof', fileVal: vendor.exp_doc },
+  // Dynamic document extraction from vendor & category_specific_data
+  let catData = {};
+  if (vendor.category_specific_data) {
+    try {
+      catData = typeof vendor.category_specific_data === 'string'
+        ? JSON.parse(vendor.category_specific_data)
+        : vendor.category_specific_data;
+    } catch {}
+  }
+
+  const docsMap = [
+    { label: 'GST REG-06 Registration Certificate', docType: 'CBIC Statutory GST Compliance Registration', key: 'gst_doc', altKey: 'gstDoc' },
+    { label: 'PAN Card Copy', docType: 'Mandatory Income Tax Identity Document', key: 'pan_doc', altKey: 'panDoc' },
+    { label: 'Cancelled Bank Cheque / Passbook', docType: 'Verified Bank Account & RTGS Payout Proof', key: 'bank_doc', altKey: 'bankDoc' },
+    { label: 'Work Experience & Completion Certificates', docType: 'CPWD / Corporate Work Order Execution Proof', key: 'exp_doc', altKey: 'expDoc' },
+    { label: 'Council of Architecture (COA) Registration Certificate', docType: 'COA Official Architect Standing Certificate', key: 'coaCertificateDoc', altKey: 'coa_certificate_doc' },
+    { label: 'Architectural Design Portfolio (PDF)', docType: 'Multi-Page 2D/3D Design Roster & Portfolio', key: 'portfolioDoc', altKey: 'portfolio_doc' },
+    { label: 'CA Certified Turnover & Net Worth Certificate', docType: 'Chartered Accountant Annual Financial Certificate', key: 'caCertificateDoc', altKey: 'ca_certificate_doc' },
+    { label: 'Certificate of Incorporation / MCA MOA-AOA', docType: 'Statutory Corporate Registrar Incorporation Proof', key: 'incorporationDoc', altKey: 'incorporation_doc' },
+    { label: 'MSME Udyam Registration Certificate', docType: 'Ministry of MSME Enterprise Accreditation', key: 'msmeDoc', altKey: 'msme_doc' },
+    { label: 'ISO Quality & Safety Certification', docType: 'ISO 9001 / 45001 Standard Audit Accreditation', key: 'isoCertDoc', altKey: 'iso_cert_doc' },
+    { label: 'Structural Audit & NABL Testing License', docType: 'NABL Accredited Laboratory Testing License', key: 'structuralAuditDoc', altKey: 'structural_audit_doc' },
+    { label: 'Commercial Fleet & RTO Permits', docType: 'RTO Goods Carriage & Commercial Transit Fitness', key: 'rtoPermitDoc', altKey: 'rto_permit_doc' },
+    { label: 'FSSAI License Certificate', docType: 'Food Safety & Standards Authority Registration', key: 'fssaiDoc', altKey: 'fssai_doc' },
+    { label: 'Trade License & Brand Tie-up Clearance', docType: 'Municipal Trade & Authorized Distribution Dealership', key: 'tradeLicenseDoc', altKey: 'trade_license_doc' },
+    { label: 'Authorized Signatory Passport Photo', docType: 'Signatory Identity Verification Photograph', key: 'passport_photo', altKey: 'passportPhoto' },
+    { label: 'Digital Signatory Signature Data', docType: 'Cryptographic Signature Verification Data', key: 'signature_data', altKey: 'signature' },
   ];
-  const submittedCount = docs.filter(d => d.fileVal).length;
+
+  const docs = docsMap.map(d => {
+    const fileVal = vendor[d.key] || vendor[d.altKey] || catData[d.key] || catData[d.altKey] || null;
+    return fileVal ? { label: d.label, docType: d.docType, fileVal } : null;
+  }).filter(Boolean);
+
+  const submittedCount = docs.length;
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,10,25,0.95)', backdropFilter: 'blur(10px)', zIndex: 999999, display: 'flex', flexDirection: 'column' }}>
