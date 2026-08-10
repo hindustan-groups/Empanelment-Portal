@@ -3527,6 +3527,9 @@ body {
     padding: 1.25rem 1rem !important;
     max-width: 360px !important;
     width: 92% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
     border-radius: 20px !important;
   }
 }

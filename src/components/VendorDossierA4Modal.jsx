@@ -35,24 +35,31 @@ function SectionHead({ icon: Icon, title, color = '#60A5FA' }) {
 /* ── Document preview card ── */
 function DocCard({ label, docType, fileVal, index }) {
   const [expanded, setExpanded] = useState(false);
+
+  const getResolvedUrl = (val) => {
+    if (!val) return null;
+    let str = typeof val === 'string' ? val : (typeof val === 'object' && val !== null ? val.url || val.data || val.path || val.previewUrl : null);
+    if (!str) return null;
+    if (str.startsWith('http') || str.startsWith('data:')) return str;
+    if (str.startsWith('/uploads/')) return `${API_BASE_URL}${str}`;
+    if (str.startsWith('uploads/')) return `${API_BASE_URL}/${str}`;
+    if (str.startsWith('/')) return `${API_BASE_URL}${str}`;
+    return `${API_BASE_URL}/uploads/${str}`;
+  };
+
+  const fileUrl = getResolvedUrl(fileVal);
   const fileName = typeof fileVal === 'object' && fileVal?.name ? fileVal.name
-                 : typeof fileVal === 'string' ? fileVal
-                 : null;
+                 : typeof fileVal === 'string' ? fileVal.split('/').pop()
+                 : 'Uploaded Document';
 
-  const isBase64Image = typeof fileVal === 'string' && fileVal.startsWith('data:image');
-  const isBase64PDF   = typeof fileVal === 'string' && fileVal.startsWith('data:application/pdf');
-  const isBlobURL     = typeof fileVal === 'string' && fileVal.startsWith('blob:');
-  const isHttpURL     = typeof fileVal === 'string' && fileVal.startsWith('http');
-  const isFilenameOnly = fileName && !isBase64Image && !isBase64PDF && !isBlobURL && !isHttpURL;
-
-  const isPDFFilename = isFilenameOnly && fileName.toLowerCase().endsWith('.pdf');
-  const hasPreview    = isBase64Image || isBase64PDF || isBlobURL || isHttpURL;
+  const isImage = fileUrl && (fileUrl.startsWith('data:image') || fileUrl.match(/\.(jpg|jpeg|png|webp|gif|heic|heif)($|\?)/i));
+  const isPDF   = fileUrl && (fileUrl.startsWith('data:application/pdf') || fileUrl.match(/\.pdf($|\?)/i));
 
   return (
     <div style={{ background: '#1E293B', borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: '0.85rem' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 1.1rem', cursor: hasPreview ? 'pointer' : 'default' }}
-           onClick={() => hasPreview && setExpanded(e => !e)}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.9rem 1.1rem', cursor: fileUrl ? 'pointer' : 'default' }}
+           onClick={() => fileUrl && setExpanded(e => !e)}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ width: 38, height: 38, borderRadius: 10, background: fileVal ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.1)', border: `1.5px solid ${fileVal ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {fileVal
@@ -64,7 +71,7 @@ function DocCard({ label, docType, fileVal, index }) {
             <div style={{ fontSize: '0.68rem', color: '#64748B', marginTop: 1 }}>{docType}</div>
             {fileName && (
               <div style={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#60A5FA', marginTop: 2 }}>
-                {isPDFFilename ? '📄 ' : isBase64Image ? '🖼️ ' : '📎 '}{fileName}
+                {isPDF ? '📄 ' : isImage ? '🖼️ ' : '📎 '}{fileName}
               </div>
             )}
           </div>
@@ -73,71 +80,27 @@ function DocCard({ label, docType, fileVal, index }) {
           {fileVal
             ? <span style={{ fontSize: '0.68rem', fontWeight: 900, padding: '0.2rem 0.6rem', background: 'rgba(16,185,129,0.15)', color: '#34D399', borderRadius: 20, border: '1px solid rgba(16,185,129,0.35)' }}>✓ SUBMITTED</span>
             : <span style={{ fontSize: '0.68rem', fontWeight: 900, padding: '0.2rem 0.6rem', background: 'rgba(239,68,68,0.12)', color: '#F87171', borderRadius: 20, border: '1px solid rgba(239,68,68,0.35)' }}>✗ NOT UPLOADED</span>}
-          {hasPreview && (
+          {fileUrl && (
             <Eye style={{ width: 15, height: 15, color: expanded ? '#60A5FA' : '#475569', transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           )}
         </div>
       </div>
 
       {/* Preview Area */}
-      {fileVal && (
-        <div>
-          {/* Always-visible metadata strip */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', padding: '0.6rem 1.1rem', background: '#0F172A', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <div>
-              <div style={{ fontSize: '0.6rem', color: '#475569', fontWeight: 700 }}>TRACKING</div>
-              <div style={{ fontSize: '0.68rem', fontFamily: 'monospace', color: '#60A5FA', fontWeight: 800 }}>DOC-{String(index + 1).padStart(2, '0')}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.6rem', color: '#475569', fontWeight: 700 }}>STORAGE</div>
-              <div style={{ fontSize: '0.68rem', color: '#94A3B8', fontWeight: 700 }}>256-Bit SSL Vault</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.6rem', color: '#475569', fontWeight: 700 }}>AUDIT STATUS</div>
-              <div style={{ fontSize: '0.68rem', color: '#34D399', fontWeight: 900 }}>✓ VERIFIED</div>
-            </div>
+      {fileUrl && expanded && (
+        <div style={{ padding: '0.85rem 1.1rem', background: '#0A1225', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          {isImage ? (
+            <img src={fileUrl} alt={label} style={{ maxWidth: '100%', maxHeight: 420, objectFit: 'contain', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', display: 'block', margin: '0 auto 0.85rem' }} />
+          ) : (
+            <iframe src={fileUrl} title={label} style={{ width: '100%', height: 480, border: 'none', borderRadius: 8, background: 'white', marginBottom: '0.85rem' }} />
+          )}
+
+          <div style={{ textAlign: 'center' }}>
+            <a href={fileUrl} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.25rem', background: 'linear-gradient(135deg, #0047AB 0%, #3B82F6 100%)', color: 'white', borderRadius: 10, fontWeight: 800, fontSize: '0.8rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,71,171,0.3)' }}>
+              <Download style={{ width: 15, height: 15 }} /> <span>Open / Download Full Document ({fileName})</span>
+            </a>
           </div>
-
-          {/* Expandable preview */}
-          {hasPreview && expanded && (
-            <div style={{ padding: '0.85rem 1.1rem', background: '#0A1225', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-              {isBase64Image && (
-                <img src={fileVal} alt={label} style={{ maxWidth: '100%', maxHeight: 420, objectFit: 'contain', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', display: 'block', margin: '0 auto' }} />
-              )}
-              {(isBase64PDF || isBlobURL) && (
-                <iframe src={fileVal} title={label} style={{ width: '100%', height: 480, border: 'none', borderRadius: 8, background: 'white' }} />
-              )}
-              {isHttpURL && (
-                <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
-                  {fileVal.match(/\.(jpg|jpeg|png|webp)($|\?)/i) ? (
-                    <img src={fileVal} alt={label} style={{ maxWidth: '100%', maxHeight: 400, objectFit: 'contain', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', display: 'block', margin: '0 auto 0.75rem' }} />
-                  ) : (
-                    <iframe src={fileVal} title={label} style={{ width: '100%', height: 420, border: 'none', borderRadius: 8, background: 'white', marginBottom: '0.75rem' }} />
-                  )}
-                  <a href={fileVal} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.25rem', background: 'linear-gradient(135deg, #0047AB 0%, #3B82F6 100%)', color: 'white', borderRadius: 10, fontWeight: 800, fontSize: '0.8rem', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,71,171,0.3)' }}>
-                    <Download style={{ width: 15, height: 15 }} /> <span>Open / Download High-Res Document (Cloudinary Vault)</span>
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* If only filename — show notice */}
-          {isFilenameOnly && (
-            <div style={{ padding: '0.75rem 1.1rem', background: '#0A1225', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              {isPDFFilename
-                ? <File style={{ width: 28, height: 28, color: '#60A5FA', flexShrink: 0 }} />
-                : <Image style={{ width: 28, height: 28, color: '#60A5FA', flexShrink: 0 }} />}
-              <div>
-                <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#E2E8F0' }}>{fileName}</div>
-                <div style={{ fontSize: '0.68rem', color: '#64748B', marginTop: 2 }}>
-                  Document submitted & stored in encrypted vault. Preview available after server integration.
-                </div>
-                <div style={{ fontSize: '0.65rem', color: '#34D399', fontWeight: 800, marginTop: 4 }}>✓ ATTACHED, VERIFIED & CRYPTOGRAPHICALLY AUTHENTICATED</div>
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -234,6 +197,8 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
   const docsMap = [
     { label: 'GST REG-06 Registration Certificate', docType: 'CBIC Statutory GST Compliance Registration', key: 'gst_doc', altKey: 'gstDoc' },
     { label: 'PAN Card Copy', docType: 'Mandatory Income Tax Identity Document', key: 'pan_doc', altKey: 'panDoc' },
+    { label: 'Aadhaar Card (Front Side)', docType: 'UIDAI Govt National ID — Front Photo', key: 'aadhar_front_doc', altKey: 'aadharFrontDoc' },
+    { label: 'Aadhaar Card (Back Side)', docType: 'UIDAI Govt National ID — Address Back Photo', key: 'aadhar_back_doc', altKey: 'aadharBackDoc' },
     { label: 'Cancelled Bank Cheque / Passbook', docType: 'Verified Bank Account & RTGS Payout Proof', key: 'bank_doc', altKey: 'bankDoc' },
     { label: 'Work Experience & Completion Certificates', docType: 'CPWD / Corporate Work Order Execution Proof', key: 'exp_doc', altKey: 'expDoc' },
     { label: 'Council of Architecture (COA) Registration Certificate', docType: 'COA Official Architect Standing Certificate', key: 'coaCertificateDoc', altKey: 'coa_certificate_doc' },

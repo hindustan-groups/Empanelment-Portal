@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Printer, ShieldCheck, Edit3, Lock, Check } from 'lucide-react';
 import { printCard } from '../utils/printCard';
+import { API_BASE_URL } from '../config/api';
 
 export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin = false, onPhotoUpdate }) {
   const [editMode, setEditMode] = useState(false);
@@ -11,7 +12,26 @@ export default function VendorIdCardModal({ isOpen, onClose, vendorData, isAdmin
     if (!vendorData) return;
     const getPhoto = (data) => {
       if (!data) return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
-      return data.passportPhoto || data.photo_url || data.photoUrl || data.photo || data.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+      
+      let raw = data.passport_photo || data.passportPhoto || data.photo_url || data.photoUrl || 
+                data.photo || data.avatar || data.aadhar_front_doc || data.aadharFrontDoc || 
+                data.pan_doc || data.panDoc;
+
+      if (!raw) return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+
+      if (typeof raw === 'object' && raw !== null) {
+        raw = raw.url || raw.data || raw.previewUrl || raw.path || '';
+      }
+
+      if (typeof raw === 'string') {
+        if (raw.startsWith('http') || raw.startsWith('data:')) return raw;
+        if (raw.startsWith('/uploads/')) return `${API_BASE_URL}${raw}`;
+        if (raw.startsWith('uploads/')) return `${API_BASE_URL}/${raw}`;
+        if (raw.startsWith('/')) return `${API_BASE_URL}${raw}`;
+        return `${API_BASE_URL}/uploads/${raw}`;
+      }
+
+      return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
     };
 
     setCardData({

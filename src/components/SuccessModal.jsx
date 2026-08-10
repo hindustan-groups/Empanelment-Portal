@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import { printDossier } from '../utils/printDossier';
 import { CATEGORY_SCHEMAS } from '../config/categoryFieldsConfig';
+import { API_BASE_URL } from '../config/api';
 
 export default function SuccessModal({ isOpen, trackingId, formData, onClose }) {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
 
   const allDocDefs = [
     { name: 'PAN Card Copy', keys: ['panDoc', 'pan_doc', 'panDocUrl'], req: 'Mandatory' },
-    { name: 'Aadhaar Card (Front/Back)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc', 'aadharDoc', 'aadhar_doc'], req: 'Mandatory' },
+    { name: 'Aadhaar Card (Front/Back)', keys: ['aadharFrontDoc', 'aadhar_front_doc', 'aadharFront', 'aadharBackDoc', 'aadhar_back_doc', 'aadharDoc', 'aadhar_doc'], req: 'Mandatory' },
     { name: 'Cancelled Cheque / Passbook', keys: ['bankDoc', 'bank_doc', 'bankDocUrl'], req: 'Mandatory' },
     { name: 'GST REG-06 Certificate', keys: ['gstDoc', 'gst_doc', 'gstDocUrl'], req: 'Conditional' },
     { name: 'Work Experience & Certificates', keys: ['expDoc', 'exp_doc', 'expDocUrl'], req: 'Mandatory' },
@@ -102,10 +103,10 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
   const RED  = '#ED1C24';
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem' }}>
       <div
         className="modal-content"
-        style={{ maxWidth: 900, margin: 'auto', padding: '2rem 2.25rem', borderRadius: 20, background: '#FFFFFF', boxShadow: '0 32px 80px rgba(0,0,0,0.22)' }}
+        style={{ maxWidth: 900, width: '100%', maxHeight: '92vh', overflowY: 'auto', margin: 'auto', padding: '1.25rem 1.1rem', borderRadius: 20, background: '#FFFFFF', boxShadow: '0 32px 80px rgba(0,0,0,0.22)', boxSizing: 'border-box' }}
         onClick={(e) => e.stopPropagation()}
       >
 
@@ -200,30 +201,32 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
         <div style={{ fontSize: '0.78rem', fontWeight: 900, color: BLUE, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#EFF6FF', borderLeft: `4px solid ${BLUE}`, borderRadius: '0 6px 6px 0' }}>
           § 1 — Applicant Organization & Discipline Scope
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '0.9rem', fontSize: '0.82rem' }}>
-          <tbody>
-            {[
-              ['Legal Entity Name', <span style={{ gridColumn: '1/-1' }}>{fv(formData?.companyName || formData?.contactName)}</span>, 'colspan'],
-              ['Entity Classification', fv(entityType), 'Primary Discipline', fv(formData?.primaryRole)],
-              ['Empanelment Category', fv(formData?.category), 'NBC Sub-Category', fv(formData?.nbcSubCategory)],
-              ['Contact Person', <>{fv(formData?.contactName)} {formData?.designation && <em style={{ color: '#64748B' }}>({formData.designation})</em>}</>, 'Corporate Email', fv(formData?.email)],
-              ['Mobile No.', fv(formData?.phone), 'City & State', fv(`${formData?.city || ''}, ${formData?.state || ''} ${formData?.pincode ? `- ${formData?.pincode}` : ''}`)],
-              ['Business Address', fv(formData?.address), 'colspan', ''],
-            ].map((row, i) => (
-              <tr key={i}>
-                <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '22%', fontSize: '0.77rem', color: '#0F172A' }}>{row[0]}</td>
-                {row[2] === 'colspan'
-                  ? <td colSpan={3} style={{ border: '1px solid #E2E8F0', padding: '5px 8px' }}>{row[1]}</td>
-                  : <>
-                    <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', width: '28%' }}>{row[1]}</td>
-                    <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '22%', fontSize: '0.77rem', color: '#0F172A' }}>{row[2]}</td>
-                    <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', width: '28%' }}>{row[3]}</td>
-                  </>
-                }
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div style={{ overflowX: 'auto', marginBottom: '0.9rem' }}>
+          <table style={{ width: '100%', minWidth: 500, borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+            <tbody>
+              {[
+                ['Legal Entity Name', <span style={{ gridColumn: '1/-1' }}>{fv(formData?.companyName || formData?.contactName)}</span>, 'colspan'],
+                ['Entity Classification', fv(entityType), 'Primary Discipline', fv(formData?.primaryRole)],
+                ['Empanelment Category', fv(formData?.category), 'NBC Sub-Category', fv(formData?.nbcSubCategory)],
+                ['Contact Person', <>{fv(formData?.contactName)} {formData?.designation && <em style={{ color: '#64748B' }}>({formData.designation})</em>}</>, 'Corporate Email', fv(formData?.email)],
+                ['Mobile No.', fv(formData?.phone), 'City & State', fv(`${formData?.city || ''}, ${formData?.state || ''} ${formData?.pincode ? `- ${formData?.pincode}` : ''}`)],
+                ['Business Address', fv(formData?.address), 'colspan', ''],
+              ].map((row, i) => (
+                <tr key={i}>
+                  <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '22%', fontSize: '0.77rem', color: '#0F172A' }}>{row[0]}</td>
+                  {row[2] === 'colspan'
+                    ? <td colSpan={3} style={{ border: '1px solid #E2E8F0', padding: '5px 8px' }}>{row[1]}</td>
+                    : <>
+                      <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', width: '28%' }}>{row[1]}</td>
+                      <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '22%', fontSize: '0.77rem', color: '#0F172A' }}>{row[2]}</td>
+                      <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', width: '28%' }}>{row[3]}</td>
+                    </>
+                  }
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* § 1.5 — CATEGORY-SPECIFIC STATUTORY CREDENTIALS */}
         {(() => {
@@ -264,34 +267,36 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
                 <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#047857', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#ECFDF5', borderLeft: '4px solid #10B981', borderRadius: '0 6px 6px 0', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span>{catSchema.label} — Category Statutory Licenses &amp; Specifications</span>
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '0.9rem', fontSize: '0.82rem' }}>
-                  <tbody>
-                    {statVal && (
-                      <tr>
-                        <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '35%', fontSize: '0.77rem', color: '#0F172A' }}>
-                          {statLabel}
-                        </td>
-                        <td colSpan={3} style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 800, color: '#0047AB' }}>
-                          {statVal}
-                        </td>
-                      </tr>
-                    )}
-                    {catSchema.customFields && catSchema.customFields.map((cf) => {
-                      const val = formData?.[cf.name];
-                      if (val === undefined || val === null || val === '') return null;
-                      return (
-                        <tr key={cf.name}>
+                <div style={{ overflowX: 'auto', marginBottom: '0.9rem' }}>
+                  <table style={{ width: '100%', minWidth: 500, borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                    <tbody>
+                      {statVal && (
+                        <tr>
                           <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '35%', fontSize: '0.77rem', color: '#0F172A' }}>
-                            {cf.label}
+                            {statLabel}
                           </td>
-                          <td colSpan={3} style={{ border: '1px solid #E2E8F0', padding: '5px 8px' }}>
-                            {cf.type === 'boolean' ? (val ? '✅ Verified & Compliant' : '❌ Not Available') : String(val)}
+                          <td colSpan={3} style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 800, color: '#0047AB' }}>
+                            {statVal}
                           </td>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      )}
+                      {catSchema.customFields && catSchema.customFields.map((cf) => {
+                        const val = formData?.[cf.name];
+                        if (val === undefined || val === null || val === '') return null;
+                        return (
+                          <tr key={cf.name}>
+                            <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '35%', fontSize: '0.77rem', color: '#0F172A' }}>
+                              {cf.label}
+                            </td>
+                            <td colSpan={3} style={{ border: '1px solid #E2E8F0', padding: '5px 8px' }}>
+                              {cf.type === 'boolean' ? (val ? '✅ Verified & Compliant' : '❌ Not Available') : String(val)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </>
             );
           }
@@ -302,28 +307,30 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
         <div style={{ fontSize: '0.78rem', fontWeight: 900, color: BLUE, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#EFF6FF', borderLeft: `4px solid ${BLUE}`, borderRadius: '0 6px 6px 0' }}>
           § 2 — Statutory Tax Identity & Banking Credentials
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '0.9rem', fontSize: '0.82rem' }}>
-          <tbody>
-            {[
-              ['15-Digit GSTIN', fv(formData?.gstin), '10-Digit PAN', fv(formData?.pan)],
-              ['MSME Udyam No.', fv(formData?.msmeNo), 'Bank Account No.', fv(formData?.bankAccount)],
-              ['Bank IFSC Code', fv(formData?.ifsc), 'Bank Name & Branch', fv(formData?.bankName)],
-            ].map((row, i) => (
-              <tr key={i}>
-                <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '22%', fontSize: '0.77rem' }}>{row[0]}</td>
-                <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', width: '28%' }}>{row[1]}</td>
-                <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '22%', fontSize: '0.77rem' }}>{row[2]}</td>
-                <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', width: '28%' }}>{row[3]}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div style={{ overflowX: 'auto', marginBottom: '0.9rem' }}>
+          <table style={{ width: '100%', minWidth: 500, borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+            <tbody>
+              {[
+                ['15-Digit GSTIN', fv(formData?.gstin), '10-Digit PAN', fv(formData?.pan)],
+                ['MSME Udyam No.', fv(formData?.msmeNo), 'Bank Account No.', fv(formData?.bankAccount)],
+                ['Bank IFSC Code', fv(formData?.ifsc), 'Bank Name & Branch', fv(formData?.bankName)],
+              ].map((row, i) => (
+                <tr key={i}>
+                  <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '22%', fontSize: '0.77rem' }}>{row[0]}</td>
+                  <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', width: '28%' }}>{row[1]}</td>
+                  <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', fontWeight: 700, background: '#F8FAFC', width: '22%', fontSize: '0.77rem' }}>{row[2]}</td>
+                  <td style={{ border: '1px solid #E2E8F0', padding: '5px 8px', width: '28%' }}>{row[3]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* § 3 — FINANCIALS */}
         <div style={{ fontSize: '0.78rem', fontWeight: 900, color: BLUE, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#EFF6FF', borderLeft: `4px solid ${BLUE}`, borderRadius: '0 6px 6px 0' }}>
           § 3 — Financial Turnovers & Work Experience
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.6rem', marginBottom: '0.9rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem', marginBottom: '0.9rem' }}>
           {[
             { label: 'FY 2023–24', val: formData?.turnover2023, unit: 'Lakhs' },
             { label: 'FY 2024–25', val: formData?.turnover2024, unit: 'Lakhs' },
@@ -343,12 +350,20 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
         <div style={{ fontSize: '0.78rem', fontWeight: 900, color: BLUE, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#EFF6FF', borderLeft: `4px solid ${BLUE}`, borderRadius: '0 6px 6px 0' }}>
           § 4 — Document Submission Audit Roster
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '0.6rem', marginBottom: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.6rem', marginBottom: '1rem' }}>
           {docRows.map((doc, i) => {
             const rawVal = doc.submitted;
             let fileUrl = null;
             if (typeof rawVal === 'string') fileUrl = rawVal;
             else if (typeof rawVal === 'object' && rawVal !== null) fileUrl = rawVal.url || rawVal.data || rawVal.path || null;
+
+            let fullUrl = fileUrl;
+            if (fileUrl && !fileUrl.startsWith('http') && !fileUrl.startsWith('data:')) {
+              if (fileUrl.startsWith('/uploads/')) fullUrl = `${API_BASE_URL}${fileUrl}`;
+              else if (fileUrl.startsWith('uploads/')) fullUrl = `${API_BASE_URL}/${fileUrl}`;
+              else if (fileUrl.startsWith('/')) fullUrl = `${API_BASE_URL}${fileUrl}`;
+              else fullUrl = `${API_BASE_URL}/uploads/${fileUrl}`;
+            }
 
             return (
               <div key={i} style={{
@@ -368,9 +383,9 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
                   </div>
                 </div>
 
-                {fileUrl && (fileUrl.startsWith('http') || fileUrl.startsWith('data:') || fileUrl.startsWith('/')) ? (
+                {fullUrl ? (
                   <a
-                    href={fileUrl}
+                    href={fullUrl}
                     target="_blank"
                     rel="noreferrer"
                     style={{
@@ -378,7 +393,7 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
                       fontSize: '0.72rem', fontWeight: 800, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem'
                     }}
                   >
-                    <span>🔗 View PDF</span>
+                    <span>🔗 View Doc</span>
                   </a>
                 ) : rawVal ? (
                   <span style={{ fontSize: '0.7rem', color: '#047857', fontWeight: 800 }}>✓ Attached</span>
@@ -392,7 +407,7 @@ export default function SuccessModal({ isOpen, trackingId, formData, onClose }) 
         <div style={{ fontSize: '0.78rem', fontWeight: 900, color: BLUE, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.3rem 0.75rem', background: '#EFF6FF', borderLeft: `4px solid ${BLUE}`, borderRadius: '0 6px 6px 0' }}>
           § 5 — Key Rules & Guidelines (14-Point Corporate Matrix in full print)
         </div>
-        <div style={{ padding: '0.75rem 1rem', borderRadius: 10, border: '1.5px solid #DBEAFE', background: '#F8FAFF', marginBottom: '1rem', display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '0.3rem 1rem' }}>
+        <div style={{ padding: '0.75rem 1rem', borderRadius: 10, border: '1.5px solid #DBEAFE', background: '#F8FAFF', marginBottom: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0.3rem 1rem' }}>
           {[
             'Empanelment valid 2 years from approval date',
             'No work commences without signed Work Order',

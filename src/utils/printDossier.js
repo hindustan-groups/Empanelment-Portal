@@ -6,6 +6,8 @@
  * ═══════════════════════════════════════════════════════════════════
  */
 
+import { API_BASE_URL } from '../config/api';
+
 const HP_BLUE  = '#0047AB';
 const HP_DARK  = '#0B1B3D';
 const HP_RED   = '#ED1C24';
@@ -27,8 +29,15 @@ function docCheck(val) {
   if (typeof val === 'string') srcUrl = val;
   else if (typeof val === 'object' && val !== null) srcUrl = val.url || val.data || val.path || null;
 
-  if (srcUrl && (srcUrl.startsWith('http') || srcUrl.startsWith('data:') || srcUrl.startsWith('/'))) {
-    return `<span style="color:#047857;font-weight:900">✓ ATTACHED</span> &nbsp;·&nbsp; <a href="${srcUrl}" target="_blank" style="color:#0047AB;font-weight:800;text-decoration:underline">🔗 View Document PDF/File</a>`;
+  if (srcUrl) {
+    let fullUrl = srcUrl;
+    if (!srcUrl.startsWith('http') && !srcUrl.startsWith('data:')) {
+      if (srcUrl.startsWith('/uploads/')) fullUrl = `${API_BASE_URL}${srcUrl}`;
+      else if (srcUrl.startsWith('uploads/')) fullUrl = `${API_BASE_URL}/${srcUrl}`;
+      else if (srcUrl.startsWith('/')) fullUrl = `${API_BASE_URL}${srcUrl}`;
+      else fullUrl = `${API_BASE_URL}/uploads/${srcUrl}`;
+    }
+    return `<span style="color:#047857;font-weight:900">✓ ATTACHED</span> &nbsp;·&nbsp; <a href="${fullUrl}" target="_blank" style="color:#0047AB;font-weight:800;text-decoration:underline">🔗 View Document (${srcUrl.split('/').pop()})</a>`;
   }
   return `<span style="color:#047857;font-weight:900">✓ ATTACHED &amp; SUBMITTED</span>`;
 }
