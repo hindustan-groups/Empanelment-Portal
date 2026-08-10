@@ -290,41 +290,41 @@ export default function TrackPage() {
 
         {/* Search Guide & SLA Notice Cards */}
         {!result && !notFound && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.25rem' }}>
             
             {/* Guide Card */}
-            <div style={{ padding: '1.25rem', borderRadius: 14, background: 'rgba(0,71,171,0.04)', border: '1.5px solid rgba(0,71,171,0.2)' }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <HelpCircle style={{ width: 18, height: 18 }} />
+            <div style={{ padding: '0.75rem 0.9rem', borderRadius: 12, background: 'rgba(0,71,171,0.04)', border: '1.5px solid rgba(0,71,171,0.18)' }}>
+              <div style={{ fontSize: '0.825rem', fontWeight: 900, color: '#0047AB', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <HelpCircle style={{ width: 16, height: 16 }} />
                 <span>How to Track Your Empanelment Application:</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem', fontSize: '0.825rem' }}>
-                <div style={{ padding: '0.75rem', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.6rem', fontSize: '0.8rem' }}>
+                <div style={{ padding: '0.5rem 0.65rem', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                   <strong style={{ color: '#0F172A', display: 'block' }}>🆔 Tracking ID Code</strong>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Sequential code starting with HP-EMP-025... issued upon registration.</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Sequential code starting with HP-EMP-025...</span>
                 </div>
-                <div style={{ padding: '0.75rem', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.5rem 0.65rem', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                   <strong style={{ color: '#0F172A', display: 'block' }}>📄 15-Digit GSTIN Number</strong>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>GSTIN entered during registration (e.g. 08HYJPK8847M1ZC).</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>GSTIN entered during registration.</span>
                 </div>
-                <div style={{ padding: '0.75rem', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.5rem 0.65rem', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                   <strong style={{ color: '#0F172A', display: 'block' }}>✉️ Registered Email Address</strong>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Corporate email address registered during onboarding.</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Corporate email address registered.</span>
                 </div>
               </div>
             </div>
 
             {/* SLA Verification TAT Box */}
-            <div style={{ padding: '1rem 1.25rem', borderRadius: 14, background: 'var(--bg-surface)', border: '1px solid var(--border-color)', fontSize: '0.825rem', display: 'flex', alignItems: 'center', justifyBetween: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                <Clock style={{ width: 20, height: 20, color: '#F59E0B' }} />
+            <div style={{ padding: '0.5rem 0.75rem', borderRadius: 12, background: 'var(--bg-surface)', border: '1px solid var(--border-color)', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Clock style={{ width: 16, height: 16, color: '#F59E0B' }} />
                 <div>
                   <strong style={{ color: '#0F172A', display: 'block' }}>Verification Audit SLA: 48 to 72 Working Hours</strong>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>Applications are audited by our Procurement Technical Committee.</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Audited by Technical Procurement Committee.</span>
                 </div>
               </div>
-              <div style={{ padding: '0.35rem 0.75rem', borderRadius: 99, background: 'rgba(16,185,129,0.1)', color: '#047857', fontWeight: 800, fontSize: '0.75rem', border: '1px solid rgba(16,185,129,0.3)' }}>
-                ✓ ISO 9001:2015 Audit Process
+              <div style={{ padding: '0.25rem 0.6rem', borderRadius: 99, background: 'rgba(16,185,129,0.1)', color: '#047857', fontWeight: 800, fontSize: '0.72rem', border: '1px solid rgba(16,185,129,0.3)' }}>
+                ✓ ISO 9001 Audit
               </div>
             </div>
 
@@ -333,43 +333,43 @@ export default function TrackPage() {
 
         {/* NOT FOUND CLEAR ERROR STATE */}
         {notFound && (
-          <div style={{ padding: '1.75rem', borderRadius: 18, backgroundColor: 'rgba(237, 28, 36, 0.05)', border: '1.5px solid rgba(237, 28, 36, 0.3)', marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ width: 42, height: 42, borderRadius: '50%', backgroundColor: 'rgba(237, 28, 36, 0.15)', color: '#ED1C24', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <AlertCircle style={{ width: 24, height: 24 }} />
+          <div style={{ padding: '0.85rem 1rem', borderRadius: 14, backgroundColor: 'rgba(237, 28, 36, 0.05)', border: '1.5px solid rgba(237, 28, 36, 0.25)', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: 'rgba(237, 28, 36, 0.15)', color: '#ED1C24', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <AlertCircle style={{ width: 20, height: 20 }} />
               </div>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ED1C24' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#ED1C24' }}>
                   No Application Record Found for "{searchInput}"
                 </h3>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
-                  We could not find any vendor registration matching this entry in the Hindustan Projects database.
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  We could not find any vendor registration matching this entry in the registry.
                 </p>
               </div>
             </div>
 
-            <div style={{ padding: '1rem', borderRadius: 12, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-              <div style={{ fontWeight: 800, marginBottom: '0.5rem', color: '#0047AB', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <HelpCircle style={{ width: 16, height: 16 }} />
+            <div style={{ padding: '0.5rem 0.75rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.8rem', marginBottom: '0.85rem' }}>
+              <div style={{ fontWeight: 800, marginBottom: '0.35rem', color: '#0047AB', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <HelpCircle style={{ width: 15, height: 15 }} />
                 <span>How to resolve this issue:</span>
               </div>
-              <ul style={{ paddingLeft: '1.25rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-                <li><strong>Tracking ID format:</strong> Ensure valid reference code format (e.g. <code>HP-EMP-025</code>).</li>
-                <li><strong>GSTIN format:</strong> Verify your 15-digit GSTIN (e.g. <code>08HYJPK8847M1ZC</code>).</li>
-                <li><strong>Registered Email:</strong> Make sure you enter the exact corporate email address used during registration.</li>
-                <li><strong>Haven't filed yet?</strong> If you have not submitted the empanelment form, please register below.</li>
+              <ul style={{ paddingLeft: '1.1rem', lineHeight: 1.5, color: 'var(--text-secondary)' }}>
+                <li><strong>Tracking ID format:</strong> Ensure valid reference code (e.g. <code>HP-EMP-025</code>).</li>
+                <li><strong>GSTIN format:</strong> Verify 15-digit GSTIN (e.g. <code>08HYJPK8847M1ZC</code>).</li>
+                <li><strong>Registered Email:</strong> Enter exact corporate email address used.</li>
+                <li><strong>Haven't filed yet?</strong> If not submitted, please register below.</li>
               </ul>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <Link to="/apply" className="btn-accent" style={{ flex: 1, justifyContent: 'center', padding: '0.65rem 1rem' }}>
-                <FilePlus style={{ width: 16, height: 16 }} />
+            <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+              <Link to="/apply" className="btn-accent" style={{ flex: 1, justifyContent: 'center', padding: '0.5rem 0.85rem', fontSize: '0.8rem' }}>
+                <FilePlus style={{ width: 15, height: 15 }} />
                 <span>Submit New Application</span>
               </Link>
               
-              <a href="mailto:industrial@hindustanprojects.in" className="btn-secondary" style={{ flex: 1, justifyContent: 'center', padding: '0.65rem 1rem' }}>
-                <PhoneCall style={{ width: 16, height: 16, color: '#0047AB' }} />
-                <span>Contact Procurement Officer (+91-7597000601)</span>
+              <a href="mailto:industrial@hindustanprojects.in" className="btn-secondary" style={{ flex: 1, justifyContent: 'center', padding: '0.5rem 0.85rem', fontSize: '0.8rem' }}>
+                <PhoneCall style={{ width: 15, height: 15, color: '#0047AB' }} />
+                <span>Contact Officer (+91-7597000601)</span>
               </a>
             </div>
           </div>
@@ -387,35 +387,35 @@ export default function TrackPage() {
                 {/* Status Banner */}
                 <div className="track-status-banner" style={{ background: vs.bgGradient }}>
                   {/* Big status icon */}
-                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: vs.badgeBg, border: `3px solid ${vs.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {vs.icon === 'VERIFIED' && <ShieldCheck style={{ width: 28, height: 28, color: vs.borderColor }} />}
-                    {vs.icon === 'SUSPENDED' && <PauseCircle style={{ width: 28, height: 28, color: vs.borderColor }} />}
-                    {vs.icon === 'TERMINATED' && <Ban style={{ width: 28, height: 28, color: vs.borderColor }} />}
-                    {vs.icon === 'REJECTED' && <XCircle style={{ width: 28, height: 28, color: vs.borderColor }} />}
-                    {vs.icon === 'PENDING' && <Clock style={{ width: 28, height: 28, color: vs.borderColor }} />}
+                  <div style={{ width: 48, height: 48, borderRadius: '50%', background: vs.badgeBg, border: `2.5px solid ${vs.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {vs.icon === 'VERIFIED' && <ShieldCheck style={{ width: 24, height: 24, color: vs.borderColor }} />}
+                    {vs.icon === 'SUSPENDED' && <PauseCircle style={{ width: 24, height: 24, color: vs.borderColor }} />}
+                    {vs.icon === 'TERMINATED' && <Ban style={{ width: 24, height: 24, color: vs.borderColor }} />}
+                    {vs.icon === 'REJECTED' && <XCircle style={{ width: 24, height: 24, color: vs.borderColor }} />}
+                    {vs.icon === 'PENDING' && <Clock style={{ width: 24, height: 24, color: vs.borderColor }} />}
                   </div>
 
                   <div style={{ flex: '1 1 auto', minWidth: 0, wordBreak: 'break-word' }}>
-                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.01em', lineHeight: 1.25, wordBreak: 'break-word' }}>
+                    <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.01em', lineHeight: 1.2, wordBreak: 'break-word' }}>
                       {vs.headline}
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: vs.badgeColor, marginTop: '0.35rem', lineHeight: 1.45, wordBreak: 'break-word' }}>
+                    <div style={{ fontSize: '0.78rem', color: vs.badgeColor, marginTop: '0.2rem', lineHeight: 1.35, wordBreak: 'break-word' }}>
                       {vs.subline}
                     </div>
                   </div>
 
                   {/* Vendor ID pill */}
-                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: 12, padding: '0.45rem 0.85rem', border: `1px solid ${vs.borderColor}`, flexShrink: 0 }}>
-                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: vs.badgeColor, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Vendor ID</div>
-                    <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#FFFFFF', fontSize: '0.95rem', marginTop: 2 }}>{result.id}</div>
+                  <div style={{ textAlign: 'center', background: 'rgba(0,0,0,0.25)', borderRadius: 10, padding: '0.35rem 0.65rem', border: `1px solid ${vs.borderColor}`, flexShrink: 0 }}>
+                    <div style={{ fontSize: '0.58rem', fontWeight: 800, color: vs.badgeColor, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Vendor ID</div>
+                    <div style={{ fontFamily: 'monospace', fontWeight: 900, color: '#FFFFFF', fontSize: '0.88rem', marginTop: 1 }}>{result.id}</div>
                   </div>
                 </div>
 
                 {/* Vendor Details Row */}
-                <div style={{ background: 'var(--bg-card)', padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', borderBottom: `1px solid var(--border-color)` }}>
+                <div style={{ background: 'var(--bg-card)', padding: '0.65rem 0.85rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', borderBottom: `1px solid var(--border-color)` }}>
                   <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-primary)', wordBreak: 'break-word' }}>{result.company}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: '0.25rem 0.5rem', alignItems: 'center' }}>
+                    <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--text-primary)', wordBreak: 'break-word' }}>{result.company}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2, display: 'flex', flexWrap: 'wrap', gap: '0.2rem 0.4rem', alignItems: 'center' }}>
                       <span>GSTIN: <strong style={{ fontFamily: 'monospace' }}>{result.gstin}</strong></span>
                       <span style={{ opacity: 0.5 }}>•</span>
                       <span>Category: <strong>{result.category}</strong></span>
@@ -425,56 +425,56 @@ export default function TrackPage() {
                   </div>
                   {/* Action Buttons */}
                   {result.fullData && (
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: '100%', maxWidth: 'max-content' }}>
-                      <button onClick={() => setShowReceiptModal(true)} className="btn-secondary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.78rem', borderRadius: 8 }}>
-                        <Printer style={{ width: 14, height: 14 }} />
-                        <span>Print Application Dossier</span>
+                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', width: '100%', maxWidth: 'max-content' }}>
+                      <button onClick={() => setShowReceiptModal(true)} className="btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', borderRadius: 6 }}>
+                        <Printer style={{ width: 13, height: 13 }} />
+                        <span>Print Dossier</span>
                       </button>
                     </div>
                   )}
                 </div>
 
                 {/* Scanner Advisory Box */}
-                <div style={{ background: vs.scannerColor, padding: '0.85rem 1.1rem', borderTop: `1.5px solid ${vs.scannerBorder}`, display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
-                  <Shield style={{ width: 18, height: 18, color: '#374151', flexShrink: 0, marginTop: 2 }} />
+                <div style={{ background: vs.scannerColor, padding: '0.5rem 0.75rem', borderTop: `1.5px solid ${vs.scannerBorder}`, display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                  <Shield style={{ width: 16, height: 16, color: '#374151', flexShrink: 0, marginTop: 1 }} />
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>📱 Scanner Advisory — Verification System</div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1F2937', lineHeight: 1.45, wordBreak: 'break-word' }}>{vs.scannerMsg}</div>
+                    <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 1 }}>📱 Scanner Advisory — Verification System</div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1F2937', lineHeight: 1.35, wordBreak: 'break-word' }}>{vs.scannerMsg}</div>
                   </div>
                 </div>
               </div>
 
               {/* SHA-256 Hash + Timeline — below the hero */}
-              <div style={{ padding: '1.25rem 1.1rem', borderRadius: 16, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+              <div style={{ padding: '0.75rem 0.85rem', borderRadius: 14, backgroundColor: 'var(--bg-surface)', border: '1.5px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
 
                 {/* Cryptographic SHA-256 Hash Ribbon */}
-                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 10, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.73rem', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', wordBreak: 'break-all' }}>
+                <div style={{ padding: '0.35rem 0.65rem', borderRadius: 8, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', fontSize: '0.7rem', fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem', wordBreak: 'break-all' }}>
                   <span style={{ wordBreak: 'break-all', overflowWrap: 'anywhere' }}>🔒 SHA-256 Hash: <strong style={{ wordBreak: 'break-all' }}>{result.hashSignature}</strong></span>
-                  <span style={{ color: '#047857', fontWeight: 800, flexShrink: 0 }}>✓ Verified Audit Trail</span>
+                  <span style={{ color: '#047857', fontWeight: 800, flexShrink: 0, fontSize: '0.68rem' }}>✓ Verified Audit</span>
                 </div>
 
                 {/* 5-Stage Visual Progress Timeline */}
-                <h4 style={{ fontSize: '1rem', fontWeight: 900, marginBottom: '1rem', color: '#0047AB' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 900, marginBottom: '0.75rem', color: '#0047AB' }}>
                   5-Stage Vendor Audit &amp; Classification Pipeline:
                 </h4>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   {result.steps.map((st, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
                       <div style={{
-                        width: 32, height: 32, borderRadius: '50%',
+                        width: 28, height: 28, borderRadius: '50%',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '0.8rem', fontWeight: 900,
+                        fontSize: '0.75rem', fontWeight: 900,
                         backgroundColor: st.done ? '#10B981' : st.active ? '#0047AB' : 'var(--border-color)',
                         color: 'white',
-                        boxShadow: st.active ? '0 0 14px rgba(0,71,171,0.45)' : 'none',
+                        boxShadow: st.active ? '0 0 10px rgba(0,71,171,0.35)' : 'none',
                         flexShrink: 0
                       }}>
                         {st.done ? '✓' : idx + 1}
                       </div>
-                      <div style={{ flex: 1, paddingTop: 2, minWidth: 0, wordBreak: 'break-word' }}>
-                        <div style={{ fontSize: '0.88rem', fontWeight: 900, color: st.active ? '#0047AB' : st.done ? '#047857' : 'var(--text-primary)', lineHeight: 1.35, wordBreak: 'break-word' }}>{st.label}</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.2rem', lineHeight: 1.4, wordBreak: 'break-word' }}>{st.desc}</div>
+                      <div style={{ flex: 1, paddingTop: 1, minWidth: 0, wordBreak: 'break-word' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 900, color: st.active ? '#0047AB' : st.done ? '#047857' : 'var(--text-primary)', lineHeight: 1.3, wordBreak: 'break-word' }}>{st.label}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.1rem', lineHeight: 1.35, wordBreak: 'break-word' }}>{st.desc}</div>
                       </div>
                     </div>
                   ))}
@@ -486,25 +486,25 @@ export default function TrackPage() {
         })()}
 
         {/* Corporate Support Card at Bottom */}
-        <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', fontSize: '0.825rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <PhoneCall style={{ width: 18, height: 18, color: '#0047AB' }} />
+        <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', fontSize: '0.8rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <PhoneCall style={{ width: 16, height: 16, color: '#0047AB', flexShrink: 0 }} />
             <div>
               <strong style={{ display: 'block', color: '#0F172A' }}>Helpline Phone</strong>
               <span style={{ color: 'var(--text-muted)' }}>+91-7597000601</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <Mail style={{ width: 18, height: 18, color: '#ED1C24' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Mail style={{ width: 16, height: 16, color: '#ED1C24', flexShrink: 0 }} />
             <div>
               <strong style={{ display: 'block', color: '#0F172A' }}>Corporate Email</strong>
               <span style={{ color: 'var(--text-muted)' }}>industrial@hindustanprojects.in</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <MapPin style={{ width: 18, height: 18, color: '#64748B' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <MapPin style={{ width: 16, height: 16, color: '#64748B', flexShrink: 0 }} />
             <div>
               <strong style={{ display: 'block', color: '#0F172A' }}>Corporate Address</strong>
               <span style={{ color: 'var(--text-muted)' }}>Bhopal Ganj, Bhilwara (Raj.) - 311001</span>
