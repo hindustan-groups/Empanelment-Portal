@@ -10,7 +10,7 @@ import { CATEGORY_SCHEMAS } from '../config/categoryFieldsConfig';
 import { API_BASE_URL } from '../config/api';
 
 /* ─── Image Compression Helper (Canvas HD Resizer) ─────────────────── */
-const compressImage = (file, maxWidth = 1920, maxHeight = 1920, quality = 0.82) => {
+const compressImage = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.70) => {
   return new Promise((resolve) => {
     if (!file || !file.type || !file.type.startsWith('image/')) {
       return resolve(file); // Return original PDF or non-image file
@@ -337,7 +337,82 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     signatoryPlace: '',
   });
 
-  const [errors, setErrors] = useState({});
+  const [uploadingField, setUploadingField] = useState(null);
+
+  const handleFile = async (field, file) => {
+    if (!file) {
+      setFormData(prev => ({ ...prev, [field]: null }));
+      if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
+      return;
+    }
+
+    setUploadingField(field);
+
+    // Auto-compress mobile camera photos to ~150KB before sending
+    let processedFile = file;
+    if (file.type && file.type.startsWith('image/')) {
+      try {
+        processedFile = await compressImage(file);
+      } catch (err) {
+        console.warn('Image compression fallback:', err);
+      }
+    }
+
+    const fileSizeMB = (processedFile.size / (1024 * 1024)).toFixed(1);
+    const maxSingleFileMB = 15; // 15MB limit per individual file
+
+    if (processedFile.size > maxSingleFileMB * 1024 * 1024) {
+      const errText = `⚠️ File "${processedFile.name}" is too large (${fileSizeMB} MB). Maximum size allowed per file is ${maxSingleFileMB} MB. Please compress or select a smaller photo/PDF.`;
+      alert(errText);
+      setErrors(prev => ({ ...prev, [field]: errText }));
+      setUploadingField(null);
+      return;
+    }
+
+    // Extension & Type Validation
+    const allowedExts = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
+    const ext = '.' + processedFile.name.split('.').pop().toLowerCase();
+    if (!allowedExts.includes(ext) && processedFile.type && !processedFile.type.startsWith('image/') && !processedFile.type.includes('pdf')) {
+      const errText = `⚠️ Unsupported file format (${ext}). Allowed formats: PDF, JPG, PNG, WEBP, HEIC.`;
+      alert(errText);
+      setErrors(prev => ({ ...prev, [field]: errText }));
+      setUploadingField(null);
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(processedFile);
+
+    // Instant Single File Pre-Upload (Sends ~150KB payload to server)
+    let uploadedUrl = null;
+    try {
+      const singleFd = new FormData();
+      singleFd.append(field, processedFile);
+      const uploadRes = await fetch(`${API_BASE_URL}/api/empanelment/upload-doc`, {
+        method: 'POST',
+        body: singleFd
+      });
+      const uploadData = await uploadRes.json();
+      if (uploadRes.ok && uploadData.success && uploadData.url) {
+        uploadedUrl = uploadData.url;
+      }
+    } catch (e) {
+      console.warn('Pre-upload notice:', e);
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [field]: {
+        name: processedFile.name || 'document.pdf',
+        size: processedFile.size || 0,
+        type: processedFile.type || 'application/pdf',
+        previewUrl,
+        url: uploadedUrl,
+        rawFile: processedFile
+      }
+    }));
+    setUploadingField(null);
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
+  };
 
   /* Category / Role Mode Mapping */
   const CAT_TO_SCHEMA_MAP = {
@@ -464,77 +539,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
     });
   };
 
-  const handleFile = async (field, file) => {
-    if (!file) {
-      setFormData(prev => ({ ...prev, [field]: null }));
-      if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
-      return;
-    }
 
-    // Auto-compress mobile camera photos to ~400KB before storing
-    let processedFile = file;
-    if (file.type && file.type.startsWith('image/')) {
-      try {
-        processedFile = await compressImage(file);
-      } catch (err) {
-        console.warn('Image compression fallback:', err);
-      }
-    }
-
-    const fileSizeMB = (processedFile.size / (1024 * 1024)).toFixed(1);
-    const maxSingleFileMB = 15; // 15MB limit per individual file
-
-    if (processedFile.size > maxSingleFileMB * 1024 * 1024) {
-      const errText = `⚠️ File "${processedFile.name}" is too large (${fileSizeMB} MB). Maximum size allowed per file is ${maxSingleFileMB} MB. Please compress or select a smaller photo/PDF.`;
-      alert(errText);
-      setErrors(prev => ({ ...prev, [field]: errText }));
-      return;
-    }
-
-    // Extension & Type Validation
-    const allowedExts = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'];
-    const ext = '.' + processedFile.name.split('.').pop().toLowerCase();
-    if (!allowedExts.includes(ext) && processedFile.type && !processedFile.type.startsWith('image/') && !processedFile.type.includes('pdf')) {
-      const errText = `⚠️ Unsupported file format (${ext}). Allowed formats: PDF, JPG, PNG, WEBP, HEIC.`;
-      alert(errText);
-      setErrors(prev => ({ ...prev, [field]: errText }));
-      return;
-    }
-
-    // Cumulative Total Size Validation (Max 50MB across all form attachments)
-    let currentTotalSize = processedFile.size;
-    Object.keys(formData).forEach(k => {
-      if (k !== field && formData[k] && typeof formData[k] === 'object' && formData[k].size) {
-        currentTotalSize += formData[k].size;
-      }
-    });
-
-    const totalMB = (currentTotalSize / (1024 * 1024)).toFixed(1);
-    if (currentTotalSize > 50 * 1024 * 1024) {
-      const errText = `⚠️ Total size of all uploaded documents (${totalMB} MB) exceeds maximum combined limit of 50 MB. Please compress your files before attaching.`;
-      alert(errText);
-      setErrors(prev => ({ ...prev, [field]: errText }));
-      return;
-    }
-
-    const previewUrl = URL.createObjectURL(processedFile);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData(prev => ({
-        ...prev,
-        [field]: {
-          name: processedFile.name || 'document.pdf',
-          size: processedFile.size || 0,
-          type: processedFile.type || 'application/pdf',
-          previewUrl,
-          data: reader.result,
-          rawFile: processedFile
-        }
-      }));
-    };
-    reader.readAsDataURL(processedFile);
-    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
-  };
 
   const handleGstVerified = ({ gstin, pan }) => {
     setFormData(prev => ({ ...prev, gstin: gstin || prev.gstin, pan: pan || prev.pan }));
@@ -813,16 +818,16 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
       const fd = new FormData();
       Object.entries(payload).forEach(([k, v]) => {
         if (!v) return;
-        if (v && v.rawFile instanceof File) {
-          fd.append(k, v.rawFile);
-        } else if (v instanceof File) {
-          fd.append(k, v);
-        } else if (typeof v === 'object') {
+        if (typeof v === 'object' && !(v instanceof File)) {
           if (v.url) {
             fd.append(k, v.url);
+          } else if (v.rawFile instanceof File) {
+            fd.append(k, v.rawFile);
           } else if (v.name) {
             fd.append(k, v.name);
           }
+        } else if (v instanceof File) {
+          fd.append(k, v);
         } else if (v !== null && v !== undefined) {
           fd.append(k, v);
         }
@@ -1844,46 +1849,53 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
                   const doc = formData[field];
                   const hasErr = Boolean(errors[field]);
 
+                  const isUploading = uploadingField === field;
+
                   return (
-                    <div key={field} className="upload-card" style={{ border: hasErr ? '1.5px solid #ED1C24' : '1px solid var(--border-color)', backgroundColor: hasErr ? 'rgba(237,28,36,0.02)' : 'var(--bg-surface)', padding: '1rem', borderRadius: 14 }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: '#0F172A' }}>{label}</span>
+                    <div key={field} className="upload-card" style={{ border: hasErr ? '1.5px solid #ED1C24' : '1px solid var(--border-color)', backgroundColor: hasErr ? 'rgba(237,28,36,0.02)' : 'var(--bg-surface)', padding: '0.9rem', borderRadius: 14, overflow: 'hidden', boxSizing: 'border-box' }}>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.35rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem' }}>
+                        <span style={{ color: '#0F172A', wordBreak: 'break-word', flex: '1 1 auto' }}>{label}</span>
                         {isRequired ? (
-                          <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#ED1C24', backgroundColor: 'rgba(237,28,36,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6 }}>MANDATORY *</span>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#ED1C24', backgroundColor: 'rgba(237,28,36,0.1)', padding: '0.15rem 0.5rem', borderRadius: 6, flexShrink: 0 }}>MANDATORY *</span>
                         ) : (
-                          <span style={{ fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.72rem' }}>(Optional)</span>
+                          <span style={{ fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.72rem', flexShrink: 0 }}>(Optional)</span>
                         )}
                       </div>
 
                       {/* Clear Guidance & Purpose Note */}
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0 0 0.65rem 0', lineHeight: 1.45 }}>
+                      <p style={{ fontSize: '0.73rem', color: 'var(--text-muted)', margin: '0 0 0.65rem 0', lineHeight: 1.4 }}>
                         💡 <strong>Why & How:</strong> {helpText}
                       </p>
 
-                      {doc ? (
+                      {isUploading ? (
+                        <div style={{ padding: '0.6rem 0.85rem', borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', fontSize: '0.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <Loader2 style={{ width: 16, height: 16 }} className="animate-spin" />
+                          <span>Compressing HD &amp; Uploading File...</span>
+                        </div>
+                      ) : doc ? (
                         <div>
                           <div style={{ fontSize: '0.79rem', color: '#10B981', fontWeight: 700, marginBottom: '0.45rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             ✓ {doc.name}
                           </div>
-                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                             <button
                               type="button"
                               onClick={() => setPreviewFile({ name: `${label} (${doc.name})`, url: doc.previewUrl, type: doc.type })}
-                              style={{ padding: '0.3rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', background: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                              style={{ padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, color: '#0047AB', background: 'rgba(0,71,171,0.08)', border: '1px solid rgba(0,71,171,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
                             >
                               👁️ Preview Document
                             </button>
                             <button
                               type="button"
                               onClick={() => handleFile(field, null)}
-                              style={{ padding: '0.3rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700, color: '#ED1C24', background: 'rgba(237,28,36,0.08)', border: '1px solid rgba(237,28,36,0.2)', cursor: 'pointer' }}
+                              style={{ padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700, color: '#ED1C24', background: 'rgba(237,28,36,0.08)', border: '1px solid rgba(237,28,36,0.2)', cursor: 'pointer' }}
                             >
                               ✕ Remove
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <label className="upload-btn" style={{ padding: '0.6rem 1rem' }}>
+                        <label className="upload-btn" style={{ padding: '0.6rem 0.85rem', width: '100%', justifyContent: 'center', boxSizing: 'border-box' }}>
                           <UploadCloud style={{ width: 15, height: 15 }} />
                           <span>Choose & Upload {label.split(' ')[0]}</span>
                           <input type="file" accept={accept} onChange={(e) => handleFile(field, e.target.files[0])} style={{ display: 'none' }} />

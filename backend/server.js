@@ -682,6 +682,21 @@ const handleFileUpload = (req, res, next) => {
   });
 };
 
+app.post('/api/empanelment/upload-doc', handleFileUpload, async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, error: 'No file provided for upload.' });
+    }
+    const fileItem = req.files[0];
+    const cUrl = await uploadFileToCloudinary(fileItem.path, fileItem.mimetype);
+    const finalUrl = cUrl || fileItem.filename;
+    res.json({ success: true, url: finalUrl, filename: fileItem.filename });
+  } catch (err) {
+    console.error('Single file upload error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.post('/api/empanelment/submit', submitLimiter, handleFileUpload, async (req, res) => {
   try {
     const data = req.body;
