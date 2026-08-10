@@ -619,7 +619,10 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     try {
       const res = await fetch(`${API_BASE_URL}/api/tenders`);
       const data = await res.json();
-      if (data.success) setTenders(data.data || []);
+      if (data.success && Array.isArray(data.data)) {
+        setTenders(data.data);
+        localStorage.setItem('hipro_tenders', JSON.stringify(data.data));
+      }
     } catch {}
   };
 
@@ -655,7 +658,11 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
     const isCurrentlyActive = (currentStatus || 'ACTIVE').toUpperCase() === 'ACTIVE';
     const newStatus = isCurrentlyActive ? 'CLOSED' : 'ACTIVE';
 
-    setTenders(prev => prev.map(t => t.id === id ? { ...t, status: newStatus } : t));
+    setTenders(prev => {
+      const updated = prev.map(t => t.id === id ? { ...t, status: newStatus } : t);
+      try { localStorage.setItem('hipro_tenders', JSON.stringify(updated)); } catch {}
+      return updated;
+    });
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/tenders/${id}/status`, {
@@ -678,7 +685,11 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
   const handleDeleteTender = async (id, title) => {
     if (!window.confirm(`Are you sure you want to permanently delete tender "${title}"?`)) return;
 
-    setTenders(prev => prev.filter(t => t.id !== id));
+    setTenders(prev => {
+      const updated = prev.filter(t => t.id !== id);
+      try { localStorage.setItem('hipro_tenders', JSON.stringify(updated)); } catch {}
+      return updated;
+    });
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/tenders/${id}`, {

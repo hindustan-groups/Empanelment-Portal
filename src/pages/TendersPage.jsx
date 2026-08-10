@@ -63,7 +63,7 @@ export default function TendersPage() {
       try {
         const res = await fetch(`${backendUrl}/api/tenders`);
         const data = await res.json();
-        if (data.success && data.data && data.data.length > 0) {
+        if (data.success && Array.isArray(data.data)) {
           const mapped = data.data.map(t => ({
             id: t.tender_no || `HIPRO-TND-${t.id}`,
             title: t.title,
