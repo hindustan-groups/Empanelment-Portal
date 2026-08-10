@@ -408,21 +408,34 @@ export default function VendorDossierA4Modal({ vendor, onClose, onUpdateStatus, 
             </div>
 
             {/* Category-Specific Statutory Credentials */}
-            {vendor.category_specific_data && typeof vendor.category_specific_data === 'object' && Object.keys(vendor.category_specific_data).length > 0 && (
-              <>
-                <SectionHead icon={ShieldCheck} title="Trade & Category Compliance Specs" color="#F472B6" />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem' }}>
-                  {Object.entries(vendor.category_specific_data).map(([k, v]) => (
-                    <InfoCard
-                      key={k}
-                      label={k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                      value={typeof v === 'boolean' ? (v ? '✓ Available & Verified' : '✗ Not Available') : String(v)}
-                      color="#F472B6"
-                    />
-                  ))}
-                </div>
-              </>
-            )}
+            {vendor.category_specific_data && typeof vendor.category_specific_data === 'object' && (() => {
+              const nonDocEntries = Object.entries(vendor.category_specific_data).filter(([k, v]) => {
+                if (!v) return false;
+                const lk = k.toLowerCase();
+                if (lk.includes('doc') || lk.includes('file') || lk.includes('pdf') || lk.includes('photo') || lk.includes('signature') || lk.includes('url')) return false;
+                if (typeof v === 'string' && (v.startsWith('http') || v.startsWith('data:') || v.includes('uploads/') || v.match(/\.(pdf|jpg|jpeg|png|webp)($|\?)/i))) return false;
+                if (typeof v === 'object') return false;
+                return true;
+              });
+
+              if (nonDocEntries.length === 0) return null;
+
+              return (
+                <>
+                  <SectionHead icon={ShieldCheck} title="Trade & Category Compliance Specs" color="#F472B6" />
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem' }}>
+                    {nonDocEntries.map(([k, v]) => (
+                      <InfoCard
+                        key={k}
+                        label={k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                        value={typeof v === 'boolean' ? (v ? '✓ Available & Verified' : '✗ Not Available') : String(v)}
+                        color="#F472B6"
+                      />
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
 
             <SectionHead icon={DollarSign} title="Financial Capacity & Order Benchmarks" color="#34D399" />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>

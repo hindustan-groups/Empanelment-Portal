@@ -3076,13 +3076,13 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
         {showAllActionsModal && selectedVendor && (
           <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(6px)',
+            backgroundColor: 'rgba(5, 10, 25, 0.88)', backdropFilter: 'blur(10px)',
             zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
           }}>
             <div style={{
-              backgroundColor: 'var(--bg-card)', borderRadius: 24, maxWidth: 680, width: '100%',
-              maxHeight: '90vh', overflowY: 'auto', border: '1.5px solid #4338ca',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.5)'
+              backgroundColor: '#0F172A', borderRadius: 24, maxWidth: 680, width: '100%',
+              maxHeight: '90vh', overflowY: 'auto', border: '1.5px solid rgba(99,102,241,0.4)',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.7)', color: '#F8FAFC'
             }}>
               {/* Modal Header */}
               <div style={{
@@ -3106,7 +3106,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                 </div>
                 <button
                   onClick={() => setShowAllActionsModal(false)}
-                  style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', width: 32, height: 32, borderRadius: 99, cursor: 'pointer', fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', width: 32, height: 32, borderRadius: 99, cursor: 'pointer', fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   ✕
                 </button>
@@ -3114,58 +3114,58 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
               {/* Modal Body */}
               <div style={{ padding: '1.5rem 1.75rem' }}>
-                <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.82rem', color: '#94A3B8', fontWeight: 600 }}>
                   Choose an administrative workflow action for this vendor application:
                 </p>
 
                 {/* Section 1: Verification & Audit Documents */}
                 <div style={{ marginBottom: '1.25rem' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#4338ca', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#818CF8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <FileText style={{ width: 14, height: 14 }} />
                     <span>1. Verification &amp; Dossier Documents</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.65rem' }}>
                     <button
                       onClick={() => { setShowAllActionsModal(false); setShowDossierModal(true); }}
-                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(0,71,171,0.08)', border: '1.5px solid #0047AB', color: '#0047AB', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
+                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(59,130,246,0.12)', border: '1.5px solid #3B82F6', color: '#60A5FA', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
                     >
                       <FileText style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <div>
                         <div>📄 View Full A4 Dossier</div>
-                        <div style={{ fontSize: '0.68rem', opacity: 0.8, fontWeight: 500 }}>Review uploaded files &amp; data</div>
+                        <div style={{ fontSize: '0.68rem', color: '#93C5FD', fontWeight: 500 }}>Review uploaded files &amp; data</div>
                       </div>
                     </button>
 
                     <button
                       onClick={() => { printDossier(selectedVendor); }}
-                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(71,85,105,0.08)', border: '1.5px solid #475569', color: '#334155', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
+                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(148,163,184,0.12)', border: '1.5px solid #64748B', color: '#CBD5E1', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
                     >
                       <Printer style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <div>
                         <div>🖨️ Direct Print A4 Dossier</div>
-                        <div style={{ fontSize: '0.68rem', opacity: 0.8, fontWeight: 500 }}>Instant PDF / Printer Trigger</div>
+                        <div style={{ fontSize: '0.68rem', color: '#94A3B8', fontWeight: 500 }}>Instant PDF / Printer Trigger</div>
                       </div>
                     </button>
 
                     <button
                       onClick={() => { setShowAllActionsModal(false); setShowAdminIdCardModal(true); }}
-                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(79,70,229,0.08)', border: '1.5px solid #4f46e5', color: '#4f46e5', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
+                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(99,102,241,0.12)', border: '1.5px solid #6366F1', color: '#A5B4FC', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
                     >
                       <UserCheck style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <div>
                         <div>🪪 Smart PVC ID Card</div>
-                        <div style={{ fontSize: '0.68rem', opacity: 0.8, fontWeight: 500 }}>Generate Official QR Card</div>
+                        <div style={{ fontSize: '0.68rem', color: '#C7D2FE', fontWeight: 500 }}>Generate Official QR Card</div>
                       </div>
                     </button>
 
                     <button
                       onClick={() => { setShowAllActionsModal(false); setShowAdminCertModal(true); }}
-                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(16,185,129,0.08)', border: '1.5px solid #10b981', color: '#047857', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
+                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(16,185,129,0.12)', border: '1.5px solid #10B981', color: '#34D399', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
                     >
                       <ShieldCheck style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <div>
                         <div>📜 Empanelment Certificate</div>
-                        <div style={{ fontSize: '0.68rem', opacity: 0.8, fontWeight: 500 }}>Official Certificate PDF</div>
+                        <div style={{ fontSize: '0.68rem', color: '#A7F3D0', fontWeight: 500 }}>Official Certificate PDF</div>
                       </div>
                     </button>
                   </div>
@@ -3173,14 +3173,14 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
                 {/* Section 2: Approval Status Decisions */}
                 <div style={{ marginBottom: '1.25rem' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#34D399', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <CheckCircle2 style={{ width: 14, height: 14 }} />
                     <span>2. Executive Approval Decisions (Auto Email Credentials)</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.65rem' }}>
                     <button
                       onClick={() => { setShowAllActionsModal(false); setShowApproveModal(true); }}
-                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: '#16a34a', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left', boxShadow: '0 4px 12px rgba(22,163,74,0.2)' }}
+                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: '#16a34a', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left', boxShadow: '0 4px 12px rgba(22,163,74,0.3)' }}
                     >
                       <CheckCircle2 style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <div>
@@ -3202,7 +3202,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
                     <button
                       onClick={() => { setShowAllActionsModal(false); handleUpdateStatus(selectedVendor.tracking_id || selectedVendor.trackingId, 'Approved Class-C', 'Verification Complete', selectedVendor.admin_remarks); }}
-                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: '#475569', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
+                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: '#334155', color: '#fff', border: 'none', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
                     >
                       <CheckCircle2 style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <div>
@@ -3213,7 +3213,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
                     <button
                       onClick={() => { setShowAllActionsModal(false); handleUpdateStatus(selectedVendor.tracking_id || selectedVendor.trackingId, 'Provisional Approved', 'Pending Verification', selectedVendor.admin_remarks); }}
-                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(217,119,6,0.1)', border: '1.5px solid #d97706', color: '#b45309', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
+                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(217,119,6,0.15)', border: '1.5px solid #d97706', color: '#FCD34D', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
                     >
                       <Clock style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <div>
@@ -3226,7 +3226,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
                 {/* Section 3: Review, Resubmit, Reject & Direct Email */}
                 <div style={{ marginBottom: '1.25rem' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#F87171', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <AlertTriangle style={{ width: 14, height: 14 }} />
                     <span>3. Review, Re-Submission &amp; Vendor Inquiry</span>
                   </div>
@@ -3260,25 +3260,25 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
                         setReplySubject(`Empanelment Application Update — ${selectedVendor.tracking_id || selectedVendor.trackingId}`);
                         setReplyText(`Dear ${selectedVendor.contact_name || 'Vendor'},\n\nThis is an official communication regarding your empanelment application (${selectedVendor.tracking_id || selectedVendor.trackingId}) with Hindustan Projects.\n\nBest regards,\nProcurement Desk\nHindustan Projects`);
                       }}
-                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(0,71,171,0.08)', border: '1.5px solid #0047AB', color: '#0047AB', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
+                      style={{ padding: '0.75rem 1rem', borderRadius: 12, background: 'rgba(59,130,246,0.12)', border: '1.5px solid #3B82F6', color: '#60A5FA', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textAlign: 'left' }}
                     >
                       <Mail style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <div>
                         <div>✉️ Send Custom Email</div>
-                        <div style={{ fontSize: '0.68rem', opacity: 0.8, fontWeight: 500 }}>Direct email to vendor</div>
+                        <div style={{ fontSize: '0.68rem', color: '#93C5FD', fontWeight: 500 }}>Direct email to vendor</div>
                       </div>
                     </button>
                   </div>
                 </div>
 
                 {/* Section 4: Critical Administrative Deletion */}
-                <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
                   <button
                     onClick={() => {
                       setShowAllActionsModal(false);
                       handleDeleteVendor(selectedVendor.tracking_id || selectedVendor.trackingId, selectedVendor.company_name || selectedVendor.companyName);
                     }}
-                    style={{ padding: '0.65rem 1rem', borderRadius: 10, background: '#fef2f2', border: '1.5px solid #dc2626', color: '#dc2626', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                    style={{ padding: '0.65rem 1rem', borderRadius: 10, background: 'rgba(220,38,38,0.15)', border: '1.5px solid #dc2626', color: '#FCA5A5', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                   >
                     <Trash2 style={{ width: 15, height: 15 }} />
                     <span>🗑️ Delete Application Permanently</span>
@@ -3286,8 +3286,7 @@ export default function AdminPage({ isAuthenticated, onLogout }) {
 
                   <button
                     onClick={() => setShowAllActionsModal(false)}
-                    className="btn-secondary"
-                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.82rem' }}
+                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.82rem', background: 'rgba(255,255,255,0.08)', color: '#CBD5E1', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, cursor: 'pointer', fontWeight: 800 }}
                   >
                     Close Menu
                   </button>
