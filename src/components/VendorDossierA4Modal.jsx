@@ -5,6 +5,7 @@ import {
   ChevronRight, Download, AlertCircle, Image, File
 } from 'lucide-react';
 import { printDossier, getEmpanelmentMode } from '../utils/printDossier';
+import { API_BASE_URL } from '../config/api';
 
 /* ─────────────────────────────────────────────────────────────────────────────
    VendorDossierA4Modal  v3
