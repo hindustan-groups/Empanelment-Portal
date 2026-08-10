@@ -510,6 +510,108 @@ app.post('/api/empanelment/admin/send-test-email', async (req, res) => {
 });
 
 
+// ─── HELPER: FORMAT VENDOR RECORD WITH SNAKE_CASE & CAMELCASE ALIASES ───
+function formatVendorRecord(vendor) {
+  if (!vendor) return null;
+  let categoryData = {};
+  if (vendor.category_specific_data) {
+    try {
+      categoryData = typeof vendor.category_specific_data === 'string'
+        ? JSON.parse(vendor.category_specific_data)
+        : vendor.category_specific_data;
+    } catch (e) {}
+  }
+
+  const photo = vendor.passport_photo || vendor.aadhar_front_doc || vendor.pan_doc || null;
+
+  return {
+    ...vendor,
+    id: vendor.id,
+    tracking_id: vendor.tracking_id,
+    trackingId: vendor.tracking_id,
+    hash_signature: vendor.hash_signature,
+    hashSignature: vendor.hash_signature,
+    category: vendor.category,
+    primary_role: vendor.primary_role,
+    primaryRole: vendor.primary_role,
+    specialization: vendor.specialization,
+    skills_details: vendor.skills_details,
+    skillsDetails: vendor.skills_details,
+    team_size: vendor.team_size,
+    teamSize: vendor.team_size,
+    company_name: vendor.company_name,
+    companyName: vendor.company_name,
+    company: vendor.company_name,
+    entity_type: vendor.entity_type,
+    entityType: vendor.entity_type,
+    est_year: vendor.est_year,
+    estYear: vendor.est_year,
+    owner_name: vendor.owner_name,
+    ownerName: vendor.owner_name,
+    owner_contact: vendor.owner_contact,
+    ownerContact: vendor.owner_contact,
+    contact_name: vendor.contact_name,
+    contactName: vendor.contact_name,
+    designation: vendor.designation,
+    email: vendor.email,
+    phone: vendor.phone,
+    address: vendor.address,
+    city: vendor.city,
+    state: vendor.state,
+    pincode: vendor.pincode,
+    gstin: vendor.gstin,
+    pan: vendor.pan,
+    aadhar_no: vendor.aadhar_no,
+    aadharNo: vendor.aadhar_no,
+    msme_no: vendor.msme_no,
+    msmeNo: vendor.msme_no,
+    bank_account: vendor.bank_account,
+    bankAccount: vendor.bank_account,
+    bank_name: vendor.bank_name,
+    bankName: vendor.bank_name,
+    ifsc: vendor.ifsc,
+    turnover_2023: vendor.turnover_2023,
+    turnover2023: vendor.turnover_2023,
+    turnover_2024: vendor.turnover_2024,
+    turnover2024: vendor.turnover_2024,
+    turnover_2025: vendor.turnover_2025,
+    turnover2025: vendor.turnover_2025,
+    largest_order: vendor.largest_order,
+    largestOrder: vendor.largest_order,
+    existing_empanels: vendor.existing_empanels,
+    existingEmpanels: vendor.existing_empanels,
+    gst_doc: vendor.gst_doc,
+    gstDoc: vendor.gst_doc,
+    pan_doc: vendor.pan_doc,
+    panDoc: vendor.pan_doc,
+    bank_doc: vendor.bank_doc,
+    bankDoc: vendor.bank_doc,
+    exp_doc: vendor.exp_doc,
+    expDoc: vendor.exp_doc,
+    signatory_name: vendor.signatory_name,
+    signatoryName: vendor.signatory_name,
+    signature_data: vendor.signature_data,
+    signatureData: vendor.signature_data,
+    passport_photo: photo,
+    passportPhoto: photo,
+    photo_url: photo,
+    photoUrl: photo,
+    status: vendor.status || 'Under Verification',
+    stage: vendor.current_stage || 'Financial Committee Review',
+    current_stage: vendor.current_stage || 'Financial Committee Review',
+    admin_remarks: vendor.admin_remarks || '',
+    adminRemarks: vendor.admin_remarks || '',
+    ceo_signed: vendor.ceo_signed || 0,
+    ceo_signed_date: vendor.ceo_signed_date || null,
+    submitted_at: vendor.submitted_at,
+    submittedDate: vendor.submitted_at,
+    approved_at: vendor.approved_at,
+    approvedAt: vendor.approved_at,
+    category_specific_data: categoryData,
+    ...categoryData
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────
 // POST /api/empanelment/vendor/login
 // Vendor Login — checks vendor record & approval status in SQLite DB
@@ -566,31 +668,12 @@ app.post('/api/empanelment/vendor/login', (req, res) => {
       return res.status(401).json({ success: false, error: 'Invalid Vendor Password. Please check password sent in approval email.' });
     }
 
-    // Success — return vendor session
+    // Success — return complete real vendor session
+    const formatted = formatVendorRecord(vendor);
     res.json({
       success: true,
       message: 'Vendor Login Successful ✅',
-      vendor: {
-        id: vendor.id,
-        tracking_id: vendor.tracking_id,
-        trackingId: vendor.tracking_id,
-        companyName: vendor.company_name,
-        company_name: vendor.company_name,
-        contactName: vendor.contact_name,
-        contact_name: vendor.contact_name,
-        email: vendor.email,
-        phone: vendor.phone,
-        category: vendor.category,
-        gstin: vendor.gstin,
-        pan: vendor.pan,
-        status: vendor.status,
-        stage: vendor.current_stage,
-        passportPhoto: vendor.passport_photo,
-        passport_photo: vendor.passport_photo,
-        hash_signature: vendor.hash_signature,
-        submitted_at: vendor.submitted_at,
-        approved_at: vendor.approved_at
-      }
+      vendor: formatted
     });
   });
 });
@@ -614,56 +697,10 @@ app.get('/api/empanelment/application/:trackingId', (req, res) => {
       return res.status(404).json({ success: false, error: 'Application not found.' });
     }
 
-    let categoryData = {};
-    if (vendor.category_specific_data) {
-      try { categoryData = JSON.parse(vendor.category_specific_data); } catch (e) {}
-    }
-
+    const formatted = formatVendorRecord(vendor);
     res.json({
       success: true,
-      data: {
-        tracking_id: vendor.tracking_id,
-        trackingId: vendor.tracking_id,
-        category: vendor.category,
-        primaryRole: vendor.primary_role,
-        specialization: vendor.specialization,
-        skillsDetails: vendor.skills_details,
-        teamSize: vendor.team_size,
-        companyName: vendor.company_name,
-        entityType: vendor.entity_type,
-        estYear: vendor.est_year,
-        ownerName: vendor.owner_name,
-        ownerContact: vendor.owner_contact,
-        contactName: vendor.contact_name,
-        designation: vendor.designation,
-        email: vendor.email,
-        phone: vendor.phone,
-        address: vendor.address,
-        city: vendor.city,
-        state: vendor.state,
-        pincode: vendor.pincode,
-        gstin: vendor.gstin,
-        pan: vendor.pan,
-        aadharNo: vendor.aadhar_no,
-        msmeNo: vendor.msme_no,
-        bankAccount: vendor.bank_account,
-        bankName: vendor.bank_name,
-        ifsc: vendor.ifsc,
-        turnover2023: vendor.turnover_2023,
-        turnover2024: vendor.turnover_2024,
-        turnover2025: vendor.turnover_2025,
-        largestOrder: vendor.largest_order,
-        existingEmpanels: vendor.existing_empanels,
-        gstDoc: vendor.gst_doc,
-        panDoc: vendor.pan_doc,
-        bankDoc: vendor.bank_doc,
-        expDoc: vendor.exp_doc,
-        signatoryName: vendor.signatory_name,
-        status: vendor.status,
-        adminRemarks: vendor.admin_remarks,
-        missingDetails: vendor.missing_details,
-        ...categoryData
-      }
+      data: formatted
     });
   });
 });
@@ -817,6 +854,7 @@ app.post('/api/empanelment/submit', submitLimiter, handleFileUpload, async (req,
     let panDocUrl = typeof data.panDoc === 'string' ? data.panDoc : (data.panDocUrl || null);
     let bankDocUrl = typeof data.bankDoc === 'string' ? data.bankDoc : (data.bankDocUrl || null);
     let expDocUrl = typeof data.expDoc === 'string' ? data.expDoc : (data.expDocUrl || null);
+    let passportPhotoUrl = typeof data.passportPhoto === 'string' ? data.passportPhoto : (data.passport_photo || data.photoUrl || null);
 
     if (req.files && Array.isArray(req.files)) {
       for (const fileItem of req.files) {
@@ -828,6 +866,7 @@ app.post('/api/empanelment/submit', submitLimiter, handleFileUpload, async (req,
         else if (field === 'panDoc') panDocUrl = finalUrl;
         else if (field === 'bankDoc') bankDocUrl = finalUrl;
         else if (field === 'expDoc') expDocUrl = finalUrl;
+        else if (field === 'passportPhoto' || field === 'passport_photo' || field === 'photoDoc' || field === 'photo') passportPhotoUrl = finalUrl;
         else {
           categorySpecificData[field] = finalUrl;
         }
@@ -848,7 +887,7 @@ app.post('/api/empanelment/submit', submitLimiter, handleFileUpload, async (req,
       panDocUrl,
       bankDocUrl,
       expDocUrl,
-      data.signatoryName || data.contactName, data.signature_data || data.signature || null, data.passport_photo || null,
+      data.signatoryName || data.contactName, data.signature_data || data.signature || null, passportPhotoUrl || data.passport_photo || data.passportPhoto || data.photoUrl || null,
       categorySpecificDataJson, clientIp, submittedAt
     ];
 
@@ -1068,29 +1107,10 @@ app.get('/api/empanelment/status/:trackingId', (req, res) => {
     if (err || !row) {
       return res.status(404).json({ success: false, error: 'Application Reference ID or Record not found.' });
     }
+    const formatted = formatVendorRecord(row);
     res.json({
       success: true,
-      data: {
-        id: row.tracking_id,
-        tracking_id: row.tracking_id,
-        hash: row.hash_signature,
-        hash_signature: row.hash_signature,
-        company: row.company_name,
-        company_name: row.company_name,
-        contact_name: row.contact_name,
-        email: row.email,
-        phone: row.phone,
-        category: row.category,
-        gstin: row.gstin,
-        pan: row.pan,
-        status: row.status,
-        stage: row.current_stage,
-        current_stage: row.current_stage,
-        submittedDate: row.submitted_at,
-        submitted_at: row.submitted_at,
-        passportPhoto: row.passport_photo,
-        photo_url: row.passport_photo
-      }
+      data: formatted
     });
   });
 });
@@ -1102,22 +1122,7 @@ app.get('/api/empanelment/status/:trackingId', (req, res) => {
 app.get('/api/empanelment/admin/applications', adminAuthMiddleware, (req, res) => {
   db.all(`SELECT * FROM vendors ORDER BY id DESC`, [], (err, rows) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
-    const parsed = rows.map(r => {
-      let parsedCategoryData = null;
-      if (r.category_specific_data) {
-        try {
-          parsedCategoryData = typeof r.category_specific_data === 'string'
-            ? JSON.parse(r.category_specific_data)
-            : r.category_specific_data;
-        } catch {
-          parsedCategoryData = null;
-        }
-      }
-      return {
-        ...r,
-        category_specific_data: parsedCategoryData
-      };
-    });
+    const parsed = rows.map(r => formatVendorRecord(r));
     res.json({ success: true, count: parsed.length, data: parsed });
   });
 });

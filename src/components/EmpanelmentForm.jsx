@@ -1837,6 +1837,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
 
               <div className="form-grid-2">
                 {[
+                  ['passportPhoto',  'Signatory Passport / Profile Photo', '.jpg,.png,.jpeg', false, 'Clear frontal passport size photo of company owner / authorized signatory. Printed on Smart PVC ID Card & Empanelment Dossier.'],
                   ['panDoc',         'PAN Card Copy',                    '.pdf,.jpg,.png,.jpeg', true,  'Income Tax Dept PAN Card. Required for statutory tax identity & TDS processing. Upload clear front side photo/PDF.'],
                   ['aadharFrontDoc', 'Aadhaar Card — Front Side',        '.pdf,.jpg,.png,.jpeg', true,  'UIDAI Govt National ID (Front). Required for authorized signatory identity verification. Upload photo showing Aadhaar number & photo.'],
                   ['aadharBackDoc',  'Aadhaar Card — Back Side',         '.pdf,.jpg,.png,.jpeg', true,  'UIDAI Govt National ID (Back). Required for registered workplace/residential address verification. Upload photo showing complete address & PIN.'],

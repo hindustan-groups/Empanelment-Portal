@@ -119,7 +119,7 @@ export default function VendorDashboardPage() {
     ];
   });
 
-  // Session Authentication
+  // Session Authentication & Real-time VPS Sync
   useEffect(() => {
     const session = localStorage.getItem('hipro_vendor_session');
     if (!session) {
@@ -128,12 +128,21 @@ export default function VendorDashboardPage() {
     }
     try {
       const parsed = JSON.parse(session);
-      const allApps = JSON.parse(localStorage.getItem('hipro_vps_applications') || '[]');
-      const match = allApps.find(app => app.tracking_id === parsed.tracking_id || app.gstin === parsed.gstin);
-      if (match) {
-        setVendor({ ...parsed, ...match });
-      } else {
-        setVendor(parsed);
+      setVendor(parsed);
+
+      // Immediately fetch latest 100% full real vendor application record from live VPS database
+      const tid = parsed.tracking_id || parsed.trackingId || parsed.id;
+      if (tid) {
+        fetch(`${API_BASE_URL}/api/empanelment/application/${tid}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.success && data.data) {
+              const fullVendor = { ...parsed, ...data.data };
+              setVendor(fullVendor);
+              localStorage.setItem('hipro_vendor_session', JSON.stringify(fullVendor));
+            }
+          })
+          .catch(() => {});
       }
     } catch {
       navigate('/vendor-login');
@@ -1157,25 +1166,43 @@ export default function VendorDashboardPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '0.75rem' }}>
               {[
-                { title: 'GST Registration Certificate (REG-06)', status: 'VERIFIED', file: vendor.gst_doc || 'gst_cert.pdf', date: 'Valid FY 2026-27' },
-                { title: 'Permanent Account Number (PAN Card)', status: 'VERIFIED', file: vendor.pan_doc || 'pan_card.pdf', date: 'Govt Tax ID' },
-                { title: 'Bank Cheque / Mandate Form', status: 'VERIFIED', file: vendor.bank_doc || 'cheque.pdf', date: vendor.bank_name || 'HDFC Bank Ltd' },
-                { title: 'Technical Capability & Work Experience', status: 'AUDITED', file: vendor.exp_doc || 'experience.pdf', date: 'Procurement Audit' },
-              ].map((d, idx) => (
-                <div key={idx} style={{ padding: '0.85rem 1rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                    <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#047857', backgroundColor: 'rgba(16,185,129,0.1)', padding: '0.1rem 0.35rem', borderRadius: 4 }}>
-                      {d.status}
-                    </span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{d.date}</span>
+                { title: 'Signatory Passport / Profile Photo', status: vendor.passport_photo ? 'UPLOADED' : 'PENDING', file: vendor.passport_photo, date: 'Profile Photo' },
+                { title: 'GST Registration Certificate (REG-06)', status: vendor.gst_doc ? 'VERIFIED' : 'EXEMPTED / NIL', file: vendor.gst_doc, date: 'Valid FY 2026-27' },
+                { title: 'Permanent Account Number (PAN Card)', status: vendor.pan_doc ? 'VERIFIED' : 'PENDING', file: vendor.pan_doc, date: 'Govt Tax ID' },
+                { title: 'Aadhaar Card (Front Side)', status: vendor.aadhar_front_doc ? 'VERIFIED' : 'PENDING', file: vendor.aadhar_front_doc, date: 'UIDAI Govt ID' },
+                { title: 'Aadhaar Card (Back Side)', status: vendor.aadhar_back_doc ? 'VERIFIED' : 'PENDING', file: vendor.aadhar_back_doc, date: 'Address Verification' },
+                { title: 'Bank Cheque / Mandate Form', status: vendor.bank_doc ? 'VERIFIED' : 'PENDING', file: vendor.bank_doc, date: vendor.bank_name || 'Bank Account Proof' },
+                { title: 'Technical Capability & Work Experience', status: vendor.exp_doc ? 'AUDITED' : 'OPTIONAL', file: vendor.exp_doc, date: 'Procurement Audit' },
+              ].map((d, idx) => {
+                const getDocUrl = (raw) => {
+                  if (!raw) return '#';
+                  if (raw.startsWith('http') || raw.startsWith('data:')) return raw;
+                  if (raw.startsWith('/uploads/')) return `${API_BASE_URL}${raw}`;
+                  if (raw.startsWith('uploads/')) return `${API_BASE_URL}/${raw}`;
+                  return `${API_BASE_URL}/uploads/${raw}`;
+                };
+                const fileUrl = getDocUrl(d.file);
+
+                return (
+                  <div key={idx} style={{ padding: '0.85rem 1rem', borderRadius: 8, backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: d.file ? '#047857' : '#64748B', backgroundColor: d.file ? 'rgba(16,185,129,0.1)' : 'rgba(100,116,139,0.1)', padding: '0.1rem 0.35rem', borderRadius: 4 }}>
+                        {d.status}
+                      </span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{d.date}</span>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 4 }}>{d.title}</div>
+                    {d.file ? (
+                      <a href={fileUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.725rem', color: '#0047AB', marginTop: 6, display: 'inline-flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 700 }}>
+                        <FileText style={{ width: 13, height: 13 }} />
+                        <span>View Verified Document ↗</span>
+                      </a>
+                    ) : (
+                      <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)', marginTop: 4 }}>No document file attached</div>
+                    )}
                   </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: 4 }}>{d.title}</div>
-                  <div style={{ fontSize: '0.725rem', color: '#0047AB', marginTop: 4, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <FileText style={{ width: 12, height: 12 }} />
-                    <span>{d.file}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -1569,14 +1596,8 @@ export default function VendorDashboardPage() {
         <SuccessModal
           isOpen={showCertificateModal}
           onClose={() => setShowCertificateModal(false)}
-          trackingId={vendor.tracking_id}
-          formData={{
-            companyName: vendor.company_name,
-            gstin: vendor.gstin,
-            category: vendor.category,
-            status: vendor.status || 'Approved Class-A',
-            submitted_at: vendor.submitted_at || new Date().toISOString()
-          }}
+          trackingId={vendor.tracking_id || vendor.trackingId}
+          formData={vendor}
         />
       )}
 
