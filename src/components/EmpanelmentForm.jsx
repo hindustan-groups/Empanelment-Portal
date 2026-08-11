@@ -338,6 +338,7 @@ export default function EmpanelmentForm({ category, onFormSubmit }) {
   });
 
   const [uploadingField, setUploadingField] = useState(null);
+  const [errors, setErrors] = useState({});
 
   const handleFile = async (field, file) => {
     if (!file) {
