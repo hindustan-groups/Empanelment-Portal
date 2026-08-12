@@ -23,12 +23,21 @@ import PrivacyPage from './pages/PrivacyPage';
 import VerifyPassPage from './pages/VerifyPassPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-// Auto Scroll To Top Component on Route Navigation
+// Auto Scroll To Top + GA4 Page View Tracker on Route Change
 function ScrollToTop() {
   const { pathname } = useLocation();
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+
+    // GA4: Track page view on every React route change
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_path: pathname,
+        page_location: window.location.href,
+        page_title: document.title
+      });
+    }
   }, [pathname]);
 
   return null;
@@ -194,6 +203,24 @@ function MainAppLayout() {
     setSubmittedId(trackingCode);
     setLastSubmittedData({ ...formData, tracking_id: trackingCode, submitted_at: newApplication.submitted_at });
     setIsSuccessOpen(true);
+
+    // GA4: Track form submission as a conversion event
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'vendor_registration_submit', {
+        event_category: 'Empanelment',
+        event_label: formData?.category || 'general',
+        tracking_id: trackingCode,
+        vendor_category: formData?.category || 'general',
+        company_name: formData?.companyName || 'Unknown',
+        value: 1
+      });
+      // Also fire standard GA4 'generate_lead' conversion
+      window.gtag('event', 'generate_lead', {
+        currency: 'INR',
+        value: 1,
+        lead_source: 'Empanelment Form'
+      });
+    }
   };
 
   return (
