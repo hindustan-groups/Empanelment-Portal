@@ -13,4 +13,4 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-Sitemap: https://empanel.hindustanprojects.in/sitemap.xml
+Sitemap: https://empanelment.hindustanprojects.in/sitemap.xml
